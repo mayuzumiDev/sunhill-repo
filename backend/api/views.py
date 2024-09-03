@@ -7,10 +7,10 @@ def validate_credentials(request, username, password):
     user = authenticate(request=request, username=username, password=password)
 
     print("\nValidating Credentials...");
-    print("\nUser object:", user)
 
     if user is not None and user.is_superuser:
         print("\nValid Credentials...");
+        print("\nUser object:", user)
         login(request, user)
         return True
     else:

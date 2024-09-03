@@ -3,7 +3,6 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "../styles/Admin_Login.css";
 
-// Function to get the CSRF token from the cookie
 function getCookie(name) {
   var cookieValue = null;
   if (document.cookie && document.cookie !== "") {
@@ -22,6 +21,7 @@ function getCookie(name) {
 function Admin_Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   const api = axios.create({
@@ -58,6 +58,7 @@ function Admin_Login() {
         navigate("/admin/interface/", { replace: true });
       } else {
         console.log("Login failed");
+        setError("Please check if your username and password are correct.");
       }
     } catch (error) {
       console.error("Error logging in:", error.message);
@@ -86,6 +87,10 @@ function Admin_Login() {
             required
           />
         </div>
+        <button type="button" className="forgot-pwd-bttn">
+          Forgot Password?
+        </button>
+        {error && <p className="error-message">{error}</p>}
         <button type="submit" className="login-bttn">
           Login
         </button>
