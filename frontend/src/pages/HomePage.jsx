@@ -19,7 +19,7 @@ import {
 } from "@fortawesome/free-brands-svg-icons";
 import { Link, Element } from "react-scroll";
 import { Fade, Slide, Zoom } from "react-awesome-reveal";
-import "../styles/Home_Page.css";
+import "../styles/HomePage.css";
 import { stack as Menu } from "react-burger-menu";
 
 const branches = [
@@ -53,7 +53,7 @@ const branches = [
   },
 ];
 
-const Home_Page = () => {
+const HomePage = () => {
   const [navbarSolid, setNavbarSolid] = useState(false);
   const [darkMode, setDarkMode] = useState(() => {
     const storedDarkMode = localStorage.getItem("darkMode");
@@ -494,4 +494,4 @@ const Home_Page = () => {
   );
 };
 
-export default Home_Page;
+export default HomePage;

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import "../styles/Admin_Login.css";
+import axiosInstance from "../utils/axiosInstance";
+import "../styles/AdminLogin.css";
 
 function getCookie(name) {
   var cookieValue = null;
@@ -18,15 +18,11 @@ function getCookie(name) {
   return cookieValue;
 }
 
-function Admin_Login() {
+function AdminLogin() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-
-  const api = axios.create({
-    baseURL: "http://127.0.0.1:8000",
-  });
 
   const login = async (e) => {
     e.preventDefault();
@@ -35,7 +31,7 @@ function Admin_Login() {
       const csrfToken = getCookie("csrftoken");
       console.log("CSRF token:", csrfToken);
 
-      const response = await api.post(
+      const response = await axiosInstance.post(
         "/api/admin/login/",
         {
           username,
@@ -99,4 +95,4 @@ function Admin_Login() {
   );
 }
 
-export default Admin_Login;
+export default AdminLogin;

@@ -37,4 +37,3 @@ def admin_login(request):
     else:
         return JsonResponse({'success': False, "message": "Invalid request method"}, status=405)
 
-    
