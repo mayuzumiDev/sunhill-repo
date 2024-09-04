@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../utils/authContext";
 import axiosInstance from "../utils/axiosInstance";
 import "../styles/AdminLogin.css";
 
@@ -22,6 +23,7 @@ function AdminLogin() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
+  const { setIsLoggedIn } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const login = async (e) => {
@@ -50,6 +52,7 @@ function AdminLogin() {
       console.log("Response Data:", response.data);
 
       if (response.data.success) {
+        setIsLoggedIn(true);
         console.log("Login successful");
         navigate("/admin/interface/", { replace: true });
       } else {

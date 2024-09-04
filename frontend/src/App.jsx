@@ -3,16 +3,23 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import AdminLogin from "./pages/AdminLogin";
 import AdminInterface from "./pages/AdminInterface";
+import { AuthProvider } from "./utils/authContext";
+import AdminRoute from "./components/AdminRoute";
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/admin/login/" element={<AdminLogin />} />
-        <Route path="/admin/interface/" element={<AdminInterface />} />
-      </Routes>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/admin/login/" element={<AdminLogin />} />
+          <Route
+            path="/admin/interface/"
+            element={<AdminRoute component={AdminInterface} />}
+          />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
 
