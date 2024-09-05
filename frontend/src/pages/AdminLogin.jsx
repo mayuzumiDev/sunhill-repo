@@ -2,22 +2,8 @@ import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../utils/authContext";
 import axiosInstance from "../utils/axiosInstance";
+import { generateCsrfToken, getCookie, setCsrfToken } from "../utils/csrfUtils";
 import "../styles/AdminLogin.css";
-
-function getCookie(name) {
-  var cookieValue = null;
-  if (document.cookie && document.cookie !== "") {
-    var cookies = document.cookie.split(";");
-    for (var i = 0; i < cookies.length; i++) {
-      var cookie = cookies[i].trim();
-      if (cookie.substring(0, name.length + 1) === name + "=") {
-        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-        break;
-      }
-    }
-  }
-  return cookieValue;
-}
 
 function AdminLogin() {
   const [username, setUsername] = useState("");
@@ -26,11 +12,14 @@ function AdminLogin() {
   const { setIsLoggedIn } = useContext(AuthContext);
   const navigate = useNavigate();
 
+  const csrfToken = generateCsrfToken();
+  setCsrfToken(csrfToken);
+
   const login = async (e) => {
     e.preventDefault();
     console.log("Calling login with:", username, password);
     try {
-      const csrfToken = getCookie("csrftoken");
+      const token = getCookie("csrftoken");
       console.log("CSRF token:", csrfToken);
 
       const response = await axiosInstance.post(
@@ -41,8 +30,8 @@ function AdminLogin() {
         },
         {
           headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": csrfToken,
+            "Content-Type": "application/json, charset=UTF-8",
+            "X-CSRFToken": token,
           },
           timeout: 10000,
         }
