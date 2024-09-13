@@ -1,9 +1,13 @@
 import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../utils/authContext";
-import axiosInstance from "../utils/axiosInstance";
-import { generateCsrfToken, getCookie, setCsrfToken } from "../utils/csrfUtils";
-import "../styles/AdminLogin.css";
+import { AuthContext } from "../../utils/authContext";
+import axiosInstance from "../../utils/axiosInstance";
+import {
+  generateCsrfToken,
+  getCookie,
+  setCsrfToken,
+} from "../../utils/csrfUtils";
+import "../../styles/AdminLogin.css";
 
 function AdminLogin() {
   const [username, setUsername] = useState("");

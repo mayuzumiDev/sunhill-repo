@@ -1,8 +1,8 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import HomePage from "./pages/HomePage";
-import AdminLogin from "./pages/AdminLogin";
-import AdminInterface from "./pages/AdminInterface";
+import AdminLogin from "./pages/admin/AdminLogin";
+import AdminInterface from "./pages/admin/AdminInterface";
 import { AuthProvider } from "./utils/authContext";
 import AdminRoute from "./components/AdminRoute";
 
@@ -15,7 +15,8 @@ function App() {
           <Route path="/admin/login/" element={<AdminLogin />} />
           <Route
             path="/admin/interface/"
-            element={<AdminRoute component={AdminInterface} />}
+            //element={<AdminRoute component={AdminInterface} />}
+            element={<AdminInterface />}
           />
         </Routes>
       </Router>
