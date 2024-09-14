@@ -116,6 +116,8 @@ const LoginPageContent = () => {
               }}
             >
               <Button
+                component={RouterLink}
+                to="/login/teacher/"
                 fullWidth
                 variant="contained"
                 color="success"
@@ -168,6 +170,8 @@ const LoginPageContent = () => {
               </Button>
 
               <Button
+                component={RouterLink}
+                to="/login/parent/"
                 fullWidth
                 variant="contained"
                 color="warning"
