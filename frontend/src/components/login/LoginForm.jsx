@@ -13,7 +13,7 @@ function LoginForm({ title, subtitle }) {
         <div className="mb-4">
           <label
             className="block text-gray-700 text-sm font-semibold font-montserrat mb-2"
-            for="username"
+            htmlFor="username"
           >
             Username
           </label>
@@ -26,7 +26,7 @@ function LoginForm({ title, subtitle }) {
         <div className="mb-4">
           <label
             className="block text-gray-700 text-sm font-semibold font-montserrat mb-2"
-            for="password"
+            htmlFor="password"
           >
             Password
           </label>
