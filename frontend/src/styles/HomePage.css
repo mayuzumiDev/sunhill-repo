@@ -21,7 +21,7 @@ body {
   align-items: center;
   z-index: 1000;
   background-color: transparent;
-  backdrop-filter: blur(5px);
+  backdrop-filter: blur(3px);
   box-shadow: none;
   transition: background-color 0.3s ease;
 }
@@ -53,8 +53,65 @@ body {
 }
 /*dark mode*/
 .dark {
-  background-color: #121212;
+  background-color: #181818;
   color: #e7ecec;
+}
+
+.dark .programsec {
+  background-color: #121212;
+  color: #333;
+}
+
+.dark .progTitle {
+  color: #fff;
+}
+
+.dark .branch-p {
+  color: #fff;
+}
+
+.dark .wave-background {
+  position: relative;
+  width: 100%;
+  height: 150px;
+  top: 319px;
+  overflow: hidden;
+  line-height: 0;
+  z-index: 2;
+}
+
+.dark.login-main::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("/public/assets/supplies.png");
+  background-size: cover;
+  background-position: center;
+  opacity: 0.4;
+  z-index: -1;
+}
+
+.dark .login-main {
+  background-image: url("/public/assets/supplies.png"),
+    linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.5));
+  background-size: cover;
+  background-position: center;
+  background-blend-mode: darken; /* Blends the image with the gradient */
+  flex: 1 1;
+  height: 100vh; /* Ensure it covers the full height */
+}
+
+.dark .wave-background .waves {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.dark .wave-background .waves path {
+  fill: #181818; /* Dark mode wave color */
 }
 
 .dark .navbar {
@@ -143,6 +200,10 @@ body {
   animation: fadeIn 1s ease-in-out;
 }
 
+.dark .video-wrapper {
+  z-index: 2;
+}
+
 .dark .home::after {
   content: "";
   position: absolute;
@@ -161,6 +222,9 @@ body {
   pointer-events: none;
 }
 
+.dark .home p {
+  color: #eae9e9;
+}
 .dark .banner {
   color: #e7ecec;
 }
@@ -235,6 +299,74 @@ body {
     transform: translateY(-10px);
   }
 }
+
+/* src/components/Loader.css */
+.loader-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: #f0f4f8; /* Optional: background color for the loader screen */
+}
+
+.sunhill-loading {
+  display: flex;
+}
+
+.letter {
+  font-size: 3rem;
+  font-weight: bold;
+  margin: 0 2px;
+  animation: pulse 1s infinite;
+}
+
+.fbName {
+  text-decoration: none;
+  color: #050505;
+  cursor: pointer;
+}
+
+/* Color specific styles */
+.letter-s {
+  color: #f26025;
+}
+
+.letter-u {
+  color: #f68920;
+}
+
+.letter-n {
+  color: #81c244;
+}
+
+.letter-h {
+  color: #47b5e4;
+}
+
+.letter-i {
+  color: #1875ba;
+}
+
+.letter-l1 {
+  color: #653093;
+}
+
+.letter-l2 {
+  color: #d91c5e;
+}
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.7;
+  }
+}
+
 /* Banner styles */
 .banner {
   color: #0c0c0c;
@@ -338,20 +470,49 @@ body {
 .menu-toggle.open .hamburger span:nth-child(3) {
   transform: translateY(-7px) rotate(-45deg);
 }
+
 /* Home section */
 .home {
-  background-image: url("../assets/images/kids.jpg");
-  background-size: cover;
-  background-position: center;
   position: relative;
-  z-index: 0;
+  z-index: 1;
   min-height: 100vh;
   width: 100%;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   text-align: center;
   color: #fff;
+  top: 70px;
+}
+
+.video-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.background-video {
+  width: 120%;
+  height: auto;
+  object-fit: cover;
+  position: relative;
+  top: -10%;
+  left: -10%;
+}
+
+.home-banner-content {
+  bottom: 70px;
+  position: relative;
+  z-index: 2;
+  color: #fff;
+  text-align: center;
+  padding: 50px 20px;
+  transition: transform 0.3s ease-out;
 }
 
 .home h1 {
@@ -364,35 +525,84 @@ body {
 .home p {
   font-size: 20px;
   color: rgba(255, 255, 255, 0.9);
+  text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.5);
   max-width: 600px;
   margin: 20px auto;
 }
 
-.home-banner-content {
+.wave-background {
   position: relative;
-  z-index: 2;
-  color: #fff;
-  text-align: center;
-  padding: 50px 20px;
-  transition: transform 0.3s ease-out;
+  width: 100%;
+  height: 150px;
+  top: 535px;
+  overflow: hidden;
+  line-height: 0;
 }
 
-.home::after {
-  content: "";
+.wave-background2 {
+  position: relative;
+  width: 105.2%;
+  height: 122px;
+  overflow: hidden;
+  top: 120px;
+  right: 75px;
+  line-height: 0;
+}
+
+.wave-background2 svg {
   position: absolute;
   top: 0;
-  left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(
-    to bottom right,
-    rgba(76, 175, 80, 0.7),
-    rgba(33, 150, 243, 0.7),
-    rgba(156, 39, 176, 0.7),
-    rgba(255, 152, 0, 0.7)
-  );
-  z-index: 1;
-  pointer-events: none;
+  transform: rotate(180deg);
+}
+
+.wave-background .waves {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.wave-background .waves path {
+  fill: #fff; /* You can change this to any color you prefer */
+}
+
+.gradient-text {
+  display: inline-flex;
+  margin-right: 16px;
+  margin-left: 16px;
+}
+
+.letter1 {
+  color: #f26025;
+}
+
+.letter2 {
+  color: #f68920;
+}
+
+.letter3 {
+  color: #81c244;
+}
+
+.letter4 {
+  color: #47b5e4;
+}
+
+.letter5 {
+  color: #1875ba;
+}
+
+.letter6 {
+  color: #653093;
+}
+
+.letter7 {
+  color: #d91c5e;
+}
+
+.monte {
+  color: #81c244;
 }
 
 /* Call-to-action button */
@@ -418,25 +628,27 @@ body {
   margin-top: 7px;
 }
 
+.about {
+  background-color: #eef6fd;
+}
 .about .section-content {
   margin: 0 auto;
   text-align: center;
-  max-width: 1200px; /* Center and constrain the width of the section content */
-  padding: 40px 20px; /* Add padding for better spacing */
+  max-width: 1200px;
+  padding: 50px 20px;
 }
 
 .about .about-items {
   display: flex;
-  flex-wrap: nowrap; /* Ensure items display in a single line */
+  flex-wrap: nowrap;
   justify-content: space-between;
-  padding-bottom: 20px; /* Add some bottom padding to accommodate scroll bar */
-  gap: 20px; /* Add gap between items */
+  padding-bottom: 20px;
+  gap: 20px;
 }
 
 .about .about-item {
-  flex: 1 0 200px; /* Flex-grow, flex-shrink, flex-basis */
-  margin: 10px;
-  padding: 20px;
+  flex: 1 0 200px;
+  padding: 20px 32px;
   background-color: #f9f9f9;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -445,16 +657,16 @@ body {
 }
 
 .about .about-item:hover {
-  transform: translateY(-10px); /* Lift the item on hover */
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Enhance shadow on hover */
+  transform: translateY(-10px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
 .about-item img {
   width: 100%;
-  max-width: 200px; /* Adjust this value to control the maximum width */
+  max-width: 200px;
   height: auto;
   display: block;
-  margin: 0 auto 20px; /* Center the image and add some bottom margin */
+  margin: 0 auto 20px;
 }
 
 .about .about-item h3 {
@@ -475,12 +687,6 @@ body {
   padding: 80px 20px;
 }
 
-.contact {
-  max-width: 800px;
-  margin: 0 auto;
-  text-align: center;
-}
-
 .section-content h2 {
   font-size: 36px;
   margin-bottom: 20px;
@@ -493,14 +699,14 @@ body {
 }
 .special-identification {
   background-color: #f5f5f5;
-  padding: 40px 0;
+  padding: 70px 0;
 }
 
 .special-identification h2 {
   font-size: 40px;
   color: #08aae0;
-  text-align: center; /* Align the heading to the left */
-  margin-left: 40px; /* Adjust margin for h2 */
+  text-align: center;
+  margin-left: 40px;
 }
 
 .special-identification-content {
@@ -530,7 +736,7 @@ body {
   list-style-type: none;
   padding: 0;
   margin-top: 40px;
-  margin-left: 120px; /* Remove default margin */
+  margin-left: 120px;
 }
 
 .special-identification-text ul li {
@@ -552,10 +758,10 @@ body {
 }
 
 .special-identification-image img {
-  max-width: 80%; /* Make the image larger */
+  max-width: 80%;
   border-radius: 10px;
-  transform: perspective(1000px) rotateY(15deg); /* Apply a 3D effect */
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4); /* Add a shadow for depth */
+  transform: perspective(1000px) rotateY(15deg);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
 }
 
 .cta-button-special {
@@ -575,44 +781,17 @@ body {
   color: #fff;
 }
 
+.dark .special-h {
+  color: #f1f6f6;
+}
+
+.dark .special-ed {
+  color: #b9b9b9;
+}
+
 /* Contact Info */
-.contact-info {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 20px;
-  background-color: #f8f9fa;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  text-align: center;
-}
-
-.contact-info h3 {
-  margin-bottom: 20px;
-  font-size: 24px;
-  color: #333;
-}
-
-.contact-item {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 15px;
-  color: #333;
-}
-
-.contact-item p {
-  margin: 0 0 0 10px;
-}
-
-.contact-item a {
-  color: #007bff;
-  text-decoration: none;
-}
-
-.contact-item a:hover {
-  text-decoration: underline;
+.dark .contact-h2 {
+  color: #f0f4f8;
 }
 
 /* Footer styles */
@@ -722,6 +901,8 @@ Note: Beware of modifying this element as it can break the animations - you shou
   background: #373a47;
   padding: 2.5em 1.5em 0;
   font-size: 1.15em;
+  height: 1200% !important;
+  overflow: hidden !important;
 }
 
 .bm-menu .login-btn {
@@ -787,48 +968,10 @@ Note: Beware of modifying this element as it can break the animations - you shou
 }
 
 /* General Contact Section Styles */
-.contact {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 4rem 31rem; /* Add some padding for spacing */
-  background-color: #f9f9f9; /* Light background for better contrast */
-}
 
 .dark .contact {
   background-color: #1a202c;
   color: #050505;
-}
-
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 1rem; /* Add some padding inside the container */
-  width: 100%;
-}
-
-.heading {
-  font-size: 2.5rem;
-  font-weight: bold;
-  text-align: center;
-  color: #333;
-  margin-bottom: 2rem;
-}
-
-.content {
-  display: flex;
-  gap: 2rem;
-  justify-content: center;
-}
-
-.contact-details {
-  margin-left: -300px;
-}
-
-.contact-info {
-  display: flex;
-  align-items: center;
-  margin-bottom: 1rem; /* Space between contact info items */
 }
 
 .icon {
@@ -876,21 +1019,37 @@ Note: Beware of modifying this element as it can break the animations - you shou
   width: 220%;
 }
 
-/* Media query for smaller screens */
+/* @media screen and (max-width: 2560px) {
 
-@media screen and (max-width: 2560px) {
-  .banner {
-    margin-right: 620px;
+  .wave-background {
+    position: relative;
+    width: 100%;
+    height: 84px;
+    top: 426px;
+    overflow: hidden;
+    line-height: 0;
   }
-}
-@media screen and (max-width: 1990px) {
+  
+  
+  .wave-background2 {
+  position: relative;
+  width: 106.9%;
+  height: 122px;
+  overflow: hidden;
+  top: 111px;
+  right: 67px;
+  line-height: 0;
+  }
+} */
+
+@media screen and (min-width: 1640px) {
   .banner {
-    margin-right: 3px;
+    margin-left: -72%;
   }
   .special-identification-content {
     display: inline-flex;
     padding: 40px;
-    margin-left: 120px;
+    margin-left: 15%;
   }
 }
 
@@ -898,17 +1057,81 @@ Note: Beware of modifying this element as it can break the animations - you shou
   .banner {
     margin-right: -40px;
   }
+
+  .wave-background2 {
+    position: relative;
+    width: 106.9%;
+    height: 122px;
+    overflow: hidden;
+    top: 111px;
+    right: 67px;
+    line-height: 0;
+  }
 }
 
 @media screen and (max-width: 1024px) {
   .banner {
     display: none;
   }
+
+  .home-banner-content {
+    bottom: 142px;
+  }
+  .wave-background {
+    position: relative;
+    width: 100%;
+    height: 10vh;
+    top: 20vh;
+    overflow: hidden;
+    line-height: 0;
+  }
+
+  .wave-background2 {
+    position: relative;
+    width: 106.9%;
+    height: 122px;
+    overflow: hidden;
+    top: 111px;
+    right: 67px;
+    line-height: 0;
+  }
 }
 
 @media screen and (max-width: 768px) {
   .banner {
     display: none;
+  }
+
+  .home-banner-content {
+    top: 70px;
+  }
+  .wave-background {
+    position: relative;
+    width: 100%;
+    height: 84px;
+    top: 133px;
+    overflow: hidden;
+    line-height: 0;
+  }
+
+  .wave-background2 {
+    position: relative;
+    width: 110.9%;
+    height: 122px;
+    overflow: hidden;
+    top: 91px;
+    right: 67px;
+    line-height: 0;
+  }
+
+  .wave-background .waves {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  .wave-background .waves path {
+    fill: #fff; /* You can change this to any color you prefer */
   }
 
   .navbar .nav-links {
@@ -924,6 +1147,22 @@ Note: Beware of modifying this element as it can break the animations - you shou
     font-size: 12px;
   }
 
+  .cta-button {
+    display: inline-block;
+    background: linear-gradient(to right, #f26025, #f68920);
+    color: #fdfdfd;
+    text-decoration: none;
+    padding: 12px 24px;
+    border-radius: 40px;
+    font-size: 16px;
+    margin-top: 20px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  .cta-button:hover {
+    color: #0d0c0c;
+  }
+
   .footer-links {
     flex-direction: column;
     gap: 5px;
@@ -935,22 +1174,68 @@ Note: Beware of modifying this element as it can break the animations - you shou
 
   .home h1 {
     font-size: 40px;
+    color: #d53e3e;
   }
 
   .home p {
     font-size: 16px;
+    color: #414040;
+    text-shadow: none;
   }
 
   .about .about-items {
     flex-wrap: wrap;
   }
-
-  .special-identification-content {
-    flex-direction: column;
-    margin-left: -80px;
-    align-items: center;
+  .gradient-text {
+    display: inline-flex;
+    margin-right: 16px;
+    margin-left: 12px;
   }
 
+  .letter1 {
+    color: #f26025;
+  }
+
+  .letter2 {
+    color: #f68920;
+  }
+
+  .letter3 {
+    color: #81c244;
+  }
+
+  .letter4 {
+    color: #47b5e4;
+  }
+
+  .letter5 {
+    color: #1875ba;
+  }
+
+  .letter6 {
+    color: #653093;
+  }
+
+  .letter7 {
+    color: #d91c5e;
+  }
+
+  .monte {
+    color: #81c244;
+  }
+
+  .dark .wave-background {
+    position: relative;
+    width: 100%;
+    height: 80px;
+    top: 56px;
+    overflow: hidden;
+    line-height: 0;
+    z-index: 2;
+  }
+  .video-wrapper {
+    height: 46%;
+  }
   .special-identification-text p {
     margin-top: 0;
     text-align: center;
@@ -976,7 +1261,7 @@ Note: Beware of modifying this element as it can break the animations - you shou
 
   .special-identification-image {
     margin-top: 85px;
-    margin-left: 235px;
+    margin-left: 200px;
   }
 
   .contact {
@@ -1001,12 +1286,165 @@ Note: Beware of modifying this element as it can break the animations - you shou
     width: 100%; /* Full width buttons */
     text-align: center; /* Center text within buttons */
   }
+
   .map {
     width: 100%;
   }
 }
 
+@media screen and (max-width: 600px) {
+  .wave-background {
+    position: relative;
+    width: 100%;
+    height: 106px;
+    top: 124px;
+    overflow: hidden;
+    line-height: 0;
+  }
+  .wave-background2 {
+    position: relative;
+    width: 111.5%;
+    height: 122px;
+    overflow: hidden;
+    top: 91px;
+    right: 67px;
+    line-height: 0;
+  }
+}
+
+@media screen and (max-width: 530px) {
+  .home-banner-content {
+    top: 37px;
+  }
+  .special-identification-image {
+    margin-left: 143px;
+  }
+  .special-identification-text p {
+    margin-top: 0;
+    text-align: center;
+    font-size: 20px;
+  }
+  .wave-background {
+    position: relative;
+    width: 100%;
+    height: 84px;
+    top: 87px;
+    overflow: hidden;
+    line-height: 0;
+  }
+  .wave-background2 {
+    position: relative;
+    width: 118.5%;
+    height: 122px;
+    overflow: hidden;
+    top: 91px;
+    right: 67px;
+    line-height: 0;
+  }
+
+  .special-identification h2 {
+    margin-top: 0;
+    margin-left: 4px;
+    text-align: center;
+    font-size: 30px;
+  }
+  .special-identification-text {
+    padding-right: 34px;
+  }
+
+  .special-identification-text ul li {
+    text-align: center;
+    font-size: 18px;
+  }
+
+  .cta-button-special {
+    margin-top: 20px;
+    margin-left: 47%;
+  }
+
+  .footer-bottom p {
+    text-align: left;
+    font-size: 11px;
+  }
+}
+
 @media screen and (max-width: 430px) {
+  .home-banner-content {
+    top: 4px;
+  }
+  .special-identification-image {
+    margin-left: 143px;
+  }
+  .special-identification-text p {
+    margin-top: 0;
+    text-align: center;
+    font-size: 20px;
+  }
+  .wave-background {
+    position: relative;
+    width: 100%;
+    height: 84px;
+    top: 60px;
+    overflow: hidden;
+    line-height: 0;
+  }
+  .wave-background2 {
+    position: relative;
+    width: 120.3%;
+    height: 122px;
+    overflow: hidden;
+    top: 91px;
+    right: 67px;
+    line-height: 0;
+  }
+
+  .special-identification h2 {
+    margin-top: 0;
+    margin-left: 4px;
+    text-align: center;
+    font-size: 30px;
+  }
+  .special-identification-text {
+    padding-right: 34px;
+  }
+
+  .special-identification-text ul li {
+    text-align: center;
+    font-size: 18px;
+  }
+
+  .cta-button-special {
+    margin-top: 20px;
+    margin-left: 47%;
+  }
+
+  .footer-bottom p {
+    text-align: left;
+    font-size: 11px;
+  }
+}
+
+@media screen and (max-width: 385px) {
+  .wave-background {
+    position: relative;
+    width: 100%;
+    height: 60px;
+    top: 60px;
+    overflow: hidden;
+    line-height: 0;
+  }
+  .wave-background2 {
+    position: relative;
+    width: 124%;
+    height: 122px;
+    overflow: hidden;
+    top: 91px;
+    right: 67px;
+    line-height: 0;
+  }
+}
+
+@media screen and (max-width: 325px) {
   .special-identification-image {
     margin-left: 143px;
   }
@@ -1039,5 +1477,22 @@ Note: Beware of modifying this element as it can break the animations - you shou
   .footer-bottom p {
     text-align: left;
     font-size: 11px;
+  }
+  .wave-background {
+    position: relative;
+    width: 100%;
+    height: 60px;
+    top: 23px;
+    overflow: hidden;
+    line-height: 0;
+  }
+  .wave-background2 {
+    position: relative;
+    width: 122%;
+    height: 122px;
+    overflow: hidden;
+    top: 91px;
+    right: 67px;
+    line-height: 0;
   }
 }
