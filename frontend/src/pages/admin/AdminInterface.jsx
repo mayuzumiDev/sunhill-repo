@@ -1,39 +1,42 @@
 import React, { useState } from "react";
 import SideNavbar from "../../components/admin/SideNavbar";
 import TopNavbar from "../../components/admin/TopNavbar";
-import Dashboard from "../admin/Dashboard";
+import Dashboard from "./Dashboard";
 import CreateAccount from "./CreateAccount";
-
-const items = [
-  { id: 1, name: "Dashboard", tab: "dashboard" },
-  { id: 2, name: "Create Account", tab: "create-account" },
-];
+import Student from "./manage_accounts/Student";
+import Teacher from "./manage_accounts/Teacher";
+import Parent from "./manage_accounts/Parent";
+import Public from "./manage_accounts/Public";
+import AdminSettings from "./AdminSettings";
+import AdminLogout from "../../components/admin/AdminLogout";
 
 function AdminInterface() {
-  const [currentTab, setCurrentTab] = useState("dashboard");
-
-  const handleSideBarClick = (tab) => {
-    setCurrentTab(tab);
-  };
-
-  const renderTab = () => {
-    switch (currentTab) {
-      case "dashboard":
-        return <Dashboard />;
-      case "create-account":
-        return <CreateAccount />;
-      default:
-        return <Dashboard />;
-    }
-  };
+  const [currentTab, setCurrentTab] = useState("Dashboard");
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
 
   return (
     <div className="flex">
-      <div className="w-screen fixed top-0 left-0">
-        <TopNavbar />
+      <div className="w-screen fixed top-0 left-0 z-10">
+        <TopNavbar
+          setCurrentTab={setCurrentTab}
+          setShowLogoutDialog={setShowLogoutDialog}
+        />
+        {showLogoutDialog && (
+          <AdminLogout onClose={() => setShowLogoutDialog(false)} />
+        )}
       </div>
-      <SideNavbar items={items} onSidebarClick={handleSideBarClick} />
-      <main className="flex-1">{renderTab()}</main>
+      <div className="w-64 h-screen">
+        <SideNavbar setCurrentTab={setCurrentTab} />
+      </div>
+      <div className="flex-1 ml-6 mt-16 p-6">
+        {currentTab === "Dashboard" && <Dashboard />}
+        {currentTab === "Create Account" && <CreateAccount />}
+        {currentTab === "Student" && <Student />}
+        {currentTab === "Teacher" && <Teacher />}
+        {currentTab === "Parent" && <Parent />}
+        {currentTab === "Public" && <Public />}
+        {currentTab === "Settings" && <AdminSettings />}
+      </div>
     </div>
   );
 }

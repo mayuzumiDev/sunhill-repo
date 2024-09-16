@@ -13,21 +13,19 @@ import AdminRoute from "./components/AdminRoute";
 function App() {
   return (
     <AuthProvider>
-      <Router>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/login/" element={<LoginPage />} />
-          <Route path="/login/teacher/" element={<TeacherLogin />} />
-          <Route path="/login/Student/" element={<StudentLogin />} />
-          <Route path="/login/Parent/" element={<ParentLogin />} />
-          <Route path="/admin/login/" element={<AdminLogin />} />
-          <Route
-            path="/admin/interface/"
-            //element={<AdminRoute component={AdminInterface} />}
-            element={<AdminInterface />}
-          />
-        </Routes>
-      </Router>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/login/" element={<LoginPage />} />
+        <Route path="/login/teacher/" element={<TeacherLogin />} />
+        <Route path="/login/Student/" element={<StudentLogin />} />
+        <Route path="/login/Parent/" element={<ParentLogin />} />
+        <Route path="/admin/login/" element={<AdminLogin />} />
+        <Route
+          path="/admin/*"
+          //element={<AdminRoute component={AdminInterface} />}
+          element={<AdminInterface />}
+        />
+      </Routes>
     </AuthProvider>
   );
 }
