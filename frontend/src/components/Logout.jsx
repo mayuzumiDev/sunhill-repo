@@ -8,9 +8,39 @@ import {
   DialogTitle,
 } from "@headlessui/react";
 import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
+/* import { useNavigate } from "react-router-dom";
+import axiosInstance from "../utils/axiosInstance";
+import { generateCsrfToken, getCookie, setCsrfToken } from "../utils/csrfUtils"; */
 
 export default function Example({ onClose }) {
   const [open, setOpen] = useState(true);
+  /*   const navigate = useNavigate();
+
+  const csrfToken = generateCsrfToken();
+  setCsrfToken(csrfToken);
+
+  const handleLogout = async () => {
+    try {
+      const token = getCookie("csrftoken");
+      console.log("CSRF token:", csrfToken);
+
+      const response = await axiosInstance.post("/api/admin/logout/", {
+        headers: {
+          "Content-Type": "application/json, charset=UTF-8",
+          "X-CSRFToken": token,
+        },
+      });
+
+      if (response.data.success) {
+        console.log("Logout successful");
+        navigate("/admin/login/");
+      } else {
+        console.error("Logout failed");
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }; */
 
   return (
     <Dialog open={open} onClose={setOpen} className="relative z-10">

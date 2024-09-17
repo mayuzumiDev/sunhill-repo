@@ -8,7 +8,7 @@ import Teacher from "./manage_accounts/Teacher";
 import Parent from "./manage_accounts/Parent";
 import Public from "./manage_accounts/Public";
 import AdminSettings from "./AdminSettings";
-import AdminLogout from "../../components/admin/AdminLogout";
+import AdminLogout from "../../components/Logout";
 
 function AdminInterface() {
   const [currentTab, setCurrentTab] = useState("Dashboard");
@@ -31,10 +31,10 @@ function AdminInterface() {
       <div className="flex-1 ml-6 mt-16 p-6">
         {currentTab === "Dashboard" && <Dashboard />}
         {currentTab === "Create Account" && <CreateAccount />}
-        {currentTab === "Student" && <Student />}
-        {currentTab === "Teacher" && <Teacher />}
-        {currentTab === "Parent" && <Parent />}
-        {currentTab === "Public" && <Public />}
+        {currentTab === "Manage Student" && <Student />}
+        {currentTab === "Manage Teacher" && <Teacher />}
+        {currentTab === "Manage Parent" && <Parent />}
+        {currentTab === "Manage Public" && <Public />}
         {currentTab === "Settings" && <AdminSettings />}
       </div>
     </div>

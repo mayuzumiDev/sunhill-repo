@@ -1,24 +1,31 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import { Link } from "react-router-dom";
-import Select from "react-select";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCaretDown } from "@fortawesome/free-solid-svg-icons";
 
-const options = [
-  { value: "Student", label: "Student" },
-  { value: "Teacher", label: "Teacher" },
-  { value: "Parent", label: "Parent" },
-  { value: "Public", label: "Public" },
-];
-
-const SideNavbar = ({ setCurrentTab }) => {
+const SideNavbar = ({ currentTab, setCurrentTab }) => {
   const handleTabClick = useCallback(
     (tab) => {
-      setCurrentTab(tab);
+      if (tab !== currentTab) {
+        setCurrentTab(tab);
+      }
     },
-    [setCurrentTab]
+    [setCurrentTab, currentTab]
   );
 
-  const handleSelectChange = (selectedOption) => {
-    handleTabClick(selectedOption.value);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const handleToggleMenu = () => {
+    setShowDropdown(!showDropdown);
+  };
+
+  const handleMouseOver = () => {
+    setShowDropdown(true);
+  };
+
+  const handleMouseOut = () => {
+    setTimeout(() => {
+      setShowDropdown(false);
+    }, 1500);
   };
 
   return (
@@ -55,24 +62,68 @@ const SideNavbar = ({ setCurrentTab }) => {
             </Link>
           </li>
           <li>
-            <Link className="block text-based text-gray-700 font-bold font-montserrat py-2.5 px-4 rounded ">
+            <Link
+              className="block text-based text-gray-700 font-bold font-montserrat py-2.5 px-4 rounded"
+              onClick={handleToggleMenu}
+              onMouseOver={handleMouseOver}
+              onMouseOut={handleMouseOut}
+            >
               Manage Accounts
+              <FontAwesomeIcon icon={faCaretDown} className="ml-2" />
             </Link>
-          </li>
-          <li>
-            <Select
-              options={options}
-              onChange={handleSelectChange}
-              placeholder="Select User Type"
-              styles={{
-                menu: (provided) => ({
-                  ...provided,
-                  width: "14rem",
-                  textAlign: "center",
-                }),
-              }}
-              className="text-based text-gray-700 font-bold font-montserrat  px-4"
-            />
+            {showDropdown && (
+              <div
+                className="absolute bg-white shadow-md p-4 w-48 ml-6 rounded"
+                id="dropdown-menu"
+              >
+                <ul>
+                  <li className="text-based text-gray-700 font-bold font-montserrat py-2.5 px-4">
+                    <Link
+                      to="/admin/manage-accounts/student/"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleTabClick("Manage Student");
+                      }}
+                    >
+                      Student
+                    </Link>
+                  </li>
+                  <li className="text-based text-gray-700 font-bold font-montserrat py-2.5 px-4">
+                    <Link
+                      to="/admin/manage-accounts/teacher/"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleTabClick("Manage Teacher");
+                      }}
+                    >
+                      Teacher
+                    </Link>
+                  </li>
+                  <li className="text-based text-gray-700 font-bold font-montserrat py-2.5 px-4">
+                    <Link
+                      to="/admin/manage-accounts/parent/"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleTabClick("Manage Parent");
+                      }}
+                    >
+                      Parent
+                    </Link>
+                  </li>
+                  <li className="text-based text-gray-700 font-bold font-montserrat py-2.5 px-4">
+                    <Link
+                      to="/admin/manage-accounts/public/"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleTabClick("Manage Public");
+                      }}
+                    >
+                      Public
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+            )}
           </li>
         </ul>
       </nav>

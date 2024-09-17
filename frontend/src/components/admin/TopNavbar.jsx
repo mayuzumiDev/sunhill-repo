@@ -1,11 +1,13 @@
 import React, { useCallback } from "react";
 
-const TopNavbar = ({ setShowLogoutDialog, setCurrentTab }) => {
+const TopNavbar = ({ setShowLogoutDialog, currentTab, setCurrentTab }) => {
   const handleTabClick = useCallback(
     (tab) => {
-      setCurrentTab(tab);
+      if (tab !== currentTab) {
+        setCurrentTab(tab);
+      }
     },
-    [setCurrentTab]
+    [setCurrentTab, currentTab]
   );
 
   return (
