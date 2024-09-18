@@ -7,6 +7,9 @@ import "./styles.css";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <App />
+     <GoogleOAuthProvider clientId="21363748727-nmlbctqonc29vvnjg3fvi00vama5nkrm.apps.googleusercontent.com">
+      <App />
+    </GoogleOAuthProvider>
+
   </StrictMode>
 );
