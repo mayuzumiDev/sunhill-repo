@@ -25,10 +25,6 @@ function App() {
           <Route path="/login/Student/" element={<StudentLogin />} />
           <Route path="/login/Parent/" element={<ParentLogin />} />
           <Route path="/admin/login/" element={<AdminLogin />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/otp-verification" element={<OTPVerification />} />
-          <Route path="/create-new-password" element={<CreateNewPassword />} />
-          <Route path="/password-changed" element={<PasswordChanged />} />
           <Route
             path="/admin/interface/"
             //element={<AdminRoute component={AdminInterface} />}
