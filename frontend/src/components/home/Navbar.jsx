@@ -4,7 +4,9 @@ import { faSun, faMoon } from "@fortawesome/free-solid-svg-icons";
 import { Link as RouterLink, useLocation } from "react-router-dom";
 import { Fade } from "react-awesome-reveal";
 import { stack as Menu } from "react-burger-menu";
-import "../../styles/HomePage.css"; // Adjust path to your CSS
+import '../../styles/HomePage.css';  // if the CSS file is in the same folder
+
+
 
 const Navbar = ({ darkMode, toggleDarkMode, buttonPosition }) => {
   const [navbarSolid, setNavbarSolid] = useState(false);

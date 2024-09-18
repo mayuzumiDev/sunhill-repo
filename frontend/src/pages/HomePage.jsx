@@ -17,7 +17,10 @@ import { Button, Typography, Container, Box, Paper } from "@mui/material";
 import Navbar from "../components/home/Navbar";
 import Footer from "../components/home/Footer";
 import Programs from "../components/home/Programs";
+import LoginModal from "../components/home/LoginModal";
 import StepperComponent from "../components/home/Stepper";
+
+
 //import LoginModal from "./components/LoginModal";
 
 const branches = [
@@ -135,7 +138,7 @@ const Home = () => {
             sx={{
               position: "relative",
               height: "100vh",
-              width: "100vw",
+              width: "100%",
               overflow: "hidden",
             }}
           >
@@ -152,7 +155,7 @@ const Home = () => {
               className="video-wrapper"
             >
               <video
-                src="../assets/sunvid.mp4"
+                src="/src/assets/img/home/sunvid.mp4"
                 autoPlay
                 loop
                 muted
@@ -601,7 +604,7 @@ const Home = () => {
                     </Box>
                   </Box>
                 </Slide>
-                <Slide direction="left" triggerOnce={true} delay={600}>
+                <Slide direction="left" triggerOnce={true} delay={500}>
                   <Button
                     variant="contained"
                     color="primary"
@@ -609,7 +612,7 @@ const Home = () => {
                       marginTop: "20px",
                       display: "flex",
                       alignItems: "center",
-                      background: "linear-gradient(to right, yellow, orange)",
+                      background: "linear-gradient(to right, #e0ce0e, #f7a600)",
                       color: "#555", // ensure the text is visible on the gradient
                       "&:hover": {
                         background:
@@ -647,7 +650,7 @@ const Home = () => {
             </Box>
           </Box>
         </Container>
-        {/* <LoginModal isVisible={isModalVisible} onClose={hideLoginModal} /> */}
+        <LoginModal isVisible={isModalVisible} onClose={hideLoginModal} />
       </Element>
 
       <Box className="programs-section">

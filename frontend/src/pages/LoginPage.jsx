@@ -33,7 +33,7 @@ const LoginPageContent = () => {
         <Box
           sx={{
             minHeight: "100vh",
-            minWidth: "100vw",
+            minWidth: "100%",
             display: "flex",
             flexDirection: "column",
           }}
@@ -80,7 +80,7 @@ const LoginPageContent = () => {
                 className="branch-p"
                 sx={{
                   position: "absolute",
-                  bottom: { xs: "100px", sm: "137px" },
+                  bottom: { xs: "100px", sm: "135px" },
                   left: "50%",
                   transform: "translateX(-50%)",
                   display: { xs: "none", sm: "flex" },

@@ -24,7 +24,7 @@ const programs = [
     description:
       "It is a body of teaching and learning practice based on LEGO Robotics kits, popular sets of materials that enable individuals...",
     fullDescription:
-      "This is a more detailed description about the Lego Education Robotics program, including its benefits, teaching methods, and impact on students.",
+      "Lego Education Robotics is an engaging program that introduces students to the exciting world of robotics using the popular Lego Robotics kits. Through hands-on learning, students are able to build and program robots, fostering creativity and critical thinking. This program not only enhances students' understanding of STEM (Science, Technology, Engineering, and Mathematics) but also encourages teamwork, problem-solving, and innovation. Each session is designed to help students grasp complex concepts through interactive and playful activities. The use of Lego Robotics makes abstract ideas more tangible, making it easier for students to understand mechanical and programming concepts. In the long run, students develop technical skills while nurturing their curiosity and enthusiasm for technology. With the ever-increasing demand for technical expertise in various fields, this program offers a solid foundation for students to excel in future endeavors.",
     image: "/src/assets/img/home/lego.jpg",
     title: "Hands-On Robotics Learning", // Custom title
   },
@@ -33,7 +33,7 @@ const programs = [
     description:
       "Pronunciation Power is an easy and effective way to learn the 52 sounds of the English Language...",
     fullDescription:
-      "This program focuses on enhancing pronunciation and comprehension through an interactive computerized learning system.",
+      "The English Computerized Learning Program (ECLP) is an advanced system designed to improve pronunciation, comprehension, and overall communication skills in the English language. The program uses cutting-edge software, such as Pronunciation Power, to break down the 52 sounds of the English language, making learning easy and effective. Students can engage in interactive exercises that focus on listening, speaking, and pronunciation, while visual aids reinforce correct speech patterns. The program is particularly beneficial for non-native speakers, as it offers personalized learning paths to address individual language needs. Over time, students gain confidence in speaking and understanding English, improving both academic and social communication skills. ECLP's unique computerized approach allows learners to progress at their own pace, ensuring mastery of the English language in an interactive and enjoyable way.",
     image: "/src/assets/img/home/eclp.png",
     title: "Interactive English Learning", // Custom title
   },
@@ -42,7 +42,7 @@ const programs = [
     description:
       "It is a Reading program designed to encourage a healthy reading habit among Sunhillian...",
     fullDescription:
-      "This program enhances reading skills through interactive exercises and regular reading sessions.",
+      "The Reading Comprehension Program is designed to foster a lifelong love for reading among students at Sunhill Montessori Casa. The program aims to enhance reading skills through a variety of methods, including interactive exercises, guided reading sessions, and regular assessments. Students are encouraged to read diverse genres of literature, helping them build a strong vocabulary, improve comprehension, and develop critical thinking skills. The program promotes a positive reading culture by integrating group activities, book discussions, and individualized reading plans. As students progress, they become more proficient in understanding complex texts, which in turn supports their academic growth across all subjects. Through personalized attention and a structured curriculum, the Reading Comprehension Program ensures that every student can enjoy reading and see its value both inside and outside the classroom.",
     image: "/src/assets/img/home/rcp.jpg",
     title: "Enhanced Reading Skills", // Custom title
   },
@@ -60,7 +60,7 @@ const programs = [
     description:
       "It is a program that supports the child's ability to perform simple mathematical operations with ease...",
     fullDescription:
-      "This mental math program is designed to boost children's numerical abilities through the use of the abacus.",
+      "The Abacus Mental Math program is a specialized training designed to strengthen children’s numerical abilities by using the traditional abacus. This program goes beyond simple arithmetic, helping students visualize numbers and perform calculations mentally with speed and accuracy. It enhances cognitive functions such as memory, concentration, and logical reasoning. With consistent practice, students can perform complex calculations mentally without relying on calculators or paper. The abacus technique taps into both the left and right hemispheres of the brain, fostering a holistic approach to learning math. Over time, children develop a deep understanding of numbers, which not only boosts their mathematical abilities but also positively impacts their performance in other academic areas. The program is structured in a fun and engaging way, making math enjoyable for all learners, and lays a strong foundation for future success in mathematics.",
     image: "/src/assets/img/home/mental.jpg",
     title: "Abacus-Based Math Training", // Custom title
   },
