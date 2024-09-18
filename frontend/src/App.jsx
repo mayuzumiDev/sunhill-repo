@@ -30,13 +30,12 @@ function App() {
           <Route path="/create-new-password" element={<CreateNewPassword />} />
           <Route path="/password-changed" element={<PasswordChanged />} />
           <Route
-            path="/admin/interface/"
+            path="/admin/*"
             //element={<AdminRoute component={AdminInterface} />}
             element={<AdminInterface />}
           />
         </Routes>
       </Router>
-
     </AuthProvider>
   );
 }
