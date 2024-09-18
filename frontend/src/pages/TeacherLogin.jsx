@@ -7,7 +7,7 @@ function TeacherLogin() {
   return (
     <div>
       <Navbar />
-      <div className="relative min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-100 via-blue-200 to-blue-300">
+      <div className="relative min-h-screen flex items-center justify-center bg-gradient-to-r from-green-100 via-green-200 to-green-300">
         {/* Background design */}
         <div className="absolute inset-0">
           <img
