@@ -8,26 +8,23 @@ import {
   DialogTitle,
 } from "@headlessui/react";
 import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
-/* import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import axiosInstance from "../utils/axiosInstance";
-import { generateCsrfToken, getCookie, setCsrfToken } from "../utils/csrfUtils"; */
+import Cookie from "js-cookie";
 
 export default function Example({ onClose }) {
   const [open, setOpen] = useState(true);
-  /*   const navigate = useNavigate();
-
-  const csrfToken = generateCsrfToken();
-  setCsrfToken(csrfToken);
+  const navigate = useNavigate();
 
   const handleLogout = async () => {
     try {
-      const token = getCookie("csrftoken");
+      const csrfToken = Cookie.get("csrftoken");
       console.log("CSRF token:", csrfToken);
 
       const response = await axiosInstance.post("/api/admin/logout/", {
         headers: {
           "Content-Type": "application/json, charset=UTF-8",
-          "X-CSRFToken": token,
+          "X-CSRFToken": csrfToken,
         },
       });
 
@@ -40,7 +37,7 @@ export default function Example({ onClose }) {
     } catch (error) {
       console.error(error);
     }
-  }; */
+  };
 
   return (
     <Dialog open={open} onClose={setOpen} className="relative z-10">
@@ -81,7 +78,7 @@ export default function Example({ onClose }) {
             <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
               <button
                 type="button"
-                onClick={() => setOpen(false)}
+                onClick={handleLogout}
                 className="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold font-montserrat text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto"
               >
                 Confirm
