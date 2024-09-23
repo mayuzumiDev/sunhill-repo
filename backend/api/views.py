@@ -1,82 +1,53 @@
 from django.contrib.auth import authenticate, login
-from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from .serializers import AdminLoginSerializer
+from .models import CustomUser
 
 class AdminLoginView(APIView):
-    permission_classes = [AllowAny]  # Allow access without authentication
+    permission_classes = [AllowAny] # Allow any user to access this view
 
     def post(self, request, *args, **kwargs):
-        serializer = AdminLoginSerializer(data=request.data)
+        serializer = AdminLoginSerializer(data=request.data) # Create serializer instance
+
+        # Check serializer validity
         if serializer.is_valid():
+            # Extract the username and password
             username = serializer.validated_data.get('username')
             password = serializer.validated_data.get('password')
+
+            # Authenticate user
             user = authenticate(request, username=username, password=password)
             
+            # If user is authenticated
             if user is not None:
+                # Check if user is staff
                 if user.is_staff: 
-                    refresh = RefreshToken.for_user(user)
+                    # Generate tokens and log in
+                    refresh_token = RefreshToken.for_user(user)
+                    access_token = refresh_token.access_token
                     login(request, user)
+                    
+                    # Return success response
                     return Response({
-                        "success": True, "token": str(refresh.access_token),  "message": "Admin login successful"}, status=status.HTTP_200_OK)
+                        "success": True, 
+                        "access_token": str(access_token), 
+                        "refresh_token": str(refresh_token), 
+                        "message": "Admin login successful",
+                        "role": user.role
+                        }, status=status.HTTP_200_OK)
                 else:
-                    return Response({"error": "Not an admin user"}, status=status.HTTP_403_FORBIDDEN)
+                    # Return access denied error
+                    return Response({"error": "Access Denied: Only administrators are allowed to log in."}, status=status.HTTP_403_FORBIDDEN)
             else:
-                return Response({"error": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
+                # Return invalid credentials error
+                return Response({"error": "Invalid username or password. Please try again."}, status=status.HTTP_400_BAD_REQUEST)
             
+        # Return serializer errors
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
-""" from django.http import JsonResponse
-from django.contrib.auth import authenticate, login, logout
-from django.views.decorators.csrf import csrf_exempt, csrf_protect, requires_csrf_token
-import json
-
-def validate_credentials(request, username, password):
-    user = authenticate(request=request, username=username, password=password)
-
-    print("\nValidating Credentials...");
-
-    if user is not None and user.is_superuser:
-        print("\nValid Credentials...");
-        print("\nUser object:", user)
-        login(request, user)
-        return True
-    else:
-        print("\nInvalid Credentials...");
-        return False
-    
-@csrf_protect
-def admin_login(request):
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            username = data.get("username")
-            password = data.get("password")
-            print("\nReceived credentials:", username, password);
-        except json.JSONDecodeError:
-            return JsonResponse({"success": False, "message": "Invalid JSON format"}, status=400)
-    
-        if validate_credentials(request, username, password):
-            print("\nSending response...");
-            return JsonResponse({'success': True}, content_type='application/json', status=200)
-        else:
-            return JsonResponse({'success': False})
-
-    else:
-        return JsonResponse({'success': False, "message": "Invalid request method"}, status=405)
-
-
-@csrf_protect
-def admin_logout(request):
-    
-    if request.method == 'POST':
-        logout(request)
-        return JsonResponse({'success': True})
-    else:
-        return JsonResponse({'success': False, "message": "Invalid request method"}, status=405)
- """

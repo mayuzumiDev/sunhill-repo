@@ -11,6 +11,7 @@ import ForgotPassword from "./components/login/ForgotPassword";
 import OTPVerification from "./components/login/OTPVerifications";
 import CreateNewPassword from "./components/login/CreateNewPass";
 import PasswordChanged from "./components/login/PassChangeConfirm";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
@@ -26,7 +27,9 @@ function App() {
         <Route path="/otp-verification" element={<OTPVerification />} />
         <Route path="/create-new-password" element={<CreateNewPassword />} />
         <Route path="/password-changed" element={<PasswordChanged />} />
-        <Route path="/admin/*" element={<AdminInterface />} />
+        <Route path="/admin/" element={<ProtectedRoute />}>
+          <Route index element={<AdminInterface />} />
+        </Route>
       </Routes>
     </Router>
   );
