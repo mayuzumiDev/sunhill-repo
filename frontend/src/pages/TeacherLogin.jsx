@@ -11,13 +11,20 @@ function TeacherLogin() {
         {/* Background design */}
         <div className="absolute inset-0">
           <img
-            src="https://www.transparenttextures.com/patterns/education.png" // Example background image
+            src="https://www.transparenttextures.com/patterns/cubes.png" // New background pattern
             alt="Background"
-            className="w-full h-full object-cover opacity-30"
+            className="w-full h-full object-cover opacity-100"
           />
         </div>
 
-        <div className="relative w-full max-w-md bg-white shadow-lg rounded-lg p-6 sm:p-8 z-10 mt-16 mx-4 sm:mx-8">
+        {/* Diagonal dividers for modern effect */}
+        <div className="absolute top-0 left-0 w-full h-1/4 bg-gradient-to-r from-green-600 to-yellow-400 transform -skew-y-6 z-10"></div>
+        <div className="absolute top-0 left-0 w-full h-1/4 bg-gradient-to-r from-green-600 to-yellow-400 transform skew-y-6 z-10"></div>
+
+      
+
+        {/* Content container */}
+        <div className="relative w-full max-w-md bg-white shadow-lg rounded-lg p-6 sm:p-8 z-20 mt-16 mx-4 sm:mx-8">
           <div className="flex justify-center mb-6">
             <img
               src={sunhillLogo}
@@ -25,11 +32,11 @@ function TeacherLogin() {
               className="w-16 h-16 rounded-full object-cover shadow-lg border border-gray-300"
             />
           </div>
-          <h2 className="text-xl sm:text-2xl font-extrabold text-center text-blue-800 mb-4">
-            Welcome, Educators!
+          <h2 className="text-xl sm:text-2xl font-extrabold text-center text-green-800 mb-4">
+            Welcome Teachers!
           </h2>
           <p className="text-sm sm:text-base text-center text-gray-700 mb-8">
-            Log in to access your teaching tools and resources.
+            Please log in to access your dashboard and manage your classes.
           </p>
           <form className="space-y-6">
             <div>
@@ -45,7 +52,7 @@ function TeacherLogin() {
                   name="username"
                   type="text"
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-150 ease-in-out"
                 />
               </div>
             </div>
@@ -63,7 +70,7 @@ function TeacherLogin() {
                   name="password"
                   type="password"
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-150 ease-in-out"
                 />
               </div>
             </div>
@@ -71,7 +78,7 @@ function TeacherLogin() {
             <div className="flex justify-between items-center">
               <Link
                 to="/forgot-password"
-                className="text-sm font-medium text-blue-600 hover:text-blue-800 transition duration-150 ease-in-out"
+                className="text-sm font-medium text-green-600 hover:text-green-800 transition duration-150 ease-in-out"
               >
                 Forgot Password?
               </Link>
@@ -79,7 +86,7 @@ function TeacherLogin() {
 
             <button
               type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition duration-300 ease-in-out"
+              className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-lg transition duration-300 ease-in-out"
             >
               Login
             </button>
