@@ -4,15 +4,12 @@ import axiosInstance from "../../utils/axiosInstance";
 import { jwtDecode } from "jwt-decode";
 
 function AdminLogin() {
-  // Initialize state variables for username, password, and error
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  // Get the navigate function from react-router-dom
   const navigate = useNavigate();
 
-  // Define the login function
   const login = async (e) => {
     e.preventDefault(); // Prevent the default form submission behavior
 
@@ -40,16 +37,10 @@ function AdminLogin() {
 
       // If the response status is 200, navigate to the admin dashboard
       if (response.status === 200) {
-        console.log("Admin login successful!");
         navigate("/admin/", { replace: true });
       }
 
-      const readableExpirationTime = new Date(
-        expirationTime * 1000
-      ).toLocaleString();
-      console.log("Expiration Time:", readableExpirationTime);
       console.log(response.data);
-      
     } catch (error) {
       // Handle errors from the API response
       if (error.response) {

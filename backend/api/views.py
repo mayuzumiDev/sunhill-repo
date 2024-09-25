@@ -1,17 +1,16 @@
 from django.contrib.auth import authenticate, login
-from rest_framework import status
-from rest_framework.views import APIView
+from rest_framework import status, generics
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework_simplejwt.settings import api_settings
 from .serializers import AdminLoginSerializer
 from .models import CustomUser
 
-class AdminLoginView(APIView):
+class AdminLoginView(generics.GenericAPIView):
     permission_classes = [AllowAny] # Allow any user to access this view
-
+   
     def post(self, request, *args, **kwargs):
         serializer = AdminLoginSerializer(data=request.data) # Create serializer instance
 
@@ -23,7 +22,7 @@ class AdminLoginView(APIView):
 
             # Authenticate user
             user = authenticate(request, username=username, password=password)
-            
+
             # If user is authenticated
             if user is not None:
                 # Check if user is staff
@@ -50,4 +49,23 @@ class AdminLoginView(APIView):
             
         # Return serializer errors
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class AdminLogoutView(generics.GenericAPIView):  
+    permission_classes = [IsAuthenticated]  # Only allow authenticated users
+
+    def post(self, request):
+        try:
+            # Get refresh token from request
+            refresh_token = request.data["refresh_token"]
+            token = RefreshToken(refresh_token)
+
+            # Blacklist token to log out
+            token.blacklist()
+
+             # Return success response
+            return Response({"message": "Logged out successfully"}, status=status.HTTP_200_OK)
+        
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         

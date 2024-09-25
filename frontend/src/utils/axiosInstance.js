@@ -3,6 +3,7 @@ import axios from "axios";
 // Create a new instance of axios with a base URL
 const axiosInstance = axios.create({
   baseURL: "http://127.0.0.1:8000/", // Set the base URL for all requests
+  withCredentials: true,
 });
 
 axiosInstance.interceptors.request.use(
@@ -12,11 +13,8 @@ axiosInstance.interceptors.request.use(
 
     // If a token is found, add it to the Authorization header
     if (token) {
-      config.headers.Authorization = `Bearer${token}`;
+      config.headers.Authorization = `Bearer ` + token;
     }
-
-    console.log("Access token:", token);
-    console.log("Authorization Headers:", config.headers.Authorization);
 
     return config; // Return the updated config object
   },

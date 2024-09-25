@@ -9,8 +9,7 @@ import {
 } from "@headlessui/react";
 import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 import { useNavigate } from "react-router-dom";
-import axiosInstance from "../utils/axiosInstance";
-import Cookie from "js-cookie";
+import axiosInstance from "../../utils/axiosInstance";
 
 export default function Example({ onClose }) {
   const [open, setOpen] = useState(true);
@@ -18,22 +17,20 @@ export default function Example({ onClose }) {
 
   const handleLogout = async () => {
     try {
-      const csrfToken = Cookie.get("csrftoken");
-      console.log("CSRF token:", csrfToken);
+      // Get refresh token from local storage
+      const refresh_token = localStorage.getItem("refresh_token");
 
-      const response = await axiosInstance.post("/api/admin/logout/", {
-        headers: {
-          "Content-Type": "application/json, charset=UTF-8",
-          "X-CSRFToken": csrfToken,
-        },
+      // Send logout request to API with the refresh token
+      const response = await axiosInstance.post("/api/admin-logout/", {
+        refresh_token: refresh_token,
       });
 
-      if (response.data.success) {
-        console.log("Logout successful");
-        navigate("/admin/login/");
-      } else {
-        console.error("Logout failed");
-      }
+      // Clear storage to remove any sensitive data
+      localStorage.clear();
+      sessionStorage.clear();
+
+      // Redirect the user to the admin login page
+      window.location.href = "/admin/login/";
     } catch (error) {
       console.error(error);
     }
