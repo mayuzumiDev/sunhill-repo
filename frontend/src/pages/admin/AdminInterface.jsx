@@ -7,8 +7,10 @@ import Student from "./manage_accounts/Student";
 import Teacher from "./manage_accounts/Teacher";
 import Parent from "./manage_accounts/Parent";
 import Public from "./manage_accounts/Public";
+import Branches from "./Branches";
+import SchoolEventsCalendar from "./Events";
 import AdminSettings from "./AdminSettings";
-import AdminLogout from "../../components/Logout";
+import AdminLogout from "../../components/admin/Logout";
 
   function AdminInterface() {
     const [currentTab, setCurrentTab] = useState("Dashboard");
@@ -93,3 +95,5 @@ import AdminLogout from "../../components/Logout";
   }
 
   export default AdminInterface;
+
+

@@ -11,6 +11,9 @@ import ForgotPassword from "./components/login/ForgotPassword";
 import OTPVerification from "./components/login/OTPVerifications";
 import CreateNewPassword from "./components/login/CreateNewPass";
 import PasswordChanged from "./components/login/PassChangeConfirm";
+import PageTitle from "./components/PageTitle";
+import NotFound from "./components/404NotFound";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
@@ -21,12 +24,33 @@ function App() {
         <Route path="/login/teacher" element={<TeacherLogin />} />
         <Route path="/login/student" element={<StudentLogin />} />
         <Route path="/login/parent" element={<ParentLogin />} />
-        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route
+          path="/admin/login"
+          element={
+            <>
+              <PageTitle title="Admin" />
+              <AdminLogin />{" "}
+            </>
+          }
+        />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/otp-verification" element={<OTPVerification />} />
         <Route path="/create-new-password" element={<CreateNewPassword />} />
         <Route path="/password-changed" element={<PasswordChanged />} />
-        <Route path="/admin/*" element={<AdminInterface />} />
+
+        <Route
+          path="/admin"
+          element={
+            <>
+              <PageTitle title="Admin" />
+              <AdminInterface />
+            </>
+          }
+        />
+        <Route path="*" element={<NotFound />} />
+        <Route path="/admin/" element={<ProtectedRoute />}>
+          <Route index element={<AdminInterface />} />
+        </Route>
       </Routes>
     </Router>
   );
