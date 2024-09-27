@@ -1,17 +1,14 @@
-  import React, { useState, useEffect } from "react";
-  import SideNavbar from "../../components/admin/SideNavbar";
-  import TopNavbar from "../../components/admin/TopNavbar";
-  import Dashboard from "./Dashboard";
-  import CreateAccount from "./CreateAccount";
-  import Student from "./manage_accounts/Student";
-  import Teacher from "./manage_accounts/Teacher";
-  import Parent from "./manage_accounts/Parent";
-  import Public from "./manage_accounts/Public";
-  import Branches from "./Branches";
-  import SchoolEventsCalendar from "./Events"; // Import SchoolEventsCalendar
-  import AdminSettings from "./AdminSettings";
-  import AdminLogout from "../../components/Logout";
-  import Breadcrumb from "../../components/Breadcrumbs"; // Import Breadcrumb component
+import React, { useState } from "react";
+import SideNavbar from "../../components/admin/SideNavbar";
+import TopNavbar from "../../components/admin/TopNavbar";
+import Dashboard from "./Dashboard";
+import CreateAccount from "./CreateAccount";
+import Student from "./manage_accounts/Student";
+import Teacher from "./manage_accounts/Teacher";
+import Parent from "./manage_accounts/Parent";
+import Public from "./manage_accounts/Public";
+import AdminSettings from "./AdminSettings";
+import AdminLogout from "../../components/Logout";
 
   function AdminInterface() {
     const [currentTab, setCurrentTab] = useState("Dashboard");
