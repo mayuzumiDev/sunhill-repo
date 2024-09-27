@@ -1,132 +1,130 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback } from "react";
 import { Link } from "react-router-dom";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCaretDown } from "@fortawesome/free-solid-svg-icons";
+import sunhillLogo from "../../assets/img/home/sunhill.jpg";
+import {
+  FaHome,
+  FaChalkboardTeacher,
+  FaUserGraduate,
+  FaUsers,
+  FaClipboardList,
+  FaBell,
+  FaUser,
+  FaEnvelope,
+  FaBox,
+  FaQuestion,
+} from "react-icons/fa";
 
-const SideNavbar = ({ currentTab, setCurrentTab }) => {
+const SideNavbar = ({ currentTab, setCurrentTab, toggleSidebarOnSmallScreen }) => {
   const handleTabClick = useCallback(
     (tab) => {
       if (tab !== currentTab) {
-        setCurrentTab(tab);
+        setCurrentTab(tab); // Update the current tab state
+        toggleSidebarOnSmallScreen(); // Close the sidebar on small screens
       }
     },
-    [setCurrentTab, currentTab]
+    [setCurrentTab, currentTab, toggleSidebarOnSmallScreen]
   );
 
-  const [showDropdown, setShowDropdown] = useState(false);
-  const handleToggleMenu = () => {
-    setShowDropdown(!showDropdown);
-  };
+  const mainTabs = [
+    { name: "Dashboard", icon: <FaHome /> },
+    { name: "Teachers", icon: <FaChalkboardTeacher /> },
+    { name: "Students", icon: <FaUserGraduate /> },
+    { name: "Parents", icon: <FaUser /> },
+    { name: "Public", icon: <FaUsers /> },
+    { name: "Branches", icon: <FaClipboardList /> },
+    { name: "Events", icon: <FaBell /> },
+  ];
 
-  const handleMouseOver = () => {
-    setShowDropdown(true);
-  };
-
-  const handleMouseOut = () => {
-    setTimeout(() => {
-      setShowDropdown(false);
-    }, 1500);
-  };
+  const additionalTabs = [
+    { name: "Messages", icon: <FaEnvelope /> },
+    { name: "Special Identification Tool", icon: <FaBox /> },
+    { name: "FAQ", icon: <FaQuestion /> },
+  ];
 
   return (
-    <div className="w-64 h-screen bg-white text-gray-700 shadow">
-      <div className="flex items-center justify-center h-16">
-        <h1 className="text-xl text-gray-700 font-bold font-montserrat">
+    <div className="w-64 h-screen bg-[#1B2430] fixed text-white shadow-lg">
+      {/* Fixed Logo and title */}
+      <div className="flex items-center justify-center h-20">
+        <img
+          src={sunhillLogo}
+          alt="Sunhill Logo"
+          className="h-12 w-12 rounded-full"
+        />
+        <h1 className="text-lg font-bold font-montserrat ml-2 sm:text-xl">
           Sunhill LMS
         </h1>
       </div>
-      <nav className="mt-4">
-        <ul>
-          <li>
-            <Link
-              to="/admin/"
-              onClick={(e) => {
-                e.preventDefault();
-                handleTabClick("Dashboard");
-              }}
-              className="block text-based text-gray-700 font-bold font-montserrat py-2.5 px-4 rounded "
-            >
-              Dashboard
-            </Link>
-          </li>
-          <li>
-            <Link
-              to="/admin/create-account/"
-              onClick={(e) => {
-                e.preventDefault();
-                handleTabClick("Create Account");
-              }}
-              className="block text-based text-gray-700 font-bold font-montserrat py-2.5 px-4 rounded "
-            >
-              Create Account
-            </Link>
-          </li>
-          <li>
-            <Link
-              className="block text-based text-gray-700 font-bold font-montserrat py-2.5 px-4 rounded"
-              onClick={handleToggleMenu}
-              onMouseOver={handleMouseOver}
-              onMouseOut={handleMouseOut}
-            >
-              Manage Accounts
-              <FontAwesomeIcon icon={faCaretDown} className="ml-2" />
-            </Link>
-            {showDropdown && (
-              <div
-                className="absolute bg-white shadow-md p-4 w-48 ml-6 rounded"
-                id="dropdown-menu"
-              >
-                <ul>
-                  <li className="text-based text-gray-700 font-bold font-montserrat py-2.5 px-4">
-                    <Link
-                      to="/admin/manage-accounts/student/"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleTabClick("Manage Student");
-                      }}
-                    >
-                      Student
-                    </Link>
-                  </li>
-                  <li className="text-based text-gray-700 font-bold font-montserrat py-2.5 px-4">
-                    <Link
-                      to="/admin/manage-accounts/teacher/"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleTabClick("Manage Teacher");
-                      }}
-                    >
-                      Teacher
-                    </Link>
-                  </li>
-                  <li className="text-based text-gray-700 font-bold font-montserrat py-2.5 px-4">
-                    <Link
-                      to="/admin/manage-accounts/parent/"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleTabClick("Manage Parent");
-                      }}
-                    >
-                      Parent
-                    </Link>
-                  </li>
-                  <li className="text-based text-gray-700 font-bold font-montserrat py-2.5 px-4">
-                    <Link
-                      to="/admin/manage-accounts/public/"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleTabClick("Manage Public");
-                      }}
-                    >
-                      Public
-                    </Link>
-                  </li>
-                </ul>
-              </div>
-            )}
-          </li>
-        </ul>
-      </nav>
+
+      {/* Scrollable Main navigation */}
+      <div className="overflow-y-auto h-[calc(100vh-4rem)] scrollbar-hidden">
+        <nav className="mt-4">
+          <ul className="flex flex-col space-y-1">
+            {/* Menu Header */}
+            <li className="w-full text-left text-gray-400 ml-9 mt-4 font-semibold text-sm sm:text-base sm:ml-4">
+              MENU
+            </li>
+
+            {/* Main Tabs */}
+            {mainTabs.map(({ name, icon }) => (
+              <li key={name} className="w-full">
+                <Link
+                  to={`/admin/${name.toLowerCase()}/`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleTabClick(name);
+                  }}
+                  className={`flex items-center py-3 mx-2 rounded-lg transition-all duration-200 ease-in-out transform hover:bg-blue-700 ${
+                    currentTab === name ? "bg-blue-600 font-bold" : "text-white"
+                  } text-xs sm:text-base`}
+                  style={{ width: "calc(100% - 1rem)" }}
+                  aria-label={name}
+                  role="menuitem"
+                >
+                  <span className="mr-6 ml-10 sm:ml-4">{icon}</span>
+                  <span>{name}</span>
+                </Link>
+              </li>
+            ))}
+
+            {/* Additional Tabs */}
+            <li className="w-full text-left text-gray-400 ml-9 mt-4 font-semibold text-sm sm:text-base sm:ml-4">
+              SUPPORT
+            </li>
+            {additionalTabs.map(({ name, icon }) => (
+              <li key={name} className="w-full">
+                <Link
+                  to={`/admin/${name.toLowerCase().replace(/\s+/g, "-")}/`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleTabClick(name);
+                  }}
+                  className={`flex items-center py-3 mx-2 rounded-lg transition-all duration-200 ease-in-out transform hover:bg-blue-700 ${
+                    currentTab === name ? "bg-blue-600 font-bold" : "text-white"
+                  } text-xs sm:text-base`}
+                  style={{ width: "calc(100% - 1rem)" }}
+                  aria-label={name}
+                  role="menuitem"
+                >
+                  <span className="mr-6 ml-10 sm:ml-4">{icon}</span>
+                  <span>{name}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </div>
+
+      {/* Styles to hide scrollbar */}
+      <style jsx>{`
+        .scrollbar-hidden::-webkit-scrollbar {
+          display: none;
+        }
+
+        .scrollbar-hidden {
+          -ms-overflow-style: none; /* IE and Edge */
+          scrollbar-width: none; /* Firefox */
+        }
+      `}</style>
     </div>
   );
 };
