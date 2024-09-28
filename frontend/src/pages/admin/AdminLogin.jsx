@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axiosInstance from "../../utils/axiosInstance";
 import { jwtDecode } from "jwt-decode";
+import axios from "axios";
 
 import { BsPersonCircle } from "react-icons/bs";
 
@@ -18,9 +19,14 @@ function AdminLogin() {
     setError(""); // Clear any previous error messages
     setLoading(true); // Set loading to true when login is initiated
 
+    const axiosInstanceLogin = axios.create({
+      baseURL: "http://127.0.0.1:8000/", // Set the base URL for all requests
+      withCredentials: true,
+    });
+
     try {
       // Make a POST request to the /api/admin-login/ endpoint
-      const response = await axiosInstance.post("/api/admin-login/", {
+      const response = await axiosInstanceLogin.post("/api/admin-login/", {
         username,
         password,
       });
