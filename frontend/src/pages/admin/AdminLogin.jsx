@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axiosInstance from "../../utils/axiosInstance";
 import { jwtDecode } from "jwt-decode";
+
 import { BsPersonCircle } from "react-icons/bs";
 
 function AdminLogin() {
@@ -98,7 +99,9 @@ function AdminLogin() {
           className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4"
           role="alert"
         >
-          <span className="block sm:inline text-sm font-montserrat">{error}</span>
+          <span className="block sm:inline text-sm font-montserrat">
+            {error}
+          </span>
         </div>
       )}
 
@@ -150,7 +153,9 @@ function AdminLogin() {
         </div>
 
         <button
-          className={`bg-sky-500 hover:bg-sky-700 text-white text-base font-bold font-montserrat w-full h-12 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-sky-400 ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
+          className={`bg-sky-500 hover:bg-sky-700 text-white text-base font-bold font-montserrat w-full h-12 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-sky-400 ${
+            loading ? "opacity-50 cursor-not-allowed" : ""
+          }`}
           type="submit"
           disabled={loading} // Disable the button while loading
         >
@@ -163,7 +168,13 @@ function AdminLogin() {
                 fill="none"
                 stroke="currentColor"
               >
-                <circle className="opacity-25" cx="12" cy="12" r="10" strokeWidth="4" />
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  strokeWidth="4"
+                />
                 <path
                   className="opacity-75"
                   fill="currentColor"
