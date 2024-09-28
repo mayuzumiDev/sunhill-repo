@@ -2,6 +2,7 @@ import React, { useState, useContext } from "react";
 import { replace, useNavigate } from "react-router-dom";
 import axiosInstance from "../../utils/axiosInstance";
 import { jwtDecode } from "jwt-decode";
+import axios from "axios";
 
 function AdminLogin() {
   const [username, setUsername] = useState("");
@@ -15,9 +16,14 @@ function AdminLogin() {
 
     setError(""); // Clear any previous error messages
 
+    const axiosInstanceLogin = axios.create({
+      baseURL: "http://127.0.0.1:8000/", // Set the base URL for all requests
+      withCredentials: true,
+    });
+
     try {
       // Make a POST request to the /api/admin-login/ endpoint
-      const response = await axiosInstance.post("/api/admin-login/", {
+      const response = await axiosInstanceLogin.post("/api/admin-login/", {
         username,
         password,
       });
