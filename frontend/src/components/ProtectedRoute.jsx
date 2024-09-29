@@ -16,18 +16,59 @@ const ProtectedRoute = () => {
 
   // Effect to check token validity and refresh token if needed
   useEffect(() => {
+    let timeoutId;
+
     const checkTokenValidity = async () => {
-      // Check if token is valid, and refresh it if not
+      console.log(
+        "Checking token validity at:",
+        new Date().toLocaleTimeString()
+      );
+
       const isValid = isTokenValid();
       if (!isValid) {
+        console.log("Token is not valid. Refreshing...");
         await refreshTokenIfNeeded();
+      } else {
+        // Refresh token 10 minute before expiration
+        const refreshBeforeExpiration = 5 * 60; // 10 minute in seconds
+        const currentTime = new Date().getTime() / 1000;
+        const expirationTime = parseInt(tokenExpiration, 10);
+        const timeToRefresh = expirationTime - refreshBeforeExpiration;
+
+        if (currentTime >= timeToRefresh) {
+          console.log("Token is about to expire. Refreshing...");
+          await refreshTokenIfNeeded();
+        } else {
+          console.log("Token is still valid.");
+        }
       }
 
       // Set authentication status based on token validity and user role
       setIsAuthenticated(isTokenValid() && userRole === "admin");
     };
 
+    const handleUserActivity = () => {
+      clearTimeout(timeoutId);
+      checkTokenValidity();
+      timeoutId = setTimeout(checkTokenValidity, 5 * 60 * 1000); // Check again after 5 minutes
+    };
+
+    // Call checkTokenValidity on component mount
     checkTokenValidity();
+
+    // Attach event listeners to detect user activity
+    const events = ["mousemove", "keydown", "scroll"];
+    events.forEach((event) =>
+      window.addEventListener(event, handleUserActivity)
+    );
+
+    // Cleanup on component unmount
+    return () => {
+      events.forEach((event) =>
+        window.removeEventListener(event, handleUserActivity)
+      );
+      clearTimeout(timeoutId);
+    };
   }, [userRole, token, tokenExpiration]);
 
   // Function to check if token is valid

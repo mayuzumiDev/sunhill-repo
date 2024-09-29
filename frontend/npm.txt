@@ -1,2 +1,0 @@
-npm install axios react-router-dom jwt-decode
-npm install crypto-js
