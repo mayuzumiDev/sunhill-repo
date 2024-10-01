@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FaSpinner } from "react-icons/fa"; 
+import { FaSpinner } from "react-icons/fa";
 import sunhilllogo from "../../assets/img/home/sunhill.jpg";
 
 const ForgotPassword = () => {
@@ -51,7 +51,7 @@ const ForgotPassword = () => {
             className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover shadow-lg border border-gray-300"
           />
         </div>
-        <div className="mt-16 text-center sm: mt-7">
+        <div className="mt-16 text-center sm:">
           <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2">
             Sunhill LMS
           </h2>
@@ -60,32 +60,38 @@ const ForgotPassword = () => {
           Forgot Password?
         </h3>
         <p className="text-sm sm:text-base text-gray-600 mb-6">
-          Don't worry! It happens. Please enter the email address linked with your account.
+          Don't worry! It happens. Please enter the email address linked with
+          your account.
         </p>
         {error && <p className="text-red-600 mb-4">{error}</p>}
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Enter your email"
-          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-300 mb-4 text-sm sm:text-base"
-          onKeyDown={handleKeyDown} // Add onKeyDown event handler
-        />
-        <button
-          onClick={handleSendCode}
-          className="w-full py-2 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 transition duration-300 flex items-center justify-center"
-          disabled={isLoading} // Disable button while loading
-        >
-          {isLoading ? (
-            <FaSpinner className="animate-spin mr-2" aria-label="Loading" /> // Show spinner while loading
-          ) : (
-            "Send Code"
-          )}
-        </button>
-        <div className="text-sm sm:text-base text-center text-gray-600 mt-4">
-          <span>Remember Password? </span>
-          <Link to="/login" className="text-blue-600 hover:underline">Login</Link>
-        </div>
+        <form onSubmit={handleSendCode}>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Enter your email"
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-300 mb-4 text-sm sm:text-base"
+            onKeyDown={handleKeyDown} // Add onKeyDown event handler
+          />
+          <button
+            // onClick={handleSendCode}
+            type="submit"
+            className="w-full py-2 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 transition duration-300 flex items-center justify-center"
+            disabled={isLoading} // Disable button while loading
+          >
+            {isLoading ? (
+              <FaSpinner className="animate-spin mr-2" aria-label="Loading" /> // Show spinner while loading
+            ) : (
+              "Send Code"
+            )}
+          </button>
+          <div className="text-sm sm:text-base text-center text-gray-600 mt-4">
+            <span>Remember Password? </span>
+            <Link to="/login" className="text-blue-600 hover:underline">
+              Login
+            </Link>
+          </div>
+        </form>
       </div>
     </div>
   );

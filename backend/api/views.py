@@ -1,12 +1,18 @@
 from django.contrib.auth import authenticate, login
 from rest_framework import status, generics
+from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework_simplejwt.settings import api_settings
-from .serializers import AdminLoginSerializer
+from .serializers import AdminLoginSerializer, PasswordResetSerializer
+from django.template.loader import render_to_string
+from django.core.mail import EmailMultiAlternatives
+from django.core.mail import send_mail
+from django.utils.html import strip_tags
 from .models import CustomUser
+import random
+# from rest_framework.decorators import api_view, permission_classes
+# from rest_framework_simplejwt.settings import api_settings
 
 class AdminLoginView(generics.GenericAPIView):
     permission_classes = [AllowAny] # Allow any user to access this view
@@ -69,3 +75,52 @@ class AdminLogoutView(generics.GenericAPIView):
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
+class PasswordResetRequestView(generics.GenericAPIView):
+    permission_classes = [AllowAny]  # Allow any user to access this view
+    serializer_class = PasswordResetSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+
+        if serializer.is_valid():
+            email = serializer.validated_data.get('email')
+
+            # Check if email exists in the database
+            try:
+                user = CustomUser.objects.get(email=email)
+            except CustomUser.DoesNotExist:
+                return Response({"error": "Email not found"}, status=status.HTTP_404_NOT_FOUND)
+
+            verification_code = str(random.randint(1000, 9999))
+
+            # Generate password reset token
+            token = RefreshToken.for_user(user)
+
+            # Render the email template with dynamic data
+            message_html = render_to_string('api/password_reset_email.html', {
+                "user": user,
+                "verification_code": verification_code
+            })
+
+            # Remove HTML tags from the email template
+            message_plain = strip_tags(message_html)
+
+            message = EmailMultiAlternatives(
+                subject="Password Reset Request",
+                body=message_plain,
+                from_email="jdacdummyacc@gmail.com",
+                to=[email]
+            )
+
+            # Send the email
+            try:
+                message.attach_alternative(message_html, "text/html")
+                message.send()
+                print("Email sent successfully!")
+            except Exception as e:
+                print("Error sending email:", str(e))
+
+            return Response({"success": True, "message": "Password reset email sent successfully"}, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
