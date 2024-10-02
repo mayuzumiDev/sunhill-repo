@@ -14,9 +14,10 @@ const TopNavbar = ({ setShowLogoutDialog, currentTab, setCurrentTab, toggleSideb
     (tab) => {
       if (tab !== currentTab) {
         setCurrentTab(tab);
+        navigate(`/settings`); // Redirect to settings page on tab click
       }
     },
-    [setCurrentTab, currentTab]
+    [setCurrentTab, currentTab, navigate] // Added navigate to dependencies
   );
 
   const toggleDropdown = () => setIsDropdownOpen((prev) => !prev);

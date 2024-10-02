@@ -1,29 +1,38 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom"; // Import useNavigate for redirection
 import Navbar from "../components/login/Navbar";
 import sunhillLogo from "../assets/img/home/sunhill.jpg"; // Path to Sunhill logo
 
 function TeacherLogin() {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate(); // Initialize useNavigate
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+    
+    // Implement your authentication logic here
+    if (username === "teacher" && password === "password") { // Replace with actual logic
+      // On successful login
+      navigate("/teacher/"); // Redirect to Teacher interface
+    } else {
+      alert("Invalid username or password"); // Error handling
+    }
+  };
+
   return (
     <div>
       <Navbar />
       <div className="relative min-h-screen flex items-center justify-center bg-gradient-to-r from-green-100 via-green-200 to-green-300">
-        {/* Background design */}
         <div className="absolute inset-0">
           <img
-            src="https://www.transparenttextures.com/patterns/cubes.png" // New background pattern
+            src="https://www.transparenttextures.com/patterns/cubes.png"
             alt="Background"
             className="w-full h-full object-cover opacity-100"
           />
         </div>
-
-        {/* Diagonal dividers for modern effect */}
         <div className="absolute top-0 left-0 w-full h-1/4 bg-gradient-to-r from-green-600 to-yellow-400 transform -skew-y-6 z-10"></div>
         <div className="absolute top-0 left-0 w-full h-1/4 bg-gradient-to-r from-green-600 to-yellow-400 transform skew-y-6 z-10"></div>
-
-      
-
-        {/* Content container */}
         <div className="relative w-full max-w-md bg-white shadow-lg rounded-lg p-6 sm:p-8 z-20 mt-16 mx-4 sm:mx-8">
           <div className="flex justify-center mb-6">
             <img
@@ -38,7 +47,7 @@ function TeacherLogin() {
           <p className="text-sm sm:text-base text-center text-gray-700 mb-8">
             Please log in to access your dashboard and manage your classes.
           </p>
-          <form className="space-y-6">
+          <form className="space-y-6" onSubmit={handleLogin}>
             <div>
               <label
                 htmlFor="username"
@@ -52,6 +61,8 @@ function TeacherLogin() {
                   name="username"
                   type="text"
                   required
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-150 ease-in-out"
                 />
               </div>
@@ -70,6 +81,8 @@ function TeacherLogin() {
                   name="password"
                   type="password"
                   required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-150 ease-in-out"
                 />
               </div>

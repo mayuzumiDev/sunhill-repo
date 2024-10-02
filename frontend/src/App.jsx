@@ -7,6 +7,7 @@ import StudentLogin from "./pages/StudentLogin";
 import ParentLogin from "./pages/ParentLogin";
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminInterface from "./pages/admin/AdminInterface";
+import TeacherInterface from "./pages/teacher/TeacherInterface";
 import ForgotPassword from "./components/login/ForgotPassword";
 import OTPVerification from "./components/login/OTPVerifications";
 import CreateNewPassword from "./components/login/CreateNewPass";
@@ -24,6 +25,7 @@ function App() {
         <Route path="/login/teacher" element={<TeacherLogin />} />
         <Route path="/login/student" element={<StudentLogin />} />
         <Route path="/login/parent" element={<ParentLogin />} />
+        <Route path="/teacher/" element={<TeacherInterface />} />
         <Route
           path="/admin/login"
           element={
@@ -37,7 +39,6 @@ function App() {
         <Route path="/otp-verification" element={<OTPVerification />} />
         <Route path="/create-new-password" element={<CreateNewPassword />} />
         <Route path="/password-changed" element={<PasswordChanged />} />
-
         <Route
           path="/admin"
           element={
