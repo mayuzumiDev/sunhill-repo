@@ -1,28 +1,66 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaSpinner } from "react-icons/fa"; 
+import { FaSpinner } from "react-icons/fa";
 import sunhilllogo from "../../assets/img/home/sunhill.jpg";
+import axiosInstanceNoAuthHeader from "../../utils/axiosInstance";
 
 const CreateNewPassword = () => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [email, setEmail] = useState("");
+  const [code, setCode] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleResetPassword = () => {
+  useEffect(() => {
+    const storedEmail = sessionStorage.getItem("email");
+    if (storedEmail) {
+      setEmail(storedEmail);
+    }
+
+    const storedCode = sessionStorage.getItem("reset_code");
+    if (storedCode) {
+      setCode(storedCode);
+    }
+  }, []);
+
+  const handleResetPassword = async (e) => {
     if (!newPassword || !confirmPassword) {
       setErrorMessage("Both fields are required!");
     } else if (newPassword === confirmPassword) {
+      e.preventDefault();
       setIsLoading(true);
       setErrorMessage("");
 
-      // Simulate password reset (replace with actual API call)
-      setTimeout(() => {
+      try {
+        const response = await axiosInstanceNoAuthHeader.post(
+          "api/password-reset-confirm/",
+          {
+            email: email,
+            new_password: newPassword,
+            reset_code: code,
+          }
+        );
+
+        if (response.status === 200) {
+          setTimeout(() => {
+            console.log("Password reset to:", newPassword);
+            navigate("/password-changed");
+          }, 1000);
+        }
+      } catch (error) {
+        if (error.response) {
+          console.log("error: ", error.response.data);
+          setError(error.response.data.error);
+          setErrorMessage("Error resetting password");
+        } else {
+          console.log("An error occured: ", error);
+          setError("An error occured. Please try again.");
+        }
+      } finally {
         setIsLoading(false);
-        console.log("Password reset to:", newPassword);
-        navigate("/password-changed"); // Navigate to confirmation page
-      }, 2000); // Simulate a delay
+      }
     } else {
       setErrorMessage("Passwords do not match!");
     }
@@ -32,7 +70,7 @@ const CreateNewPassword = () => {
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
-      handleResetPassword(); 
+      handleResetPassword();
     }
   };
 
@@ -46,7 +84,7 @@ const CreateNewPassword = () => {
             className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover shadow-lg border border-gray-300"
           />
         </div>
-        <div className="text-center mt-16 sm: mt-7">
+        <div className="text-center mt-16 sm:">
           <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2">
             Sunhill LMS
           </h2>
@@ -63,7 +101,7 @@ const CreateNewPassword = () => {
           onChange={(e) => setNewPassword(e.target.value)}
           placeholder="New Password"
           className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-300 mb-4 text-sm sm:text-base"
-          onKeyDown={handleKeyDown} 
+          onKeyDown={handleKeyDown}
         />
         <input
           type="password"
@@ -71,9 +109,13 @@ const CreateNewPassword = () => {
           onChange={(e) => setConfirmPassword(e.target.value)}
           placeholder="Confirm Password"
           className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-300 mb-4 text-sm sm:text-base"
-          onKeyDown={handleKeyDown} 
+          onKeyDown={handleKeyDown}
         />
-        {errorMessage && <p className="text-red-500 text-sm sm:text-base mb-4">{errorMessage}</p>}
+        {errorMessage && (
+          <p className="text-red-500 text-sm sm:text-base mb-4">
+            {errorMessage}
+          </p>
+        )}
         <button
           onClick={handleResetPassword}
           className="w-full py-2 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 transition duration-300 flex items-center justify-center"

@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.core.validators import MinLengthValidator, MaxLengthValidator
 from .models import CustomUser, PasswordResetCode
 
 class AdminLoginSerializer(serializers.Serializer):
@@ -37,3 +38,21 @@ class PasswordResetVerifySerializer(serializers.Serializer):
                 return data
             
         raise serializers.ValidationError({'serializer_verification_code': 'Invalid verification code'})
+    
+class PasswordResetConfirmSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    new_password = serializers.CharField(write_only=True, validators=[MinLengthValidator(8), MaxLengthValidator(64)], required=True)
+    reset_code = serializers.CharField(max_length=4)
+
+    def validate(self, data):
+        email = data.get('email')
+        user = CustomUser.objects.filter(email=email).first()
+
+        if not user:
+            raise  serializers.ValidationError({'serializer_email': 'User with this email does not exist.'})
+        return data
+    
+    def update(self, instance, validated_data):
+        user = CustomUser.objects.get(email=validated_data['email'])
+        user.update(new_password=validated_data['new_password'])
+        return user

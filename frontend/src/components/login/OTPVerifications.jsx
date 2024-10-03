@@ -6,17 +6,20 @@ import sunhilllogo from "../../assets/img/home/sunhill.jpg"; // Import logo imag
 
 const OTPVerification = () => {
   const [otp, setOtp] = useState(new Array(4).fill(""));
+  const [code, setCode] = useState("");
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false); // Loading state
   const [error, setError] = useState(""); // State for error message
   const navigate = useNavigate();
 
   useEffect(() => {
+    sessionStorage.setItem("reset_code", code);
+
     const storedEmail = sessionStorage.getItem("email");
     if (storedEmail) {
       setEmail(storedEmail);
     }
-  }, []);
+  }, [code]);
 
   const handleChange = (value, index) => {
     const otpArray = [...otp];
@@ -42,6 +45,7 @@ const OTPVerification = () => {
 
   const handleVerify = async (e) => {
     const otpCode = otp.join("");
+    setCode(otpCode);
 
     // Validate OTP
     if (otpCode.length < 4) {

@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.hashers import make_password
 from django.db import models
 from datetime import timedelta
 from django.utils import timezone
@@ -17,6 +18,15 @@ class CustomUser(AbstractUser):
     email = models.EmailField(('email'), unique=True)
     role = models.CharField(max_length=10, choices=[(role.value, role.name) for role in UserRole],) # Add user role field
     branch_name = models.CharField(max_length=50, blank=True, null=True) # Add school branch name field
+
+    def set_password(self, raw_password):
+        self.password = make_password(raw_password)
+        self._password = raw_password
+
+    def update(self,  **kwargs):
+        for field, value in kwargs.items():
+            setattr(self, field, value)
+        self.save()
 
 class PasswordResetCode(models.Model):
     email = models.ForeignKey(CustomUser, on_delete=models.CASCADE, to_field='email', related_name='password_reset_codes', null=True)
