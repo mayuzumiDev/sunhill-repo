@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from datetime import timedelta
+from django.utils import timezone
 from enum import Enum
 
 # Define user roles
@@ -26,8 +27,14 @@ class PasswordResetCode(models.Model):
     def save(self, *args, **kwargs):
         # Automatically set the expiration time to 10 minutes from creation
         if not self.expires_at:
-            self.expires_at = self.created_at + timedelta(minutes=10)
+            self.expires_at = timezone.now() + timedelta(minutes=10)
         super().save(*args, **kwargs)
+
+    def check_verification_code(self, code):
+        if self.code == code and self.expires_at >  timezone.now():
+            return True
+        return False    
 
     def __str__(self):
         return f"{self.user.email} - {self.code}"
+    

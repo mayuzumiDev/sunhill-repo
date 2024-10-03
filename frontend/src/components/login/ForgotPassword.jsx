@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaSpinner } from "react-icons/fa";
 import sunhilllogo from "../../assets/img/home/sunhill.jpg";
+import axios from "axios";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
@@ -9,29 +10,47 @@ const ForgotPassword = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate(); // Initialize useNavigate
 
-  const handleSendCode = () => {
+  const handleSendCode = async (e) => {
     // Validate email
     if (!email || !/\S+@\S+\.\S+/.test(email)) {
       setError("Please enter a valid email address.");
       return;
     }
 
-    // Clear any previous errors
+    e.preventDefault();
     setError("");
-
-    // Show the loader when the button is clicked
     setIsLoading(true);
 
-    // Simulate sending the code (e.g., make an API request)
-    setTimeout(() => {
-      console.log("Code sent to:", email);
+    const axiosInstanceForgotPass = axios.create({
+      baseURL: "http://127.0.0.1:8000/", // Set the base URL for all requests
+      withCredentials: true,
+    });
 
-      // Hide the loader after the code is sent
+    try {
+      const response = await axiosInstanceForgotPass.post(
+        "api/password-reset-request/",
+        {
+          email: email,
+        }
+      );
+
+      if (response.status === 200) {
+        setTimeout(() => {
+          console.log("Code sent to:", email);
+          navigate("/otp-verification");
+        }, 1000);
+      }
+    } catch (error) {
+      if (error.response) {
+        console.log("error:", error.response.data);
+        setError(error.response.data.error);
+      } else {
+        console.log("An error occurred:", error);
+        setError("An error occurred. Please try again.");
+      }
+    } finally {
       setIsLoading(false);
-
-      // Navigate to OTP Verification after sending the code
-      navigate("/otp-verification");
-    }, 2000); // Simulate a delay (2 seconds)
+    }
   };
 
   const handleKeyDown = (e) => {
