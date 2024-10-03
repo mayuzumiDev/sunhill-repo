@@ -6,6 +6,10 @@ const axiosInstance = axios.create({
   withCredentials: true,
 });
 
+const axiosInstanceNoAuthHeader = axios.create({
+  baseURL: "http://127.0.0.1:8000/", // Set the base URL for all request without authorization header
+});
+
 axiosInstance.interceptors.request.use(
   // This function will be called before each request is sent
   async (config) => {

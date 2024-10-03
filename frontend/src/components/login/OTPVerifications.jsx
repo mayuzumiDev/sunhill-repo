@@ -1,13 +1,22 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import axiosInstanceNoAuthHeader from "../../utils/axiosInstance";
 import { FaSpinner } from "react-icons/fa"; // Import spinner icon
 import sunhilllogo from "../../assets/img/home/sunhill.jpg"; // Import logo image
 
 const OTPVerification = () => {
   const [otp, setOtp] = useState(new Array(4).fill(""));
+  const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false); // Loading state
   const [error, setError] = useState(""); // State for error message
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const storedEmail = sessionStorage.getItem("email");
+    if (storedEmail) {
+      setEmail(storedEmail);
+    }
+  }, []);
 
   const handleChange = (value, index) => {
     const otpArray = [...otp];
@@ -31,10 +40,8 @@ const OTPVerification = () => {
     }
   };
 
-  // Simulate OTP verification
-  const handleVerify = () => {
+  const handleVerify = async (e) => {
     const otpCode = otp.join("");
-    console.log("Verifying OTP:", otpCode);
 
     // Validate OTP
     if (otpCode.length < 4) {
@@ -42,22 +49,37 @@ const OTPVerification = () => {
       return;
     }
 
-    // Clear any previous errors
+    e.preventDefault();
     setError("");
-
-    // Show loading spinner
     setIsLoading(true);
 
-    // Simulate OTP verification (replace this with actual API call)
-    setTimeout(() => {
-      setIsLoading(false); // Hide spinner after "verification"
-      if (otpCode === "1234") { // Assuming '1234' is the correct OTP
-        console.log("OTP verified successfully!");
-        navigate("/create-new-password"); // Navigate to create new password page
-      } else {
-        setError("Invalid OTP. Please try again.");
+    console.log("Session_Email: ", email);
+
+    try {
+      const response = await axiosInstanceNoAuthHeader.post(
+        "api/password-reset-verify/",
+        {
+          email: email,
+          verification_code: otpCode,
+        }
+      );
+
+      if (response.status === 200) {
+        setTimeout(() => {
+          navigate("/create-new-password");
+        }, 1000);
       }
-    }, 2000); 
+    } catch (error) {
+      if (error.response) {
+        console.log("error: ", error.response.data);
+        setError(error.response.data.error);
+      } else {
+        console.log("An error occured: ", error);
+        setError("An error occured. Please try again.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -70,7 +92,7 @@ const OTPVerification = () => {
             className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover shadow-lg border border-gray-300"
           />
         </div>
-        <div className="text-center mt-16 sm: mt-7">
+        <div className="text-center mt-16 sm:">
           <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2">
             Sunhill LMS
           </h2>
@@ -81,7 +103,8 @@ const OTPVerification = () => {
         <p className="text-sm sm:text-base text-gray-600 mb-6">
           Enter the 4 digit code sent to your email address.
         </p>
-        {error && <p className="text-red-600 mb-4">{error}</p>} {/* Error message */}
+        {error && <p className="text-red-600 mb-4">{error}</p>}{" "}
+        {/* Error message */}
         <div className="flex justify-between mb-4 space-x-2">
           {otp.map((digit, index) => (
             <input
@@ -109,7 +132,9 @@ const OTPVerification = () => {
         </button>
         <div className="text-sm sm:text-base text-gray-600 mt-4 text-center">
           <span>Didn't receive the code? </span>
-          <Link to="/forgot-password" className="text-blue-600 hover:underline">Resend</Link>
+          <Link to="/forgot-password" className="text-blue-600 hover:underline">
+            Resend
+          </Link>
         </div>
       </div>
     </div>

@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaSpinner } from "react-icons/fa";
 import sunhilllogo from "../../assets/img/home/sunhill.jpg";
-import axios from "axios";
+import axiosInstanceNoAuthHeader from "../../utils/axiosInstance";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
@@ -10,6 +10,11 @@ const ForgotPassword = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate(); // Initialize useNavigate
 
+  useEffect(() => {
+    sessionStorage.setItem("email", email);
+  }, [email]);
+
+  // Handle the password reset code sending and navigation to OTP verification page
   const handleSendCode = async (e) => {
     // Validate email
     if (!email || !/\S+@\S+\.\S+/.test(email)) {
@@ -21,13 +26,9 @@ const ForgotPassword = () => {
     setError("");
     setIsLoading(true);
 
-    const axiosInstanceForgotPass = axios.create({
-      baseURL: "http://127.0.0.1:8000/", // Set the base URL for all requests
-      withCredentials: true,
-    });
-
     try {
-      const response = await axiosInstanceForgotPass.post(
+      // Send a POST request to the password-reset-request API endpoint
+      const response = await axiosInstanceNoAuthHeader.post(
         "api/password-reset-request/",
         {
           email: email,
@@ -35,12 +36,13 @@ const ForgotPassword = () => {
       );
 
       if (response.status === 200) {
+        // If the request is successful, navigate to the OTP verification page
         setTimeout(() => {
-          console.log("Code sent to:", email);
           navigate("/otp-verification");
         }, 1000);
       }
     } catch (error) {
+      // Handle any errors that occur during the request
       if (error.response) {
         console.log("error:", error.response.data);
         setError(error.response.data.error);
