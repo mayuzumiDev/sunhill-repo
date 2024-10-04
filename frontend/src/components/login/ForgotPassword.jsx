@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FaSpinner } from "react-icons/fa";
+import { FaFontAwesome, FaSpinner } from "react-icons/fa";
 import sunhilllogo from "../../assets/img/home/sunhill.jpg";
 import axiosInstanceNoAuthHeader from "../../utils/axiosInstance";
 
@@ -12,19 +12,19 @@ const ForgotPassword = () => {
 
   useEffect(() => {
     sessionStorage.setItem("email", email);
+    sessionStorage.removeItem("reset_code");
   }, [email]);
 
   // Handle the password reset code sending and navigation to OTP verification page
   const handleSendCode = async (e) => {
+    e.preventDefault();
+    setError("");
+    setIsLoading(true);
     // Validate email
     if (!email || !/\S+@\S+\.\S+/.test(email)) {
       setError("Please enter a valid email address.");
       return;
     }
-
-    e.preventDefault();
-    setError("");
-    setIsLoading(true);
 
     try {
       // Send a POST request to the password-reset-request API endpoint
@@ -34,6 +34,9 @@ const ForgotPassword = () => {
           email: email,
         }
       );
+
+      const resetCode = response.data.verification_code;
+      sessionStorage.setItem("reset_code", resetCode);
 
       if (response.status === 200) {
         // If the request is successful, navigate to the OTP verification page

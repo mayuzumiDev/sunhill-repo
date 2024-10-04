@@ -45,14 +45,27 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
     reset_code = serializers.CharField(max_length=4)
 
     def validate(self, data):
-        email = data.get('email')
-        user = CustomUser.objects.filter(email=email).first()
+        email = data.get('email') # Get the email from the input data
+        user = CustomUser.objects.filter(email=email).first() # Check if a user with this email exists
 
         if not user:
             raise  serializers.ValidationError({'serializer_email': 'User with this email does not exist.'})
         return data
     
     def update(self, instance, validated_data):
-        user = CustomUser.objects.get(email=validated_data['email'])
-        user.update(new_password=validated_data['new_password'])
+        user = CustomUser.objects.get(email=validated_data['email']) # Get the user object from the database
+        user.update(new_password=validated_data['new_password']) # Update the user's password
         return user
+    
+class OTPResendCodeSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    reset_code = serializers.CharField(max_length=4)
+
+    def validate(self, data):
+        email = data.get('email')
+        reset_code = data.get('reset_code')
+        user = CustomUser.objects.filter(email=email).first()
+
+        if not user:
+            raise  serializers.ValidationError({'serializer_email': 'User with this email does not exist.'})
+        return data

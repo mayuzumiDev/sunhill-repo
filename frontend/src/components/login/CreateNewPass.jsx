@@ -25,15 +25,18 @@ const CreateNewPassword = () => {
     }
   }, []);
 
+  // Handle reset password function
   const handleResetPassword = async (e) => {
+    e.preventDefault();
+    setErrorMessage("");
+
+    // Check if both fields are filled
     if (!newPassword || !confirmPassword) {
       setErrorMessage("Both fields are required!");
     } else if (newPassword === confirmPassword) {
-      e.preventDefault();
-      setIsLoading(true);
-      setErrorMessage("");
-
       try {
+        setIsLoading(true);
+        //  Send a POST request to the server to reset the password
         const response = await axiosInstanceNoAuthHeader.post(
           "api/password-reset-confirm/",
           {
@@ -44,19 +47,18 @@ const CreateNewPassword = () => {
         );
 
         if (response.status === 200) {
+          // if successful, navigate to password change successfully page
           setTimeout(() => {
-            console.log("Password reset to:", newPassword);
             navigate("/password-changed");
           }, 1000);
         }
       } catch (error) {
+        // Handle error response from API
         if (error.response) {
           console.log("error: ", error.response.data);
-          setError(error.response.data.error);
-          setErrorMessage("Error resetting password");
+          setErrorMessage("Ensure the password has at least 8 characters");
         } else {
           console.log("An error occured: ", error);
-          setError("An error occured. Please try again.");
         }
       } finally {
         setIsLoading(false);
