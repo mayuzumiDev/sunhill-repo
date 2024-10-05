@@ -1,6 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axiosInstance from "../../utils/axiosInstance";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 
@@ -13,6 +12,11 @@ function AdminLogin() {
   const [loading, setLoading] = useState(false); // Loading state
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    sessionStorage.removeItem("LoginPageUserRole");
+    sessionStorage.setItem("LoginPageUserRole", "admin");
+  });
 
   const login = async (e) => {
     e.preventDefault(); // Prevent the default form submission behavior

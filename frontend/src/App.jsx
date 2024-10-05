@@ -30,28 +30,27 @@ function App() {
           path="/admin/login"
           element={
             <>
-              <PageTitle title="Admin" />
+              <PageTitle title="Sunhill LMS Admin" />
               <AdminLogin />{" "}
             </>
           }
         />
+        <Route path="/admin/" element={<ProtectedRoute />}>
+          <Route
+            index
+            element={
+              <>
+                <PageTitle title="Sunhill LMS Admin" />
+                <AdminInterface />
+              </>
+            }
+          />
+        </Route>
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/otp-verification" element={<OTPVerification />} />
         <Route path="/create-new-password" element={<CreateNewPassword />} />
         <Route path="/password-changed" element={<PasswordChanged />} />
-        <Route
-          path="/admin"
-          element={
-            <>
-              <PageTitle title="Admin" />
-              <AdminInterface />
-            </>
-          }
-        />
         <Route path="*" element={<NotFound />} />
-        <Route path="/admin/" element={<ProtectedRoute />}>
-          <Route index element={<AdminInterface />} />
-        </Route>
       </Routes>
     </Router>
   );

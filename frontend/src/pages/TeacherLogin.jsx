@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom"; // Import useNavigate for redirection
 import Navbar from "../components/login/Navbar";
 import sunhillLogo from "../assets/img/home/sunhill.jpg"; // Path to Sunhill logo
@@ -8,11 +8,17 @@ function TeacherLogin() {
   const [password, setPassword] = useState("");
   const navigate = useNavigate(); // Initialize useNavigate
 
+  useEffect(() => {
+    sessionStorage.removeItem("LoginPageUserRole");
+    sessionStorage.setItem("LoginPageUserRole", "teacher");
+  });
+
   const handleLogin = (e) => {
     e.preventDefault();
-    
+
     // Implement your authentication logic here
-    if (username === "teacher" && password === "password") { // Replace with actual logic
+    if (username === "teacher" && password === "password") {
+      // Replace with actual logic
       // On successful login
       navigate("/teacher/"); // Redirect to Teacher interface
     } else {

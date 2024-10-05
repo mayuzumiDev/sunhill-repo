@@ -64,6 +64,7 @@ class OTPResendCodeSerializer(serializers.Serializer):
     def validate(self, data):
         email = data.get('email')
         reset_code = data.get('reset_code')
+        
         user = CustomUser.objects.filter(email=email).first()
 
         if not user:

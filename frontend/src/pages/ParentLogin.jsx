@@ -1,9 +1,14 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Navbar from "../components/login/Navbar";
 import { Link } from "react-router-dom";
 import sunhillLogo from "../assets/img/home/sunhill.jpg"; // Path to Sunhill logo
 
 function ParentLogin() {
+  useEffect(() => {
+    sessionStorage.removeItem("LoginPageUserRole");
+    sessionStorage.setItem("LoginPageUserRole", "parent");
+  });
+
   return (
     <div>
       <Navbar />
@@ -18,14 +23,13 @@ function ParentLogin() {
         </div>
         <div className="absolute inset-0 bg-gradient-to-r from-orange-400 to-transparent opacity-50 z-0"></div>
 
-  {/* Diagonal dividers for modern effect */}
-  <div className="absolute top-0 left-0 w-full h-1/4 bg-gradient-to-r from-orange-600 to-yellow-400 transform -skew-y-6 "></div>
-  <div className="absolute top-0 left-0 w-full h-1/4 bg-gradient-to-r from-orange-600 to-yellow-400 transform skew-y-6 z-10"></div>
+        {/* Diagonal dividers for modern effect */}
+        <div className="absolute top-0 left-0 w-full h-1/4 bg-gradient-to-r from-orange-600 to-yellow-400 transform -skew-y-6 "></div>
+        <div className="absolute top-0 left-0 w-full h-1/4 bg-gradient-to-r from-orange-600 to-yellow-400 transform skew-y-6 z-10"></div>
 
-  {/* Subtle animated floating shapes */}
-  <div className="absolute w-32 h-32 bg-orange-400 rounded-full opacity-40 top-90 right-10 animate-bounce"></div>
-  <div className="absolute w-20 h-20 bg-red-400 rounded-full opacity-30 bottom-10 left-10 animate-bounce"></div>
-
+        {/* Subtle animated floating shapes */}
+        <div className="absolute w-32 h-32 bg-orange-400 rounded-full opacity-40 top-90 right-10 animate-bounce"></div>
+        <div className="absolute w-20 h-20 bg-red-400 rounded-full opacity-30 bottom-10 left-10 animate-bounce"></div>
 
         <div className="relative w-full max-w-md bg-white shadow-lg rounded-lg p-6 sm:p-8 z-10 mt-16 mx-4 sm:mx-8">
           <div className="flex justify-center mb-6">
@@ -39,7 +43,8 @@ function ParentLogin() {
             Welcome Parents!
           </h2>
           <p className="text-sm sm:text-base text-center text-gray-700 mb-8">
-            Thank you for your ongoing support. Log in to stay informed and involved.
+            Thank you for your ongoing support. Log in to stay informed and
+            involved.
           </p>
           <form className="space-y-6">
             <div>

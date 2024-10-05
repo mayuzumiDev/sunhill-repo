@@ -3,12 +3,22 @@ import { Link, useNavigate } from "react-router-dom";
 import { FaFontAwesome, FaSpinner } from "react-icons/fa";
 import sunhilllogo from "../../assets/img/home/sunhill.jpg";
 import axiosInstanceNoAuthHeader from "../../utils/axiosInstance";
+import LoginPageUserRole from "../../utils/LoginPageUserRole";
+import checkLoginPageUserRole from "../../utils/LoginPageUserRole";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate(); // Initialize useNavigate
+
+  const handleBackToLogin = () => {
+    const urlPath = checkLoginPageUserRole(
+      sessionStorage.getItem("LoginPageUserRole")
+    );
+    console.log("urlPath: ", urlPath);
+    navigate(urlPath, { replace: true });
+  };
 
   useEffect(() => {
     sessionStorage.setItem("email", email);
@@ -111,9 +121,12 @@ const ForgotPassword = () => {
           </button>
           <div className="text-sm sm:text-base text-center text-gray-600 mt-4">
             <span>Remember Password? </span>
-            <Link to="/login" className="text-blue-600 hover:underline">
+            <button
+              onClick={handleBackToLogin}
+              className="text-blue-600 hover:underline"
+            >
               Login
-            </Link>
+            </button>
           </div>
         </form>
       </div>

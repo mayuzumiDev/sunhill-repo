@@ -3,14 +3,19 @@ import Navbar from "../components/login/Navbar";
 import { QRCodeSVG } from "qrcode.react";
 import QRCodeScanner from "./student/qrcode/qrscan";
 import useSound from "use-sound";
-import clickSound from "../assets/img/home/bubble.wav"; 
-import SUNHILL from "../assets/img/home/sunhill.jpg"; 
-import MrSun from "../assets/img/home/mr_sun.gif"; 
-import "../styles/Studentlogin.css"; 
+import clickSound from "../assets/img/home/bubble.wav";
+import SUNHILL from "../assets/img/home/sunhill.jpg";
+import MrSun from "../assets/img/home/mr_sun.gif";
+import "../styles/Studentlogin.css";
 
 function StudentLogin() {
   const [play] = useSound(clickSound); // Play sound on hover
-  const [isScannerVisible, setScannerVisible] = useState(false); 
+  const [isScannerVisible, setScannerVisible] = useState(false);
+
+  useEffect(() => {
+    sessionStorage.removeItem("LoginPageUserRole");
+    sessionStorage.setItem("LoginPageUserRole", "student");
+  });
 
   // Toggle QR code scanner visibility
   const toggleScanner = () => {
@@ -26,7 +31,7 @@ function StudentLogin() {
     "Welcome back, Sunhillians! Your learning journey continues. Login to explore!",
     "Greetings, Sunhillians! Another exciting day of learning is just a login away!",
     "Sunhillians, it's time to shine! Login and start your day of learning now!",
-    "Hi there, Sunhillians! Let's unlock new knowledge today. Ready to begin? Login now!"
+    "Hi there, Sunhillians! Let's unlock new knowledge today. Ready to begin? Login now!",
   ];
 
   // Function to pick a random greeting
@@ -52,7 +57,6 @@ function StudentLogin() {
       window.speechSynthesis.cancel();
     };
   }, []);
-
 
   return (
     <div className="bg-gradient-to-br from-blue-200 via-blue-300 to-blue-400 min-h-screen flex flex-col relative overflow-hidden">
@@ -84,7 +88,9 @@ function StudentLogin() {
 
             <form className="w-full space-y-4">
               <div className="flex flex-col">
-                <label className="text-xs sm:text-sm md:text-lg text-gray-700 font-semibold">Username</label>
+                <label className="text-xs sm:text-sm md:text-lg text-gray-700 font-semibold">
+                  Username
+                </label>
                 <input
                   type="text"
                   className="p-2 sm:p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-400 outline-none text-sm sm:text-base md:text-lg"
@@ -93,7 +99,9 @@ function StudentLogin() {
               </div>
 
               <div className="flex flex-col">
-                <label className="text-xs sm:text-sm md:text-lg text-gray-700 font-semibold">Password</label>
+                <label className="text-xs sm:text-sm md:text-lg text-gray-700 font-semibold">
+                  Password
+                </label>
                 <input
                   type="password"
                   className="p-2 sm:p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-400 outline-none text-sm sm:text-base md:text-lg"
@@ -103,7 +111,10 @@ function StudentLogin() {
 
               <div className="flex items-center space-x-2">
                 <input type="checkbox" className="rounded" id="rememberMe" />
-                <label htmlFor="rememberMe" className="text-xs sm:text-sm md:text-lg text-gray-700">
+                <label
+                  htmlFor="rememberMe"
+                  className="text-xs sm:text-sm md:text-lg text-gray-700"
+                >
                   Remember Me
                 </label>
               </div>
@@ -117,7 +128,10 @@ function StudentLogin() {
               </button>
 
               <div className="text-left">
-                <a href="/forgot-password" className="text-blue-500 hover:underline text-sm sm:text-base">
+                <a
+                  href="/forgot-password"
+                  className="text-blue-500 hover:underline text-sm sm:text-base"
+                >
                   Forgot Password?
                 </a>
               </div>
@@ -127,16 +141,18 @@ function StudentLogin() {
           <div className="md:flex md:flex-col items-center space-y-4">
             <div className="flex items-center space-x-2 w-full">
               <hr className="border-t border-gray-300 flex-grow" />
-              <span className="text-black-600 font-bold px-2 text-sm sm:text-base">OR</span>
+              <span className="text-black-600 font-bold px-2 text-sm sm:text-base">
+                OR
+              </span>
               <hr className="border-t border-gray-300 flex-grow" />
             </div>
           </div>
 
           <div className="w-full md:w-1/2 flex flex-col items-center justify-center">
-          <div className="relative flex items-center justify-center mt-4 sm:mt-6">
+            <div className="relative flex items-center justify-center mt-4 sm:mt-6">
               <QRCodeSVG
                 value="https://example.com/qr-login"
-                size={150} 
+                size={150}
                 bgColor="#FFFFFF"
                 fgColor="#4A90E2"
                 className="shadow-lg rounded-lg"
@@ -189,8 +205,12 @@ function StudentLogin() {
         {isScannerVisible && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 z-50 transition-opacity duration-300 ease-in-out">
             <div className="relative w-full max-w-xs sm:max-w-sm md:max-w-md max-h-[70%] bg-white rounded-lg shadow-lg p-4 sm:p-6 md:p-8 flex flex-col items-center space-y-4">
-              <h2 className="text-sm sm:text-base md:text-lg font-bold text-purple-700">Scan Your QR Code</h2>
-              <p className="text-gray-600 text-center text-xs sm:text-sm md:text-base">Use your QR code to sign in securely.</p>
+              <h2 className="text-sm sm:text-base md:text-lg font-bold text-purple-700">
+                Scan Your QR Code
+              </h2>
+              <p className="text-gray-600 text-center text-xs sm:text-sm md:text-base">
+                Use your QR code to sign in securely.
+              </p>
               <QRCodeScanner />
               <button
                 className="absolute top-2 right-2 text-red-500 text-xl sm:text-2xl md:text-3xl bg-white rounded-full p-1 shadow-md hover:bg-red-100"
