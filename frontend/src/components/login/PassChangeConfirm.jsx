@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import checkmarkImage from "../../assets/img/home/check.png"; // Adjust the path as needed
 
 const PasswordChanged = () => {
+  sessionStorage.clear();
+
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100 p-4 sm:p-6 lg:p-8">
       <div className="bg-white shadow-lg rounded-lg p-6 sm:p-8 w-full max-w-md text-center">
