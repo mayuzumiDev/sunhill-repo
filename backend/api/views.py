@@ -54,7 +54,7 @@ class AdminLoginView(generics.GenericAPIView):
         # Return serializer errors
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class AdminLogoutView(generics.GenericAPIView):  
+class AccountLogoutView(generics.GenericAPIView):  
     permission_classes = [IsAuthenticated]  # Only allow authenticated users
 
     def post(self, request):

@@ -3,7 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { FaFontAwesome, FaSpinner } from "react-icons/fa";
 import sunhilllogo from "../../assets/img/home/sunhill.jpg";
 import axiosInstanceNoAuthHeader from "../../utils/axiosInstance";
-import LoginPageUserRole from "../../utils/LoginPageUserRole";
 import checkLoginPageUserRole from "../../utils/LoginPageUserRole";
 
 const ForgotPassword = () => {
@@ -16,7 +15,6 @@ const ForgotPassword = () => {
     const urlPath = checkLoginPageUserRole(
       sessionStorage.getItem("LoginPageUserRole")
     );
-    console.log("urlPath: ", urlPath);
     navigate(urlPath, { replace: true });
   };
 
@@ -32,6 +30,7 @@ const ForgotPassword = () => {
     setIsLoading(true);
     // Validate email
     if (!email || !/\S+@\S+\.\S+/.test(email)) {
+      setIsLoading(false);
       setError("Please enter a valid email address.");
       return;
     }

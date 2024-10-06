@@ -21,7 +21,7 @@ export default function Example({ onClose }) {
       const refresh_token = localStorage.getItem("refresh_token");
 
       // Send logout request to API with the refresh token
-      const response = await axiosInstance.post("/api/admin-logout/", {
+      const response = await axiosInstance.post("/api/account-logout/", {
         refresh_token: refresh_token,
       });
 

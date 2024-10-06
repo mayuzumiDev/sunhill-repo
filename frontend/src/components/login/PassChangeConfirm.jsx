@@ -1,9 +1,18 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import checkmarkImage from "../../assets/img/home/check.png"; // Adjust the path as needed
+import checkLoginPageUserRole from "../../utils/LoginPageUserRole";
 
 const PasswordChanged = () => {
-  sessionStorage.clear();
+  const navigate = useNavigate();
+
+  const handleBackToLogin = () => {
+    const urlPath = checkLoginPageUserRole(
+      sessionStorage.getItem("LoginPageUserRole")
+    );
+    navigate(urlPath, { replace: true });
+    sessionStorage.clear();
+  };
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100 p-4 sm:p-6 lg:p-8">
@@ -19,12 +28,12 @@ const PasswordChanged = () => {
         <p className="text-sm sm:text-base text-gray-700 mb-6 sm:mb-8">
           Your password has been successfully changed.
         </p>
-        <Link
-          to="/login"
+        <button
+          onClick={handleBackToLogin}
           className="inline-block py-2 px-4 sm:py-3 sm:px-6 bg-blue-600 text-white font-semibold rounded-md shadow-lg hover:bg-blue-700 hover:shadow-xl transition duration-300"
         >
           Go to Login
-        </Link>
+        </button>
       </div>
     </div>
   );
