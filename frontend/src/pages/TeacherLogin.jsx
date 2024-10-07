@@ -2,49 +2,18 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom"; // Import useNavigate for redirection
 import Navbar from "../components/login/Navbar";
 import sunhillLogo from "../assets/img/home/sunhill.jpg"; // Path to Sunhill logo
-import axios from "axios";
 import LoginAlert from "../components/alert/LoginAlert";
+import userLogin from "../hooks/useLogin";
 
 function TeacherLogin() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
-  const [showAlert, setShowAlert] = useState(false);
-  const navigate = useNavigate(); // Initialize useNavigate
+  const { handleLogin, errorMessage, showAlert } = userLogin();
+  const loginPageName = "teacher";
 
-  sessionStorage.removeItem("LoginPageUserRole");
-  sessionStorage.setItem("LoginPageUserRole", "teacher");
-
-  const handleLogin = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-
-    const axiosInstanceLogin = axios.create({
-      baseURL: "http://127.0.0.1:8000/", // Set the base URL for all requests
-      withCredentials: true,
-    });
-
-    try {
-      const response = await axiosInstanceLogin.post("/api/account-login/", {
-        username: username,
-        password: password,
-        login_page: sessionStorage.getItem("LoginPageUserRole"),
-      });
-
-      const user_role = response.data.role;
-
-      if (response.status === 200) {
-        navigate(`/${user_role}-interface/`, { replace: true });
-      }
-    } catch (error) {
-      if (error.response) {
-        console.log(error.response.data);
-        setErrorMessage(error.response.data.error);
-        setShowAlert(true);
-      } else {
-        console.log("An error occured: ", error);
-        setErrorMessage("An error occured. Please try again.");
-      }
-    }
+    handleLogin({ username, password, loginPageName });
   };
 
   return (
@@ -81,7 +50,7 @@ function TeacherLogin() {
             )}
           </div>
 
-          <form className="space-y-6" onSubmit={handleLogin}>
+          <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
               <label
                 htmlFor="username"

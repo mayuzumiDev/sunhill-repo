@@ -1,13 +1,20 @@
-import React, { useEffect } from "react";
+import React, { useState } from "react";
 import Navbar from "../components/login/Navbar";
 import { Link } from "react-router-dom";
 import sunhillLogo from "../assets/img/home/sunhill.jpg"; // Path to Sunhill logo
+import LoginAlert from "../components/alert/LoginAlert";
+import useLogin from "../hooks/useLogin";
 
 function ParentLogin() {
-  useEffect(() => {
-    sessionStorage.removeItem("LoginPageUserRole");
-    sessionStorage.setItem("LoginPageUserRole", "parent");
-  });
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const { handleLogin, errorMessage, showAlert } = useLogin();
+  const loginPageName = "parent";
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    handleLogin({ username, password, loginPageName });
+  };
 
   return (
     <div>
@@ -42,11 +49,16 @@ function ParentLogin() {
           <h2 className="text-xl sm:text-2xl font-extrabold text-center text-orange-800 mb-4">
             Welcome Parents!
           </h2>
-          <p className="text-sm sm:text-base text-center text-gray-700 mb-8">
-            Thank you for your ongoing support. Log in to stay informed and
-            involved.
-          </p>
-          <form className="space-y-6">
+          <div className="text-sm sm:text-base text-center text-gray-700 mb-8">
+            {showAlert ? (
+              <div>
+                <LoginAlert errorMessage={errorMessage} />
+              </div>
+            ) : (
+              "Thank you for your ongoing support. Log in to stay informed and involved."
+            )}
+          </div>
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label
                 htmlFor="username"
@@ -60,6 +72,8 @@ function ParentLogin() {
                   name="username"
                   type="text"
                   required
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition duration-150 ease-in-out"
                 />
               </div>
@@ -78,6 +92,8 @@ function ParentLogin() {
                   name="password"
                   type="password"
                   required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition duration-150 ease-in-out"
                 />
               </div>

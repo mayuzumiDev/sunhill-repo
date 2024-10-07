@@ -8,6 +8,8 @@ import ParentLogin from "./pages/ParentLogin";
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminInterface from "./pages/admin/AdminInterface";
 import TeacherInterface from "./pages/teacher/TeacherInterface";
+import StudentInterfaceTemp from "./pages/student/StudentInterfaceTemp"; // Temporary Student Interface for testing purposes
+import ParentInterfaceTemp from "./pages/parent/ParentInterfaceTemp"; // Temporary Parent Interface for testing  purposes
 import ForgotPassword from "./components/login/ForgotPassword";
 import OTPVerification from "./components/login/OTPVerifications";
 import CreateNewPassword from "./components/login/CreateNewPass";
@@ -26,6 +28,8 @@ function App() {
         <Route path="/login/student/" element={<StudentLogin />} />
         <Route path="/login/parent/" element={<ParentLogin />} />
         <Route path="/teacher-interface/" element={<TeacherInterface />} />
+        <Route path="/student-interface/" element={<StudentInterfaceTemp />} />
+        <Route path="/parent-interface/" element={<ParentInterfaceTemp />} />
         <Route
           path="/admin/login/"
           element={
