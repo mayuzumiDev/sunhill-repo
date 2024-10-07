@@ -4,6 +4,7 @@ from django.db import models
 from datetime import timedelta
 from django.utils import timezone
 from enum import Enum
+from django.db.models import Q
 
 # Define user roles
 class UserRole(Enum):
@@ -15,7 +16,7 @@ class UserRole(Enum):
 
 # Create custom user model
 class CustomUser(AbstractUser):
-    email = models.EmailField(('email'), unique=True)
+    email = models.EmailField(blank=True, null=True)
     role = models.CharField(max_length=10, choices=[(role.value, role.name) for role in UserRole],) # Add user role field
     branch_name = models.CharField(max_length=50, blank=True, null=True) # Add school branch name field
 
@@ -29,15 +30,21 @@ class CustomUser(AbstractUser):
         self.save()
 
 class PasswordResetCode(models.Model):
-    email = models.ForeignKey(CustomUser, on_delete=models.CASCADE, to_field='email', related_name='password_reset_codes', null=True)
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='password_reset_codes', null=True, blank=True)
+    user_email = models.EmailField(blank=True)
     code = models.CharField(max_length=4)  # 4-digit verification code
     created_at = models.DateTimeField(auto_now_add=True)
     expires_at = models.DateTimeField()
 
     def save(self, *args, **kwargs):
+        # Automatically set the user's email
+        if self.user:
+            self.user_email = self.user.email
+
         # Automatically set the expiration time to 10 minutes from creation
         if not self.expires_at:
             self.expires_at = timezone.now() + timedelta(minutes=10)
+
         super().save(*args, **kwargs)
 
     def check_verification_code(self, code):

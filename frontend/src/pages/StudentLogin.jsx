@@ -7,15 +7,22 @@ import clickSound from "../assets/img/home/bubble.wav";
 import SUNHILL from "../assets/img/home/sunhill.jpg";
 import MrSun from "../assets/img/home/mr_sun.gif";
 import "../styles/Studentlogin.css";
+import useLogin from "../hooks/useLogin";
+import LoginAlert from "../components/alert/LoginAlert";
 
 function StudentLogin() {
   const [play] = useSound(clickSound); // Play sound on hover
   const [isScannerVisible, setScannerVisible] = useState(false);
 
-  useEffect(() => {
-    sessionStorage.removeItem("LoginPageUserRole");
-    sessionStorage.setItem("LoginPageUserRole", "student");
-  });
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const { handleLogin, errorMessage, showAlert } = useLogin();
+  const loginPageName = "student";
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    handleLogin({ username, password, loginPageName });
+  };
 
   // Toggle QR code scanner visibility
   const toggleScanner = () => {
@@ -82,11 +89,17 @@ function StudentLogin() {
               <span className="letter-l2">s!</span>
             </h1>
 
-            <p className="text-xs sm:text-sm md:text-lg text-purple-600 text-center md:text-left">
-              Log in to begin today's adventure!
-            </p>
+            <div className="text-sm sm:text-base text-center text-purple-600 mb-8">
+              {showAlert ? (
+                <div>
+                  <LoginAlert errorMessage={errorMessage} />
+                </div>
+              ) : (
+                "Log in to begin today's adventure!"
+              )}
+            </div>
 
-            <form className="w-full space-y-4">
+            <form onSubmit={handleSubmit} className="w-full space-y-4">
               <div className="flex flex-col">
                 <label className="text-xs sm:text-sm md:text-lg text-gray-700 font-semibold">
                   Username
@@ -95,6 +108,9 @@ function StudentLogin() {
                   type="text"
                   className="p-2 sm:p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-400 outline-none text-sm sm:text-base md:text-lg"
                   placeholder="Enter your username"
+                  required
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                 />
               </div>
 
@@ -106,10 +122,13 @@ function StudentLogin() {
                   type="password"
                   className="p-2 sm:p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-400 outline-none text-sm sm:text-base md:text-lg"
                   placeholder="Enter your password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
 
-              <div className="flex items-center space-x-2">
+              {/*               <div className="flex items-center space-x-2">
                 <input type="checkbox" className="rounded" id="rememberMe" />
                 <label
                   htmlFor="rememberMe"
@@ -117,7 +136,7 @@ function StudentLogin() {
                 >
                   Remember Me
                 </label>
-              </div>
+              </div> */}
 
               <button
                 type="submit"

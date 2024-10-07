@@ -5,7 +5,7 @@ import axios from "axios";
 
 import { BsPersonCircle } from "react-icons/bs";
 
-function AdminLogin() { 
+function AdminLogin() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
