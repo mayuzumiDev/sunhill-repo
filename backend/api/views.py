@@ -4,7 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-from .serializers import AdminLoginSerializer, PasswordResetSerializer, PasswordResetVerifySerializer, PasswordResetConfirmSerializer, OTPResendCodeSerializer
+from .serializers import AccountLoginSerializer, PasswordResetSerializer, PasswordResetVerifySerializer, PasswordResetConfirmSerializer, OTPResendCodeSerializer
 from django.template.loader import render_to_string
 from django.core.mail import EmailMultiAlternatives
 from django.utils.html import strip_tags
@@ -16,7 +16,7 @@ class AdminLoginView(generics.GenericAPIView):
     permission_classes = [AllowAny] # Allow any user to access this view
    
     def post(self, request, *args, **kwargs):
-        serializer = AdminLoginSerializer(data=request.data) # Create serializer instance
+        serializer = AccountLoginSerializer(data=request.data) # Create serializer instance
 
         # Check serializer validity
         if serializer.is_valid():
@@ -41,7 +41,6 @@ class AdminLoginView(generics.GenericAPIView):
                         "success": True, 
                         "access_token": str(access_token), 
                         "refresh_token": str(refresh_token), 
-                        "message": "Admin login successful",
                         "role": user.role
                         }, status=status.HTTP_200_OK)
                 else:
@@ -53,6 +52,47 @@ class AdminLoginView(generics.GenericAPIView):
             
         # Return serializer errors
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class AccountLoginView(generics.GenericAPIView):
+    permission_classes = [AllowAny] # Allow any user to access this view
+    serializer_class = AccountLoginSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+
+        if serializer.is_valid():
+            username = serializer.validated_data.get('username')
+            password = serializer.validated_data.get('password')
+            login_page = serializer.validated_data.get('login_page')
+
+            # Check if the username exist in the database
+            user_exists = CustomUser.objects.filter(username=username).exists();
+            if not user_exists:
+                return Response({"error": "Username does not exist"}, status=status.HTTP_404_NOT_FOUND)
+
+            user = authenticate(request, username=username, password=password) # Authenticate user
+
+            # If user is authenticated
+            if user is not None:
+                if(login_page != user.role):
+                    return Response({"error": f"No {login_page} account found with those credentials"}, status=status.HTTP_403_FORBIDDEN)
+                
+                # Generate tokens and log in
+                refresh_token = RefreshToken.for_user(user);
+                access_token = refresh_token.access_token
+                login(request, user)
+
+                return Response({
+                    "success": True,
+                    "access_token": str(access_token),
+                    "refresh_token": str(refresh_token),
+                    "role": user.role
+                }, status=status.HTTP_200_OK)
+            else:
+                return Response({"error": "Invalid username or password. Please try again"}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class AccountLogoutView(generics.GenericAPIView):  
     permission_classes = [IsAuthenticated]  # Only allow authenticated users
@@ -82,8 +122,8 @@ class PasswordResetRequestView(generics.GenericAPIView):
         if serializer.is_valid():
             email = serializer.validated_data.get('email')
 
-            if PasswordResetCode.objects.filter(email=email).exists():
-                PasswordResetCode.objects.filter(email=email).delete()
+            if PasswordResetCode.objects.filter(user_email=email).exists():
+                PasswordResetCode.objects.filter(user_email=email).delete()
 
             # Check if email exists in the database
             try:
@@ -128,9 +168,10 @@ class PasswordResetRequestView(generics.GenericAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     def storeVerifcationCode(self, email, verification_code):
+        user = get_object_or_404(CustomUser, email=email)
         # Create a new instance of the PasswordResetCode model
         password_reset_code = PasswordResetCode(
-            email=CustomUser.objects.get(email=email),
+            user=user,
             code=verification_code
         )
 

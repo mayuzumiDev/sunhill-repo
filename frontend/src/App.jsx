@@ -21,13 +21,13 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/login/teacher" element={<TeacherLogin />} />
-        <Route path="/login/student" element={<StudentLogin />} />
-        <Route path="/login/parent" element={<ParentLogin />} />
-        <Route path="/teacher/" element={<TeacherInterface />} />
+        <Route path="/login/" element={<LoginPage />} />
+        <Route path="/login/teacher/" element={<TeacherLogin />} />
+        <Route path="/login/student/" element={<StudentLogin />} />
+        <Route path="/login/parent/" element={<ParentLogin />} />
+        <Route path="/teacher-interface/" element={<TeacherInterface />} />
         <Route
-          path="/admin/login"
+          path="/admin/login/"
           element={
             <>
               <PageTitle title="Sunhill LMS Admin" />
@@ -46,10 +46,10 @@ function App() {
             }
           />
         </Route>
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/otp-verification" element={<OTPVerification />} />
-        <Route path="/create-new-password" element={<CreateNewPassword />} />
-        <Route path="/password-changed" element={<PasswordChanged />} />
+        <Route path="/forgot-password/" element={<ForgotPassword />} />
+        <Route path="/otp-verification/" element={<OTPVerification />} />
+        <Route path="/create-new-password/" element={<CreateNewPassword />} />
+        <Route path="/password-changed/" element={<PasswordChanged />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>

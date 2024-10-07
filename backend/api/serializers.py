@@ -2,10 +2,11 @@ from rest_framework import serializers
 from django.core.validators import MinLengthValidator, MaxLengthValidator
 from .models import CustomUser, PasswordResetCode
 
-class AdminLoginSerializer(serializers.Serializer):
+class AccountLoginSerializer(serializers.Serializer):
     # Fields required for admin login
     username = serializers.CharField(required=True)
     password = serializers.CharField(required=True, write_only=True)
+    login_page = serializers.CharField(required=True)
 
 class PasswordResetSerializer(serializers.Serializer):
     email = serializers.EmailField() # Email field for password reset

@@ -2,27 +2,48 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom"; // Import useNavigate for redirection
 import Navbar from "../components/login/Navbar";
 import sunhillLogo from "../assets/img/home/sunhill.jpg"; // Path to Sunhill logo
+import axios from "axios";
+import LoginAlert from "../components/alert/LoginAlert";
 
 function TeacherLogin() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [showAlert, setShowAlert] = useState(false);
   const navigate = useNavigate(); // Initialize useNavigate
 
-  useEffect(() => {
-    sessionStorage.removeItem("LoginPageUserRole");
-    sessionStorage.setItem("LoginPageUserRole", "teacher");
-  });
+  sessionStorage.removeItem("LoginPageUserRole");
+  sessionStorage.setItem("LoginPageUserRole", "teacher");
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
 
-    // Implement your authentication logic here
-    if (username === "teacher" && password === "password") {
-      // Replace with actual logic
-      // On successful login
-      navigate("/teacher/"); // Redirect to Teacher interface
-    } else {
-      alert("Invalid username or password"); // Error handling
+    const axiosInstanceLogin = axios.create({
+      baseURL: "http://127.0.0.1:8000/", // Set the base URL for all requests
+      withCredentials: true,
+    });
+
+    try {
+      const response = await axiosInstanceLogin.post("/api/account-login/", {
+        username: username,
+        password: password,
+        login_page: sessionStorage.getItem("LoginPageUserRole"),
+      });
+
+      const user_role = response.data.role;
+
+      if (response.status === 200) {
+        navigate(`/${user_role}-interface/`, { replace: true });
+      }
+    } catch (error) {
+      if (error.response) {
+        console.log(error.response.data);
+        setErrorMessage(error.response.data.error);
+        setShowAlert(true);
+      } else {
+        console.log("An error occured: ", error);
+        setErrorMessage("An error occured. Please try again.");
+      }
     }
   };
 
@@ -50,9 +71,16 @@ function TeacherLogin() {
           <h2 className="text-xl sm:text-2xl font-extrabold text-center text-green-800 mb-4">
             Welcome Teachers!
           </h2>
-          <p className="text-sm sm:text-base text-center text-gray-700 mb-8">
-            Please log in to access your dashboard and manage your classes.
-          </p>
+          <div className="text-sm sm:text-base text-center text-gray-700 mb-8">
+            {showAlert ? (
+              <div>
+                <LoginAlert errorMessage={errorMessage} />
+              </div>
+            ) : (
+              "Please log in to access your dashboard and manage your classes."
+            )}
+          </div>
+
           <form className="space-y-6" onSubmit={handleLogin}>
             <div>
               <label
