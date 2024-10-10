@@ -16,7 +16,6 @@ import CreateNewPassword from "./components/login/CreateNewPass";
 import PasswordChanged from "./components/login/PassChangeConfirm";
 import PageTitle from "./components/PageTitle";
 import NotFound from "./components/404NotFound";
-import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
@@ -27,29 +26,19 @@ function App() {
         <Route path="/login/teacher/" element={<TeacherLogin />} />
         <Route path="/login/student/" element={<StudentLogin />} />
         <Route path="/login/parent/" element={<ParentLogin />} />
-        <Route path="/teacher-interface/" element={<TeacherInterface />} />
-        <Route path="/student-interface/" element={<StudentInterfaceTemp />} />
-        <Route path="/parent-interface/" element={<ParentInterfaceTemp />} />
+        <Route path="/teacher/interface/" element={<TeacherInterface />} />
+        <Route path="/student/interface/" element={<StudentInterfaceTemp />} />
+        <Route path="/parent/interface/" element={<ParentInterfaceTemp />} />
         <Route
           path="/admin/login/"
           element={
             <>
               <PageTitle title="Sunhill LMS Admin" />
-              <AdminLogin />{" "}
+              <AdminLogin />
             </>
           }
         />
-        <Route path="/admin/" element={<ProtectedRoute />}>
-          <Route
-            index
-            element={
-              <>
-                <PageTitle title="Sunhill LMS Admin" />
-                <AdminInterface />
-              </>
-            }
-          />
-        </Route>
+        <Route path="/admin/interface/" element={<AdminInterface />} />
         <Route path="/forgot-password/" element={<ForgotPassword />} />
         <Route path="/otp-verification/" element={<OTPVerification />} />
         <Route path="/create-new-password/" element={<CreateNewPassword />} />

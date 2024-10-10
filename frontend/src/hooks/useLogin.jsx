@@ -1,10 +1,13 @@
 import { useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import axios from "axios";
+import { jwtDecode } from "jwt-decode";
 
 const useLogin = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [showAlert, setShowAlert] = useState(false);
+  // const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const handleLogin = async ({ username, password, loginPageName }) => {
@@ -20,10 +23,11 @@ const useLogin = () => {
         login_page: loginPageName,
       });
 
-      const user_role = response.data.role;
+      const { refresh_token, access_token, role } = response.data;
+      const decodedToken = jwtDecode(access_token);
 
       if (response.status === 200) {
-        navigate(`/${user_role}-interface/`, { replace: true });
+        navigate(`/${role}/interface/`, { replace: true });
       }
     } catch (error) {
       if (error.response) {

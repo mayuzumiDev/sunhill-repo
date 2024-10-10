@@ -1,0 +1,176 @@
+import { useEffect, useState } from "react";
+import { useNavigate, Outlet } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
+import { useDispatch, useSelector } from "react-redux";
+import { setAccessToken, setTokenExpiration } from "../redux/auth/authSlice";
+import { useSpring, animated } from "react-spring";
+import axiosInstance from "../utils/axiosInstance";
+
+const userRoleConfigs = {
+  default: {
+    loginPath: "/login/",
+  },
+  admin: {
+    loginPath: "/admin/login/",
+    protectedPath: "/admin/interface",
+  },
+  teacher: {
+    loginPath: "/login/teacher/",
+  },
+  student: {
+    loginPath: "/login/student/",
+  },
+  parent: {
+    loginPath: "/login/parent/",
+  },
+};
+
+const ProtectedRoute = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const loginPageName = sessionStorage.getItem("loginPageName");
+
+  // Get user role and tokens from redux storage
+  let token = useSelector((state) => state.auth.accessToken);
+  const refreshToken = useSelector((state) => state.auth.refreshToken);
+  const userRole = useSelector((state) => state.auth.userRole);
+  let tokenExpiration = useSelector((state) => state.auth.tokenExpiration);
+
+  // State variables to track token refreshing and authentication status
+  const [isTokenRefreshing, setIsTokenRefreshing] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(null);
+
+  // Effect to check token validity and refresh token if needed
+  useEffect(() => {
+    let timeoutId;
+
+    const checkTokenValidity = async () => {
+      console.log(
+        "Checking token validity at:",
+        new Date().toLocaleTimeString()
+      );
+
+      const isValid = isTokenValid();
+      if (!isValid) {
+        console.log("Token is not valid. Refreshing...");
+        await refreshTokenIfNeeded();
+      } else {
+        // Refresh token 10 minute before expiration
+        const refreshBeforeExpiration = 5 * 60; // 10 minute in seconds
+        const currentTime = new Date().getTime() / 1000;
+        const expirationTime = parseInt(tokenExpiration, 10);
+        const timeToRefresh = expirationTime - refreshBeforeExpiration;
+
+        if (currentTime >= timeToRefresh) {
+          console.log("Token is about to expire. Refreshing...");
+          await refreshTokenIfNeeded();
+        } else {
+          console.log("Token is still valid.");
+        }
+      }
+
+      // Set authentication status based on token validity and user role
+      // setIsAuthenticated(isTokenValid() && userRole === loginPageName);
+      setIsAuthenticated(isTokenValid());
+    };
+
+    const handleUserActivity = () => {
+      clearTimeout(timeoutId);
+      checkTokenValidity();
+      timeoutId = setTimeout(checkTokenValidity, 5 * 60 * 1000); // Check again after 5 minutes
+    };
+
+    // Call checkTokenValidity on component mount
+    checkTokenValidity();
+
+    // Attach event listeners to detect user activity
+    const events = ["mousemove", "keydown", "scroll"];
+    events.forEach((event) =>
+      window.addEventListener(event, handleUserActivity)
+    );
+
+    // Cleanup on component unmount
+    return () => {
+      events.forEach((event) =>
+        window.removeEventListener(event, handleUserActivity)
+      );
+      clearTimeout(timeoutId);
+    };
+  }, [userRole, token, tokenExpiration]);
+
+  // Function to check if token is valid
+  const isTokenValid = () => {
+    if (!token) return false;
+
+    // Get current time and expiration time
+    const currentTime = new Date().getTime() / 1000;
+    const expirationTime = parseInt(tokenExpiration, 10);
+
+    // Return true if token is not expired
+    return currentTime <= expirationTime;
+  };
+
+  // Function to refresh token if needed
+  const refreshTokenIfNeeded = async () => {
+    if (isTokenRefreshing || !refreshToken) return;
+
+    // Set token refreshing state to true
+    setIsTokenRefreshing(true);
+
+    try {
+      // Make API call to refresh token
+      const response = await axiosInstance.post("/api/token/refresh/", {
+        refresh: refreshToken,
+      });
+
+      // Get new token and expiration time from response
+      const newToken = response.data.access;
+      const decodedToken = jwtDecode(newToken);
+      const newExpirationTime = decodedToken.exp;
+
+      // Update local storage with new token and expiration time
+      dispatch(setAccessToken({ accessToken: newToken }));
+      dispatch(setTokenExpiration({ tokenExpiration: newExpirationTime }));
+
+      // Update state variables with new token and expiration time
+      token = newToken;
+      tokenExpiration = newExpirationTime;
+
+      console.log("Access token refreshed successfully");
+      console.log(
+        "New expiration:",
+        new Date(newExpirationTime * 1000).toLocaleString()
+      );
+    } catch (error) {
+      console.error("Error refreshing token:", error);
+    } finally {
+      setIsTokenRefreshing(false); // Set token refreshing state to false
+    }
+  };
+
+  useEffect(() => {
+    // If not authenticated, redirect to login page
+    if (!isAuthenticated) {
+      const roleConfig = userRoleConfigs[userRole] || userRoleConfigs.default;
+      const loginPath = roleConfig.loginPath;
+      navigate(loginPath, { replace: true });
+    }
+  }, [isAuthenticated, navigate, userRole]);
+
+  const props = useSpring({
+    opacity: 1,
+    from: { opacity: 0 },
+  });
+
+  // If authentication status is still null, show loading message
+  if (isAuthenticated === null) {
+    return <animated.div style={props}>Loading...</animated.div>;
+  }
+
+  sessionStorage.removeItem("loginPageName");
+
+  // If authenticated, render admin protected route content
+  return <Outlet />;
+};
+
+export default ProtectedRoute;

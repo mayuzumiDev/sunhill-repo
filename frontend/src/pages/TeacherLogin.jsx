@@ -3,13 +3,15 @@ import { Link, useNavigate } from "react-router-dom"; // Import useNavigate for 
 import Navbar from "../components/login/Navbar";
 import sunhillLogo from "../assets/img/home/sunhill.jpg"; // Path to Sunhill logo
 import LoginAlert from "../components/alert/LoginAlert";
-import userLogin from "../hooks/useLogin";
+import useLogin from "../hooks/useLogin";
 
 function TeacherLogin() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const { handleLogin, errorMessage, showAlert } = userLogin();
+  const { handleLogin, errorMessage, showAlert } = useLogin();
   const loginPageName = "teacher";
+
+  sessionStorage.setItem("loginPageName", loginPageName);
 
   const handleSubmit = (e) => {
     e.preventDefault();

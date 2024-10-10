@@ -1,57 +1,16 @@
 from django.contrib.auth import authenticate, login
-from rest_framework import status, generics
-from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework.response import Response
-from rest_framework_simplejwt.tokens import RefreshToken
-from .serializers import AccountLoginSerializer, PasswordResetSerializer, PasswordResetVerifySerializer, PasswordResetConfirmSerializer, OTPResendCodeSerializer
+from django.http import JsonResponse
 from django.template.loader import render_to_string
 from django.core.mail import EmailMultiAlternatives
 from django.utils.html import strip_tags
 from django.shortcuts import get_object_or_404
+from rest_framework import status, generics
+from rest_framework.views import APIView
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework_simplejwt.tokens import RefreshToken
+from .serializers import AccountLoginSerializer, PasswordResetSerializer, PasswordResetVerifySerializer, PasswordResetConfirmSerializer, OTPResendCodeSerializer
 from .models import CustomUser, PasswordResetCode
 import random
-
-class AdminLoginView(generics.GenericAPIView):
-    permission_classes = [AllowAny] # Allow any user to access this view
-   
-    def post(self, request, *args, **kwargs):
-        serializer = AccountLoginSerializer(data=request.data) # Create serializer instance
-
-        # Check serializer validity
-        if serializer.is_valid():
-            # Extract the username and password
-            username = serializer.validated_data.get('username')
-            password = serializer.validated_data.get('password')
-
-            # Authenticate user
-            user = authenticate(request, username=username, password=password)
-
-            # If user is authenticated
-            if user is not None:
-                # Check if user is staff
-                if user.is_staff: 
-                    # Generate tokens and log in
-                    refresh_token = RefreshToken.for_user(user)
-                    access_token = refresh_token.access_token
-                    login(request, user)
-                    
-                    # Return success response
-                    return Response({
-                        "success": True, 
-                        "access_token": str(access_token), 
-                        "refresh_token": str(refresh_token), 
-                        "role": user.role
-                        }, status=status.HTTP_200_OK)
-                else:
-                    # Return access denied error
-                    return Response({"error": "Access Denied: Only administrators are allowed to log in."}, status=status.HTTP_403_FORBIDDEN)
-            else:
-                # Return invalid credentials error
-                return Response({"error": "Invalid username or password. Please try again."}, status=status.HTTP_400_BAD_REQUEST)
-            
-        # Return serializer errors
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class AccountLoginView(generics.GenericAPIView):
     permission_classes = [AllowAny] # Allow any user to access this view
@@ -68,30 +27,32 @@ class AccountLoginView(generics.GenericAPIView):
             # Check if the username exist in the database
             user_exists = CustomUser.objects.filter(username=username).exists();
             if not user_exists:
-                return Response({"error": "Username does not exist"}, status=status.HTTP_404_NOT_FOUND)
+                return JsonResponse({"error": "Username does not exist"}, status=status.HTTP_404_NOT_FOUND)
 
             user = authenticate(request, username=username, password=password) # Authenticate user
 
             # If user is authenticated
             if user is not None:
                 if(login_page != user.role):
-                    return Response({"error": f"No {login_page} account found with those credentials"}, status=status.HTTP_403_FORBIDDEN)
+                    return JsonResponse({"error": f"No {login_page} account found with those credentials"}, status=status.HTTP_403_FORBIDDEN)
                 
                 # Generate tokens and log in
                 refresh_token = RefreshToken.for_user(user);
                 access_token = refresh_token.access_token
                 login(request, user)
 
-                return Response({
-                    "success": True,
-                    "access_token": str(access_token),
-                    "refresh_token": str(refresh_token),
+                response_data = {
+                    "success": True, 
+                    "access_token": str(access_token), 
+                    "refresh_token": str(refresh_token), 
                     "role": user.role
-                }, status=status.HTTP_200_OK)
+                }
+
+                return JsonResponse(response_data, status=status.HTTP_200_OK)
             else:
-                return Response({"error": "Invalid username or password. Please try again"}, status=status.HTTP_400_BAD_REQUEST)
+                return JsonResponse({"error": "Invalid username or password. Please try again"}, status=status.HTTP_400_BAD_REQUEST)
         else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class AccountLogoutView(generics.GenericAPIView):  
@@ -106,11 +67,11 @@ class AccountLogoutView(generics.GenericAPIView):
             # Blacklist token to log out
             token.blacklist()
 
-             # Return success response
-            return Response({"message": "Logged out successfully"}, status=status.HTTP_200_OK)
+             # Return success JsonResponse
+            return JsonResponse({"message": "Logged out successfully"}, status=status.HTTP_200_OK)
         
         except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            return JsonResponse({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
 class PasswordResetRequestView(generics.GenericAPIView):
     permission_classes = [AllowAny]  
@@ -129,8 +90,8 @@ class PasswordResetRequestView(generics.GenericAPIView):
             try:
                 user = CustomUser.objects.get(email=email)
             except CustomUser.DoesNotExist:
-                # Return an error response if the email is not found
-                return Response({"error": "Email not found"}, status=status.HTTP_404_NOT_FOUND)
+                # Return an error JsonResponse if the email is not found
+                return JsonResponse({"error": "Email not found"}, status=status.HTTP_404_NOT_FOUND)
 
             verification_code = str(random.randint(1000, 9999)) # Generate a passowrd reset token
 
@@ -163,9 +124,9 @@ class PasswordResetRequestView(generics.GenericAPIView):
             except Exception as e:
                 print("Error sending email:", str(e))
 
-            return Response({"success": True, "message": "Password reset email sent successfully", "verification_code": verification_code},  status=status.HTTP_200_OK)
+            return JsonResponse({"success": True, "message": "Password reset email sent successfully", "verification_code": verification_code},  status=status.HTTP_200_OK)
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     def storeVerifcationCode(self, email, verification_code):
         user = get_object_or_404(CustomUser, email=email)
@@ -199,14 +160,14 @@ class PasswordResetVerify(generics.GenericAPIView):
 
                 # Check if the verification code is valid
                 if password_reset_code.check_verification_code(verification_code):
-                    return Response({'message': 'Verification code is valid'}, status=status.HTTP_200_OK)
+                    return JsonResponse({'message': 'Verification code is valid'}, status=status.HTTP_200_OK)
                 else:
-                    return Response({'message': 'Invalid 4-digit verification code'}, status=status.HTTP_400_BAD_REQUEST)
+                    return JsonResponse({'message': 'Invalid 4-digit verification code'}, status=status.HTTP_400_BAD_REQUEST)
                 
             else:
-                return Response({'message': 'Email not found'}, status=status.HTTP_404_NOT_FOUND)
+                return JsonResponse({'message': 'Email not found'}, status=status.HTTP_404_NOT_FOUND)
         else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
 class PasswordResetConfirm(generics.GenericAPIView):
     permission_classes = [AllowAny]
@@ -236,9 +197,9 @@ class PasswordResetConfirm(generics.GenericAPIView):
                 # Delete the password reset code from the PasswordResetCode  model
                 password_reset.delete()
 
-                return Response({"message": "Password reset successfully"}, status=status.HTTP_200_OK)
+                return JsonResponse({"message": "Password reset successfully"}, status=status.HTTP_200_OK)
         
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
 class OTPCodeResend(generics.GenericAPIView):
     permission_classes = [AllowAny]
@@ -267,8 +228,8 @@ class OTPCodeResend(generics.GenericAPIView):
             try:
                 user = CustomUser.objects.get(email=email)
             except CustomUser.DoesNotExist:
-                # Return an error response if the email is not found
-                return Response({"error": "Email not found"}, status=status.HTTP_404_NOT_FOUND)
+                # Return an error JsonResponse if the email is not found
+                return JsonResponse({"error": "Email not found"}, status=status.HTTP_404_NOT_FOUND)
             
             verification_code = str(random.randint(1000, 9999)) # Generate a passowrd reset token
 
@@ -299,5 +260,5 @@ class OTPCodeResend(generics.GenericAPIView):
             except Exception as e:
                 print("Error sending email:", str(e))
 
-            return Response({"success": True, "message": "OTP resend successfully", "verification_code": verification_code}, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return JsonResponse({"success": True, "message": "OTP resend successfully", "verification_code": verification_code}, status=status.HTTP_200_OK)
+        return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -9,7 +9,7 @@ const LoginAlert = ({ errorMessage }) => {
       <div className="flex items-center">
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          className="h-4 w-4 mr-2"
+          className="h-4 w-4 mr-2 absolute left-4"
           viewBox="0 0 20 20"
           fill="currentColor"
         >
@@ -19,9 +19,11 @@ const LoginAlert = ({ errorMessage }) => {
             clipRule="evenodd"
           />
         </svg>
-        <span className="sm:inline text-xs font-bold font-montserrat">
-          {errorMessage}
-        </span>
+        <div className="flex justify-center">
+          <span className="sm:inline text-xs font-bold font-montserrat">
+            {errorMessage}
+          </span>
+        </div>
       </div>
     </div>
   );

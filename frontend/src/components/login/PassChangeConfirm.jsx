@@ -8,10 +8,9 @@ const PasswordChanged = () => {
 
   const handleBackToLogin = () => {
     const urlPath = checkLoginPageUserRole(
-      sessionStorage.getItem("LoginPageUserRole")
+      sessionStorage.getItem("loginPageName")
     );
     navigate(urlPath, { replace: true });
-    sessionStorage.clear();
   };
 
   return (
