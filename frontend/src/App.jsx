@@ -1,5 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { SecureLocalStorageProvider } from "./utils/SecureLocalStorage";
+import EncryptionKey from "./utils/EncryptionKeyGenerator";
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import TeacherLogin from "./pages/TeacherLogin";
@@ -18,34 +20,43 @@ import PageTitle from "./components/PageTitle";
 import NotFound from "./components/404NotFound";
 
 function App() {
+  const keyLength = 256;
+
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/login/" element={<LoginPage />} />
-        <Route path="/login/teacher/" element={<TeacherLogin />} />
-        <Route path="/login/student/" element={<StudentLogin />} />
-        <Route path="/login/parent/" element={<ParentLogin />} />
-        <Route path="/teacher/interface/" element={<TeacherInterface />} />
-        <Route path="/student/interface/" element={<StudentInterfaceTemp />} />
-        <Route path="/parent/interface/" element={<ParentInterfaceTemp />} />
-        <Route
-          path="/admin/login/"
-          element={
-            <>
-              <PageTitle title="Sunhill LMS Admin" />
-              <AdminLogin />
-            </>
-          }
-        />
-        <Route path="/admin/interface/" element={<AdminInterface />} />
-        <Route path="/forgot-password/" element={<ForgotPassword />} />
-        <Route path="/otp-verification/" element={<OTPVerification />} />
-        <Route path="/create-new-password/" element={<CreateNewPassword />} />
-        <Route path="/password-changed/" element={<PasswordChanged />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </Router>
+    <SecureLocalStorageProvider
+      encryptionKey={<EncryptionKey keyLength={keyLength} />}
+    >
+      <Router>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login/" element={<LoginPage />} />
+          <Route path="/login/teacher/" element={<TeacherLogin />} />
+          <Route path="/login/student/" element={<StudentLogin />} />
+          <Route path="/login/parent/" element={<ParentLogin />} />
+          <Route path="/teacher/interface/" element={<TeacherInterface />} />
+          <Route
+            path="/student/interface/"
+            element={<StudentInterfaceTemp />}
+          />
+          <Route path="/parent/interface/" element={<ParentInterfaceTemp />} />
+          <Route
+            path="/admin/login/"
+            element={
+              <>
+                <PageTitle title="Sunhill LMS Admin" />
+                <AdminLogin />
+              </>
+            }
+          />
+          <Route path="/admin/interface/" element={<AdminInterface />} />
+          <Route path="/forgot-password/" element={<ForgotPassword />} />
+          <Route path="/otp-verification/" element={<OTPVerification />} />
+          <Route path="/create-new-password/" element={<CreateNewPassword />} />
+          <Route path="/password-changed/" element={<PasswordChanged />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Router>
+    </SecureLocalStorageProvider>
   );
 }
 

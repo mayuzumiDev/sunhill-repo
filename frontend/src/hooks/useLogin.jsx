@@ -1,14 +1,14 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import axios from "axios";
 import { jwtDecode } from "jwt-decode";
+import axios from "axios";
+import { useSecureLocalStorage } from "../utils/SecureLocalStorage";
 
 const useLogin = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [showAlert, setShowAlert] = useState(false);
-  // const dispatch = useDispatch();
   const navigate = useNavigate();
+  const secureStorage = useSecureLocalStorage();
 
   const handleLogin = async ({ username, password, loginPageName }) => {
     const axiosInstanceLogin = axios.create({
@@ -25,6 +25,16 @@ const useLogin = () => {
 
       const { refresh_token, access_token, role } = response.data;
       const decodedToken = jwtDecode(access_token);
+
+      secureStorage.set("Refresh", refresh_token);
+      secureStorage.set("Access", access_token);
+      secureStorage.set("Role", role);
+      secureStorage.set("Expire", decodedToken.exp);
+
+      console.log("RefreshToken", secureStorage.get("Refresh"));
+      console.log("AccessToken", secureStorage.get("Access"));
+      console.log("Role", secureStorage.get("Role"));
+      console.log("DecodedToken", secureStorage.get("Expire"));
 
       if (response.status === 200) {
         navigate(`/${role}/interface/`, { replace: true });
