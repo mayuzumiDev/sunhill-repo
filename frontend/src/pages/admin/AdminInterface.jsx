@@ -10,7 +10,7 @@ import Public from "./manage_accounts/Public";
 import Branches from "./Branches";
 import SchoolEventsCalendar from "./Events";
 import AdminSettings from "./AdminSettings";
-import AdminLogout from "../../components/admin/Logout";
+import Logout from "../../components/Logout";
 import Breadcrumb from "../../components/Breadcrumbs"; // Import Breadcrumb component
 
 function AdminInterface() {
@@ -73,7 +73,7 @@ function AdminInterface() {
             toggleSidebar={toggleSidebar}
           />
           {showLogoutDialog && (
-            <AdminLogout onClose={() => setShowLogoutDialog(false)} />
+            <Logout onClose={() => setShowLogoutDialog(false)} />
           )}
         </div>
 

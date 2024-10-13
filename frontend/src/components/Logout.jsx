@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Dialog,
   DialogBackdrop,
@@ -8,31 +8,44 @@ import {
   DialogTitle,
 } from "@headlessui/react";
 import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
-import { useNavigate } from "react-router-dom";
-import axiosInstance from "../../utils/axiosInstance";
+import { axiosInstance, setAuthorizationHeader } from "../utils/axiosInstance";
+import SecureLS from "secure-ls";
+import generateEncryptionKey from "../utils/EncryptionKeyGenerator";
 
-export default function Example({ onClose }) {
+const Logout = ({ onClose }) => {
   const [open, setOpen] = useState(true);
-  const navigate = useNavigate();
+  const [refreshToken, setRefreshToken] = useState("");
+  const [accessToken, setAccessToken] = useState("");
+
+  const secureStorage = new SecureLS({
+    encodingType: "aes",
+    encryptionSecret: generateEncryptionKey(256),
+  });
+
+  useEffect(() => {
+    const refreshToken = secureStorage.get("refresh_token");
+    const accessToken = secureStorage.get("access_token");
+    setRefreshToken(refreshToken);
+    setAccessToken(accessToken);
+  }, [secureStorage]);
 
   const handleLogout = async () => {
     try {
-      // Get refresh token from local storage
-      const refresh_token = localStorage.getItem("refresh_token");
+      setAuthorizationHeader(accessToken);
 
       // Send logout request to API with the refresh token
       const response = await axiosInstance.post("/api/account-logout/", {
-        refresh_token: refresh_token,
+        refresh_token: refreshToken,
       });
 
       // Clear storage to remove any sensitive data
-      localStorage.clear();
+      secureStorage.clear();
       sessionStorage.clear();
 
-      // Redirect the user to the admin login page
-      window.location.href = "/";
+      // Redirect the user to the  login page
+      window.location.href = "/login/";
     } catch (error) {
-      console.error(error);
+      console.error("An error occured: ", error);
     }
   };
 
@@ -94,4 +107,6 @@ export default function Example({ onClose }) {
       </div>
     </Dialog>
   );
-}
+};
+
+export default Logout;

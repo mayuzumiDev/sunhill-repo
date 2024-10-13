@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom"; // Import useNavigate for redirection
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import Navbar from "../components/login/Navbar";
 import sunhillLogo from "../assets/img/home/sunhill.jpg"; // Path to Sunhill logo
 import LoginAlert from "../components/alert/LoginAlert";

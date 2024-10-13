@@ -8,7 +8,7 @@ import ManageAssignments from "./ManageAssignments";
 import SpecialEducationTool from "./SpeEdTool";
 import Messages from "./Messages";
 import TeacherSettings from "./TeacherSettings";
-import TeacherLogout from "../../components/teacher/Logout";
+import Logout from "../../components/Logout";
 
 function TeacherInterface() {
   const [currentTab, setCurrentTab] = useState("Dashboard");
@@ -37,10 +37,18 @@ function TeacherInterface() {
   };
 
   return (
-    <div className={`flex h-screen overflow-hidden ${darkMode ? 'bg-gray-800' : 'bg-opacity-50'}`}>
+    <div
+      className={`flex h-screen overflow-hidden ${
+        darkMode ? "bg-gray-800" : "bg-opacity-50"
+      }`}
+    >
       {/* Sidebar */}
       {isSidebarOpen && (
-        <div className={`fixed inset-y-0 left-0 w-64 z-10 ${darkMode ? 'bg-gray-900' : 'bg-white'} shadow-lg`}>
+        <div
+          className={`fixed inset-y-0 left-0 w-64 z-10 ${
+            darkMode ? "bg-gray-900" : "bg-white"
+          } shadow-lg`}
+        >
           <SideNavbar
             currentTab={currentTab}
             setCurrentTab={setCurrentTab}
@@ -53,7 +61,9 @@ function TeacherInterface() {
 
       {/* Main content area */}
       <div
-        className={`flex-1 flex flex-col transition-all duration-300 overflow-hidden ${isSidebarOpen ? "ml-64" : "ml-0"}`}
+        className={`flex-1 flex flex-col transition-all duration-300 overflow-hidden ${
+          isSidebarOpen ? "ml-64" : "ml-0"
+        }`}
       >
         {/* Fixed Top Navbar */}
         <div className="flex-none">
@@ -65,17 +75,27 @@ function TeacherInterface() {
             toggleDarkMode={toggleDarkMode} // Pass toggle function to TopNavbar
           />
           {showLogoutDialog && (
-            <TeacherLogout onClose={() => setShowLogoutDialog(false)} />
+            <Logout onClose={() => setShowLogoutDialog(false)} />
           )}
         </div>
 
         {/* Main content section */}
-        <div className={`flex-1 p-6 ${darkMode ? 'bg-gray-700 text-white' : 'bg-green-100 text-black'} bg-opacity-60 mt-0 overflow-y-auto`}>
-          {currentTab === "Dashboard" && <TeacherDashboard darkMode={darkMode} />}
+        <div
+          className={`flex-1 p-6 ${
+            darkMode ? "bg-gray-700 text-white" : "bg-green-100 text-black"
+          } bg-opacity-60 mt-0 overflow-y-auto`}
+        >
+          {currentTab === "Dashboard" && (
+            <TeacherDashboard darkMode={darkMode} />
+          )}
           {currentTab === "Students" && <ManageStudents darkMode={darkMode} />}
           {currentTab === "Classes" && <ManageLessons darkMode={darkMode} />}
-          {currentTab === "Assignments" && <ManageAssignments darkMode={darkMode} />}
-          {currentTab === "SpecialED Tool" && <SpecialEducationTool darkMode={darkMode} />}
+          {currentTab === "Assignments" && (
+            <ManageAssignments darkMode={darkMode} />
+          )}
+          {currentTab === "SpecialED Tool" && (
+            <SpecialEducationTool darkMode={darkMode} />
+          )}
           {currentTab === "Messages" && <Messages darkMode={darkMode} />}
           {currentTab === "Settings" && <TeacherSettings darkMode={darkMode} />}
         </div>
