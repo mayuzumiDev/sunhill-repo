@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 import SecureLS from "secure-ls";
-import generateEncryptionKey from "../utils/EncryptionKeyGenerator";
+import { ENCRYPTION_KEY } from "../constants";
 
 // Custom hook to handle login functionality
 const useLogin = () => {
@@ -12,7 +12,7 @@ const useLogin = () => {
   const navigate = useNavigate();
   const secureStorage = new SecureLS({
     encodingType: "aes",
-    encryptionSecret: generateEncryptionKey(256),
+    encryptionSecret: ENCRYPTION_KEY,
   });
 
   const handleLogin = async ({ username, password, loginPageName }) => {
@@ -32,15 +32,14 @@ const useLogin = () => {
 
       // Extract tokens and role from response data
       const { refresh_token, access_token, role } = response.data;
-      const decodedToken = jwtDecode(access_token);
+      const decodedAccessToken = jwtDecode(access_token);
+      const decodedRefreshToken = jwtDecode(refresh_token);
 
-      secureStorage.set("refresh_token", refresh_token);
-      secureStorage.set("access_token", access_token);
       secureStorage.set("user_role", role);
-      secureStorage.set("token_expiration", decodedToken.exp);
-
-      console.log("Role: ", secureStorage.get("user_role"));
-      console.log("Expiration: ", secureStorage.get("token_expiration"));
+      secureStorage.set("access_token", access_token);
+      secureStorage.set("refresh_token", refresh_token);
+      secureStorage.set("accessToken_expiration", decodedAccessToken.exp);
+      secureStorage.set("refreshToken_expiration", decodedRefreshToken.exp);
 
       // Navigate to interface page based on role
       if (response.status === 200) {

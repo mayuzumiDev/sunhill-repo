@@ -10,16 +10,18 @@ import {
 import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 import { axiosInstance, setAuthorizationHeader } from "../utils/axiosInstance";
 import SecureLS from "secure-ls";
-import generateEncryptionKey from "../utils/EncryptionKeyGenerator";
+import { ENCRYPTION_KEY } from "../constants";
+// import generateEncryptionKey from "../utils/EncryptionKeyGenerator";
 
 const Logout = ({ onClose }) => {
   const [open, setOpen] = useState(true);
   const [refreshToken, setRefreshToken] = useState("");
   const [accessToken, setAccessToken] = useState("");
 
+  // const encryptionSecret = generateEncryptionKey(32);
   const secureStorage = new SecureLS({
     encodingType: "aes",
-    encryptionSecret: generateEncryptionKey(256),
+    encryptionSecret: ENCRYPTION_KEY,
   });
 
   useEffect(() => {

@@ -1,7 +1,11 @@
 import axios from "axios";
 import SecureLS from "secure-ls";
+import { ENCRYPTION_KEY } from "../constants";
 
-const secureStorage = new SecureLS({ encodingType: "aes" });
+const secureStorage = new SecureLS({
+  encodingType: "aes",
+  encryptionSecret: ENCRYPTION_KEY,
+});
 
 // Create a new instance of axios with a base URL
 const axiosInstance = axios.create({
@@ -36,7 +40,11 @@ axiosInstance.interceptors.response.use(
     const originalRequest = error.config;
 
     // If the error response is 401 (Unauthorized) and it's not a retry request
-    if (error.response.status === 401 && !originalRequest._retry) {
+    if (
+      error.response &&
+      error.response.status === 401 &&
+      !originalRequest._retry
+    ) {
       originalRequest._retry = true; // Mark the request as retried
 
       // Try refreshing the token

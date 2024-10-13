@@ -2,16 +2,16 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import SecureLS from "secure-ls";
 import ValidateToken from "../utils/validateUserCredentials";
-import { refreshAccessToken } from "../utils/refreshAccessToken";
+import { tokenRefresh } from "../utils/tokenRefresh";
 import LoadingSpinner from "./LoadingSpinner";
-import generateEncryptionKey from "../utils/EncryptionKeyGenerator";
+import { ENCRYPTION_KEY } from "../constants";
 
 // This component protects routes that require user authentication
 const ProtectedRoute = ({ children, userRole }) => {
   const navigate = useNavigate();
   const secureStorage = new SecureLS({
     encodingType: "aes",
-    encryptionSecret: generateEncryptionKey(256),
+    encryptionSecret: ENCRYPTION_KEY,
   });
 
   // State to track authentication status
@@ -20,15 +20,27 @@ const ProtectedRoute = ({ children, userRole }) => {
   // Check authentication status when the component mounts
   useEffect(() => {
     const checkAuthentication = async () => {
-      const accessToken = secureStorage.get("access_token");
       const currentUserRole = secureStorage.get("user_role");
-      const tokenExpiration = secureStorage.get("token_expiration");
+      const accessToken = secureStorage.get("access_token");
+      const refreshToken = secureStorage.get("refresh_token");
+      const accessTokenExpiration = secureStorage.get("accessToken_expiration");
+      const refreshTokenExpiration = secureStorage.get(
+        "refreshToken_expiration"
+      );
 
       // If authentication data exists
-      if (accessToken && currentUserRole && tokenExpiration) {
+      if (
+        currentUserRole &&
+        accessToken &&
+        refreshToken &&
+        accessTokenExpiration &&
+        refreshTokenExpiration
+      ) {
         const isValid = await ValidateToken({
           accessToken,
-          tokenExpiration,
+          accessTokenExpiration,
+          refreshToken,
+          refreshTokenExpiration,
           userRole,
           currentUserRole,
         });
@@ -41,12 +53,16 @@ const ProtectedRoute = ({ children, userRole }) => {
             // Else, if the token is expired or invalid, attempt to refresh it
             try {
               console.log("Refreshing token. Please wait.");
-              const refreshToken = secureStorage.get("refresh_token");
-              const newAccessToken = await refreshAccessToken({ refreshToken });
-              secureStorage.set("access_token", newAccessToken.accessToken);
+              const newToken = await tokenRefresh({ refreshToken });
+              secureStorage.set("access_token", newToken.accessToken);
               secureStorage.set(
-                "token_expiration",
-                newAccessToken.tokenExpiration
+                "accessToken_expiration",
+                newToken.accessExpiration
+              );
+              secureStorage.set("refresh_token", newToken.refreshToken);
+              secureStorage.set(
+                "refreshToken_expiration",
+                newToken.refreshExpiration
               );
 
               setIsAuthenticated(true);
@@ -66,6 +82,14 @@ const ProtectedRoute = ({ children, userRole }) => {
     };
 
     checkAuthentication();
+
+    // Set up a timer to check token expiration every 1 minute
+    const timerId = setInterval(() => {
+      checkAuthentication();
+    }, 60000); // 60000 milliseconds = 1 minute
+
+    // Clean up the timer when the component unmounts
+    return () => clearInterval(timerId);
   }, []);
 
   // Redirect to login if not authenticated
@@ -83,12 +107,7 @@ const ProtectedRoute = ({ children, userRole }) => {
     return null;
   }
 
-  return (
-    <>
-      {console.log("User can access the protected route.")}
-      {children}
-    </>
-  );
+  return <>{children}</>;
 };
 
 export default ProtectedRoute;
