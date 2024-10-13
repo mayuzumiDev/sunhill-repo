@@ -1,72 +1,27 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
-import axios from "axios";
-
-import { BsPersonCircle } from "react-icons/bs";
+import { Link } from "react-router-dom";
+import useLogin from "../../hooks/useLogin";
 
 function AdminLogin() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false); // Loading state
+  const [loading, setLoading] = useState(false);
+  const { handleLogin, errorMessage, showAlert } = useLogin();
+  const loginPageName = "admin";
 
-  const navigate = useNavigate();
+  sessionStorage.setItem("loginPageName", loginPageName);
 
-  useEffect(() => {
-    sessionStorage.removeItem("LoginPageUserRole");
-    sessionStorage.setItem("LoginPageUserRole", "admin");
-  });
-
-  const login = async (e) => {
-    e.preventDefault(); // Prevent the default form submission behavior
-    setError(""); // Clear any previous error messages
-    setLoading(true); // Set loading to true when login is initiated
-
-    const axiosInstanceLogin = axios.create({
-      baseURL: "http://127.0.0.1:8000/", // Set the base URL for all requests
-      withCredentials: true,
-    });
-
-    try {
-      // Make a POST request to the /api/admin-login/ endpoint
-      const response = await axiosInstanceLogin.post("/api/admin-login/", {
-        username,
-        password,
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setLoading(true);
+    handleLogin({ username, password, loginPageName })
+      .then(() => {
+        setLoading(false);
+      })
+      .catch((error) => {
+        setLoading(false);
+        console.error(error);
       });
-
-      // Extract the access token from the response
-      const access_token = response.data.access_token;
-
-      // Decode the access token to get the expiration time
-      const decodedToken = jwtDecode(access_token);
-      const expirationTime = decodedToken.exp;
-
-      // Store the tokens and user role in local storage
-      localStorage.setItem("access_token", access_token);
-      localStorage.setItem("refresh_token", response.data.refresh_token);
-      localStorage.setItem("user_role", response.data.role);
-      localStorage.setItem("token_expiration", expirationTime);
-
-      // If the response status is 200, navigate to the admin dashboard
-      if (response.status === 200) {
-        navigate("/admin/", { replace: true });
-      }
-
-      console.log(response.data);
-    } catch (error) {
-      // Handle errors from the API response
-      if (error.response) {
-        console.log(error.response.data);
-        setError(error.response.data.error || "Login failed");
-      } else {
-        // Handle other types of errors
-        console.log("An error occurred:", error);
-        setError("An error occurred. Please try again.");
-      }
-    } finally {
-      setLoading(false); // Reset loading state after the login process
-    }
   };
 
   return (
@@ -104,19 +59,19 @@ function AdminLogin() {
         </h1>
       </div>
 
-      {error && (
+      {showAlert && (
         <div
           className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4"
           role="alert"
         >
           <span className="block sm:inline text-sm font-montserrat">
-            {error}
+            {errorMessage}
           </span>
         </div>
       )}
 
       <form
-        onSubmit={login}
+        onSubmit={handleSubmit}
         className="max-w-md mx-auto px-10 py-12 bg-white rounded-lg shadow-md border border-gray-200"
       >
         <div className="mb-6">

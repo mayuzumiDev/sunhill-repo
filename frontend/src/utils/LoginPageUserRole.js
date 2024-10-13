@@ -3,13 +3,13 @@ const checkLoginPageUserRole = (role) => {
     case "admin":
       return "/admin/login/";
     case "teacher":
-      return "/login/teacher";
+      return "/login/teacher/";
     case "student":
-      return "/login/student";
+      return "/login/student/";
     case "parent":
-      return "/login/parent";
+      return "/login/parent/";
     default:
-      return "/login";
+      return "/login/";
   }
 };
 

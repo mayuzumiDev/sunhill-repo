@@ -19,6 +19,8 @@ function StudentLogin() {
   const { handleLogin, errorMessage, showAlert } = useLogin();
   const loginPageName = "student";
 
+  sessionStorage.setItem("loginPageName", loginPageName);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     handleLogin({ username, password, loginPageName });
