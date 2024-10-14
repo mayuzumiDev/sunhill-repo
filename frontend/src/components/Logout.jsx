@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Dialog,
   DialogBackdrop,
@@ -11,14 +12,14 @@ import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 import { axiosInstance, setAuthorizationHeader } from "../utils/axiosInstance";
 import SecureLS from "secure-ls";
 import { ENCRYPTION_KEY } from "../constants";
-// import generateEncryptionKey from "../utils/EncryptionKeyGenerator";
 
 const Logout = ({ onClose }) => {
   const [open, setOpen] = useState(true);
+  const navigate = useNavigate();
   const [refreshToken, setRefreshToken] = useState("");
   const [accessToken, setAccessToken] = useState("");
+  const [userRole, setUserRole] = useState("");
 
-  // const encryptionSecret = generateEncryptionKey(32);
   const secureStorage = new SecureLS({
     encodingType: "aes",
     encryptionSecret: ENCRYPTION_KEY,
@@ -27,8 +28,10 @@ const Logout = ({ onClose }) => {
   useEffect(() => {
     const refreshToken = secureStorage.get("refresh_token");
     const accessToken = secureStorage.get("access_token");
+    const userRole = secureStorage.get("user_role");
     setRefreshToken(refreshToken);
     setAccessToken(accessToken);
+    setUserRole(userRole);
   }, [secureStorage]);
 
   const handleLogout = async () => {
@@ -45,7 +48,11 @@ const Logout = ({ onClose }) => {
       sessionStorage.clear();
 
       // Redirect the user to the  login page
-      window.location.href = "/login/";
+      if (userRole === "admin") {
+        navigate("/admin/login", { replace: true });
+      } else {
+        navigate("/login/", { replace: true });
+      }
     } catch (error) {
       console.error("An error occured: ", error);
     }

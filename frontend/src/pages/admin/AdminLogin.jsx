@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import useLogin from "../../hooks/useLogin";
 
@@ -87,6 +87,8 @@ function AdminLogin() {
             type="text"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
+            maxLength={12}
+            minLength={6}
             required
           />
         </div>
@@ -104,6 +106,8 @@ function AdminLogin() {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            maxLength={32}
+            minLength={8}
             required
           />
         </div>

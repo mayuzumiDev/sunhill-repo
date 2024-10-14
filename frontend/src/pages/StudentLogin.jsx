@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom"; 
+import { useNavigate } from "react-router-dom";
 import Navbar from "../components/login/Navbar";
 import { QRCodeSVG } from "qrcode.react";
 import QRCodeScanner from "./student/qrcode/qrscan";
@@ -18,7 +18,7 @@ function StudentLogin() {
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const {  errorMessage, showAlert } = useLogin();
+  const { handleLogin, errorMessage, showAlert } = useLogin();
   const loginPageName = "student";
 
   sessionStorage.setItem("loginPageName", loginPageName);
