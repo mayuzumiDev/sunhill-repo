@@ -1,0 +1,2 @@
+export const ENCRYPTION_KEY =
+  "jsDKUU7GD3co+8FENlLiJyjJynbYZwBr7pmjoSRLCTIG/f/545hJCRwJDO2e68NB";

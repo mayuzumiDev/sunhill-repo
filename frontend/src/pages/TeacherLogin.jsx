@@ -1,23 +1,21 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom"; // Import useNavigate for redirection
+import { Link } from "react-router-dom";
 import Navbar from "../components/login/Navbar";
 import sunhillLogo from "../assets/img/home/sunhill.jpg"; // Path to Sunhill logo
+import LoginAlert from "../components/alert/LoginAlert";
+import useLogin from "../hooks/useLogin";
 
 function TeacherLogin() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const navigate = useNavigate(); // Initialize useNavigate
+  const { handleLogin, errorMessage, showAlert } = useLogin();
+  const loginPageName = "teacher";
 
-  const handleLogin = (e) => {
+  sessionStorage.setItem("loginPageName", loginPageName);
+
+  const handleSubmit = (e) => {
     e.preventDefault();
-    
-    // Implement your authentication logic here
-    if (username === "teacher" && password === "password") { // Replace with actual logic
-      // On successful login
-      navigate("/teacher/"); // Redirect to Teacher interface
-    } else {
-      alert("Invalid username or password"); // Error handling
-    }
+    handleLogin({ username, password, loginPageName });
   };
 
   return (
@@ -44,10 +42,17 @@ function TeacherLogin() {
           <h2 className="text-xl sm:text-2xl font-extrabold text-center text-green-800 mb-4">
             Welcome Teachers!
           </h2>
-          <p className="text-sm sm:text-base text-center text-gray-700 mb-8">
-            Please log in to access your dashboard and manage your classes.
-          </p>
-          <form className="space-y-6" onSubmit={handleLogin}>
+          <div className="text-sm sm:text-base text-center text-gray-700 mb-8">
+            {showAlert ? (
+              <div>
+                <LoginAlert errorMessage={errorMessage} />
+              </div>
+            ) : (
+              "Please log in to access your dashboard and manage your classes."
+            )}
+          </div>
+
+          <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
               <label
                 htmlFor="username"
