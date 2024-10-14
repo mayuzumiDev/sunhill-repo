@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom"; 
 import Navbar from "../components/login/Navbar";
 import { QRCodeSVG } from "qrcode.react";
 import QRCodeScanner from "./student/qrcode/qrscan";
@@ -9,8 +10,11 @@ import MrSun from "../assets/img/home/mr_sun.gif";
 import "../styles/Studentlogin.css"; 
 
 function StudentLogin() {
+  const navigate = useNavigate();
   const [play] = useSound(clickSound); // Play sound on hover
   const [isScannerVisible, setScannerVisible] = useState(false); 
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
 
   // Toggle QR code scanner visibility
   const toggleScanner = () => {
@@ -32,6 +36,18 @@ function StudentLogin() {
   // Function to pick a random greeting
   const getRandomGreeting = () => {
     return greetings[Math.floor(Math.random() * greetings.length)];
+  };
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+
+    // Simulated login validation (replace with real authentication logic)
+    if (username === "student" && password === "password") {
+      // Redirect to the student dashboard upon successful login
+      navigate("/student");
+    } else {
+      alert("Invalid credentials, please try again.");
+    }
   };
 
   // Voice prompt on component mount
@@ -82,13 +98,15 @@ function StudentLogin() {
               Log in to begin today's adventure!
             </p>
 
-            <form className="w-full space-y-4">
+            <form className="w-full space-y-4" onSubmit={handleLogin}>
               <div className="flex flex-col">
                 <label className="text-xs sm:text-sm md:text-lg text-gray-700 font-semibold">Username</label>
                 <input
                   type="text"
                   className="p-2 sm:p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-400 outline-none text-sm sm:text-base md:text-lg"
                   placeholder="Enter your username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                 />
               </div>
 
@@ -98,6 +116,8 @@ function StudentLogin() {
                   type="password"
                   className="p-2 sm:p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-400 outline-none text-sm sm:text-base md:text-lg"
                   placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
 

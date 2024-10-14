@@ -1,0 +1,65 @@
+/* Animation for flare spin */
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Flare Image */
+.flare-img img {
+    animation: spin 4s linear infinite; /* Adjust duration as needed */
+}
+
+/* Start Class Button */
+.start-class-button {
+    position: relative; /* To position shimmer inside */
+    display: inline-block;
+    padding: 12px 24px; /* Add padding for a better clickable area */
+    background-color: gold; /* Solid gold background */
+    border: 2px solid #d4b124; /* Add border with a specific color */
+    border-radius: 50px; /* Smooth corners */
+    cursor: pointer; /* Change cursor to pointer */
+    outline: none; /* Remove outline */
+    overflow: hidden; /* Contain shimmer effect */
+    z-index: 1; /* Keep button above shimmer */
+    transition: transform 0.2s, box-shadow 0.2s; 
+    box-shadow: 0 4px px rgba(0, 0, 0, 7.3); /* Add shadow effect */
+}
+
+/* Button hover effect */
+.start-class-button:hover {
+    transform: scale(1.05); /* Slightly scale up on hover */
+    opacity: 0.9; /* Slight opacity on hover */
+    box-shadow: 0 6px 16px rgba(169, 46, 46, 4.4); /* Enhance shadow on hover */
+}
+
+/* Animation for shimmer movement */
+@keyframes shimmerOpacity {
+    0% {
+        transform: translateX(-100%); /* Start off-screen left */
+    }
+    100% {
+        transform: translateX(100%); /* End off-screen right */
+    }
+}
+
+/* Shimmer image styling */
+.shimmer-img {
+    position: absolute; /* Position it absolutely to overlap the button */
+    top: 0; 
+    left: 0; /* Align to the left */
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: hidden; /* Hide overflow */
+    z-index: 1; 
+}
+
+/* Shimmer Image */
+.shimmer-img img {
+    width: 100%; /* Ensure the image covers the full area */
+    height: auto; /* Maintain aspect ratio */
+    animation: shimmerOpacity 1.5s linear infinite; /* Adjust duration as needed */
+}
