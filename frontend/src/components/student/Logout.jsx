@@ -1,21 +1,67 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { FaSignOutAlt, FaGraduationCap, FaBook, FaPencilAlt, FaTimes } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  FaSignOutAlt,
+  FaGraduationCap,
+  FaBook,
+  FaPencilAlt,
+  FaTimes,
+} from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+import {
+  axiosInstance,
+  setAuthorizationHeader,
+} from "../../utils/axiosInstance";
+import SecureLS from "secure-ls";
+import { ENCRYPTION_KEY } from "../../constants";
 
-const Logout = ({ onLogout, onCancel }) => {
+const Logout = ({ onCancel }) => {
   const [isHovering, setIsHovering] = useState(false);
   const navigate = useNavigate();
+  const [refreshToken, setRefreshToken] = useState("");
+  const [accessToken, setAccessToken] = useState("");
+  const [userRole, setUserRole] = useState("");
 
-  const handleLogout = () => {
-    // Add any additional logout logic here
-    onLogout();
+  const secureStorage = new SecureLS({
+    encodingType: "aes",
+    encryptionSecret: ENCRYPTION_KEY,
+  });
+
+  useEffect(() => {
+    const refreshToken = secureStorage.get("refresh_token");
+    const accessToken = secureStorage.get("access_token");
+    const userRole = secureStorage.get("user_role");
+    setRefreshToken(refreshToken);
+    setAccessToken(accessToken);
+    setUserRole(userRole);
+  }, [secureStorage]);
+  const handleLogout = async () => {
+    try {
+      setAuthorizationHeader(accessToken);
+
+      // Send logout request to API with the refresh token
+      const response = await axiosInstance.post("/api/account-logout/", {
+        refresh_token: refreshToken,
+      });
+
+      // Clear storage to remove any sensitive data
+      secureStorage.clear();
+      sessionStorage.clear();
+
+      // Redirect the user to the  login page
+      if (userRole === "admin") {
+        navigate("/admin/login", { replace: true });
+      } else {
+        navigate("/login/", { replace: true });
+      }
+    } catch (error) {
+      console.error("An error occured: ", error);
+    }
   };
 
   const handleExit = () => {
     onCancel();
   };
-
   return (
     <AnimatePresence>
       <motion.div
@@ -42,12 +88,13 @@ const Logout = ({ onLogout, onCancel }) => {
             </button>
           </div>
           <p className="text-gray-600 mb-6 flex items-center">
-            <FaBook className="mr-2 text-yellow-500" /> Great job on your studies today!
+            <FaBook className="mr-2 text-yellow-500" /> Great job on your
+            studies today!
           </p>
           <div className="flex justify-center">
             <motion.button
               className="bg-yellow-400 text-purple-800 px-6 py-3 rounded-full text-xl font-bold shadow-lg flex items-center"
-              whileHover={{ scale: 1.05, backgroundColor: '#fbbf24' }}
+              whileHover={{ scale: 1.05, backgroundColor: "#fbbf24" }}
               whileTap={{ scale: 0.95 }}
               onHoverStart={() => setIsHovering(true)}
               onHoverEnd={() => setIsHovering(false)}
