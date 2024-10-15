@@ -1,6 +1,7 @@
 from pathlib import Path
 from datetime import timedelta
 from dotenv import load_dotenv
+import dj_database_url
 import os
 
 load_dotenv()
@@ -94,14 +95,16 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': os.getenv("DB_NAME"),
-        'USER': os.getenv("DB_USER"),
-        'PASSWORD': os.getenv("DB_PWD"),
-        'HOST': os.getenv("DB_HOST"),
-        'PORT': os.getenv("DB_PORT")
-    }
+    'default': dj_database_url.parse(os.getenv("DB_URL"))
+    
+    #  {
+    #   'ENGINE': 'django.db.backends.postgresql_psycopg2',
+    #   'NAME': os.getenv("DB_NAME"),
+    #   'USER': os.getenv("DB_USER"),
+    #   'PASSWORD': os.getenv("DB_PWD"),
+    #   'HOST': os.getenv("DB_HOST"),
+    #   'PORT': os.getenv("DB_PORT")
+    #  } 
 }
 
 AUTH_USER_MODEL = 'api.CustomUser'
@@ -194,5 +197,5 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'jdacdummyacc@gmail.com'
-EMAIL_HOST_PASSWORD = 'ionu sgbn lkoi ktwu'
+EMAIL_HOST_USER = 'sunhilllms.dev@gmail.com'
+EMAIL_HOST_PASSWORD = 'qhoy sogj suls nero'

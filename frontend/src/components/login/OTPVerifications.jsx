@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axiosInstanceNoAuthHeader from "../../utils/axiosInstance";
+import { axiosInstanceNoAuthHeader } from "../../utils/axiosInstance";
 import { FaSpinner } from "react-icons/fa"; // Import spinner icon
 import sunhilllogo from "../../assets/img/home/sunhill.jpg"; // Import logo image
 
