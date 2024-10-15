@@ -27,7 +27,7 @@ class PasswordResetVerifySerializer(serializers.Serializer):
         verification_code = data.get('verification_code')
 
         # Get password reset codes for the given email
-        password_reset_codes = PasswordResetCode.objects.filter(email__email=email)
+        password_reset_codes = PasswordResetCode.objects.filter(user_email=email)
 
         # Check if email exists in password reset codes table
         if not  password_reset_codes.exists():

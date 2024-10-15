@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaSpinner } from "react-icons/fa";
 import sunhilllogo from "../../assets/img/home/sunhill.jpg";
-import axiosInstanceNoAuthHeader from "../../utils/axiosInstance";
+import { axiosInstanceNoAuthHeader } from "../../utils/axiosInstance";
 
 const CreateNewPassword = () => {
   const [newPassword, setNewPassword] = useState("");

@@ -110,7 +110,7 @@ class PasswordResetRequestView(generics.GenericAPIView):
             message = EmailMultiAlternatives(
                 subject="Password Reset Request",
                 body=message_plain,
-                from_email="jdacdummyacc@gmail.com",
+                from_email="sunhilllms.dev@gmail.com",
                 to=[email]
             )
 
@@ -153,7 +153,7 @@ class PasswordResetVerify(generics.GenericAPIView):
             verification_code = request.data.get("verification_code")
 
             # Find the password reset code associated with the email
-            password_reset_code = PasswordResetCode.objects.filter(email__email=email).first()
+            password_reset_code = PasswordResetCode.objects.filter(user_email=email).first()
 
             # If a password reset code is found
             if password_reset_code:
@@ -246,7 +246,7 @@ class OTPCodeResend(generics.GenericAPIView):
             message = EmailMultiAlternatives(
                 subject="Password Reset Request",
                 body=message_plain,
-                from_email="jdacdummyacc@gmail.com",
+                from_email="sunhilllms.dev@gmail.com",
                 to=[email]
             )
 

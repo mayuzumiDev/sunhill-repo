@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaFontAwesome, FaSpinner } from "react-icons/fa";
 import sunhilllogo from "../../assets/img/home/sunhill.jpg";
-import axiosInstanceNoAuthHeader from "../../utils/axiosInstance";
+import { axiosInstanceNoAuthHeader } from "../../utils/axiosInstance";
 import checkLoginPageUserRole from "../../utils/LoginPageUserRole";
 
 const ForgotPassword = () => {

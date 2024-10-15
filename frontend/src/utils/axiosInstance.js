@@ -86,5 +86,9 @@ const setAuthorizationHeader = (token) => {
   }
 };
 
-export { axiosInstance, setAuthorizationHeader };
-export default { axiosInstance, setAuthorizationHeader };
+export { axiosInstance, axiosInstanceNoAuthHeader, setAuthorizationHeader };
+export default {
+  axiosInstance,
+  axiosInstanceNoAuthHeader,
+  setAuthorizationHeader,
+};
