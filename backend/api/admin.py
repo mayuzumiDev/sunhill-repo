@@ -4,14 +4,12 @@ from .models import CustomUser
 
 # Create a custom admin interface for CustomUser
 class CustomUserAdmin(UserAdmin):
-    list_display = ('username', 'email', 'is_staff')  # Fields to show in the list view
-
-    list_filter = ('is_staff', 'is_superuser')  # Filters for the list view
+    list_display = ('id', 'username', 'email', 'role')  # Fields to show in the list view
 
     # Fieldsets for the edit view
     fieldsets = (
         (None, {'fields': ('username', 'password',)}),
-        ('Personal info', {'fields': ('first_name', 'last_name', 'email', 'role', 'branch_name')}),
+        ('Account info', {'fields': ('email', 'role', 'branch_name')}),
         ('Permissions', {'fields': ('is_staff', 'is_superuser')}),
     )
 

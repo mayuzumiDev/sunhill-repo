@@ -1,6 +1,6 @@
 from django.urls import path
-from . import views
+from .views.account.account_views import CreateAccountView
 
 urlpatterns = [
-    path("", views.test_view, name='admin_test_view')
+    path("create-account/", CreateAccountView.as_view(), name='create_account')
 ]
