@@ -4,10 +4,13 @@ import Navbar from "../components/login/Navbar";
 import sunhillLogo from "../assets/img/home/sunhill.jpg"; // Path to Sunhill logo
 import LoginAlert from "../components/alert/LoginAlert";
 import useLogin from "../hooks/useLogin";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
 function TeacherLogin() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const { handleLogin, errorMessage, showAlert } = useLogin();
   const loginPageName = "teacher";
 
@@ -16,6 +19,10 @@ function TeacherLogin() {
   const handleSubmit = (e) => {
     e.preventDefault();
     handleLogin({ username, password, loginPageName });
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   return (
@@ -84,12 +91,22 @@ function TeacherLogin() {
                 <input
                   id="password"
                   name="password"
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-150 ease-in-out"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-150 ease-in-out pr-10"
                 />
+                <button
+                  type="button"
+                  onClick={togglePasswordVisibility}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5"
+                >
+                  <FontAwesomeIcon
+                    icon={showPassword ? faEyeSlash : faEye}
+                    className="h-5 w-5 text-gray-400"
+                  />
+                </button>
               </div>
             </div>
 

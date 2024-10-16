@@ -1,31 +1,43 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import useLogin from "../../hooks/useLogin";
+import { motion, AnimatePresence } from "framer-motion";
+import { FaUser, FaLock, FaSpinner, FaEye, FaEyeSlash } from "react-icons/fa";
 
 function AdminLogin() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const { handleLogin, errorMessage, showAlert } = useLogin();
   const loginPageName = "admin";
 
-  sessionStorage.setItem("loginPageName", loginPageName);
+  useEffect(() => {
+    document.title = "Admin Login | Sunhill Montessori Casa LMS";
+  }, []);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    handleLogin({ username, password, loginPageName })
-      .then(() => {
-        setLoading(false);
-      })
-      .catch((error) => {
-        setLoading(false);
-        console.error(error);
-      });
+    try {
+      await handleLogin({ username, password, loginPageName });
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
+  const togglePasswordVisibility = () => setShowPassword(!showPassword);
+
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-gray-50">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.5 }}
+      className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-blue-100 to-indigo-200"
+    >
       {/* Top Navbar */}
       <div className="w-full fixed top-0 left-0 shadow-md">
         <nav className="bg-white border-b border-gray-200 px-3 py-2 sm:px-4 sm:py-3 flex justify-between items-center">
@@ -53,111 +65,127 @@ function AdminLogin() {
       </div>
 
       {/* Admin Login Form */}
-      <div className="mb-4 mt-20">
-        <h1 className="text-gray-700 text-4xl font-bold font-montserrat text-center">
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.2, duration: 0.5 }}
+        className="w-full max-w-md px-8 py-10 bg-white rounded-xl shadow-lg mt-20"
+      >
+        <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">
           Admin Login
         </h1>
-      </div>
 
-      {showAlert && (
-        <div
-          className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4"
-          role="alert"
-        >
-          <span className="block sm:inline text-sm font-montserrat">
-            {errorMessage}
-          </span>
-        </div>
-      )}
-
-      <form
-        onSubmit={handleSubmit}
-        className="max-w-md mx-auto px-10 py-12 bg-white rounded-lg shadow-md border border-gray-200"
-      >
-        <div className="mb-6">
-          <label
-            className="block text-gray-700 text-sm font-semibold font-montserrat mb-2"
-            htmlFor="username"
-          >
-            Username
-          </label>
-          <input
-            className="appearance-none border border-gray-300 rounded-lg w-full h-12 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-sky-500"
-            id="username"
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            maxLength={12}
-            minLength={6}
-            required
-          />
-        </div>
-
-        <div className="mb-6">
-          <label
-            className="block text-gray-700 text-sm font-semibold font-montserrat mb-2"
-            htmlFor="password"
-          >
-            Password
-          </label>
-          <input
-            className="appearance-none border border-gray-300 rounded-lg w-full h-12 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-sky-500"
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            maxLength={32}
-            minLength={8}
-            required
-          />
-        </div>
-
-        <div className="mt-2 mb-4 text-sm text-gray-600 font-montserrat">
-          <Link
-            to="/forgot-password"
-            className="text-sky-500 hover:text-sky-700 focus:text-sky-700 active:text-sky-700"
-          >
-            Forgot Password?
-          </Link>
-        </div>
-
-        <button
-          className={`bg-sky-500 hover:bg-sky-700 text-white text-base font-bold font-montserrat w-full h-12 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-sky-400 ${
-            loading ? "opacity-50 cursor-not-allowed" : ""
-          }`}
-          type="submit"
-          disabled={loading} // Disable the button while loading
-        >
-          {loading ? (
-            <span className="flex items-center justify-center">
-              <svg
-                className="animate-spin h-5 w-5 mr-3"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  strokeWidth="4"
-                />
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12c0-4.418 3.582-8 8-8s8 3.582 8 8H4z"
-                />
-              </svg>
-              Loading...
-            </span>
-          ) : (
-            "Login"
+        <AnimatePresence>
+          {showAlert && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.3 }}
+              className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded"
+              role="alert"
+            >
+              <p className="font-medium">{errorMessage}</p>
+            </motion.div>
           )}
-        </button>
-      </form>
-    </div>
+        </AnimatePresence>
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="relative">
+            <label
+              className="block text-gray-700 text-sm font-bold mb-2"
+              htmlFor="username"
+            >
+              Username
+            </label>
+            <motion.div
+              whileFocus={{ scale: 1.02 }}
+              className="flex items-center"
+            >
+              <FaUser className="absolute left-3 text-gray-400" />
+              <input
+                className="w-full pl-10 pr-4 py-3 text-gray-700 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
+                id="username"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+                placeholder="Enter your username"
+              />
+            </motion.div>
+          </div>
+
+          <div className="relative">
+            <label
+              className="block text-gray-700 text-sm font-bold mb-2"
+              htmlFor="password"
+            >
+              Password
+            </label>
+            <motion.div
+              whileFocus={{ scale: 1.02 }}
+              className="flex items-center"
+            >
+              <FaLock className="absolute left-3 text-gray-400" />
+              <input
+                className="w-full pl-10 pr-12 py-3 text-gray-700 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
+                id="password"
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                placeholder="Enter your password"
+              />
+              <button
+                type="button"
+                onClick={togglePasswordVisibility}
+                className="absolute right-3 text-gray-400 focus:outline-none"
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
+            </motion.div>
+          </div>
+
+          <div className="flex justify-between items-center">
+            <motion.div whileHover={{ scale: 1.05 }}>
+              <Link
+                to="/forgot-password"
+                className="text-sm font-medium text-blue-600 hover:text-blue-800 transition duration-300"
+              >
+                Forgot Password?
+              </Link>
+            </motion.div>
+            <motion.div whileHover={{ scale: 1.05 }}>
+              <Link
+                to="/"
+                className="text-sm font-medium text-blue-600 hover:text-blue-800 transition duration-300"
+              >
+                Back to Home
+              </Link>
+            </motion.div>
+          </div>
+
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className={`w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300 ${
+              loading ? "opacity-50 cursor-not-allowed" : ""
+            }`}
+            type="submit"
+            disabled={loading}
+          >
+            {loading ? (
+              <span className="flex items-center justify-center">
+                <FaSpinner className="animate-spin mr-2" />
+                Logging in...
+              </span>
+            ) : (
+              "Login"
+            )}
+          </motion.button>
+        </form>
+      </motion.div>
+    </motion.div>
   );
 }
 
