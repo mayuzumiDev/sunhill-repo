@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { FaHome, FaUser, FaBook, FaEnvelope, FaCog, FaSignOutAlt, FaChartLine } from "react-icons/fa";
 import SunhillLogo from "../../assets/img/home/sunhill.jpg";
 
@@ -34,15 +35,30 @@ const SideNavbar = ({ currentTab, setCurrentTab, toggleSidebar, isSidebarOpen, d
 
   return (
     <div className={`h-full flex flex-col ${darkMode ? 'bg-gray-900 text-white' : 'bg-gradient-to-r from-orange-500 to-orange-700 text-white'}`}>
-      <div className="flex items-center justify-between p-6">
+        <div className="flex items-center justify-between p-6">
         <div className="flex items-center">
           <img src={SunhillLogo} alt="Sunhill LMS" className="w-12 h-12 rounded-full mr-3" />
           <div className="flex flex-col">
-            <h2 className="text-xl font-bold">Sunhill LMS</h2>
-            <p className="text-xs italic">Educating the Leaders of the Future...Today!</p>
+            <div className="relative">
+              <Link
+                to="/"
+                className={`font-semibold text-lg ml-1 sm:text-2xl hover:text-blue-500 transition duration-300 ease-in-out text-white`}
+              >
+                <span className="letter1 text-white">S</span>
+                <span className="letter2 text-white">u</span>
+                <span className="letter3 text-white">n</span>
+                <span className="letter4 text-white">h</span>
+                <span className="letter5 text-white">i</span>
+                <span className="letter6 text-white">l</span>
+                <span className="letter7 text-white">l</span>
+              </Link>
+              <h1 className={`absolute -top-1 left-24 text-xs font-bold font-montserrat text-white`}>LMS</h1>
+            </div>
+            <p className="text-xs italic mt-1 ml-1">Educating the Leaders of the Future...Today!</p>
           </div>
         </div>
       </div>
+      
       <nav className="mt-7 flex-1">
         <h1 className="text-md ml-4 font-bold">Menu</h1>
         <ul className="space-y-4 py-4 ">

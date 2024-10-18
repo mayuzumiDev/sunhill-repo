@@ -91,7 +91,6 @@ const ProtectedRoute = ({ children, userRole }) => {
     // Clean up the timer when the component unmounts
     return () => clearInterval(timerId);
   }, []);
-
   // Redirect to login if not authenticated
   useEffect(() => {
     if (isAuthenticated === false) {
@@ -99,7 +98,17 @@ const ProtectedRoute = ({ children, userRole }) => {
     }
   }, [isAuthenticated, navigate]);
 
-  if (isAuthenticated === null) {
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 2000); // 2 seconds delay
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isAuthenticated === null || isLoading) {
     return <LoadingSpinner />;
   }
 
