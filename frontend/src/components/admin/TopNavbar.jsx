@@ -3,18 +3,28 @@ import { FaCaretDown, FaBars, FaBell } from "react-icons/fa";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
 import Image from "../../assets/img/home/uriel.jpg";
 
-const TopNavbar = ({ setShowLogoutDialog, currentTab, setCurrentTab, toggleSidebar, notifications = [] }) => {
+const TopNavbar = ({
+  setShowLogoutDialog,
+  currentTab,
+  setCurrentTab,
+  toggleSidebar,
+  notifications = [],
+}) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isNotifDropdownOpen, setIsNotifDropdownOpen] = useState(false);
   const navigate = useNavigate(); // Initialize useNavigate
-  const [notificationCount, setNotificationCount] = useState(notifications.length);
-  const [currentDateTime, setCurrentDateTime] = useState(new Date().toLocaleString());
+  const [notificationCount, setNotificationCount] = useState(
+    notifications.length
+  );
+  const [currentDateTime, setCurrentDateTime] = useState(
+    new Date().toLocaleString()
+  );
 
   const handleTabClick = useCallback(
     (tab) => {
       if (tab !== currentTab) {
         setCurrentTab(tab);
-        navigate(`/settings`); // Redirect to settings page on tab click
+        // navigate(`/settings`); // Redirect to settings page on tab click
       }
     },
     [setCurrentTab, currentTab, navigate] // Added navigate to dependencies
@@ -60,8 +70,12 @@ const TopNavbar = ({ setShowLogoutDialog, currentTab, setCurrentTab, toggleSideb
         </button>
 
         <div className="flex flex-col ml-2">
-          <span className="text-gray-700 text-sm font-semibold hidden md:block">Welcome, Admin</span>
-          <span className="text-gray-500 text-xs hidden md:block">{currentDateTime}</span>
+          <span className="text-gray-700 text-sm font-semibold hidden md:block">
+            Welcome, Admin
+          </span>
+          <span className="text-gray-500 text-xs hidden md:block">
+            {currentDateTime}
+          </span>
         </div>
       </div>
 
@@ -82,12 +96,18 @@ const TopNavbar = ({ setShowLogoutDialog, currentTab, setCurrentTab, toggleSideb
               id="notif-dropdown-menu"
               className="absolute right-0 top-12 bg-white rounded-md shadow-xl border border-gray-300 z-10 p-4 w-56 sm:w-64 md:w-72 lg:w-80"
             >
-              <h5 className="text-sm font-bold text-gray-800 lg:text-sm md:text-md sm:text-sm">Notifications</h5>
+              <h5 className="text-sm font-bold text-gray-800 lg:text-sm md:text-md sm:text-sm">
+                Notifications
+              </h5>
               <ul className="mt-2">
                 {notifications.map((notif, idx) => (
                   <li key={idx} className="border-b border-gray-200 py-2">
-                    <p className="text-sm lg:text-base md:text-sm">{notif.message}</p>
-                    <p className="text-xs lg:text-sm md:text-xs text-gray-500">{notif.date}</p>
+                    <p className="text-sm lg:text-base md:text-sm">
+                      {notif.message}
+                    </p>
+                    <p className="text-xs lg:text-sm md:text-xs text-gray-500">
+                      {notif.date}
+                    </p>
                   </li>
                 ))}
               </ul>
@@ -97,7 +117,10 @@ const TopNavbar = ({ setShowLogoutDialog, currentTab, setCurrentTab, toggleSideb
 
         {/* User Profile Dropdown */}
         <div className="relative">
-          <button onClick={toggleDropdown} className="flex items-center focus:outline-none">
+          <button
+            onClick={toggleDropdown}
+            className="flex items-center focus:outline-none"
+          >
             <img
               src={Image}
               alt="User Profile"
