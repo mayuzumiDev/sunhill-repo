@@ -2,11 +2,12 @@ from django.http.response import JsonResponse
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from api.models import CustomUser
-from user_admin.serializers import CreateAcountSerializer
+from ...serializers.account_serializers import CreateAcountSerializer
 
 class CreateAccountView(generics.CreateAPIView):
     permission_classes = [AllowAny]
     serializer_class = CreateAcountSerializer
+    queryset = CustomUser.objects.all()
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)

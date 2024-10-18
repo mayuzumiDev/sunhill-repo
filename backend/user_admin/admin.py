@@ -1,35 +1,18 @@
 from django.contrib import admin
-from .models import (
-    TeacherInfo,
-    StudentInfo,
-    ParentInfo
-)
+from .models.account_models import UserInfo, StudentInfo
 
-class TeacherInfoInline(admin.StackedInline):
-    model = TeacherInfo
-    can_delete = False
-
-class TeacherInfoAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user_id', 'first_name', 'last_name')
-
+class UserInfoAdmin(admin.ModelAdmin):
+    list_display = ('id', 'user_id', 'contact_no', 'profile_image',)
     fieldsets = (
-        ('Teacher Info', {'fields': ('first_name', 'last_name')}),
+        (None, {'fields': ('contact_no',)}),
     )
 
-class StudentInfoAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user_id', 'first_name', 'last_name',  'grade_level')
-
-    fieldsets = (
-        ('Student Info', {'fields': ('first_name', 'last_name',  'grade_level')}),
+class StudentInfoAdmin(UserInfoAdmin):
+    list_display = ('grade_level',)
+    fieldsets = UserInfoAdmin.fieldsets + (
+        ('Student', {'fields': ('grade_level',)}),
     )
 
-class ParentInfoAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user_id', 'first_name', 'last_name',  'contact_no')
-
-    fieldsets = (
-        ('Parent Info', {'fields': ('first_name', 'last_name',  'contact_no')}),
-    )
-
-admin.site.register(TeacherInfo, TeacherInfoAdmin)  
+admin.site.register(UserInfo, UserInfoAdmin)
 admin.site.register(StudentInfo,  StudentInfoAdmin)  
-admin.site.register(ParentInfo, ParentInfoAdmin)
+
