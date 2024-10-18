@@ -8,7 +8,7 @@ class UserInfoAdmin(admin.ModelAdmin):
     )
 
 class StudentInfoAdmin(UserInfoAdmin):
-    list_display = ('grade_level',)
+    list_display = ('id', 'student_info', 'grade_level',)
     fieldsets = UserInfoAdmin.fieldsets + (
         ('Student', {'fields': ('grade_level',)}),
     )

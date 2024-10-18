@@ -13,3 +13,6 @@ class StudentInfo(models.Model):
     student_info = models.OneToOneField(UserInfo, on_delete=models.CASCADE)
     grade_level = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(6)],null=True)
 
+class ParentInfo(models.Model):
+    parent_info = models.OneToOneField(UserInfo, on_delete=models.CASCADE)
+    student_info = models.ManyToManyField(StudentInfo, related_name='parents')
