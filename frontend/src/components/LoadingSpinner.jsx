@@ -1,10 +1,14 @@
 import React from "react";
 
 const LoadingSpinner = () => {
-  console.log("Loading spinner is running.");
   return (
-    <div className="absolute right-1/2 bottom-1/2  transform translate-x-1/2 translate-y-1/2 ">
-      <div className="border-t-transparent border-solid animate-spin  rounded-full border-blue-400 border-8 h-64 w-64"></div>
+    <div className="fixed inset-0 flex items-center justify-center bg-white z-50">
+      <div className="relative">
+        <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+        <div className="text-blue-500 font-bold mt-4">
+          Loading...
+        </div>
+      </div>
     </div>
   );
 };

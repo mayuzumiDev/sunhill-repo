@@ -16,6 +16,8 @@ import OTPVerification from "./components/login/OTPVerifications";
 import CreateNewPassword from "./components/login/CreateNewPass";
 import PasswordChanged from "./components/login/PassChangeConfirm";
 import PageTitle from "./components/PageTitle";
+import PrivacyPolicy from "./components/PrivacyPolicy";
+import TermsOfService from "./components/TermofService";
 import NotFound from "./components/404NotFound";
 
 function App() {
@@ -72,6 +74,8 @@ function App() {
         <Route path="/otp-verification/" element={<OTPVerification />} />
         <Route path="/create-new-password/" element={<CreateNewPassword />} />
         <Route path="/password-changed/" element={<PasswordChanged />} />
+        <Route path="/terms-of-service/" element={<TermsOfService />} />
+        <Route path="/privacy-policy/" element={<PrivacyPolicy />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>

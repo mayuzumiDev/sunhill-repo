@@ -1,7 +1,98 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import SideNavbar from "../../components/parents/Sidebar";
+import TopNavbar from "../../components/parents/TopNavbar";
+import ParentDashboard from "./ParentDashboard";
+import ViewStudents from "./ViewStudents";
+import ViewAssignments from "./ViewAssignments";
+import Messages from "./Messages";
+import ParentSettings from "./ParentSettings";
+import Logout from "../../components/Logout";
+import Breadcrumb from "../../components/Breadcrumbs";
 
-const ParentInterfaceTemp = () => {
-  return <h1>Temporary Parent Interface</h1>;
-};
+function ParentInterface() {
+  const [currentTab, setCurrentTab] = useState("Dashboard");
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [darkMode, setDarkMode] = useState(false);
 
-export default ParentInterfaceTemp;
+  useEffect(() => {
+    const handleResize = () => {
+      setIsSidebarOpen(window.innerWidth >= 1090);
+    };
+
+    window.addEventListener("resize", handleResize);
+    handleResize();
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen((prev) => !prev);
+  };
+
+  const toggleDarkMode = () => {
+    setDarkMode((prev) => !prev);
+  };
+
+  return (
+    <div
+      className={`flex h-screen overflow-hidden ${
+        darkMode ? "bg-gray-800" : "bg-opacity-50"
+      }`}
+    >
+      {isSidebarOpen && (
+        <div
+          className={`fixed inset-y-0 left-0 w-64 z-10 ${
+            darkMode ? "bg-gray-900" : "bg-white"
+          } shadow-lg`}
+        >
+          <SideNavbar
+            currentTab={currentTab}
+            setCurrentTab={setCurrentTab}
+            toggleSidebar={toggleSidebar}
+            isSidebarOpen={isSidebarOpen}
+            darkMode={darkMode}
+          />
+        </div>
+      )}
+
+      <div
+        className={`flex-1 flex flex-col transition-all duration-300 overflow-hidden ${
+          isSidebarOpen ? "ml-64" : "ml-0"
+        }`}
+      >
+        <div className="flex-none">
+          <TopNavbar
+            setCurrentTab={setCurrentTab}
+            setShowLogoutDialog={setShowLogoutDialog}
+            toggleSidebar={toggleSidebar}
+            darkMode={darkMode}
+            toggleDarkMode={toggleDarkMode}
+          />
+          {showLogoutDialog && (
+            <Logout onClose={() => setShowLogoutDialog(false)} />
+          )}
+        </div>
+
+        <div
+          className={`flex-1 p-6 ${
+            darkMode ? "bg-gray-700 text-white" : "bg-orange-100 text-black"
+          } bg-opacity-60 mt-0 overflow-y-auto`}
+        >
+          <Breadcrumb pageName={currentTab} />
+          {currentTab === "Dashboard" && (
+            <ParentDashboard darkMode={darkMode} />
+          )}
+          {currentTab === "Students" && <ViewStudents darkMode={darkMode} />}
+          {currentTab === "Assignments" && (
+            <ViewAssignments darkMode={darkMode} />
+          )}
+          {currentTab === "Messages" && <Messages darkMode={darkMode} />}
+          {currentTab === "Settings" && <ParentSettings darkMode={darkMode} />}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default ParentInterface;

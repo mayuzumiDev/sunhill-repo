@@ -48,24 +48,30 @@ const Sidebar = ({ currentTab, setCurrentTab, toggleSidebar, isSidebarOpen, dark
       }`}
     >
       {/* Fixed Logo and title */}
-      <div className="flex items-center justify-center h-20">
-        <img src={sunhillLogo} alt="Sunhill Logo" className="h-12 w-12 rounded-full shadow-md" />
-        <div className="flex items-center space-x-2">
-          <Link
-            to="/"
-            className={`font-semibold text-lg sm:text-2xl hover:text-blue-500 transition duration-300 ease-in-out ml-4 ${darkMode ? 'text-white' : 'text-black'}`}
-          >
-            <span className="letter1">S</span>
-            <span className="letter2">u</span>
-            <span className="letter3">n</span>
-            <span className="letter4">h</span>
-            <span className="letter5">i</span>
-            <span className="letter6">l</span>
-            <span className="letter7">l</span>
-          </Link>
+      <div className="flex flex-col items-center justify-center mt-4 mb-7 h-20">
+        <div className="flex items-center p-4 ">
+          <img src={sunhillLogo} alt="Sunhill Logo" className="h-12 w-12 rounded-full shadow-md" />
+          <div className="flex flex-col">
+            <div className="relative">
+              <Link
+                to="/"
+                className={`font-semibold text-lg ml-1 sm:text-2xl hover:text-blue-500 transition duration-300 ease-in-out text-white`}
+              >
+                <span className="letter1">S</span>
+                <span className="letter2">u</span>
+                <span className="letter3">n</span>
+                <span className="letter4">h</span>
+                <span className="letter5">i</span>
+                <span className="letter6">l</span>
+                <span className="letter7">l</span>
+              </Link>
+              <h1 className={`absolute -top-1 left-24 text-xs font-bold font-montserrat `}>LMS</h1>
+            </div>
+            <p className="text-xs italic mt-1 ml-1">Educating the Leaders of the Future...Today!</p>
+          </div>
         </div>
-        <h1 className={`text-sm font-bold font-montserrat ml-2 mb-5 sm:text-sm ${darkMode ? 'text-green-300' : 'text-green-800'}`}>LMS</h1>
       </div>
+
 
       {/* Scrollable Main navigation */}
       <div className="overflow-y-auto h-[calc(100vh-4rem)] scrollbar-hidden rounded-b-t-lg">

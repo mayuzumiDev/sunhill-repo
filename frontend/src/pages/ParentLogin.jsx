@@ -4,10 +4,13 @@ import { Link } from "react-router-dom";
 import sunhillLogo from "../assets/img/home/sunhill.jpg"; // Path to Sunhill logo
 import LoginAlert from "../components/alert/LoginAlert";
 import useLogin from "../hooks/useLogin";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
 function ParentLogin() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const { handleLogin, errorMessage, showAlert } = useLogin();
   const loginPageName = "parent";
 
@@ -16,6 +19,10 @@ function ParentLogin() {
   const handleSubmit = (e) => {
     e.preventDefault();
     handleLogin({ username, password, loginPageName });
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   return (
@@ -92,12 +99,22 @@ function ParentLogin() {
                 <input
                   id="password"
                   name="password"
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition duration-150 ease-in-out"
                 />
+                <button
+                  type="button"
+                  onClick={togglePasswordVisibility}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5"
+                >
+                  <FontAwesomeIcon
+                    icon={showPassword ? faEyeSlash : faEye}
+                    className="h-6 w-6 text-gray-700"
+                  />
+                </button>
               </div>
             </div>
 
