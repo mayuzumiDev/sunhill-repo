@@ -4,7 +4,7 @@ from .models import CustomUser
 
 # Create a custom admin interface for CustomUser
 class CustomUserAdmin(UserAdmin):
-    list_display = ('id', 'username', 'email', 'role')  # Fields to show in the list view
+    list_display = ('id', 'username', 'password', 'email', 'role')  # Fields to show in the list view
 
     # Fieldsets for the edit view
     fieldsets = (
