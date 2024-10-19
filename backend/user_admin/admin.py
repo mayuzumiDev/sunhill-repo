@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models.account_models import UserInfo, StudentInfo
+from .models.account_models import UserInfo, StudentInfo, ParentInfo
 
 class UserInfoAdmin(admin.ModelAdmin):
     list_display = ('id', 'user_id', 'contact_no', 'profile_image',)
@@ -13,6 +13,11 @@ class StudentInfoAdmin(UserInfoAdmin):
         ('Student', {'fields': ('grade_level',)}),
     )
 
+class ParentInfoAdmin(UserInfoAdmin):
+    list_display = ('id', 'parent_info')
+    fieldsets = UserInfoAdmin.fieldsets
+
 admin.site.register(UserInfo, UserInfoAdmin)
 admin.site.register(StudentInfo,  StudentInfoAdmin)  
+admin.site.register(ParentInfo, ParentInfoAdmin)
 

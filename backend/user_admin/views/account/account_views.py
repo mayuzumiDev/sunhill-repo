@@ -10,9 +10,17 @@ class CreateAccountView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
 
     def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
+        account_count = request.data.get('account_count', 1)
+        generated_users = []
 
-        serializer.is_valid(raise_exception=True)
-        user = serializer.save()
+        for _ in range(account_count):
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            user = serializer.save()
+            generated_users.append({'username': user['generated_username'], 'password': user['generated_password']})
 
-        return JsonResponse({'message': 'Account created successfully', 'user_id': user.id}, status=status.HTTP_201_CREATED)
+        for user in generated_users:
+            print(f"Username: {user['username']}, Password: {user['password']}")
+
+        return JsonResponse({'message': 'Account generated successfully', 'generated_users': generated_users}, status=status.HTTP_201_CREATED)
+    

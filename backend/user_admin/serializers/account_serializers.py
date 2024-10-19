@@ -1,30 +1,49 @@
 from rest_framework import serializers
-from api.models import CustomUser
-from django.core.validators import MinLengthValidator, MaxLengthValidator
-from ..models.account_models import UserInfo, StudentInfo
+from django.utils.text import slugify
+from api.models import CustomUser, UserRole
+from ..models.account_models import UserInfo, StudentInfo, ParentInfo
+import random
+import datetime
 
 class CreateAcountSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ('username', 'password', 'role', 'branch_name')
-        extra_kwargs = {
-            'username': {'required': True, 'validators': [MinLengthValidator(6), MaxLengthValidator(12)]},
-            'password': {'write_only': True, 'required': True, 'validators':[MinLengthValidator(8),  MaxLengthValidator(32),]},
+        fields = ('role', 'branch_name')
+
+    def generate_username(self, role):
+        current_year = datetime.datetime.now().year % 100
+        username_role_map = {
+            'teacher': 'TCH',
+            'student': 'STU',
+            'parent': 'PAR',
         }
 
-    def validate_username(self, value):
-        if CustomUser.objects.filter(username=value).exists():
-            raise serializers.ValidationError("This username is already taken.")
-        return value
+        username_role = username_role_map.get(role, 'PUB')
+        username = slugify(f"{username_role}-{current_year}-{self.random_number}")
+
+        while CustomUser.objects.filter(username=username).exists():
+            self.random_number = random.randint(1000, 9999)
+            username = slugify(f"{role}-{current_year}-{self.random_number}")
+
+        return username
+    
+    def generate_password(self, role):
+        password = slugify(f"{role}{self.random_number}")
+        return password
 
     def create(self, validated_data):
-        user = super().create(validated_data)
-        user.set_password(validated_data['password'])
+        role = validated_data['role']
+        self.random_number = random.randint(1000,9999)
+
+        username = self.generate_username(role)
+        password = self.generate_password(role)
+
+        user = CustomUser(username=username, **validated_data)
+        user.set_password(password)
         user.save()
 
         user_info = UserInfo.objects.create(user=user)
 
-        role = validated_data.get('role')
         if role == 'student':
             try:
                 StudentInfo.objects.create(student_info=user_info)
@@ -32,5 +51,10 @@ class CreateAcountSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(f'Creating instance to StudentInfo failed: {e}')
         else:
             pass
-        return user
+
+        return {
+            'user': user,
+            'generated_username': username,
+            'generated_password': password,
+        }
 
