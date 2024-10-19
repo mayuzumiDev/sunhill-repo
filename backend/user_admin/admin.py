@@ -14,7 +14,7 @@ class StudentInfoAdmin(UserInfoAdmin):
     )
 
 class ParentInfoAdmin(UserInfoAdmin):
-    list_display = ('id', 'parent_info')
+    list_display = ('id', 'parent_info', 'student_info')
     fieldsets = UserInfoAdmin.fieldsets
 
 admin.site.register(UserInfo, UserInfoAdmin)
