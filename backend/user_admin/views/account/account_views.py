@@ -1,8 +1,10 @@
 from django.http.response import JsonResponse
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.filters import SearchFilter, OrderingFilter
 from api.models import CustomUser
-from ...serializers.account_serializers import CreateAccountSerializer, ParentStudentLinkSerializer
+from ...models.account_models import UserInfo
+from ...serializers.account_serializers import *
 
 class CreateAccountView(generics.CreateAPIView):
     permission_classes = [AllowAny]
@@ -36,17 +38,29 @@ class CreateAccountView(generics.CreateAPIView):
                     'linked_student': user['generated_username']
                 })
 
-        for user in generated_users:
-            print("User")
-            print(f"Username: {user['username']}, Password: {user['password']}")
-
-        for user in generated_users:
-            print("Parent")
-            print(f"Username: {user['username']}, Password: {user['password']}")
-
-        return JsonResponse({'message': 'Account generated successfully',
+        return JsonResponse({'message': 'New accounts and parent accounts created successfully.',
                              'generated_users': generated_users,  
-                             'generated_parent_users': generated_parent_users}, 
-                             status=status.HTTP_201_CREATED)
+                             'generated_parent_users': generated_parent_users
+                            }, status=status.HTTP_201_CREATED)
 
-    
+class TeacherListView(generics.ListAPIView):
+    permission_classes = [AllowAny]
+    serializer_class = TeacherListSerializer
+    filter_backends = [SearchFilter, OrderingFilter]
+    SearchFilter = ['id']
+    OrderingFilter = ['branch_name']
+
+    # Returns a queryset of UserInfo objects where the user's role is 'teacher'
+    def get_queryset(self):
+        query_set = UserInfo.objects.filter(user__role='teacher')
+        return query_set 
+
+    # Handles GET requests and returns a JSON response with the list of teachers
+    def get(self, request):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        teacher_list = serializer.data
+        
+        return JsonResponse({'message': 'Teacher list retrieved successfully', 
+                             'teacher_list': teacher_list
+                             }, status=status.HTTP_200_OK)
