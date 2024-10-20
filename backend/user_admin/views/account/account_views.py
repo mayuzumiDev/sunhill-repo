@@ -13,7 +13,7 @@ class CreateAccountView(generics.CreateAPIView):
 
     # Create multiple user accounts based on the provided account count
     def create(self, request, *args, **kwargs):
-        account_count = request.data.get('account_count', 1)
+        account_count = int(request.data.get('account_count', 1))
         generated_users = []
         generated_parent_users = []
 
@@ -38,7 +38,7 @@ class CreateAccountView(generics.CreateAPIView):
                     'linked_student': user['generated_username']
                 })
 
-        return JsonResponse({'message': 'New accounts and parent accounts created successfully.',
+        return JsonResponse({'message': 'New accounts created successfully.',
                              'generated_users': generated_users,  
                              'generated_parent_users': generated_parent_users
                             }, status=status.HTTP_201_CREATED)
