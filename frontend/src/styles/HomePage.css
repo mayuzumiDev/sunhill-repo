@@ -371,8 +371,8 @@ body {
 .banner {
   color: #0c0c0c;
   font-size: 20px;
-  margin-left: -45%;
   display: flex;
+  margin-right: 20em;
   font-weight: bold;
   font-family: "Poppins", Arial, sans-serif;
 }
