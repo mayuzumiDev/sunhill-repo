@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { FaBell, FaCaretDown, FaBars, FaMoon, FaSun } from "react-icons/fa"; // Import necessary icons
 import uriel from '../../assets/img/home/uriel.jpg';
 
 const TopNavbar = ({ setShowLogoutDialog, userName, userRole, notifications = [], toggleSidebar, darkMode, toggleDarkMode }) => {
   const [greeting, setGreeting] = useState("");
   const [isNotifDropdownOpen, setIsNotifDropdownOpen] = useState(false);
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const notifDropdownRef = useRef(null);
+  const profileDropdownRef = useRef(null);
 
   // Greeting based on the current time
   useEffect(() => {
@@ -18,6 +21,23 @@ const TopNavbar = ({ setShowLogoutDialog, userName, userRole, notifications = []
   }, []);
 
   const toggleNotifDropdown = () => setIsNotifDropdownOpen(prev => !prev);
+  const toggleProfileDropdown = () => setIsProfileDropdownOpen(prev => !prev);
+
+  const handleOutsideClick = (e) => {
+    if (isNotifDropdownOpen && notifDropdownRef.current && !notifDropdownRef.current.contains(e.target)) {
+      setIsNotifDropdownOpen(false);
+    }
+    if (isProfileDropdownOpen && profileDropdownRef.current && !profileDropdownRef.current.contains(e.target)) {
+      setIsProfileDropdownOpen(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+    };
+  }, [isNotifDropdownOpen, isProfileDropdownOpen]);
 
   return (
     <div className={`shadow-lg p-4 flex justify-between items-center rounded-b-lg ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
@@ -50,7 +70,7 @@ const TopNavbar = ({ setShowLogoutDialog, userName, userRole, notifications = []
 
           {/* Notification Dropdown */}
           {isNotifDropdownOpen && (
-            <div className={`absolute right-0 top-12 rounded-md shadow-xl border border-gray-300 z-10 p-4 w-56 ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
+            <div ref={notifDropdownRef} className={`absolute right-0 top-12 rounded-md shadow-xl border border-gray-300 z-10 p-4 w-56 ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
               <h5 className={`text-sm font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>Notifications</h5>
               <ul className="mt-2">
                 {notifications.length > 0 ? (
@@ -69,8 +89,8 @@ const TopNavbar = ({ setShowLogoutDialog, userName, userRole, notifications = []
         </div>
 
         {/* Profile Section with Dropdown */}
-        <div className="relative group">
-          <button className="flex items-center space-x-3 focus:outline-none">
+        <div className="relative">
+          <button className="flex items-center space-x-3 focus:outline-none" onClick={toggleProfileDropdown}>
             {/* Display Profile Picture */}
             <img
               src={uriel}
@@ -86,7 +106,7 @@ const TopNavbar = ({ setShowLogoutDialog, userName, userRole, notifications = []
           </button>
 
           {/* Dropdown Menu */}
-          <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-in-out">
+          <div ref={profileDropdownRef} className={`absolute right-0 mt-2 w-48 bg-${darkMode ? 'white' : 'white'} rounded-lg shadow-lg ${isProfileDropdownOpen ? 'opacity-100' : 'opacity-0'} transition-opacity duration-300 ease-in-out`}>
             <ul className="py-1">
               <li>
                 <button
