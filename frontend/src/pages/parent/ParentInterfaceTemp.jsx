@@ -17,7 +17,7 @@ function ParentInterface() {
 
   useEffect(() => {
     const handleResize = () => {
-      setIsSidebarOpen(window.innerWidth >= 1090);
+      setIsSidebarOpen(window.innerWidth >= 768);
     };
 
     window.addEventListener("resize", handleResize);
@@ -35,32 +35,30 @@ function ParentInterface() {
   };
 
   return (
-    <div
-      className={`flex h-screen overflow-hidden ${
-        darkMode ? "bg-gray-800" : "bg-opacity-50"
-      }`}
-    >
+    <div className={`flex h-screen overflow-hidden ${darkMode ? "bg-gray-800" : "bg-opacity-50"}`}>
+      {/* Sidebar */}
+      <div className={`fixed inset-y-0 left-0 z-10 ${darkMode ? "bg-gray-900" : "bg-white"} shadow-lg`}>
+        <SideNavbar
+          currentTab={currentTab}
+          setCurrentTab={setCurrentTab}
+          toggleSidebar={toggleSidebar}
+          isSidebarOpen={isSidebarOpen}
+          darkMode={darkMode} // Pass dark mode state to Sidebar
+        />
+      </div>
       {isSidebarOpen && (
-        <div
-          className={`fixed inset-y-0 left-0 w-64 z-10 ${
-            darkMode ? "bg-gray-900" : "bg-white"
-          } shadow-lg`}
-        >
+        <div className={`fixed inset-y-0 left-0 z-10 ${darkMode ? "bg-gray-900" : "bg-white"} shadow-lg`}>
           <SideNavbar
             currentTab={currentTab}
             setCurrentTab={setCurrentTab}
             toggleSidebar={toggleSidebar}
             isSidebarOpen={isSidebarOpen}
-            darkMode={darkMode}
+            darkMode={darkMode} // Pass dark mode state to Sidebar
           />
         </div>
       )}
 
-      <div
-        className={`flex-1 flex flex-col transition-all duration-300 overflow-hidden ${
-          isSidebarOpen ? "ml-64" : "ml-0"
-        }`}
-      >
+<div className={`flex-1 flex flex-col transition-all duration-300 overflow-hidden ${window.innerWidth < 768 && !isSidebarOpen ? 'ml-0' : isSidebarOpen ? "ml-64" : "ml-20"}`}>
         <div className="flex-none">
           <TopNavbar
             setCurrentTab={setCurrentTab}
@@ -69,24 +67,14 @@ function ParentInterface() {
             darkMode={darkMode}
             toggleDarkMode={toggleDarkMode}
           />
-          {showLogoutDialog && (
-            <Logout onClose={() => setShowLogoutDialog(false)} />
-          )}
+          {showLogoutDialog && <Logout onClose={() => setShowLogoutDialog(false)} />}
         </div>
 
-        <div
-          className={`flex-1 p-6 ${
-            darkMode ? "bg-gray-700 text-white" : "bg-orange-100 text-black"
-          } bg-opacity-60 mt-0 overflow-y-auto`}
-        >
+        <div className={`flex-1 p-6 ${darkMode ? "bg-gray-700 text-white" : "bg-orange-100 text-black"} bg-opacity-60 mt-0 overflow-y-auto`}>
           <Breadcrumb pageName={currentTab} />
-          {currentTab === "Dashboard" && (
-            <ParentDashboard darkMode={darkMode} />
-          )}
+          {currentTab === "Dashboard" && <ParentDashboard darkMode={darkMode} />}
           {currentTab === "Students" && <ViewStudents darkMode={darkMode} />}
-          {currentTab === "Assignments" && (
-            <ViewAssignments darkMode={darkMode} />
-          )}
+          {currentTab === "Assignments" && <ViewAssignments darkMode={darkMode} />}
           {currentTab === "Messages" && <Messages darkMode={darkMode} />}
           {currentTab === "Settings" && <ParentSettings darkMode={darkMode} />}
         </div>

@@ -1,5 +1,6 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import { Link } from "react-router-dom";
+import { createPortal } from "react-dom"; // Import createPortal for rendering outside of sidebar
 import sunhillLogo from "../../assets/img/home/sunhill.jpg";
 import SpecialEducationTool from "../../assets/img/home/specialed.png";
 import {
@@ -11,13 +12,44 @@ import {
   FaEnvelope,
 } from "react-icons/fa";
 
-const Sidebar = ({ currentTab, setCurrentTab, toggleSidebar, isSidebarOpen, darkMode }) => {
+// Tooltip component
+function Tooltip({ name, position, isVisible }) {
+  if (!isVisible) return null;
+
+  const style = {
+    top: position.top + 8 + "px",
+    left: position.left + 5 + "px", // Offset from the sidebar for better visibility
+    zIndex: 1000,
+    whiteSpace: "nowrap",
+  };
+
+  return createPortal(
+    <div
+      className="absolute bg-black text-white text-xs rounded py-1 px-2"
+      style={style}
+    >
+      {name}
+    </div>,
+    document.body // Render outside of sidebar container
+  );
+}
+
+const Sidebar = ({
+  currentTab,
+  setCurrentTab,
+  toggleSidebar,
+  isSidebarOpen,
+  darkMode,
+}) => {
+  const [tooltip, setTooltip] = useState("");
+  const [tooltipPosition, setTooltipPosition] = useState({ top: 0, left: 0 });
+
   const handleTabClick = useCallback(
     (tab) => {
       if (tab !== currentTab) {
         setCurrentTab(tab);
         // Hide sidebar if on small screen
-        if (window.innerWidth < 1090) {
+        if (window.innerWidth < 768) {
           toggleSidebar();
         }
       }
@@ -25,14 +57,26 @@ const Sidebar = ({ currentTab, setCurrentTab, toggleSidebar, isSidebarOpen, dark
     [setCurrentTab, currentTab, toggleSidebar]
   );
 
+  const handleMouseEnter = (name, event) => {
+    if (!isSidebarOpen) {
+      const rect = event.currentTarget.getBoundingClientRect();
+      setTooltipPosition({ top: rect.top, left: rect.right });
+      setTooltip(name);
+    }
+  };
+
   const mainTabs = [
     { name: "Dashboard", icon: <FaHome /> },
     { name: "Classes", icon: <FaChalkboardTeacher /> },
     { name: "Students", icon: <FaUserGraduate /> },
     { name: "Assignments", icon: <FaClipboardList /> },
     {
-      name: "SpecialED Tool",
-      icon: <img src={SpecialEducationTool} alt="Special Education Tool" className="w-5 h-5" />,
+      name: "SpecialED",
+      icon: <img
+        src={SpecialEducationTool}
+        alt="Special Education Tool"
+        className="w-5 h-5"
+      />,
     },
   ];
 
@@ -43,102 +87,119 @@ const Sidebar = ({ currentTab, setCurrentTab, toggleSidebar, isSidebarOpen, dark
 
   return (
     <div
-      className={`fixed top-0 left-0 w-64 h-full ${darkMode ? 'bg-gray-900 text-white' : 'bg-white text-black'} shadow-lg transition-transform duration-300 ease-in-out ${
-        isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-      }`}
+      className={`fixed top-0 left-0 h-full ${darkMode ? "bg-gray-900 text-white" : "bg-white text-black"} shadow-lg transition-all duration-300 ease-in-out ${
+        isSidebarOpen ? "w-64" : "w-20"
+      } ${window.innerWidth < 768 && !isSidebarOpen ? "hidden" : ""}`}
     >
       {/* Fixed Logo and title */}
-      <div className="flex flex-col items-center justify-center mt-4 mb-7 h-20">
-        <div className="flex items-center p-4 ">
-          <img src={sunhillLogo} alt="Sunhill Logo" className="h-12 w-12 rounded-full shadow-md" />
-          <div className="flex flex-col">
-            <div className="relative">
-              <Link
-                to="/"
-                className={`font-semibold text-lg ml-1 sm:text-2xl hover:text-blue-500 transition duration-300 ease-in-out text-white`}
-              >
-                <span className="letter1">S</span>
-                <span className="letter2">u</span>
-                <span className="letter3">n</span>
-                <span className="letter4">h</span>
-                <span className="letter5">i</span>
-                <span className="letter6">l</span>
-                <span className="letter7">l</span>
-              </Link>
-              <h1 className={`absolute -top-1 left-24 text-xs font-bold font-montserrat `}>LMS</h1>
+      <div className="flex flex-col items-center justify-center mt-4 mb-7 h-20 border-b border-gray-200">
+        <div className="flex items-center p-4">
+          <img
+            src={sunhillLogo}
+            alt="Sunhill Logo"
+            className="h-12 w-12 rounded-full shadow-md"
+          />
+          {isSidebarOpen && (
+            <div className="flex flex-col ml-2">
+              <h1 className="font-semibold text-lg">
+                <span className="text-red-500">S</span>
+                <span className="text-orange-500">u</span>
+                <span className="text-green-500">n</span>
+                <span className="text-teal-500">h</span>
+                <span className="text-blue-500">i</span>
+                <span className="text-purple-500">l</span>
+                <span className="text-orange-500">l</span>
+                <span className="text-green-800"> LMS</span>
+              </h1>
+              <p className="text-xs italic">Educating the Leaders of the Future...Today!</p>
             </div>
-            <p className="text-xs italic mt-1 ml-1">Educating the Leaders of the Future...Today!</p>
-          </div>
+          )}
         </div>
       </div>
-
 
       {/* Scrollable Main navigation */}
       <div className="overflow-y-auto h-[calc(100vh-4rem)] scrollbar-hidden rounded-b-t-lg">
         <nav className="mt-4">
           <ul className="flex flex-col space-y-2">
             {/* Menu Header */}
-            <li className={`w-full text-left ml-4 font-semibold text-sm sm:text-base ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-              MENU
-            </li>
+            {isSidebarOpen && (
+              <li
+                className={`w-full text-left ml-4 font-semibold text-sm sm:text-base ${
+                  darkMode ? "text-gray-400" : "text-gray-600"
+                }`}
+              >
+                MENU
+              </li>
+            )}
 
             {/* Main Tabs */}
             {mainTabs.map(({ name, icon }) => (
-              <li key={name} className="w-full">
+              <li key={name} className="w-full relative">
                 <Link
                   to={`/teacher/${name.toLowerCase()}/`}
                   onClick={(e) => {
                     e.preventDefault();
                     handleTabClick(name);
                   }}
-                  className={`flex items-center py-3 mx-2 rounded-lg transition-all duration-200 ease-in-out transform ${
+                  onMouseEnter={(e) => handleMouseEnter(name, e)}
+                  onMouseLeave={() => setTooltip("")}
+                  className={`flex items-center py-3 mx-2 rounded-full transition-all duration-200 ease-in-out transform ${
                     currentTab === name
-                      ? "bg-green-500 text-white font-bold shadow-xl" // Active tab style
-                      : `${darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-green-200'} hover:shadow-xl` // Non-active hover style
+                      ? "bg-green-500 text-white font-bold shadow-xl"
+                      : `${
+                          darkMode
+                            ? "text-gray-300 hover:bg-gray-700"
+                            : "text-gray-700 hover:bg-green-200"
+                        } hover:shadow-xl`
                   } text-sm sm:text-base`}
                   style={{ width: "calc(100% - 1rem)" }}
                   aria-label={name}
                   role="menuitem"
                 >
-                  <span className="mr-4 ml-4 transform transition-transform duration-200 hover:scale-110">
+                  <span className="mr-4 ml-6 transform transition-transform duration-200 hover:scale-110">
                     {icon}
                   </span>
-                  <span>{name}</span>
+                  {isSidebarOpen && <span>{name}</span>}
                 </Link>
               </li>
             ))}
 
             {/* Additional Tabs */}
-            <li className={`w-full text-left ml-4 mt-6 font-semibold text-sm sm:text-base ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-              SUPPORT
-            </li>
             {additionalTabs.map(({ name, icon }) => (
-              <li key={name} className="w-full">
+              <li key={name} className="w-full relative">
                 <Link
                   to={`/teacher/${name.toLowerCase().replace(/\s+/g, "-")}/`}
                   onClick={(e) => {
                     e.preventDefault();
                     handleTabClick(name);
                   }}
-                  className={`flex items-center py-3 mx-2 rounded-lg transition-all duration-200 ease-in-out transform ${
+                  onMouseEnter={(e) => handleMouseEnter(name, e)}
+                  onMouseLeave={() => setTooltip("")}
+                  className={`flex items-center py-3 mx-2 rounded-full transition-all duration-200 ease-in-out transform ${
                     currentTab === name
-                      ? "bg-green-500 text-white font-bold shadow-xl" // Active tab style
-                      : `${darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-green-200'} hover:shadow-xl` // Non-active hover style
+                      ? "bg-green-500 text-white font-bold shadow-xl"
+                      : `${
+                          darkMode
+                            ? "text-gray-300 hover:bg-gray-700"
+                            : "text-gray-700 hover:bg-green-200"
+                        } hover:shadow-xl`
                   } text-sm sm:text-base`}
                   style={{ width: "calc(100% - 1rem)" }}
                   aria-label={name}
                   role="menuitem"
                 >
-                  <span className="mr-4 ml-4 transform transition-transform duration-200 hover:scale-110">
+                  <span className="mr-4 ml-6 transform transition-transform duration-200 hover:scale-110">
                     {icon}
                   </span>
-                  <span>{name}</span>
+                  {isSidebarOpen && <span>{name}</span>}
                 </Link>
               </li>
             ))}
           </ul>
         </nav>
       </div>
+      {/* Tooltip */}
+      <Tooltip name={tooltip} position={tooltipPosition} isVisible={!!tooltip} />
     </div>
   );
 };

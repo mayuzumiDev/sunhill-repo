@@ -14,6 +14,7 @@ import { faFacebook } from "@fortawesome/free-brands-svg-icons";
 import { Link, Element } from "react-scroll";
 import { Fade, Slide, Zoom } from "react-awesome-reveal";
 import { Button, Typography, Container, Box, Paper } from "@mui/material";
+import Sunvid from '../assets/img/home/sunvid.mp4'
 import Navbar from "../components/home/Navbar";
 import Footer from "../components/home/Footer";
 import Programs from "../components/home/Programs";
@@ -155,7 +156,7 @@ const Home = () => {
               className="video-wrapper"
             >
               <video
-                src="/src/assets/img/home/sunvid.mp4"
+                src={Sunvid}
                 autoPlay
                 loop
                 muted
@@ -179,7 +180,7 @@ const Home = () => {
                 color: "text.primary",
                 textAlign: "center",
                 padding: "2rem",
-                top: { xs: "60%", sm: "70%", md: "50%", lg: "50%" },
+                top: { xs: "60%", sm: "70%", md: "70%", lg: "50%" },
                 transform: "translateY(-50%)",
                 maxWidth: "90%",
                 margin: "0 auto",
@@ -240,14 +241,12 @@ const Home = () => {
               className="wave-background"
               sx={{
                 position: "absolute",
-                top: { xs: "13rem", sm: "16.5rem", lg: "30.5rem" },
+                top: { xs: "9.5rem", sm: "13.5rem",  lg: "30.9rem" },
                 left: 0,
                 width: "100%",
                 zIndex: "2",
                 height: "auto",
-                display: { xs: "none", sm: "flex", lg: "flex" },
-                svg: { width: "100%" },
-                "& svg": { height: "auto" },
+                display: { xs: "flex", sm: "flex", md: "none", lg: "flex"},
               }}
             >
               <svg
@@ -255,6 +254,7 @@ const Home = () => {
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 24 150 28"
                 preserveAspectRatio="none"
+                style={{ width: '100%', height: 'auto' }}
               >
                 <defs>
                   <path
@@ -696,7 +696,7 @@ const Home = () => {
                 <Paper
                   elevation={8}
                   sx={{
-                    padding: 4,
+                    padding: { xs: 1, md: 4 },
                     borderRadius: 12,
                     backgroundColor: "#f5f5f5",
                     boxShadow: "0 8px 24px rgba(0, 0, 0, 0.2)",
@@ -706,7 +706,7 @@ const Home = () => {
                   <Typography
                     variant="h6"
                     gutterBottom
-                    sx={{ fontWeight: "bold", color: "#555", mb: 2 }}
+                    sx={{ fontWeight: "bold", color: "#555", mb: 2, fontSize: { xs: "1rem", md: "1.5rem" }, textAlign: { xs: "center", md: "left" } }}
                   >
                     Contact Details
                   </Typography>
@@ -719,6 +719,7 @@ const Home = () => {
                         display: "flex",
                         alignItems: "center",
                         color: "#333",
+                        fontSize: { xs: "0.875rem", md: "1rem" }, // Adjusted font size for smaller screens
                       }}
                     >
                       <FontAwesomeIcon
@@ -733,6 +734,7 @@ const Home = () => {
                         display: "flex",
                         alignItems: "center",
                         color: "#333",
+                        fontSize: { xs: "0.875rem", md: "1rem" }, // Adjusted font size for smaller screens
                       }}
                     >
                       <FontAwesomeIcon
@@ -747,6 +749,7 @@ const Home = () => {
                         display: "flex",
                         alignItems: "center",
                         color: "#333",
+                        fontSize: { xs: "0.875rem", md: "1rem" }, // Adjusted font size for smaller screens
                       }}
                     >
                       <FontAwesomeIcon
@@ -761,6 +764,7 @@ const Home = () => {
                         display: "flex",
                         alignItems: "center",
                         color: "#333",
+                        fontSize: { xs: "0.875rem", md: "1rem" }, // Adjusted font size for smaller screens
                       }}
                     >
                       <FontAwesomeIcon
@@ -775,6 +779,7 @@ const Home = () => {
                           color: "#3f51b5",
                           textDecoration: "none",
                           fontWeight: "bold",
+                          fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" }, // Adjusted font size for smaller screens
                         }}
                       >
                         {branches[currentBranchIndex].fbPageName}
@@ -787,6 +792,7 @@ const Home = () => {
                       flexDirection: "column",
                       gap: 2,
                       mt: 3,
+                      alignItems: { xs: "center", sm: "center", lg:"flex-start" }, // Center buttons on smaller screens
                     }}
                   >
                     {["Batangas", "Rosario", "Bauan", "Metro Tagaytay"].map(
@@ -806,7 +812,10 @@ const Home = () => {
                                   : "#bbb",
                             },
                             borderRadius: 20,
+                            
                             boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
+                            width: { xs: "15rem", sm: "20rem", lg: "33rem" },
+                            fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" }, // Adjusted font size for smaller screens
                           }}
                           onClick={() => handleBranchChange(index)}
                         >

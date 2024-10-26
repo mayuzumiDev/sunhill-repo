@@ -300,19 +300,6 @@ body {
   }
 }
 
-/* src/components/Loader.css */
-.loader-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background: #f0f4f8; /* Optional: background color for the loader screen */
-}
-
-.sunhill-loading {
-  display: flex;
-}
 
 .letter {
   font-size: 3rem;
@@ -327,52 +314,14 @@ body {
   cursor: pointer;
 }
 
-/* Color specific styles */
-.letter-s {
-  color: #f26025;
-}
 
-.letter-u {
-  color: #f68920;
-}
-
-.letter-n {
-  color: #81c244;
-}
-
-.letter-h {
-  color: #47b5e4;
-}
-
-.letter-i {
-  color: #1875ba;
-}
-
-.letter-l1 {
-  color: #653093;
-}
-
-.letter-l2 {
-  color: #d91c5e;
-}
-@keyframes pulse {
-  0%,
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.2);
-    opacity: 0.7;
-  }
-}
 
 /* Banner styles */
 .banner {
   color: #0c0c0c;
   font-size: 20px;
   display: flex;
-  margin-right: 20em;
+  margin-right: 15em;
   font-weight: bold;
   font-family: "Poppins", Arial, sans-serif;
 }
@@ -769,11 +718,12 @@ Note: Beware of modifying this element as it can break the animations - you shou
 
 .bm-menu .login-btn {
   color: #e7ecec;
-  width: 50px;
+  width: 100%;
   text-decoration: none;
   margin-top: 40px;
   background-color: #29c14a;
-  padding: 4px 20px;
+  padding: 4px 0;
+  text-align: center;
   border-radius: 10px;
 }
 
@@ -930,15 +880,27 @@ Note: Beware of modifying this element as it can break the animations - you shou
   .banner {
     display: none;
   }
+  
+  .bm-menu .dark-mode-toggle {
+    margin-left: 3px;
+    margin-top: -15px;
+  }
+  .bm-menu .dark-container {
+    background-color: #050505;
+    width: 61px;
+    margin-top: 10px;
+    height: 10px;
+    border-radius: 20px;
+  }
 
   .home-banner-content {
-    top: 70px;
+    top: 30px;
   }
   .wave-background {
     position: relative;
     width: 100%;
     height: 84px;
-    top: 133px;
+    top: 180px;
     overflow: hidden;
     line-height: 0;
   }
@@ -1056,11 +1018,10 @@ Note: Beware of modifying this element as it can break the animations - you shou
   .dark .wave-background {
     position: relative;
     width: 100%;
-    height: 80px;
-    top: 56px;
+    height: 84px;
+    top: 290px;
     overflow: hidden;
     line-height: 0;
-    z-index: 2;
   }
   .video-wrapper {
     height: 46%;
@@ -1093,6 +1054,10 @@ Note: Beware of modifying this element as it can break the animations - you shou
     margin-left: 200px;
   }
 
+  .dark .stepper-section{
+    margin-top: 190px;
+  }
+
   .contact {
     padding: 4rem 0rem;
   }
@@ -1121,7 +1086,7 @@ Note: Beware of modifying this element as it can break the animations - you shou
   }
 }
 
-@media screen and (max-width: 600px) {
+/* @media screen and (max-width: 600px) {
   .wave-background {
     position: relative;
     width: 100%;
@@ -1139,7 +1104,7 @@ Note: Beware of modifying this element as it can break the animations - you shou
     right: 67px;
     line-height: 0;
   }
-}
+} */
 
 @media screen and (max-width: 530px) {
   .home-banner-content {
@@ -1251,6 +1216,18 @@ Note: Beware of modifying this element as it can break the animations - you shou
     text-align: left;
     font-size: 11px;
   }
+  .dark .stepper-section{
+    margin-top: 190px;
+  }
+  
+  .dark .wave-background {
+    position: relative;
+    width: 100%;
+    height: 84px;
+    top: 240px;
+    overflow: hidden;
+    line-height: 0;
+  }
 }
 
 @media screen and (max-width: 385px) {
@@ -1269,6 +1246,18 @@ Note: Beware of modifying this element as it can break the animations - you shou
     overflow: hidden;
     top: 91px;
     right: 67px;
+    line-height: 0;
+  }
+  .dark .stepper-section{
+    margin-top: 160px;
+  }
+  
+  .dark .wave-background {
+    position: relative;
+    width: 100%;
+    height: 84px;
+    top: 180px;
+    overflow: hidden;
     line-height: 0;
   }
 }
@@ -1317,7 +1306,7 @@ Note: Beware of modifying this element as it can break the animations - you shou
   }
   .wave-background2 {
     position: relative;
-    width: 122%;
+    width: 129%;
     height: 122px;
     overflow: hidden;
     top: 91px;

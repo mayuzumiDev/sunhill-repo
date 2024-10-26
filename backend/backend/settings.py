@@ -95,16 +95,16 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    # 'default': dj_database_url.parse("postgresql://sunhill_lms_db_user:md7HiFmOmwNUsgWyLRDOWS2FJcfWQtPe@dpg-cs92b2rtq21c73abj3m0-a.oregon-postgres.render.com/sunhill_lms_db")
+    'default': dj_database_url.parse("postgresql://sunhill_lms_db_user:md7HiFmOmwNUsgWyLRDOWS2FJcfWQtPe@dpg-cs92b2rtq21c73abj3m0-a.oregon-postgres.render.com/sunhill_lms_db")
     
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': os.getenv("DB_NAME"),
-        'USER': os.getenv("DB_USER"),
-        'PASSWORD': os.getenv("DB_PWD"),
-        'HOST': os.getenv("DB_HOST"),
-        'PORT': os.getenv("DB_PORT")
-    } 
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.postgresql_psycopg2',
+    #     'NAME': os.getenv("DB_NAME"),
+    #     'USER': os.getenv("DB_USER"),
+    #     'PASSWORD': os.getenv("DB_PWD"),
+    #     'HOST': os.getenv("DB_HOST"),
+    #     'PORT': os.getenv("DB_PORT")
+    # } 
 }
 
 AUTH_USER_MODEL = 'api.CustomUser'
