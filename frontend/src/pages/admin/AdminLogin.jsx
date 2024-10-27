@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState} from "react";
 import { Link } from "react-router-dom";
 import useLogin from "../../hooks/useLogin";
 import { motion, AnimatePresence } from "framer-motion";
@@ -12,9 +12,6 @@ function AdminLogin() {
   const { handleLogin, errorMessage, showAlert } = useLogin();
   const loginPageName = "admin";
 
-  useEffect(() => {
-    document.title = "Admin Login | Sunhill Montessori Casa LMS";
-  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

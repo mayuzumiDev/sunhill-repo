@@ -16,7 +16,7 @@ const modalStyles = {
     right: 'auto',
     bottom: 'auto',
     transform: 'translate(-50%, 0)',
-    width: '80%',
+    width: '90%', // Adjusted width for smaller screens
     maxWidth: '400px',
     padding: '20px',
     borderRadius: '8px',
@@ -152,7 +152,7 @@ const SchoolEventsCalendar = ({ setNotifications }) => {
   };
 
   return (
-    <div className="container mx-auto max-w-[900px] p-4">
+    <div className="container mx-auto max-w-full p-4">
       <h2 className="text-center text-2xl font-bold mb-6 text-gray-800">School Events Calendar</h2>
 
       <Modal
@@ -166,8 +166,8 @@ const SchoolEventsCalendar = ({ setNotifications }) => {
             {selectedEvent.id ? 'Edit Event' : 'Add New Event'}
           </h3>
           <form onSubmit={handleFormSubmit} className="modal-form flex flex-col">
-            <div className="flex justify-between mb-4">
-              <div className="w-1/2 mr-2">
+            <div className="flex flex-col md:flex-row justify-between mb-4">
+              <div className="md:w-1/2 mr-2 mb-2 md:mb-0">
                 <input
                   type="text"
                   name="title"
@@ -177,7 +177,7 @@ const SchoolEventsCalendar = ({ setNotifications }) => {
                   required
                 />
               </div>
-              <div className="w-1/2 ml-2">
+              <div className="md:w-1/2 ml-2">
                 <input
                   type="date"
                   name="date"
@@ -208,7 +208,7 @@ const SchoolEventsCalendar = ({ setNotifications }) => {
         </div>
       </Modal>
 
-      <div className="flex justify-between mb-4">
+      <div className="flex justify-center mb-4">
         <div className="w-full">
           <FullCalendar
             plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
@@ -225,69 +225,53 @@ const SchoolEventsCalendar = ({ setNotifications }) => {
         </div>
       </div>
 
-      <div className="my-8">
-        <h3 className="text-lg font-bold mb-4">Announcements</h3>
-        <form onSubmit={handleAnnouncementSubmit} className="mb-4">
-          <div className="flex mb-2">
-            <button
-              type="button"
-              className="text-gray-600 mx-1"
-              onClick={() => wrapSelectedText('**')}
-            >
-              <FaBold />
-            </button>
-            <button
-              type="button"
-              className="text-gray-600 mx-1"
-              onClick={() => wrapSelectedText('*')}
-            >
-              <FaItalic />
-            </button>
-            <button
-              type="button"
-              className="text-gray-600 mx-1"
-              onClick={() => wrapSelectedText('~~')}
-            >
-              <FaStrikethrough />
-            </button>
-          </div>
-          <textarea
-            id="announcement-input"
-            className="border border-gray-300 rounded p-2 w-full"
-            placeholder="Type your announcement here..."
-            value={newAnnouncement}
-            onChange={(e) => setNewAnnouncement(e.target.value)}
-            rows="4"
-          ></textarea>
-          <button
-            type="submit"
-            className="bg-blue-500 text-white font-bold py-2 px-4 rounded mt-2"
-          >
-            {editingAnnouncement ? 'Update Announcement' : 'Add Announcement'}
-          </button>
-        </form>
+      <h3 className="text-lg font-bold mb-2 text-gray-800">Announcements</h3>
+      <form onSubmit={handleAnnouncementSubmit} className="flex flex-col md:flex-row mb-4">
+        <input
+          id="announcement-input"
+          type="text"
+          value={newAnnouncement}
+          onChange={(e) => setNewAnnouncement(e.target.value)}
+          placeholder="Add Announcement"
+          className="border border-gray-300 rounded p-2 flex-grow mr-2"
+        />
+        <button
+          type="submit"
+          className="bg-blue-500 text-white font-bold py-2 px-4 rounded"
+        >
+          {editingAnnouncement ? 'Update' : 'Add'}
+        </button>
+      </form>
 
-        <ul className="list-disc list-inside">
-          {announcements.map((announcement) => (
-            <li key={announcement.id} className="flex justify-between items-center mb-2">
-              <span>{marked(announcement.text)}</span>
-              <div className="ml-4">
-                <button
-                  className="text-blue-500 mr-2"
-                  onClick={() => handleEditAnnouncement(announcement)}
-                >
-                  Edit
-                </button>
-                <button
-                  className="text-red-500"
-                  onClick={() => handleDeleteAnnouncement(announcement.id)}
-                >
-                  Delete
-                </button>
-              </div>
-            </li>
-          ))}
-        </ul>
+      <div className="announcements-list mb-4">
+        {announcements.map((announcement) => (
+          <div key={announcement.id} className="flex justify-between mb-2 bg-gray-100 p-2 rounded">
+            <span>{announcement.text}</span>
+            <div>
+              <button
+                onClick={() => handleEditAnnouncement(announcement)}
+                className="text-yellow-500 mr-2"
+              >
+                Edit
+              </button>
+              <button
+                onClick={() => handleDeleteAnnouncement(announcement.id)}
+                className="text-red-500"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="text-gray-600 text-sm">
+        <p className="mb-2">Format announcements:</p>
+        <div className="flex">
+          <button onClick={() => wrapSelectedText('**')} className="mr-2"><FaBold /></button>
+          <button onClick={() => wrapSelectedText('*')} className="mr-2"><FaItalic /></button>
+          <button onClick={() => wrapSelectedText('~~')} className="mr-2"><FaStrikethrough /></button>
+        </div>
       </div>
     </div>
   );

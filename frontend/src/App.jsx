@@ -57,7 +57,7 @@ function App() {
           path="/admin/login/"
           element={
             <>
-              <PageTitle title="Sunhill LMS Admin" />
+              <PageTitle title="Admin Login | Sunhill Montessori Casa LMS" />
               <AdminLogin />
             </>
           }
@@ -65,9 +65,12 @@ function App() {
         <Route
           path="/admin/interface/"
           element={
-            <ProtectedRoute userRole="admin">
-              <AdminInterface />
-            </ProtectedRoute>
+            <>
+              <PageTitle title="Sunhill LMS Admin" />
+              <ProtectedRoute userRole="admin">
+                <AdminInterface />
+              </ProtectedRoute>
+            </>
           }
         />
         <Route path="/forgot-password/" element={<ForgotPassword />} />
