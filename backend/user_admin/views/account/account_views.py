@@ -18,14 +18,23 @@ class GenerateAccountView(generics.CreateAPIView):
 
         account_storage = []
         account_count = serializer.validated_data.get('account_count', 1)
+        role = serializer.validated_data.get('role')
+        branch_name = serializer.validated_data.get('branch_name')
 
         if not isinstance(account_count, int)  or account_count <= 0:
             raise ValidationError({"account_count": "Must be a positive integer"})
         
         for  _ in range(account_count):
-            account_storage.append(serializer.generate_account(serializer.validated_data))
+            account_data = serializer.generate_account(serializer.validated_data)
+            account_storage.append({
+                'username': account_data['generated_username'],
+                'password': account_data['generated_password'],
+                'role': role,
+                'branch_name': branch_name
+            })
         
-        return JsonResponse({'account':  account_storage}, status=status.HTTP_201_CREATED)
+        print("Account Storage: ", account_storage)
+        return JsonResponse({'accounts':  account_storage}, status=status.HTTP_201_CREATED)
 
 class CreateAccountView(generics.CreateAPIView):
     permission_classes = [AllowAny]
@@ -33,34 +42,59 @@ class CreateAccountView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
 
     def post(self, request):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.save()
-        user_data = self.get_serializer(user['user']).data
-        user_role = user['user'].role
+        print("Request data: ", request.data)
+        generated_accounts = request.data.get("accounts", []) 
+        print("Generated Accounts: ", generated_accounts)
+        response_data = []
 
-        response_data = {
-            'message':  f'{user_role} account created successfully',
-            'user': user_data,
-            'username':  user['generated_username'],
-            'password': user['generated_password']
-        }
-
-        if user_role == 'student':
-            parent_data = {
-                'student_username': user['generated_username']
+        for generated_account in generated_accounts:
+            serializer_data = {
+                'role': generated_account.get('role'),
+                'branch_name': generated_account.get('branch_name'),
+                'generated_username': generated_account.get('username'),
+                'generated_password': generated_account.get('password'),
             }
-            parent_link_serializer = ParentStudentLinkSerializer(data=parent_data)
-            parent_link_serializer.is_valid(raise_exception=True)
-            parent_user = parent_link_serializer.save()
+            serializer = self.get_serializer(data=serializer_data)
+            print("Serializer Data:", serializer_data)  # Print data before validation
 
-            response_data.update({
-                'parent_username': parent_user['generated_username'],
-                'parent_password': parent_user['generated_password'],
-                'linked_student': user['generated_username']
-            })
+            if serializer.is_valid():
+                user = serializer.save()
+                user_data = self.get_serializer(user).data
 
-        return JsonResponse(response_data, status=status.HTTP_201_CREATED)
+            
+                account_data = {
+                    'message':  f'{user.role} account created successfully',
+                    'user': user_data,
+                    'username':  generated_account['username'],
+                    'password': generated_account['password']
+                }
+
+                print("Account Data: ", account_data)
+
+                if user.role == 'student':
+                    parent_data = {
+                        'student_username': generated_account['username']
+                    }
+                    parent_link_serializer = ParentStudentLinkSerializer(data=parent_data)
+                    parent_link_serializer.is_valid(raise_exception=True)
+                    parent_user = parent_link_serializer.save()
+
+                    account_data.update({
+                        'parent_username': parent_user['generated_username'],
+                        'parent_password': parent_user['generated_password'],
+                        'linked_student': user.username
+                    })
+                
+                response_data.append(account_data)
+
+                print("Response Data: ", response_data)
+            
+            else:
+                print("Serializer Errors:", serializer.errors)  # Print errors if not valid 
+                return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        return JsonResponse({'accounts': response_data}, status=status.HTTP_201_CREATED)
+           
 
 class CreateUsertView(generics.CreateAPIView):
     permission_classes = [AllowAny]

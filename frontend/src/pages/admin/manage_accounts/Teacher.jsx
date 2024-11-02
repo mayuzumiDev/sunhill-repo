@@ -6,14 +6,17 @@ import AddAccountModal from "../../../components/modal/AddAccountModal";
 import BiingsAlertSuccesss from "../../../components/alert/BiingsAlertSuccess";
 import BiingsAlertError from "../../../components/alert/BiingsAlertError";
 import "../../../components/alert/styles/BiingsAlert.css";
+import GeneratedAccountModal from "../../../components/modal/GeneratedAccountModal";
 
 const Teacher = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isGeneratedModalOpen, setIsGeneratedModalOpen] = useState(false);
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
   const [showErrorAlert, setShowErrorAlert] = useState(false);
+  const [generatedAccounts, setGeneratedAccounts] = useState([]);
+  const [selectedBranch, setSelectedBranch] = useState("");
 
   const [teachers, setTeachers] = useState([]);
-  const [selectedBranch, setSelectedBranch] = useState("");
   const [newTeacher, setNewTeacher] = useState({
     id: "",
     username: "",
@@ -48,30 +51,74 @@ const Teacher = () => {
     setNewTeacher((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleAddTeacher = async (numAccounts, branch) => {
+  // Function to handle the generation of accounts
+  const handelGenerateAccount = async (numAccounts, selectedBranch) => {
+    try {
+      const response = await axiosInstance.post(
+        "/user-admin/generate-account/",
+        {
+          account_count: numAccounts,
+          role: "teacher",
+          branch_name: selectedBranch,
+        }
+      );
+
+      // Check if the response status indicates successful generation of accounts
+      if (response.status === 201) {
+        setGeneratedAccounts(response.data.accounts); // Update state with the generated accounts data
+        handleOpenGenerateModal();
+      }
+    } catch (error) {
+      console.error(
+        "An error occurred while generating teacher accounts.",
+        error
+      );
+    }
+  };
+
+  useEffect(() => {
+    console.log(generatedAccounts);
+  }, [generatedAccounts]);
+
+  // Function to handle the addition of teacher accounts
+  const handleSaveAccounts = async () => {
+    console.log("handleSaveAccounts: ", generatedAccounts);
     try {
       const response = await axiosInstance.post("/user-admin/create-account/", {
-        account_count: numAccounts,
-        role: "teacher",
-        branch_name: branch,
+        accounts: generatedAccounts,
       });
 
+      // Check if the response status indicates successful account creation
       if (response.status === 201) {
+        setIsGeneratedModalOpen(false);
         setShowSuccessAlert(true);
         const timeoutSuccess = setTimeout(() => {
           setShowSuccessAlert(false);
-        }, 2000);
+        }, 2000); // 2 seconds
       }
     } catch (error) {
       console.error(
         "An error occurred while creating teacher accounts.",
         error
       );
+      setIsGeneratedModalOpen(false);
       setShowErrorAlert(true);
+
+      // Set a timeout to hide the error alert after 2 seconds
       const timeoutError = setTimeout(() => {
         setShowErrorAlert(false);
       }, 2000);
     }
+  };
+
+  const handleOpenGenerateModal = () => {
+    setIsModalOpen(false);
+    setIsGeneratedModalOpen(true);
+  };
+
+  const handleCloseGenerateModal = () => {
+    setIsGeneratedModalOpen(false);
+    setIsModalOpen(true);
   };
 
   return (
@@ -90,8 +137,15 @@ const Teacher = () => {
       <AddAccountModal
         isModalOpen={isModalOpen}
         setIsModalOpen={setIsModalOpen}
-        onAddAccount={handleAddTeacher}
+        onGenerateAccount={handelGenerateAccount}
         userType={"Teacher"}
+      />
+      <GeneratedAccountModal
+        isModalOpen={isGeneratedModalOpen}
+        setIsModalOpen={setIsGeneratedModalOpen}
+        handleCloseModal={handleCloseGenerateModal}
+        generatedAccounts={generatedAccounts}
+        onSaveAccounts={handleSaveAccounts}
       />
       {showSuccessAlert && (
         <div>
