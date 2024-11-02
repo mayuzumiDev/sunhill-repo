@@ -9,13 +9,15 @@ class UserInfoAdmin(admin.ModelAdmin):
 
 class StudentInfoAdmin(UserInfoAdmin):
     list_display = ('id', 'student_info', 'grade_level',)
-    fieldsets = UserInfoAdmin.fieldsets + (
+    fieldsets = (
         ('Student', {'fields': ('grade_level',)}),
     )
 
 class ParentInfoAdmin(UserInfoAdmin):
     list_display = ('id', 'parent_info', 'student_info')
-    fieldsets = UserInfoAdmin.fieldsets
+    fieldsets = (
+        ('Parent', {'fields': ('parent_info', 'student_info')}),
+    )
 
 admin.site.register(UserInfo, UserInfoAdmin)
 admin.site.register(StudentInfo,  StudentInfoAdmin)  

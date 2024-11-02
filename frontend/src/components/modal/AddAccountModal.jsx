@@ -19,7 +19,6 @@ const AddAccountModal = ({
   const handleAdd = () => {
     if (numAccounts && selectedBranch) {
       onAddAccount(numAccounts, selectedBranch);
-      setIsModalOpen(false);
     }
   };
 
@@ -74,18 +73,18 @@ const AddAccountModal = ({
               </select>
             </div>
           </div>
-          <div className="flex justify-end p-6">
+          <div className="flex justify-between p-6">
+            <button
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+              onClick={handleAdd}
+            >
+              Add
+            </button>
             <button
               className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
               onClick={() => setIsModalOpen(false)}
             >
               Cancel
-            </button>
-            <button
-              className="ml-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-              onClick={handleAdd}
-            >
-              Add
             </button>
           </div>
         </div>

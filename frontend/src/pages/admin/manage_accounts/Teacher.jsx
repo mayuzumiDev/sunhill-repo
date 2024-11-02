@@ -57,7 +57,6 @@ const Teacher = () => {
       });
 
       if (response.status === 201) {
-        setIsModalOpen(false);
         setShowSuccessAlert(true);
         const timeoutSuccess = setTimeout(() => {
           setShowSuccessAlert(false);
