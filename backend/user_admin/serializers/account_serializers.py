@@ -90,12 +90,7 @@ class CreateAccountSerializer(serializers.ModelSerializer):
         else:
             pass
 
-        return {
-            'user': user,
-            'role': validated_data['role'],
-            'generated_username': username,
-            'generated_password': password,
-        }
+        return user
 
 class ParentStudentLinkSerializer(serializers.ModelSerializer):
     student_username = serializers.CharField(write_only=True)
@@ -134,11 +129,14 @@ class ParentStudentLinkSerializer(serializers.ModelSerializer):
         parent_data['generated_username'] = account_generator.generate_username('parent', random_part=student_random_part)
         parent_data['generated_password'] = account_generator.generate_password('parent', random_part=student_random_part)
 
+        generated_username = parent_data['generated_username']
+        generated_password = parent_data['generated_password']
+
         # Create a parent account using the CreateAccountSerializer
         create_account_serializer = CreateAccountSerializer(data=parent_data)
         if create_account_serializer.is_valid(raise_exception=True):
             parent_account = create_account_serializer.create(parent_data)
-            parent_user = parent_account['user']
+            parent_user = parent_account
             parent_user_info = UserInfo.objects.get(user=parent_user)
 
             # Create a ParentInfo instance linking the parent and student info
@@ -149,54 +147,12 @@ class ParentStudentLinkSerializer(serializers.ModelSerializer):
 
             return {
                 'user': parent_user,
-                'generated_username': parent_account['generated_username'],
-                'generated_password': parent_account['generated_password'],
+                'generated_username': generated_username,
+                'generated_password': generated_password,
             }
         else:
             raise serializers.ValidationError("Failed to create parent account")
 
-
-""" class ParentStudentLinkSerializer(serializers.ModelSerializer):
-    student_username = serializers.CharField(write_only=True)
-
-    class Meta:
-        model = CustomUser
-        fields = ('student_username',)
-
-    # Create a parent account linked to a student account based on the provided username
-    def create(self, validated_data):
-        student_username = validated_data.pop('student_username')
-
-        try:
-            # Retrieve the student user based on the username and role
-            student_user = CustomUser.objects.get(username=student_username, role='student')
-            student_info = UserInfo.objects.get(user=student_user)
-            student_instance = StudentInfo.objects.get(student_info=student_info)
-
-        except CustomUser.DoesNotExist:
-            raise serializers.ValidationError("Student with provided username does not exist")
-        
-        except StudentInfo.DoesNotExist:
-            raise serializers.ValidationError("StudentInfo for the provided username does not exist")
-
-        # Prepare data for creating a parent account
-        parent_data = {
-            'role': 'parent',
-            'branch_name': student_user.branch_name  
-        }
-
-        # Create a parent account using the CreateAccountSerializer
-        parent_account = CreateAccountSerializer().create(parent_data)
-        parent_user = parent_account['user']
-        parent_user_info = UserInfo.objects.get(user=parent_user)
-
-        # Create a ParentInfo instance linking the parent and student info
-        parent_info = ParentInfo.objects.create(
-            parent_info=parent_user_info,
-            student_info=student_instance
-        )
-
-        return parent_account """
 
 class TeacherListSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source='user.username', read_only=True)

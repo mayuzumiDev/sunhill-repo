@@ -10,15 +10,15 @@ const branches = [
 const AddAccountModal = ({
   isModalOpen,
   setIsModalOpen,
-  onAddAccount,
+  onGenerateAccount,
   userType,
 }) => {
   const [numAccounts, setNumAccounts] = useState("");
   const [selectedBranch, setSelectedBranch] = useState(branches[0].value);
 
-  const handleAdd = () => {
+  const handleGenerate = () => {
     if (numAccounts && selectedBranch) {
-      onAddAccount(numAccounts, selectedBranch);
+      onGenerateAccount(numAccounts, selectedBranch);
     }
   };
 
@@ -76,9 +76,9 @@ const AddAccountModal = ({
           <div className="flex justify-between p-6">
             <button
               className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-              onClick={handleAdd}
+              onClick={handleGenerate}
             >
-              Add
+              Generate
             </button>
             <button
               className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"

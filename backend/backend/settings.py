@@ -95,7 +95,7 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    'default': dj_database_url.parse("postgresql://sunhill_lms_db_user:md7HiFmOmwNUsgWyLRDOWS2FJcfWQtPe@dpg-cs92b2rtq21c73abj3m0-a.oregon-postgres.render.com/sunhill_lms_db")
+    'default': dj_database_url.parse("postgresql://sunhill_db_user:oAvRvmJSM0J1DWxRMuOgNARiM9fDTIpl@dpg-csiq6hu8ii6s73cpmu9g-a.oregon-postgres.render.com/sunhill_db")
     
     # 'default': {
     #     'ENGINE': 'django.db.backends.postgresql_psycopg2',
