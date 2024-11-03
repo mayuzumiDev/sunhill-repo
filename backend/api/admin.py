@@ -9,7 +9,7 @@ class CustomUserAdmin(UserAdmin):
     # Fieldsets for the edit view
     fieldsets = (
         (None, {'fields': ('username', 'password',)}),
-        ('Account info', {'fields': ('email', 'role', 'branch_name')}),
+        ('Account info', {'fields': ('first_name', 'last_name','email', 'role', 'branch_name')}),
         ('Permissions', {'fields': ('is_staff', 'is_superuser')}),
     )
 

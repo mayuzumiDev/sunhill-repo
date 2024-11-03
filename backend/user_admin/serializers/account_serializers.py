@@ -155,6 +155,8 @@ class ParentStudentLinkSerializer(serializers.ModelSerializer):
 
 
 class TeacherListSerializer(serializers.ModelSerializer):
+    first_name = serializers.CharField(source='user.first_name', read_only=True)
+    last_name = serializers.CharField(source='user.last_name', read_only=True)
     username = serializers.CharField(source='user.username', read_only=True)
     email = serializers.CharField(source='user.email', read_only=True)
     branch_name = serializers.CharField(source='user.branch_name', read_only=True)
@@ -168,5 +170,5 @@ class TeacherListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserInfo
-        fields = ('id', 'username', 'email', 'branch_name', 'contact_no', 'is_teacher')
+        fields = ('id', 'first_name', 'last_name', 'username', 'email', 'branch_name', 'contact_no', 'is_teacher')
 
