@@ -16,9 +16,9 @@ const Teacher = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
   const [showErrorAlert, setShowErrorAlert] = useState(false);
+
   const [generatedAccounts, setGeneratedAccounts] = useState([]);
   const [selectedBranch, setSelectedBranch] = useState("");
-
   const [teachers, setTeachers] = useState([]);
 
   const branches = [...new Set(teachers.map((teacher) => teacher.branch))];

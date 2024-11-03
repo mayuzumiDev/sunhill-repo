@@ -159,6 +159,7 @@ class TeacherListSerializer(serializers.ModelSerializer):
     last_name = serializers.CharField(source='user.last_name', read_only=True)
     username = serializers.CharField(source='user.username', read_only=True)
     email = serializers.CharField(source='user.email', read_only=True)
+    contact_no = serializers.CharField(read_only=True)
     branch_name = serializers.CharField(source='user.branch_name', read_only=True)
 
     is_teacher = serializers.SerializerMethodField()

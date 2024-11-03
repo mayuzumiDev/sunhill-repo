@@ -1,8 +1,7 @@
 from django.http.response import JsonResponse
-from rest_framework import generics, status
+from rest_framework import generics, status, filters
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.exceptions import ValidationError
 from api.models import CustomUser
 from ...models.account_models import UserInfo
@@ -97,9 +96,9 @@ class CreateAccountView(generics.CreateAPIView):
 class TeacherListView(generics.ListAPIView):
     permission_classes = [AllowAny]
     serializer_class = TeacherListSerializer
-    filter_backends = [SearchFilter, OrderingFilter]
-    SearchFilter = ['id']
-    OrderingFilter = ['branch_name']
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['id', 'user__first_name', 'user__last_name']
+    ordering_fields = ['user__first_name']
 
     # Returns a queryset of UserInfo objects where the user's role is 'teacher'
     def get_queryset(self):
