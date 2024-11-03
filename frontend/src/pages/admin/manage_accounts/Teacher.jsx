@@ -2,15 +2,18 @@ import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { axiosInstance } from "../../../utils/axiosInstance";
+import { generatePdf } from "../../../utils/pdfUtils";
 import AddAccountModal from "../../../components/modal/AddAccountModal";
+import GeneratedAccountModal from "../../../components/modal/GeneratedAccountModal";
+import SchawnnahJLoader from "../../../components/loaders/SchawnnahJLoader";
 import BiingsAlertSuccesss from "../../../components/alert/BiingsAlertSuccess";
 import BiingsAlertError from "../../../components/alert/BiingsAlertError";
 import "../../../components/alert/styles/BiingsAlert.css";
-import GeneratedAccountModal from "../../../components/modal/GeneratedAccountModal";
 
 const Teacher = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isGeneratedModalOpen, setIsGeneratedModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
   const [showErrorAlert, setShowErrorAlert] = useState(false);
   const [generatedAccounts, setGeneratedAccounts] = useState([]);
@@ -25,15 +28,6 @@ const Teacher = () => {
     contact_no: "",
   });
 
-  /*   const [newTeacher, setNewTeacher] = useState({
-    name: "",
-    subject: "",
-    branch: "",
-    username: "",
-    password: "",
-  }); */
-
-  // const subjects = [...new Set(teachers.map((teacher) => teacher.subject))];
   const branches = [...new Set(teachers.map((teacher) => teacher.branch))];
 
   const handleBranchChange = (e) => setSelectedBranch(e.target.value);
@@ -54,6 +48,7 @@ const Teacher = () => {
   // Function to handle the generation of accounts
   const handelGenerateAccount = async (numAccounts, selectedBranch) => {
     try {
+      setIsLoading(true);
       const response = await axiosInstance.post(
         "/user-admin/generate-account/",
         {
@@ -73,6 +68,8 @@ const Teacher = () => {
         "An error occurred while generating teacher accounts.",
         error
       );
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -87,20 +84,38 @@ const Teacher = () => {
       const response = await axiosInstance.post("/user-admin/create-account/", {
         accounts: generatedAccounts,
       });
-
-      // Check if the response status indicates successful account creation
-      if (response.status === 201) {
-        setIsGeneratedModalOpen(false);
-        setShowSuccessAlert(true);
-        const timeoutSuccess = setTimeout(() => {
-          setShowSuccessAlert(false);
-        }, 2000); // 2 seconds
-      }
     } catch (error) {
       console.error(
         "An error occurred while creating teacher accounts.",
         error
       );
+    }
+  };
+
+  const handleGeneratePdf = async () => {
+    try {
+      await generatePdf("/user-admin/generate-pdf/", generatedAccounts);
+    } catch (error) {
+      console.error("An error occured while generating the pdf.");
+    }
+  };
+
+  const handleSaveAndGenerate = async () => {
+    try {
+      setIsLoading(true);
+      await handleSaveAccounts(); // First, attempt to save the accounts
+
+      await handleGeneratePdf(); // if saving is successful, process with PDF generation
+
+      setIsLoading(false);
+      setIsGeneratedModalOpen(false);
+      setShowSuccessAlert(true);
+      const timeoutSuccess = setTimeout(() => {
+        setShowSuccessAlert(false);
+      }, 2000); // 2 seconds
+    } catch (error) {
+      console.error("An error  occurred while saving and generating the pdf.");
+      setIsLoading(false);
       setIsGeneratedModalOpen(false);
       setShowErrorAlert(true);
 
@@ -112,11 +127,13 @@ const Teacher = () => {
   };
 
   const handleOpenGenerateModal = () => {
+    // Close the previous modal and open the "generated accounts" modal
     setIsModalOpen(false);
     setIsGeneratedModalOpen(true);
   };
 
   const handleCloseGenerateModal = () => {
+    // Close the "generated accounts" modal and open the previous modal
     setIsGeneratedModalOpen(false);
     setIsModalOpen(true);
   };
@@ -134,6 +151,7 @@ const Teacher = () => {
           Add New Teacher
         </button>
       </div>
+      {isLoading && <SchawnnahJLoader />}
       <AddAccountModal
         isModalOpen={isModalOpen}
         setIsModalOpen={setIsModalOpen}
@@ -145,7 +163,7 @@ const Teacher = () => {
         setIsModalOpen={setIsGeneratedModalOpen}
         handleCloseModal={handleCloseGenerateModal}
         generatedAccounts={generatedAccounts}
-        onSaveAccounts={handleSaveAccounts}
+        onSaveAccounts={handleSaveAndGenerate}
       />
       {showSuccessAlert && (
         <div>
@@ -216,7 +234,6 @@ const TeacherTable = ({ filteredTeachers }) => (
           <tr className="bg-gray-200 text-gray-700">
             <th className="py-2 px-4 text-left">ID</th>
             <th className="py-2 px-4 text-left">Name</th>
-            <th className="py-2 px-4 text-left">Subject</th>
             <th className="py-2 px-4 text-left">Branch</th>
             <th className="py-2 px-4 text-left">Username</th>
             <th className="py-2 px-4 text-left">Actions</th>
@@ -227,7 +244,6 @@ const TeacherTable = ({ filteredTeachers }) => (
             <tr key={teacher.id} className="border-b hover:bg-gray-100">
               <td className="py-2 px-4">{teacher.id}</td>
               <td className="py-2 px-4">{teacher.name}</td>
-              <td className="py-2 px-4">{teacher.subject}</td>
               <td className="py-2 px-4">{teacher.branch}</td>
               <td className="py-2 px-4">{teacher.username}</td>
               <td className="py-2 px-4 flex space-x-1">
