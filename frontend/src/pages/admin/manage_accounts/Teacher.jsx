@@ -16,17 +16,10 @@ const Teacher = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
   const [showErrorAlert, setShowErrorAlert] = useState(false);
+
   const [generatedAccounts, setGeneratedAccounts] = useState([]);
   const [selectedBranch, setSelectedBranch] = useState("");
-
   const [teachers, setTeachers] = useState([]);
-  const [newTeacher, setNewTeacher] = useState({
-    id: "",
-    username: "",
-    email: "",
-    branch: "",
-    contact_no: "",
-  });
 
   const branches = [...new Set(teachers.map((teacher) => teacher.branch))];
 
@@ -40,10 +33,28 @@ const Teacher = () => {
     return branchMatch;
   });
 
-  const handleInputChange = (e) => {
+  /*   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewTeacher((prev) => ({ ...prev, [name]: value }));
-  };
+  }; */
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        const response = await axiosInstance.get("/user-admin/teacher-list/");
+
+        if (response.status === 200) {
+          setTeachers(response.data.teacher_list);
+        }
+      } catch (error) {
+        console.error("An error occured while fetching the data.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, [showSuccessAlert]);
 
   // Function to handle the generation of accounts
   const handelGenerateAccount = async (numAccounts, selectedBranch) => {
@@ -139,7 +150,7 @@ const Teacher = () => {
   };
 
   return (
-    <div className="p-6 min-h-screen">
+    <div className="p-6 min-h-screen font-montserrat">
       <h1 className="text-4xl text-gray-800 font-bold mb-4">Manage Accounts</h1>
       <h2 className="text-lg text-gray-700 font-semibold mb-4">Teachers</h2>
 
@@ -232,34 +243,27 @@ const TeacherTable = ({ filteredTeachers }) => (
       <table className="min-w-full bg-white shadow-md rounded-lg">
         <thead>
           <tr className="bg-gray-200 text-gray-700">
-            <th className="py-2 px-4 text-left">ID</th>
-            <th className="py-2 px-4 text-left">Name</th>
-            <th className="py-2 px-4 text-left">Branch</th>
-            <th className="py-2 px-4 text-left">Username</th>
-            <th className="py-2 px-4 text-left">Actions</th>
+            <th className="py-2 px-4 text-center">ID</th>
+            <th className="py-2 px-4 text-center">Username</th>
+            <th className="py-2 px-4 text-center">Name</th>
+            <th className="py-2 px-4 text-center">Email</th>
+            <th className="py-2 px-4 text-center">Contact No.</th>
+            <th className="py-2 px-4 text-center">Branch</th>
           </tr>
         </thead>
         <tbody>
           {filteredTeachers.map((teacher) => (
             <tr key={teacher.id} className="border-b hover:bg-gray-100">
-              <td className="py-2 px-4">{teacher.id}</td>
-              <td className="py-2 px-4">{teacher.name}</td>
-              <td className="py-2 px-4">{teacher.branch}</td>
-              <td className="py-2 px-4">{teacher.username}</td>
-              <td className="py-2 px-4 flex space-x-1">
-                <button
-                  className="text-blue-500 hover:underline"
-                  aria-label="Edit Teacher"
-                >
-                  <FontAwesomeIcon icon={faEdit} />
-                </button>
-                <button
-                  className="text-red-500 hover:underline"
-                  aria-label="Delete Teacher"
-                >
-                  <FontAwesomeIcon icon={faTrash} />
-                </button>
+              <td className="py-2 px-4 text-center">{teacher.id}</td>
+              <td className="py-2 px-4 text-center">{teacher.username}</td>
+              <td className="py-2 px-4 text-center">
+                {`${teacher.first_name || "-"} ${teacher.last_name}`}
               </td>
+              <td className="py-2 px-4 text-center">{teacher.email || "-"}</td>
+              <td className="py-2 px-4 text-center">
+                {teacher.contact_no || "-"}
+              </td>
+              <td className="py-2 px-4 text-center">{teacher.branch_name}</td>
             </tr>
           ))}
         </tbody>
