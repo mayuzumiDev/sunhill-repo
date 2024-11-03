@@ -60,7 +60,6 @@ class CreateAccountView(generics.CreateAPIView):
             if serializer.is_valid():
                 user = serializer.save()
                 user_data = self.get_serializer(user).data
-
             
                 account_data = {
                     'message':  f'{user.role} account created successfully',
@@ -94,44 +93,6 @@ class CreateAccountView(generics.CreateAPIView):
                 return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         return JsonResponse({'accounts': response_data}, status=status.HTTP_201_CREATED)
-           
-
-class CreateUsertView(generics.CreateAPIView):
-    permission_classes = [AllowAny]
-    serializer_class = CreateAccountSerializer
-    queryset = CustomUser.objects.all()
-
-    # Create multiple user accounts based on the provided account count
-    def create(self, request, *args, **kwargs):
-        account_count = int(request.data.get('account_count', 1))
-        generated_users = []
-        generated_parent_users = []
-
-        for _ in range(account_count):
-            serializer = self.get_serializer(data=request.data)
-            serializer.is_valid(raise_exception=True)
-            user = serializer.save()
-            generated_users.append({'username': user['generated_username'], 'password': user['generated_password']})
-
-            # If the created user is a student, create a linked parent account
-            if user['role'] == 'student':
-                parent_data = {
-                    'student_username': user['generated_username']
-                }
-                parent_serializer = ParentStudentLinkSerializer(data=parent_data)
-                parent_serializer.is_valid(raise_exception=True)
-                parent_account = parent_serializer.save()
-
-                generated_parent_users.append({
-                    'username': parent_account['generated_username'],
-                    'password': parent_account['generated_password'],
-                    'linked_student': user['generated_username']
-                })
-
-        return JsonResponse({'message': 'New accounts created successfully.',
-                             'generated_users': generated_users,  
-                             'generated_parent_users': generated_parent_users
-                            }, status=status.HTTP_201_CREATED)
 
 class TeacherListView(generics.ListAPIView):
     permission_classes = [AllowAny]
