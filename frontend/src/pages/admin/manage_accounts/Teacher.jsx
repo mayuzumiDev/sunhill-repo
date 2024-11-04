@@ -2,35 +2,25 @@ import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { axiosInstance } from "../../../utils/axiosInstance";
+import { generatePdf } from "../../../utils/pdfUtils";
 import AddAccountModal from "../../../components/modal/AddAccountModal";
+import GeneratedAccountModal from "../../../components/modal/GeneratedAccountModal";
+import SchawnnahJLoader from "../../../components/loaders/SchawnnahJLoader";
 import BiingsAlertSuccesss from "../../../components/alert/BiingsAlertSuccess";
 import BiingsAlertError from "../../../components/alert/BiingsAlertError";
 import "../../../components/alert/styles/BiingsAlert.css";
 
 const Teacher = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isGeneratedModalOpen, setIsGeneratedModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
   const [showErrorAlert, setShowErrorAlert] = useState(false);
 
-  const [teachers, setTeachers] = useState([]);
+  const [generatedAccounts, setGeneratedAccounts] = useState([]);
   const [selectedBranch, setSelectedBranch] = useState("");
-  const [newTeacher, setNewTeacher] = useState({
-    id: "",
-    username: "",
-    email: "",
-    branch: "",
-    contact_no: "",
-  });
+  const [teachers, setTeachers] = useState([]);
 
-  /*   const [newTeacher, setNewTeacher] = useState({
-    name: "",
-    subject: "",
-    branch: "",
-    username: "",
-    password: "",
-  }); */
-
-  // const subjects = [...new Set(teachers.map((teacher) => teacher.subject))];
   const branches = [...new Set(teachers.map((teacher) => teacher.branch))];
 
   const handleBranchChange = (e) => setSelectedBranch(e.target.value);
@@ -43,40 +33,124 @@ const Teacher = () => {
     return branchMatch;
   });
 
-  const handleInputChange = (e) => {
+  /*   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewTeacher((prev) => ({ ...prev, [name]: value }));
+  }; */
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        const response = await axiosInstance.get("/user-admin/teacher-list/");
+
+        if (response.status === 200) {
+          setTeachers(response.data.teacher_list);
+        }
+      } catch (error) {
+        console.error("An error occured while fetching the data.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, [showSuccessAlert]);
+
+  // Function to handle the generation of accounts
+  const handelGenerateAccount = async (numAccounts, selectedBranch) => {
+    try {
+      setIsLoading(true);
+      const response = await axiosInstance.post(
+        "/user-admin/generate-account/",
+        {
+          account_count: numAccounts,
+          role: "teacher",
+          branch_name: selectedBranch,
+        }
+      );
+
+      // Check if the response status indicates successful generation of accounts
+      if (response.status === 201) {
+        setGeneratedAccounts(response.data.accounts); // Update state with the generated accounts data
+        handleOpenGenerateModal();
+      }
+    } catch (error) {
+      console.error(
+        "An error occurred while generating teacher accounts.",
+        error
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleAddTeacher = async (numAccounts, branch) => {
+  useEffect(() => {
+    console.log(generatedAccounts);
+  }, [generatedAccounts]);
+
+  // Function to handle the addition of teacher accounts
+  const handleSaveAccounts = async () => {
+    console.log("handleSaveAccounts: ", generatedAccounts);
     try {
       const response = await axiosInstance.post("/user-admin/create-account/", {
-        account_count: numAccounts,
-        role: "teacher",
-        branch_name: branch,
+        accounts: generatedAccounts,
       });
-
-      if (response.status === 201) {
-        setIsModalOpen(false);
-        setShowSuccessAlert(true);
-        const timeoutSuccess = setTimeout(() => {
-          setShowSuccessAlert(false);
-        }, 2000);
-      }
     } catch (error) {
       console.error(
         "An error occurred while creating teacher accounts.",
         error
       );
+    }
+  };
+
+  const handleGeneratePdf = async () => {
+    try {
+      await generatePdf("/user-admin/generate-pdf/", generatedAccounts);
+    } catch (error) {
+      console.error("An error occured while generating the pdf.");
+    }
+  };
+
+  const handleSaveAndGenerate = async () => {
+    try {
+      setIsLoading(true);
+      await handleSaveAccounts(); // First, attempt to save the accounts
+
+      await handleGeneratePdf(); // if saving is successful, process with PDF generation
+
+      setIsLoading(false);
+      setIsGeneratedModalOpen(false);
+      setShowSuccessAlert(true);
+      const timeoutSuccess = setTimeout(() => {
+        setShowSuccessAlert(false);
+      }, 2000); // 2 seconds
+    } catch (error) {
+      console.error("An error  occurred while saving and generating the pdf.");
+      setIsLoading(false);
+      setIsGeneratedModalOpen(false);
       setShowErrorAlert(true);
+
+      // Set a timeout to hide the error alert after 2 seconds
       const timeoutError = setTimeout(() => {
         setShowErrorAlert(false);
       }, 2000);
     }
   };
 
+  const handleOpenGenerateModal = () => {
+    // Close the previous modal and open the "generated accounts" modal
+    setIsModalOpen(false);
+    setIsGeneratedModalOpen(true);
+  };
+
+  const handleCloseGenerateModal = () => {
+    // Close the "generated accounts" modal and open the previous modal
+    setIsGeneratedModalOpen(false);
+    setIsModalOpen(true);
+  };
+
   return (
-    <div className="p-6 min-h-screen">
+    <div className="p-6 min-h-screen font-montserrat">
       <h1 className="text-4xl text-gray-800 font-bold mb-4">Manage Accounts</h1>
       <h2 className="text-lg text-gray-700 font-semibold mb-4">Teachers</h2>
 
@@ -88,11 +162,19 @@ const Teacher = () => {
           Add New Teacher
         </button>
       </div>
+      {isLoading && <SchawnnahJLoader />}
       <AddAccountModal
         isModalOpen={isModalOpen}
         setIsModalOpen={setIsModalOpen}
-        onAddAccount={handleAddTeacher}
+        onGenerateAccount={handelGenerateAccount}
         userType={"Teacher"}
+      />
+      <GeneratedAccountModal
+        isModalOpen={isGeneratedModalOpen}
+        setIsModalOpen={setIsGeneratedModalOpen}
+        handleCloseModal={handleCloseGenerateModal}
+        generatedAccounts={generatedAccounts}
+        onSaveAccounts={handleSaveAndGenerate}
       />
       {showSuccessAlert && (
         <div>
@@ -161,36 +243,27 @@ const TeacherTable = ({ filteredTeachers }) => (
       <table className="min-w-full bg-white shadow-md rounded-lg">
         <thead>
           <tr className="bg-gray-200 text-gray-700">
-            <th className="py-2 px-4 text-left">ID</th>
-            <th className="py-2 px-4 text-left">Name</th>
-            <th className="py-2 px-4 text-left">Subject</th>
-            <th className="py-2 px-4 text-left">Branch</th>
-            <th className="py-2 px-4 text-left">Username</th>
-            <th className="py-2 px-4 text-left">Actions</th>
+            <th className="py-2 px-4 text-center">ID</th>
+            <th className="py-2 px-4 text-center">Username</th>
+            <th className="py-2 px-4 text-center">Name</th>
+            <th className="py-2 px-4 text-center">Email</th>
+            <th className="py-2 px-4 text-center">Contact No.</th>
+            <th className="py-2 px-4 text-center">Branch</th>
           </tr>
         </thead>
         <tbody>
           {filteredTeachers.map((teacher) => (
             <tr key={teacher.id} className="border-b hover:bg-gray-100">
-              <td className="py-2 px-4">{teacher.id}</td>
-              <td className="py-2 px-4">{teacher.name}</td>
-              <td className="py-2 px-4">{teacher.subject}</td>
-              <td className="py-2 px-4">{teacher.branch}</td>
-              <td className="py-2 px-4">{teacher.username}</td>
-              <td className="py-2 px-4 flex space-x-1">
-                <button
-                  className="text-blue-500 hover:underline"
-                  aria-label="Edit Teacher"
-                >
-                  <FontAwesomeIcon icon={faEdit} />
-                </button>
-                <button
-                  className="text-red-500 hover:underline"
-                  aria-label="Delete Teacher"
-                >
-                  <FontAwesomeIcon icon={faTrash} />
-                </button>
+              <td className="py-2 px-4 text-center">{teacher.id}</td>
+              <td className="py-2 px-4 text-center">{teacher.username}</td>
+              <td className="py-2 px-4 text-center">
+                {`${teacher.first_name || "-"} ${teacher.last_name}`}
               </td>
+              <td className="py-2 px-4 text-center">{teacher.email || "-"}</td>
+              <td className="py-2 px-4 text-center">
+                {teacher.contact_no || "-"}
+              </td>
+              <td className="py-2 px-4 text-center">{teacher.branch_name}</td>
             </tr>
           ))}
         </tbody>
