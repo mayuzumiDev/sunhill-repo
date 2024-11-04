@@ -1,3 +1,5 @@
+// AdminInterface.js
+
 import React, { useState, useEffect } from "react";
 import SideNavbar from "../../components/admin/SideNavbar";
 import TopNavbar from "../../components/admin/TopNavbar";
@@ -11,26 +13,22 @@ import Branches from "./Branches";
 import SchoolEventsCalendar from "./Events";
 import AdminSettings from "./AdminSettings";
 import Logout from "../../components/Logout";
-import Breadcrumb from "../../components/Breadcrumbs"; // Import Breadcrumb component
+import Breadcrumb from "../../components/Breadcrumbs";
 
 function AdminInterface() {
   const [currentTab, setCurrentTab] = useState("Dashboard");
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [notifications, setNotifications] = useState([]); // State for notifications
+  const [darkMode, setDarkMode] = useState(false);
 
-  // Function to handle screen resize
+  // Responsive sidebar toggle based on screen size
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth < 1090) {
-        setIsSidebarOpen(false); // Automatically hide sidebar on smaller screens
-      } else {
-        setIsSidebarOpen(true); // Show sidebar on larger screens
-      }
+      setIsSidebarOpen(window.innerWidth >= 768);
     };
 
     window.addEventListener("resize", handleResize);
-    handleResize(); // Set initial state
+    handleResize();
 
     return () => window.removeEventListener("resize", handleResize);
   }, []);
@@ -39,46 +37,51 @@ function AdminInterface() {
     setIsSidebarOpen((prev) => !prev);
   };
 
-  // Function to close sidebar on small screens
-  const toggleSidebarOnSmallScreen = () => {
-    if (window.innerWidth < 1090) {
-      setIsSidebarOpen(false);
-    }
+  const toggleDarkMode = () => {
+    setDarkMode((prev) => !prev);
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-opacity-50">
+    <div className={`flex h-screen overflow-hidden ${darkMode ? "bg-gray-800" : "bg-opacity-50"}`}>
       {/* Sidebar */}
+      <div className={`fixed inset-y-0 left-0 z-10 ${darkMode ? "bg-gray-900" : "bg-white"} shadow-lg`}>
+        <SideNavbar
+          currentTab={currentTab}
+          setCurrentTab={setCurrentTab}
+          toggleSidebar={toggleSidebar}
+          isSidebarOpen={isSidebarOpen}
+          darkMode={darkMode} // Pass dark mode state to Sidebar
+        />
+      </div>
+
       {isSidebarOpen && (
-        <div className="fixed inset-y-0 left-0 w-64 z-10 bg-white shadow-lg">
+        <div className={`fixed inset-y-0 left-0 z-10  ${darkMode ? "bg-gray-900" : "bg-white"} shadow-lg`}>
           <SideNavbar
             currentTab={currentTab}
             setCurrentTab={setCurrentTab}
-            toggleSidebarOnSmallScreen={toggleSidebarOnSmallScreen}
+            toggleSidebar={toggleSidebar}
+            darkMode={darkMode}
+            isSidebarOpen={isSidebarOpen}
           />
         </div>
       )}
 
       {/* Main content area */}
-      <div
-        className={`flex-1 flex flex-col transition-all duration-300 overflow-hidden ${
-          isSidebarOpen ? "ml-64" : "ml-0"
-        }`}
-      >
-        {/* Fixed Top Navbar */}
+      <div className={`flex-1 flex flex-col transition-all duration-300 overflow-hidden ${window.innerWidth < 768 && !isSidebarOpen ? 'ml-0' : isSidebarOpen ? "ml-64" : "ml-16"}`}>
+        {/* Top Navbar */}
         <div className="flex-none">
           <TopNavbar
             setCurrentTab={setCurrentTab}
             setShowLogoutDialog={setShowLogoutDialog}
             toggleSidebar={toggleSidebar}
+            darkMode={darkMode}
+            toggleDarkMode={toggleDarkMode}
           />
-          {showLogoutDialog && (
-            <Logout onClose={() => setShowLogoutDialog(false)} />
-          )}
+          {showLogoutDialog && <Logout onClose={() => setShowLogoutDialog(false)} />}
         </div>
 
         {/* Main content section */}
-        <div className="flex-1 p-6 bg-blue-50 bg-opacity-50 mt-0 overflow-y-auto">
+        <div className={`flex-1 p-6 ${darkMode ? "bg-gray-700 text-white" : "bg-blue-50 text-black"} bg-opacity-60 mt-0 overflow-y-auto`}>
           <Breadcrumb pageName={currentTab} />
           {currentTab === "Dashboard" && <Dashboard />}
           {currentTab === "Teachers" && <Teacher />}
@@ -86,10 +89,7 @@ function AdminInterface() {
           {currentTab === "Parents" && <Parent />}
           {currentTab === "Public" && <Public />}
           {currentTab === "Branches" && <Branches />}
-          {currentTab === "Events" && (
-            <SchoolEventsCalendar setNotifications={setNotifications} />
-          )}{" "}
-          {/* Pass setNotifications */}
+          {currentTab === "Events" && <SchoolEventsCalendar />}
           {currentTab === "Create Account" && <CreateAccount />}
           {currentTab === "Settings" && <AdminSettings />}
         </div>

@@ -12,7 +12,7 @@ const Breadcrumb = ({ pageName, isActive, setCurrentTab }) => {
               to="#"
               onClick={() => setCurrentTab('Dashboard')}
             >
-              Dashboard
+              Home
             </Link>
           </li>
           <li className="font-medium"> / </li>

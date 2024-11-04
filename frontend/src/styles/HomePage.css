@@ -73,8 +73,8 @@ body {
 .dark .wave-background {
   position: relative;
   width: 100%;
-  height: 250px;
-  top: 390px;
+  height: 265px;
+  top: 205px;
   overflow: hidden;
   line-height: 0;
   z-index: 2;

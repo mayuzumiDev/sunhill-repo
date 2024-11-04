@@ -18,7 +18,7 @@ function Tooltip({ name, position, isVisible }) {
 
   const style = {
     top: position.top + 8 + "px",
-    left: position.left + 5 + "px", // Offset from the sidebar for better visibility
+    left: position.left + 9 + "px", // Offset from the sidebar for better visibility
     zIndex: 1000,
     whiteSpace: "nowrap",
   };
@@ -97,7 +97,7 @@ const Sidebar = ({
           <img
             src={sunhillLogo}
             alt="Sunhill Logo"
-            className="h-12 w-12 rounded-full shadow-md"
+            className="h-12 w-12 rounded-full shadow-md" 
           />
           {isSidebarOpen && (
             <div className="flex flex-col ml-2">
