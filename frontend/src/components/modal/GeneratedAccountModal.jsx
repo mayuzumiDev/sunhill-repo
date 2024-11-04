@@ -14,9 +14,12 @@ const GeneratedAccountModal = ({
     >
       <div className="min-h-screen px-6 py-4 text-center flex justify-center items-center h-full">
         <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md min-h-[350px] flex flex-col font-montserrat">
-          <h1 className="text-xl font-semibold mb-4">
+          <h1 className="text-xl font-semibold mb-4 text-left">
             Generated Teacher Accounts
           </h1>
+          <p className="text-gray-600 text-left mb-4">
+            Total Accounts: {generatedAccounts.length}
+          </p>
           <div
             className="overflow-y-auto max-h-[200px] mb-4"
             style={{ position: "relative" }}

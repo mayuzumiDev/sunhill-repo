@@ -35,7 +35,12 @@ const AddAccountModal = ({
             </h2>
           </div>
           <div className="p-6">
-            <div className="mb-4">
+            <p className="text-gray-700 text-sm mb-4 max-w-md mx-auto bg-gray-100 border-l-4 border-blue-500 p-3 rounded-md">
+              Generate {userType} accounts with usernames in the format{" "}
+              <code className="font-semibold">tch-24-1234</code> and passwords
+              like <code className="font-semibold">teacher1234</code>
+            </p>
+            <div className="mb-4 max-w-xs mx-auto">
               <label
                 htmlFor="numAccounts"
                 className="text-gray-700 font-montserrat font-semibold mb-2 flex items-center justify-start"
@@ -51,7 +56,7 @@ const AddAccountModal = ({
                 required
               />
             </div>
-            <div className="mb-4">
+            <div className="mb-4 max-w-xs mx-auto">
               <label
                 htmlFor="branch"
                 className="text-gray-700 font-montserrat font-semibold mb-2 flex items-center justify-start"
