@@ -106,23 +106,25 @@ const TopNavbar = ({ setShowLogoutDialog, userName, userRole, notifications = []
           </button>
 
           {/* Dropdown Menu */}
-          <div ref={profileDropdownRef} className={`absolute right-0 mt-2 w-48 bg-${darkMode ? 'white' : 'white'} rounded-lg shadow-lg ${isProfileDropdownOpen ? 'opacity-100' : 'opacity-0'} transition-opacity duration-300 ease-in-out`}>
-            <ul className="py-1">
-              <li>
-                <button
-                  className="block px-4 py-2 text-gray-700 hover:bg-gray-100 w-full text-left"
-                  onClick={() => setShowLogoutDialog(true)}
-                >
-                  Logout
-                </button>
-              </li>
-              <li>
-                <button className="block px-4 py-2 text-gray-700 hover:bg-gray-100 w-full text-left">
-                  Account Settings
-                </button>
-              </li>
-            </ul>
-          </div>
+          {isProfileDropdownOpen && (
+            <div ref={profileDropdownRef} className={`absolute right-0 mt-2 w-48 bg-${darkMode ? 'gray-800' : 'white'} rounded-lg shadow-lg`}>
+              <ul className="py-1">
+                <li>
+                  <button
+                    className="block px-4 py-2 text-gray-700 hover:bg-gray-100 w-full text-left"
+                    onClick={() => setShowLogoutDialog(true)}
+                  >
+                    Logout
+                  </button>
+                </li>
+                <li>
+                  <button className="block px-4 py-2 text-gray-700 hover:bg-gray-100 w-full text-left">
+                    Account Settings
+                  </button>
+                </li>
+              </ul>
+            </div>
+          )}
         </div>
       </div>
     </div>
