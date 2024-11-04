@@ -1,5 +1,5 @@
-import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import React, { useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import ProtectedRoute from "../src/components/ProtectedRoute";
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
@@ -9,20 +9,49 @@ import ParentLogin from "./pages/ParentLogin";
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminInterface from "./pages/admin/AdminInterface";
 import TeacherInterface from "./pages/teacher/TeacherInterface";
-import StudentDashboard from "./pages/student/StudentInterface"; // Temporary Student Interface for testing purposes
-import ParentInterfaceTemp from "./pages/parent/ParentInterfaceTemp"; // Temporary Parent Interface for testing  purposes
+import StudentDashboard from "./pages/student/StudentInterface"; 
+import ParentInterfaceTemp from "./pages/parent/ParentInterfaceTemp"; 
 import ForgotPassword from "./components/login/ForgotPassword";
 import OTPVerification from "./components/login/OTPVerifications";
 import CreateNewPassword from "./components/login/CreateNewPass";
 import PasswordChanged from "./components/login/PassChangeConfirm";
-import PageTitle from "./components/PageTitle";
 import PrivacyPolicy from "./components/PrivacyPolicy";
 import TermsOfService from "./components/TermofService";
 import NotFound from "./components/404NotFound";
 
-function App() {
+const App = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    // Set the document title based on the current path
+    const path = location.pathname;
+
+    const titleMap = {
+      "/": "Sunhill LMS",
+      "/login": "Login | Sunhill LMS",
+      "/login/": "Login | Sunhill LMS",
+      "/login/teacher/": "Teacher Login | Sunhill LMS",
+      "/login/student/": "Student Login | Sunhill LMS",
+      "/login/parent/": "Parent Login | Sunhill LMS",
+      "/teacher/interface/": "Teacher Interface | Sunhill LMS",
+      "/student/interface/": "Student Dashboard | Sunhill LMS",
+      "/parent/interface/": "Parent Interface | Sunhill LMS",
+      "/admin/login/": "Admin Login | Sunhill LMS",
+      "/admin/interface/": "Admin Interface | Sunhill LMS",
+      "/forgot-password": "Forgot Password | Sunhill LMS",
+      "/otp-verification": "OTP Verification | Sunhill LMS",
+      "/create-new-password/": "Create New Password | Sunhill LMS",
+      "/password-changed/": "Password Changed | Sunhill LMS",
+      "/terms-of-service/": "Terms of Service | Sunhill LMS",
+      "/privacy-policy/": "Privacy Policy | Sunhill LMS",
+    };
+
+    document.title = titleMap[path] || "Sunhill LMS"; // Default title if not found
+
+  }, [location]);
+
   return (
-    <Router>
+    <>
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/login/" element={<LoginPage />} />
@@ -53,24 +82,13 @@ function App() {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/admin/login/"
-          element={
-            <>
-              <PageTitle title="Admin Login | Sunhill Montessori Casa LMS" />
-              <AdminLogin />
-            </>
-          }
-        />
+        <Route path="/admin/login/" element={<AdminLogin />} />
         <Route
           path="/admin/interface/"
           element={
-            <>
-              <PageTitle title="Sunhill LMS Admin" />
-              <ProtectedRoute userRole="admin">
-                <AdminInterface />
-              </ProtectedRoute>
-            </>
+            <ProtectedRoute userRole="admin">
+              <AdminInterface />
+            </ProtectedRoute>
           }
         />
         <Route path="/forgot-password/" element={<ForgotPassword />} />
@@ -81,8 +99,14 @@ function App() {
         <Route path="/privacy-policy/" element={<PrivacyPolicy />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
-    </Router>
+    </>
   );
-}
+};
 
-export default App;
+const Root = () => (
+  <Router>
+    <App />
+  </Router>
+);
+
+export default Root;
