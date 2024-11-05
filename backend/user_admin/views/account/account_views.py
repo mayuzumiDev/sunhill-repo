@@ -32,7 +32,6 @@ class GenerateAccountView(generics.CreateAPIView):
                 'branch_name': branch_name
             })
         
-        print("Account Storage: ", account_storage)
         return JsonResponse({'accounts':  account_storage}, status=status.HTTP_201_CREATED)
 
 class CreateAccountView(generics.CreateAPIView):
@@ -41,9 +40,7 @@ class CreateAccountView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
 
     def post(self, request):
-        print("Request data: ", request.data)
         generated_accounts = request.data.get("accounts", []) 
-        print("Generated Accounts: ", generated_accounts)
         response_data = []
 
         for generated_account in generated_accounts:
@@ -54,7 +51,6 @@ class CreateAccountView(generics.CreateAPIView):
                 'generated_password': generated_account.get('password'),
             }
             serializer = self.get_serializer(data=serializer_data)
-            print("Serializer Data:", serializer_data)  # Print data before validation
 
             if serializer.is_valid():
                 user = serializer.save()
@@ -66,8 +62,6 @@ class CreateAccountView(generics.CreateAPIView):
                     'username':  generated_account['username'],
                     'password': generated_account['password']
                 }
-
-                print("Account Data: ", account_data)
 
                 if user.role == 'student':
                     parent_data = {
@@ -85,8 +79,6 @@ class CreateAccountView(generics.CreateAPIView):
                 
                 response_data.append(account_data)
 
-                print("Response Data: ", response_data)
-            
             else:
                 print("Serializer Errors:", serializer.errors)  # Print errors if not valid 
                 return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -110,6 +102,8 @@ class TeacherListView(generics.ListAPIView):
         queryset = self.get_queryset()
         serializer = self.get_serializer(queryset, many=True)
         teacher_list = serializer.data
+
+        print(teacher_list)
         
         return JsonResponse({'message': 'Teacher list retrieved successfully', 
                              'teacher_list': teacher_list

@@ -55,17 +55,23 @@ const Teacher = () => {
   const handelGenerateAccount = async (numAccounts, selectedBranch) => {
     try {
       setIsLoading(true);
-      const response = await axiosInstance.post("/user-admin/generate-account/", {
-        account_count: numAccounts,
-        role: "teacher",
-        branch_name: selectedBranch,
-      });
+      const response = await axiosInstance.post(
+        "/user-admin/generate-account/",
+        {
+          account_count: numAccounts,
+          role: "teacher",
+          branch_name: selectedBranch,
+        }
+      );
       if (response.status === 201) {
         setGeneratedAccounts(response.data.accounts);
         handleOpenGenerateModal();
       }
     } catch (error) {
-      console.error("An error occurred while generating teacher accounts.", error);
+      console.error(
+        "An error occurred while generating teacher accounts.",
+        error
+      );
     } finally {
       setIsLoading(false);
     }
@@ -77,7 +83,10 @@ const Teacher = () => {
         accounts: generatedAccounts,
       });
     } catch (error) {
-      console.error("An error occurred while creating teacher accounts.", error);
+      console.error(
+        "An error occurred while creating teacher accounts.",
+        error
+      );
     }
   };
 
@@ -124,7 +133,9 @@ const Teacher = () => {
   };
 
   const handleSelectAll = (event) => {
-    setSelectedTeachers(event.target.checked ? teachers.map((teacher) => teacher.id) : []);
+    setSelectedTeachers(
+      event.target.checked ? teachers.map((teacher) => teacher.id) : []
+    );
   };
 
   const isSelected = (id) => selectedTeachers.includes(id);
@@ -132,7 +143,9 @@ const Teacher = () => {
 
   return (
     <div className="p-4 md:p-6 min-h-screen font-montserrat">
-      <h1 className="text-2xl md:text-4xl text-gray-800 font-bold mb-4">Manage Accounts</h1>
+      <h1 className="text-2xl md:text-4xl text-gray-800 font-bold mb-4">
+        Manage Accounts
+      </h1>
       <h2 className="text-lg text-gray-700 font-semibold mb-4">Teachers</h2>
 
       {/* Responsive Button Container */}
@@ -173,13 +186,21 @@ const Teacher = () => {
       {showSuccessAlert && (
         <BiingsAlertSuccesss
           userType={"Teacher"}
-          className={`animate-fade-in-down ${showSuccessAlert ? "opacity-100" : "opacity-0 transition-opacity duration-500 ease-in-out"}`}
+          className={`animate-fade-in-down ${
+            showSuccessAlert
+              ? "opacity-100"
+              : "opacity-0 transition-opacity duration-500 ease-in-out"
+          }`}
         />
       )}
       {showErrorAlert && (
         <BiingsAlertError
           userType={"Teacher"}
-          className={`animate-fade-in-down ${showErrorAlert ? "opacity-100" : "opacity-0 transition-opacity duration-500 ease-in-out"}`}
+          className={`animate-fade-in-down ${
+            showErrorAlert
+              ? "opacity-100"
+              : "opacity-0 transition-opacity duration-500 ease-in-out"
+          }`}
         />
       )}
 

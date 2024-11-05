@@ -29,15 +29,20 @@ const TeacherTable = ({
         </thead>
         <tbody>
           {teacherAccounts.map((teacher_list) => (
-            <tr key={teacher_list.id} className="border-b hover:bg-gray-100">
+            <tr
+              key={teacher_list.user_id}
+              className="border-b hover:bg-gray-100"
+            >
               <td className="py-2 px-4 text-center">
                 <input
                   type="checkbox"
-                  checked={isSelected(teacher_list.id)}
-                  onChange={(event) => handleSelectRow(event, teacher_list.id)}
+                  checked={isSelected(teacher_list.user_id)}
+                  onChange={(event) =>
+                    handleSelectRow(event, teacher_list.user_id)
+                  }
                 />
               </td>
-              <td className="py-2 px-4 text-center">{teacher_list.id}</td>
+              <td className="py-2 px-4 text-center">{teacher_list.user_id}</td>
               <td className="py-2 px-4 text-center">{teacher_list.username}</td>
               <td className="py-2 px-4 text-center">
                 {`${teacher_list.first_name || "-"} ${teacher_list.last_name}`}
