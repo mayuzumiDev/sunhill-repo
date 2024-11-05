@@ -10,10 +10,12 @@ import SchawnnahJLoader from "../../../components/loaders/SchawnnahJLoader";
 import BiingsAlertSuccesss from "../../../components/alert/BiingsAlertSuccess";
 import BiingsAlertError from "../../../components/alert/BiingsAlertError";
 import "../../../components/alert/styles/BiingsAlert.css";
+import ConfirmDeleteModal from "../../../components/modal/ConfirmDeleteModal";
 
 const Teacher = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isGeneratedModalOpen, setIsGeneratedModalOpen] = useState(false);
+  const [isConfirmDelete, setIsConfirmDelete] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
   const [showErrorAlert, setShowErrorAlert] = useState(false);
@@ -114,6 +116,24 @@ const Teacher = () => {
     }
   };
 
+  const handleDeleteAccount = async () => {
+    try {
+      const response = await axiosInstance.post(
+        "/user-admin/custom-user/delete/",
+        {
+          id: selectedTeachers,
+        }
+      );
+
+      if (response.status === 200) {
+        setIsConfirmDelete(false);
+        fetchData();
+      }
+    } catch (error) {
+      console.error("An error occured while deleting the account.");
+    }
+  };
+
   const handleOpenGenerateModal = () => {
     setIsModalOpen(false);
     setIsGeneratedModalOpen(true);
@@ -133,9 +153,13 @@ const Teacher = () => {
   };
 
   const handleSelectAll = (event) => {
-    setSelectedTeachers(
-      event.target.checked ? teachers.map((teacher) => teacher.id) : []
-    );
+    if (event.target.checked) {
+      // Select all if checking the box
+      setSelectedTeachers(teachers.map((teacher) => teacher.id));
+    } else {
+      // Unselect only if all were already selected, otherwise preserve individual selections
+      setSelectedTeachers(allSelected ? [] : selectedTeachers);
+    }
   };
 
   const isSelected = (id) => selectedTeachers.includes(id);
@@ -152,14 +176,14 @@ const Teacher = () => {
       <div className="flex flex-col md:flex-row md:space-x-4 mb-4">
         <button
           onClick={() => setIsModalOpen(true)}
-          className="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition flex items-center mb-2 md:mb-0"
+          className="bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600 transition flex items-center mb-2 md:mb-0"
         >
           <FontAwesomeIcon icon={faUserPlus} className="mr-2" />
           Create Account
         </button>
         <button
-          onClick={{}} // Implement delete logic
-          className="bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 transition flex items-center"
+          onClick={() => setIsConfirmDelete(true)}
+          className="bg-red-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-600 transition flex items-center"
         >
           <FontAwesomeIcon icon={faTrashAlt} className="mr-2" />
           Delete Account
@@ -182,6 +206,16 @@ const Teacher = () => {
         generatedAccounts={generatedAccounts}
         onSaveAccounts={handleSaveAndGenerate}
       />
+
+      {isConfirmDelete && (
+        <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50">
+          <ConfirmDeleteModal
+            title="Are you sure you want to delete the selected accounts?"
+            onConfirm={handleDeleteAccount}
+            onCancel={() => setIsConfirmDelete(false)}
+          />
+        </div>
+      )}
 
       {showSuccessAlert && (
         <BiingsAlertSuccesss

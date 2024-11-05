@@ -85,6 +85,28 @@ class CreateAccountView(generics.CreateAPIView):
 
         return JsonResponse({'accounts': response_data}, status=status.HTTP_201_CREATED)
 
+class CustomUserDeleteView(generics.DestroyAPIView):
+    permission_classes = [AllowAny]
+    queryset = CustomUser.objects.all()
+    serializer_class = CustomUserSerializer
+
+    def post(self, request, *args, **kwargs):
+        user_ids = request.data.get('id')
+
+        if not user_ids:
+            return JsonResponse({"error": "User IDs is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        deleted_count = 0
+        for user_id in user_ids:
+            try:
+                user = CustomUser.objects.get(pk=user_id)
+                user.delete()
+                deleted_count += 1
+            except CustomUser.DoesNotExist:
+              pass
+        
+        return JsonResponse({"success": f"{deleted_count} users deleted."}, status=status.HTTP_200_OK)
+
 class TeacherListView(generics.ListAPIView):
     permission_classes = [AllowAny]
     serializer_class = TeacherListSerializer
@@ -102,8 +124,6 @@ class TeacherListView(generics.ListAPIView):
         queryset = self.get_queryset()
         serializer = self.get_serializer(queryset, many=True)
         teacher_list = serializer.data
-
-        print(teacher_list)
         
         return JsonResponse({'message': 'Teacher list retrieved successfully', 
                              'teacher_list': teacher_list

@@ -17,6 +17,7 @@ const TeacherTable = ({
                 type="checkbox"
                 onChange={handleSelectAll}
                 checked={allSelected}
+                className="transform scale-150"
               />
             </th>
             <th className="py-2 px-4 text-center">ID</th>
@@ -40,6 +41,7 @@ const TeacherTable = ({
                   onChange={(event) =>
                     handleSelectRow(event, teacher_list.user_id)
                   }
+                  className="transform scale-150"
                 />
               </td>
               <td className="py-2 px-4 text-center">{teacher_list.user_id}</td>
