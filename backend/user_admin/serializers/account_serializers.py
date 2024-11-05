@@ -5,6 +5,11 @@ from ..models.account_models import UserInfo, StudentInfo, ParentInfo
 import random
 import datetime
 
+class CustomUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model =  CustomUser
+        fields = []
+
 class AccountGenerator:
     def __init__(self):
         self.random_number = random.randint(1000, 9999)
