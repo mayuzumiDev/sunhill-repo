@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import SatyamLoader from "../loaders/SatyamLoader";
 import EditAccountModal from "../modal/admin/EditAccountModal";
+import { axiosInstance } from "../../utils/axiosInstance";
 
 const TeacherTable = ({
   teacherAccounts,
@@ -12,9 +13,35 @@ const TeacherTable = ({
   const [isEditing, setIsEditing] = useState(false);
   const [editingTeacher, setIsEditingTeacher] = useState(null);
 
-  const handleSave = (updatedUserData) => {
-    console.log("Updated user data:", updatedUserData);
-    // Perform save logic here, such as sending data to an API
+  const handleSave = async (formData) => {
+    const {
+      user_id,
+      user_info_id,
+      username,
+      first_name,
+      last_name,
+      email,
+      contact_no,
+      branch_name,
+    } = formData;
+
+    try {
+      const customUserDataResponse = await axiosInstance.patch(
+        `/user-admin/custom-user/edit/${formData.user_id}/`,
+        { username, email, first_name, last_name, branch_name }
+      );
+
+      console.log("Custom user data updated:", customUserDataResponse.data);
+
+      const userInfoDataResponse = await axiosInstance.patch(
+        `/user-admin/user-info/edit/${formData.user_info_id}/`,
+        { contact_no }
+      );
+
+      console.log("User info data updated:", userInfoDataResponse.data);
+    } catch (error) {
+      console.error("An occured while saving the data.", error);
+    }
   };
 
   const handleRowClick = (teacher) => {
