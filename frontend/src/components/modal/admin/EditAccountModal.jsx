@@ -19,7 +19,6 @@ function EditAccountModal({ isOpen, onClose, onSave, userData, userRole }) {
 
   const handleSave = () => {
     onSave(formData);
-    onClose();
   };
 
   if (!isOpen) return null;
