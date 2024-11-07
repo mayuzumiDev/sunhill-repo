@@ -3,14 +3,14 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUserPlus, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
 import { axiosInstance } from "../../../utils/axiosInstance";
 import { generatePdf } from "../../../utils/pdfUtils";
-import AddAccountModal from "../../../components/modal/AddAccountModal";
-import GeneratedAccountModal from "../../../components/modal/GeneratedAccountModal";
+import AddAccountModal from "../../../components/modal/admin/AddAccountModal";
+import GeneratedAccountModal from "../../../components/modal/admin/GeneratedAccountModal";
+import ConfirmDeleteModal from "../../../components/modal/admin/ConfirmDeleteModal";
 import TeacherTable from "../../../components/admin/TeacherTable";
 import SchawnnahJLoader from "../../../components/loaders/SchawnnahJLoader";
 import BiingsAlertSuccesss from "../../../components/alert/BiingsAlertSuccess";
 import BiingsAlertError from "../../../components/alert/BiingsAlertError";
 import "../../../components/alert/styles/BiingsAlert.css";
-import ConfirmDeleteModal from "../../../components/modal/ConfirmDeleteModal";
 
 const Teacher = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -144,6 +144,11 @@ const Teacher = () => {
     setIsModalOpen(true);
   };
 
+  const allSelected =
+    teachers &&
+    teachers.length > 0 &&
+    selectedTeachers.length === teachers.length;
+
   const handleSelectRow = (event, id) => {
     setSelectedTeachers((prev) =>
       event.target.checked
@@ -155,15 +160,16 @@ const Teacher = () => {
   const handleSelectAll = (event) => {
     if (event.target.checked) {
       // Select all if checking the box
-      setSelectedTeachers(teachers.map((teacher) => teacher.id));
+      setSelectedTeachers(teachers.map((teacher) => teacher.user_id));
     } else {
       // Unselect only if all were already selected, otherwise preserve individual selections
-      setSelectedTeachers(allSelected ? [] : selectedTeachers);
+      if (allSelected) {
+        setSelectedTeachers([]);
+      }
     }
   };
 
   const isSelected = (id) => selectedTeachers.includes(id);
-  const allSelected = selectedTeachers.length === teachers.length;
 
   return (
     <div className="p-4 md:p-6 min-h-screen font-montserrat">
@@ -207,16 +213,6 @@ const Teacher = () => {
         onSaveAccounts={handleSaveAndGenerate}
       />
 
-      {isConfirmDelete && (
-        <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50">
-          <ConfirmDeleteModal
-            title="Are you sure you want to delete the selected accounts?"
-            onConfirm={handleDeleteAccount}
-            onCancel={() => setIsConfirmDelete(false)}
-          />
-        </div>
-      )}
-
       {showSuccessAlert && (
         <BiingsAlertSuccesss
           userType={"Teacher"}
@@ -235,6 +231,14 @@ const Teacher = () => {
               ? "opacity-100"
               : "opacity-0 transition-opacity duration-500 ease-in-out"
           }`}
+        />
+      )}
+
+      {isConfirmDelete && (
+        <ConfirmDeleteModal
+          title="Are you sure you want to delete the selected accounts?"
+          onConfirm={handleDeleteAccount}
+          onCancel={() => setIsConfirmDelete(false)}
         />
       )}
 
