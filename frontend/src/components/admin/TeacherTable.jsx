@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import EditSuccessAlert from "../alert/EditSuccessAlert";
+import SchawnnahJLoader from "../loaders/SchawnnahJLoader";
 import SatyamLoader from "../loaders/SatyamLoader";
 import EditAccountModal from "../modal/admin/EditAccountModal";
 import { axiosInstance } from "../../utils/axiosInstance";
@@ -9,11 +11,23 @@ const TeacherTable = ({
   handleSelectAll,
   isSelected,
   allSelected,
+  fetchData,
 }) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [successAlert, setSuccessAlert] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editingTeacher, setIsEditingTeacher] = useState(null);
 
+  useEffect(() => {
+    // Automatically hide success alert after 5 seconds
+    if (successAlert) {
+      const timer = setTimeout(() => setSuccessAlert(false), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [successAlert]);
+
   const handleSave = async (formData) => {
+    // Destructure formData to extract necessary fields
     const {
       user_id,
       user_info_id,
@@ -26,19 +40,31 @@ const TeacherTable = ({
     } = formData;
 
     try {
-      const customUserDataResponse = await axiosInstance.patch(
-        `/user-admin/custom-user/edit/${formData.user_id}/`,
-        { username, email, first_name, last_name, branch_name }
-      );
+      setIsLoading(true);
+      // Make simultaneous API calls to update user and user info
+      const [customUserDataResponse, userInfoDataResponse] = await Promise.all([
+        axiosInstance.patch(`/user-admin/custom-user/edit/${user_id}/`, {
+          username,
+          email,
+          first_name,
+          last_name,
+          branch_name,
+        }),
+        axiosInstance.patch(`/user-admin/user-info/edit/${user_info_id}/`, {
+          ...(contact_no && { contact_no }), // Only include contact_no if it exists
+        }),
+      ]);
 
-      console.log("Custom user data updated:", customUserDataResponse.data);
-
-      const userInfoDataResponse = await axiosInstance.patch(
-        `/user-admin/user-info/edit/${formData.user_info_id}/`,
-        { contact_no }
-      );
-
-      console.log("User info data updated:", userInfoDataResponse.data);
+      // Check if both API responses are successful
+      if (
+        customUserDataResponse.status === 200 &&
+        userInfoDataResponse.status === 200
+      ) {
+        setIsLoading(false);
+        setIsEditing(false);
+        setSuccessAlert(true);
+        fetchData();
+      }
     } catch (error) {
       console.error("An occured while saving the data.", error);
     }
@@ -121,6 +147,8 @@ const TeacherTable = ({
         </div>
       )}
 
+      {isLoading && <SchawnnahJLoader />}
+
       {isEditing && (
         <EditAccountModal
           isOpen={isEditing}
@@ -129,6 +157,10 @@ const TeacherTable = ({
           userData={editingTeacher}
           userRole={"Teacher"}
         />
+      )}
+
+      {successAlert && (
+        <EditSuccessAlert userType={"Teacher"} userData={editingTeacher} />
       )}
 
       <style jsx>{`
