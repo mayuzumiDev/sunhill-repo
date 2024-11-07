@@ -2,12 +2,14 @@ import React, { useState } from "react";
 
 function EditAccountModal({ isOpen, onClose, onSave, userData, userRole }) {
   const [formData, setFormData] = useState({
+    user_id: userData.user_id,
+    user_info_id: userData.id,
     username: userData.username || "",
-    firstName: userData.first_name || "",
-    lastName: userData.last_name || "",
+    first_name: userData.first_name || "",
+    last_name: userData.last_name || "",
     email: userData.email || "",
-    contactNo: userData.contact_no || "",
-    branch: userData.branch_name || "",
+    contact_no: userData.contact_no || "",
+    branch_name: userData.branch_name || "",
   });
 
   const handleChange = (e) => {
@@ -47,8 +49,8 @@ function EditAccountModal({ isOpen, onClose, onSave, userData, userRole }) {
             <span className="text-gray-700 font-semibold">Branch</span>
             <input
               type="text"
-              name="branch"
-              value={formData.branch}
+              name="branch_name"
+              value={formData.branch_name}
               onChange={handleChange}
               className="w-full mt-1 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
@@ -61,8 +63,8 @@ function EditAccountModal({ isOpen, onClose, onSave, userData, userRole }) {
             <span className="text-gray-700 font-semibold">First Name</span>
             <input
               type="text"
-              name="firstName"
-              value={formData.firstName}
+              name="first_name"
+              value={formData.first_name}
               onChange={handleChange}
               className="w-full mt-1 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
@@ -73,8 +75,8 @@ function EditAccountModal({ isOpen, onClose, onSave, userData, userRole }) {
             <span className="text-gray-700 font-semibold">Last Name</span>
             <input
               type="text"
-              name="lastName"
-              value={formData.lastName}
+              name="last_name"
+              value={formData.last_name}
               onChange={handleChange}
               className="w-full mt-1 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
@@ -98,8 +100,8 @@ function EditAccountModal({ isOpen, onClose, onSave, userData, userRole }) {
           <span className="text-gray-700 font-semibold">Contact No</span>
           <input
             type="tel"
-            name="contactNo"
-            value={formData.contactNo}
+            name="contact_no"
+            value={formData.contact_no}
             onChange={handleChange}
             className="w-full mt-1 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />

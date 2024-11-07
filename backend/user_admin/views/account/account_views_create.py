@@ -1,21 +1,20 @@
 from django.http.response import JsonResponse
-from rest_framework import generics, status, filters
-from rest_framework.views import APIView
+from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.exceptions import ValidationError
 from api.models import CustomUser
-from ...models.account_models import UserInfo
-from ...serializers.account_serializers import *
+from ...serializers.accounts.create_account_serializers import *
 
 class GenerateAccountView(generics.CreateAPIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     serializer_class = CreateAccountSerializer
 
     def post(self, request):
+        # Handle POST request to generate accounts.
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        account_storage = []
+        account_storage = []  # List to store generated account details.
         account_count = serializer.validated_data.get('account_count', 1)
         role = serializer.validated_data.get('role')
         branch_name = serializer.validated_data.get('branch_name')
@@ -23,7 +22,8 @@ class GenerateAccountView(generics.CreateAPIView):
         if not isinstance(account_count, int)  or account_count <= 0:
             raise ValidationError({"account_count": "Must be a positive integer"})
         
-        for  _ in range(account_count):
+         # Loop to create the specified number of accounts.
+        for  _ in range(account_count): 
             account_data = serializer.generate_account(serializer.validated_data)
             account_storage.append({
                 'username': account_data['generated_username'],
@@ -35,14 +35,16 @@ class GenerateAccountView(generics.CreateAPIView):
         return JsonResponse({'accounts':  account_storage}, status=status.HTTP_201_CREATED)
 
 class CreateAccountView(generics.CreateAPIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     serializer_class = CreateAccountSerializer
     queryset = CustomUser.objects.all()
 
     def post(self, request):
+         # Handle POST request to create user accounts.
         generated_accounts = request.data.get("accounts", []) 
         response_data = []
 
+        # Loop through each generated account and create it.
         for generated_account in generated_accounts:
             serializer_data = {
                 'role': generated_account.get('role'),
@@ -63,6 +65,7 @@ class CreateAccountView(generics.CreateAPIView):
                     'password': generated_account['password']
                 }
 
+                # If the user is a student, create a linked parent account.
                 if user.role == 'student':
                     parent_data = {
                         'student_username': generated_account['username']
@@ -86,17 +89,19 @@ class CreateAccountView(generics.CreateAPIView):
         return JsonResponse({'accounts': response_data}, status=status.HTTP_201_CREATED)
 
 class CustomUserDeleteView(generics.DestroyAPIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
 
     def post(self, request, *args, **kwargs):
+        # Handle POST request to delete user accounts.
         user_ids = request.data.get('id')
 
         if not user_ids:
             return JsonResponse({"error": "User IDs is required."}, status=status.HTTP_400_BAD_REQUEST)
 
         deleted_count = 0
+        # Loop through each user ID to attempt deletion.
         for user_id in user_ids:
             try:
                 user = CustomUser.objects.get(pk=user_id)
@@ -107,25 +112,6 @@ class CustomUserDeleteView(generics.DestroyAPIView):
         
         return JsonResponse({"success": f"{deleted_count} users deleted."}, status=status.HTTP_200_OK)
 
-class TeacherListView(generics.ListAPIView):
-    permission_classes = [AllowAny]
-    serializer_class = TeacherListSerializer
-    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
-    search_fields = ['id', 'user__first_name', 'user__last_name']
-    ordering_fields = ['user__first_name']
-    ordering = ['-user__date_joined']
 
-    # Returns a queryset of UserInfo objects where the user's role is 'teacher'
-    def get_queryset(self):
-        query_set = UserInfo.objects.filter(user__role='teacher').order_by(*self.ordering)
-        return query_set 
 
-    # Handles GET requests and returns a JSON response with the list of teachers
-    def get(self, request):
-        queryset = self.get_queryset()
-        serializer = self.get_serializer(queryset, many=True)
-        teacher_list = serializer.data
-        
-        return JsonResponse({'message': 'Teacher list retrieved successfully', 
-                             'teacher_list': teacher_list
-                             }, status=status.HTTP_200_OK)
+
