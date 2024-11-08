@@ -3,14 +3,14 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUserPlus, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
 import { axiosInstance } from "../../../utils/axiosInstance";
 import { generatePdf } from "../../../utils/pdfUtils";
-import AddAccountModal from "../../../components/modal/AddAccountModal";
-import GeneratedAccountModal from "../../../components/modal/GeneratedAccountModal";
+import AddAccountModal from "../../../components/modal/admin/AddAccountModal";
+import GeneratedAccountModal from "../../../components/modal/admin/GeneratedAccountModal";
+import ConfirmDeleteModal from "../../../components/modal/admin/ConfirmDeleteModal";
 import TeacherTable from "../../../components/admin/TeacherTable";
 import SchawnnahJLoader from "../../../components/loaders/SchawnnahJLoader";
 import BiingsAlertSuccesss from "../../../components/alert/BiingsAlertSuccess";
 import BiingsAlertError from "../../../components/alert/BiingsAlertError";
 import "../../../components/alert/styles/BiingsAlert.css";
-import ConfirmDeleteModal from "../../../components/modal/ConfirmDeleteModal";
 
 const Teacher = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -24,6 +24,7 @@ const Teacher = () => {
   const [selectedTeachers, setSelectedTeachers] = useState([]);
 
   useEffect(() => {
+    // Fetch data when the component mounts
     fetchData();
   }, []);
 
@@ -45,6 +46,7 @@ const Teacher = () => {
 
   const fetchData = async () => {
     try {
+      // Fetch the list of teachers from the API
       const response = await axiosInstance.get("/user-admin/teacher-list/");
       if (response.status === 200) {
         setTeachers(response.data.teacher_list);
@@ -57,6 +59,7 @@ const Teacher = () => {
   const handelGenerateAccount = async (numAccounts, selectedBranch) => {
     try {
       setIsLoading(true);
+      // Request to generate teacher accounts
       const response = await axiosInstance.post(
         "/user-admin/generate-account/",
         {
@@ -81,6 +84,7 @@ const Teacher = () => {
 
   const handleSaveAccounts = async () => {
     try {
+      // Save generated accounts to the API
       await axiosInstance.post("/user-admin/create-account/", {
         accounts: generatedAccounts,
       });
@@ -94,6 +98,7 @@ const Teacher = () => {
 
   const handleGeneratePdf = async () => {
     try {
+      // Generate PDF for the accounts
       await generatePdf("/user-admin/generate-pdf/", generatedAccounts);
     } catch (error) {
       console.error("An error occurred while generating the PDF.");
@@ -106,7 +111,7 @@ const Teacher = () => {
       await handleSaveAccounts();
       await handleGeneratePdf();
       setShowSuccessAlert(true);
-      fetchData();
+      fetchData(); // Refresh teacher list
     } catch (error) {
       console.error("An error occurred while saving and generating the PDF.");
       setShowErrorAlert(true);
@@ -118,6 +123,7 @@ const Teacher = () => {
 
   const handleDeleteAccount = async () => {
     try {
+      // Request to delete selected teacher accounts
       const response = await axiosInstance.post(
         "/user-admin/custom-user/delete/",
         {
@@ -135,35 +141,43 @@ const Teacher = () => {
   };
 
   const handleOpenGenerateModal = () => {
-    setIsModalOpen(false);
-    setIsGeneratedModalOpen(true);
+    setIsModalOpen(false); // Close account creation modal
+    setIsGeneratedModalOpen(true); // Open generated accounts modal
   };
 
   const handleCloseGenerateModal = () => {
-    setIsGeneratedModalOpen(false);
-    setIsModalOpen(true);
+    setIsGeneratedModalOpen(false); // Close generated accounts modal
+    setIsModalOpen(true); // Reopen account creation modal
   };
 
+  const allSelected =
+    teachers &&
+    teachers.length > 0 &&
+    selectedTeachers.length === teachers.length;
+
+  const isSelected = (id) => selectedTeachers.includes(id); // Check if a teacher is selected
+
   const handleSelectRow = (event, id) => {
-    setSelectedTeachers((prev) =>
-      event.target.checked
-        ? [...prev, id]
-        : prev.filter((selectedId) => selectedId !== id)
+    // Update selected teachers based on checkbox state
+    setSelectedTeachers(
+      (prev) =>
+        event.target.checked
+          ? [...prev, id] // Add ID if checked
+          : prev.filter((selectedId) => selectedId !== id) // Remove ID if unchecked
     );
   };
 
   const handleSelectAll = (event) => {
     if (event.target.checked) {
       // Select all if checking the box
-      setSelectedTeachers(teachers.map((teacher) => teacher.id));
+      setSelectedTeachers(teachers.map((teacher) => teacher.user_id));
     } else {
       // Unselect only if all were already selected, otherwise preserve individual selections
-      setSelectedTeachers(allSelected ? [] : selectedTeachers);
+      if (allSelected) {
+        setSelectedTeachers([]);
+      }
     }
   };
-
-  const isSelected = (id) => selectedTeachers.includes(id);
-  const allSelected = selectedTeachers.length === teachers.length;
 
   return (
     <div className="p-4 md:p-6 min-h-screen font-montserrat">
@@ -238,6 +252,14 @@ const Teacher = () => {
         />
       )}
 
+      {isConfirmDelete && (
+        <ConfirmDeleteModal
+          title="Are you sure you want to delete the selected accounts?"
+          onConfirm={handleDeleteAccount}
+          onCancel={() => setIsConfirmDelete(false)}
+        />
+      )}
+
       <div className="overflow-x-auto">
         <TeacherTable
           teacherAccounts={teachers}
@@ -245,6 +267,7 @@ const Teacher = () => {
           handleSelectAll={handleSelectAll}
           isSelected={isSelected}
           allSelected={allSelected}
+          fetchData={fetchData}
         />
       </div>
     </div>
