@@ -58,7 +58,7 @@ const TeacherTable = ({
           branch_name,
         }),
         axiosInstance.patch(`/user-admin/user-info/edit/${user_info_id}/`, {
-          contact_no: contact_no || null,
+          contact_no: contact_no ? contact_no : null,
         }),
       ]);
 
