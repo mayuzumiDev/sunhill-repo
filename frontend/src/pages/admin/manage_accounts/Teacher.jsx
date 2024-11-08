@@ -222,7 +222,7 @@ const Teacher = () => {
       />
 
       {isConfirmDelete && (
-        <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50 z-50">
+        <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-5 z-50">
           <ConfirmDeleteModal
             title="Are you sure you want to delete the selected accounts?"
             onConfirm={handleDeleteAccount}
