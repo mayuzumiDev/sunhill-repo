@@ -5,6 +5,7 @@ class UserInfoEditSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserInfo
         fields = ['id','contact_no']
+        extra_kwargs = {'contact_no': {'allow_null': True}}
 
 class CustomUserEditSerializer(serializers.ModelSerializer):
     class Meta:
