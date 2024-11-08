@@ -49,7 +49,7 @@ const Sidebar = ({
       if (tab !== currentTab) {
         setCurrentTab(tab);
         // Hide sidebar if on small screen
-        if (window.innerWidth < 768) {
+        if (window.innerWidth < 1024) {
           toggleSidebar();
         }
       }
@@ -86,10 +86,36 @@ const Sidebar = ({
   ];
 
   return (
+    <div>
+    <style>
+        {`
+          @keyframes rotate {
+            0% {
+              transform: rotate(0deg);
+            }
+            50% {
+              transform: rotate(180deg);
+            }
+            100% {
+              transform: rotate(360deg);
+            }
+          }
+
+          /* Apply hover animations to the entire Link element */
+          .link-hover:hover {
+            transform: scale(1.0); /* Slight scaling for the whole item */
+            transition: all 0.2s ease-in-out;
+          }
+          .link-hover:hover .rotate-on-hover {
+            animation: rotate 0.6s ease-in-out;
+          }
+        `}
+      </style>
+
     <div
       className={`fixed top-0 left-0 h-full ${darkMode ? "bg-gray-900 text-white" : "bg-white text-black"} shadow-lg transition-all duration-300 ease-in-out ${
         isSidebarOpen ? "w-64" : "w-20"
-      } ${window.innerWidth < 768 && !isSidebarOpen ? "hidden" : ""}`}
+      } ${window.innerWidth < 1024 && !isSidebarOpen ? "hidden" : ""}`}
     >
       {/* Fixed Logo and title */}
       <div className="flex flex-col items-center justify-center mt-4 mb-7 h-20 border-b border-gray-200">
@@ -141,9 +167,8 @@ const Sidebar = ({
                     e.preventDefault();
                     handleTabClick(name);
                   }}
-                  onMouseEnter={(e) => handleMouseEnter(name, e)}
-                  onMouseLeave={() => setTooltip("")}
-                  className={`flex items-center py-3 mx-2 rounded-full transition-all duration-200 ease-in-out transform ${
+                  
+                  className={`link-hover flex items-center py-3 mx-2 rounded-full transition-all duration-200 ease-in-out transform ${
                     currentTab === name
                       ? "bg-green-500 text-white font-bold shadow-xl"
                       : `${
@@ -156,7 +181,7 @@ const Sidebar = ({
                   aria-label={name}
                   role="menuitem"
                 >
-                  <span className="mr-4 ml-6 transform transition-transform duration-200 hover:scale-110">
+                  <span className="mr-4 ml-6 transform transition-transform duration-200 hover:scale-110 rotate-on-hover">
                     {icon}
                   </span>
                   {isSidebarOpen && <span>{name}</span>}
@@ -173,9 +198,8 @@ const Sidebar = ({
                     e.preventDefault();
                     handleTabClick(name);
                   }}
-                  onMouseEnter={(e) => handleMouseEnter(name, e)}
                   onMouseLeave={() => setTooltip("")}
-                  className={`flex items-center py-3 mx-2 rounded-full transition-all duration-200 ease-in-out transform ${
+                  className={`link-hover flex items-center py-3 mx-2 rounded-full transition-all duration-200 ease-in-out transform ${
                     currentTab === name
                       ? "bg-green-500 text-white font-bold shadow-xl"
                       : `${
@@ -188,7 +212,7 @@ const Sidebar = ({
                   aria-label={name}
                   role="menuitem"
                 >
-                  <span className="mr-4 ml-6 transform transition-transform duration-200 hover:scale-110">
+                  <span className="mr-4 ml-6 transform transition-transform duration-200 hover:scale-110 rotate-on-hover">
                     {icon}
                   </span>
                   {isSidebarOpen && <span>{name}</span>}
@@ -200,6 +224,7 @@ const Sidebar = ({
       </div>
       {/* Tooltip */}
       <Tooltip name={tooltip} position={tooltipPosition} isVisible={!!tooltip} />
+    </div>
     </div>
   );
 };

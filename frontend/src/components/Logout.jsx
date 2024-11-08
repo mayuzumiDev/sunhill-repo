@@ -8,7 +8,7 @@ import {
   DialogPanel,
   DialogTitle,
 } from "@headlessui/react";
-import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
+import { ExclamationTriangleIcon  } from "@heroicons/react/24/outline";
 import { axiosInstance, setAuthorizationHeader } from "../utils/axiosInstance";
 import SecureLS from "secure-ls";
 import { ENCRYPTION_KEY } from "../constants";

@@ -24,7 +24,7 @@ function AdminInterface() {
   // Responsive sidebar toggle based on screen size
   useEffect(() => {
     const handleResize = () => {
-      setIsSidebarOpen(window.innerWidth >= 768);
+      setIsSidebarOpen(window.innerWidth > 1024);
     };
 
     window.addEventListener("resize", handleResize);
@@ -67,7 +67,7 @@ function AdminInterface() {
       )}
 
       {/* Main content area */}
-      <div className={`flex-1 flex flex-col transition-all duration-300 overflow-hidden ${window.innerWidth < 768 && !isSidebarOpen ? 'ml-0' : isSidebarOpen ? "ml-64" : "ml-16"}`}>
+      <div className={`flex-1 flex flex-col transition-all duration-300 overflow-hidden ${window.innerWidth < 1024 && !isSidebarOpen ? 'ml-0' : isSidebarOpen ? "ml-64" : "ml-16"}`}>
         {/* Top Navbar */}
         <div className="flex-none">
           <TopNavbar

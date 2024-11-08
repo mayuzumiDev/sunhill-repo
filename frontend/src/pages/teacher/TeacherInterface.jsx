@@ -8,7 +8,7 @@ import ManageAssignments from "./ManageAssignments";
 import SpecialEducationTool from "./SpeEdTool";
 import Messages from "./Messages";
 import TeacherSettings from "./TeacherSettings";
-import Breadcrumb  from "../../components/Breadcrumbs";
+import Breadcrumb from "../../components/Breadcrumbs";
 import Logout from "../../components/Logout";
 
 function TeacherInterface() {
@@ -20,9 +20,8 @@ function TeacherInterface() {
   // Function to handle screen resize
   useEffect(() => {
     const handleResize = () => {
-      setIsSidebarOpen(window.innerWidth >= 768); // Open sidebar on larger screens
+      setIsSidebarOpen(window.innerWidth > 1024); // Open sidebar on larger screens
     };
-
     window.addEventListener("resize", handleResize);
     handleResize(); // Set initial state
 
@@ -38,9 +37,17 @@ function TeacherInterface() {
   };
 
   return (
-    <div className={`flex h-screen overflow-hidden ${darkMode ? "bg-gray-800" : "bg-opacity-50"}`}>
+    <div
+      className={`flex h-screen overflow-hidden ${
+        darkMode ? "bg-gray-800" : "bg-opacity-50"
+      }`}
+    >
       {/* Sidebar */}
-      <div className={`fixed inset-y-0 left-0 z-10 ${darkMode ? "bg-gray-900" : "bg-white"} shadow-lg`}>
+      <div
+        className={`fixed inset-y-0 left-0 z-10 ${
+          darkMode ? "bg-gray-900" : "bg-white"
+        } shadow-lg transition-all duration-300 ease-in-ot`}
+      >
         <SideNavbar
           currentTab={currentTab}
           setCurrentTab={setCurrentTab}
@@ -49,20 +56,13 @@ function TeacherInterface() {
           darkMode={darkMode} // Pass dark mode state to Sidebar
         />
       </div>
-      {isSidebarOpen && (
-        <div className={`fixed inset-y-0 left-0 z-10 ${darkMode ? "bg-gray-900" : "bg-white"} shadow-lg`}>
-          <SideNavbar
-            currentTab={currentTab}
-            setCurrentTab={setCurrentTab}
-            toggleSidebar={toggleSidebar}
-            isSidebarOpen={isSidebarOpen}
-            darkMode={darkMode} // Pass dark mode state to Sidebar
-          />
-        </div>
-)}
+
       {/* Main content area */}
-      
-      <div className={`flex-1 flex flex-col transition-all duration-300 overflow-hidden ${window.innerWidth < 768 && !isSidebarOpen ? 'ml-0' : isSidebarOpen ? "ml-64" : "ml-20"}`}>
+      <div
+        className={`flex-1 flex flex-col transition-all duration-300 overflow-hidden ${
+          window.innerWidth < 1024 && !isSidebarOpen ? "ml-0" : isSidebarOpen ? "ml-64" : "ml-20"
+        }`}
+      >
         {/* Fixed Top Navbar */}
         <div className="flex-none">
           <TopNavbar
@@ -76,8 +76,10 @@ function TeacherInterface() {
         </div>
 
         {/* Main content section */}
-        <div className={`flex-1 p-6 ${darkMode ? "bg-gray-700 text-white" : "bg-green-100 text-black"} bg-opacity-60 mt-0 overflow-y-auto`}>
-        <Breadcrumb pageName={currentTab} />
+        <div
+          className={`flex-1 p-6 ${darkMode ? "bg-gray-700 text-white" : "bg-green-100 text-black"} bg-opacity-60 mt-0 overflow-y-auto`}
+        >
+          <Breadcrumb pageName={currentTab} />
           {currentTab === "Dashboard" && <TeacherDashboard darkMode={darkMode} />}
           {currentTab === "Students" && <ManageStudents darkMode={darkMode} />}
           {currentTab === "Classes" && <ManageLessons darkMode={darkMode} />}

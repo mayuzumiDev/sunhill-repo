@@ -79,6 +79,7 @@ function ParentLogin() {
                 <input
                   id="username"
                   name="username"
+                  placeholder="Enter your username"
                   type="text"
                   required
                   value={username}
@@ -99,6 +100,7 @@ function ParentLogin() {
                 <input
                   id="password"
                   name="password"
+                  placeholder="Enter your password"
                   type={showPassword ? "text" : "password"}
                   required
                   value={password}

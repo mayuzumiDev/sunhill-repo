@@ -67,9 +67,9 @@ function AdminLogin() {
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.2, duration: 0.5 }}
-        className="w-full max-w-md px-8 py-10 bg-white rounded-xl shadow-lg mt-20"
+        className="w-full max-w-xs sm:max-w-md p-6 sm:p-10 bg-white rounded-xl shadow-lg mt-24 sm:mt-20"
       >
-        <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-center text-gray-800 mb-6 sm:mb-8">
           Admin Login
         </h1>
 
@@ -80,7 +80,7 @@ function AdminLogin() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.3 }}
-              className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded"
+              className="bg-red-100 border-l-4 border-red-500 text-red-700 p-3 sm:p-4 mb-4 sm:mb-6 rounded"
               role="alert"
             >
               <p className="font-medium">{errorMessage}</p>
@@ -88,10 +88,10 @@ function AdminLogin() {
           )}
         </AnimatePresence>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
           <div className="relative">
             <label
-              className="block text-gray-700 text-sm font-bold mb-2"
+              className="block text-gray-700 text-sm sm:text-base font-bold mb-1 sm:mb-2"
               htmlFor="username"
             >
               Username
@@ -102,7 +102,7 @@ function AdminLogin() {
             >
               <FaUser className="absolute left-3 text-gray-400" />
               <input
-                className="w-full pl-10 pr-4 py-3 text-gray-700 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
+                className="w-full pl-10 pr-4 py-2 sm:py-3 text-gray-700 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
                 id="username"
                 type="text"
                 value={username}
@@ -115,7 +115,7 @@ function AdminLogin() {
 
           <div className="relative">
             <label
-              className="block text-gray-700 text-sm font-bold mb-2"
+              className="block text-gray-700 text-sm sm:text-base font-bold mb-1 sm:mb-2"
               htmlFor="password"
             >
               Password
@@ -126,7 +126,7 @@ function AdminLogin() {
             >
               <FaLock className="absolute left-3 text-gray-400" />
               <input
-                className="w-full pl-10 pr-12 py-3 text-gray-700 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
+                className="w-full pl-10 pr-12 py-2 sm:py-3 text-gray-700 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
                 id="password"
                 type={showPassword ? "text" : "password"}
                 value={password}
@@ -144,29 +144,25 @@ function AdminLogin() {
             </motion.div>
           </div>
 
-          <div className="flex justify-between items-center">
-            <motion.div whileHover={{ scale: 1.05 }}>
-              <Link
-                to="/forgot-password"
-                className="text-sm font-medium text-blue-600 hover:text-blue-800 transition duration-300"
-              >
-                Forgot Password?
-              </Link>
-            </motion.div>
-            <motion.div whileHover={{ scale: 1.05 }}>
-              <Link
-                to="/"
-                className="text-sm font-medium text-blue-600 hover:text-blue-800 transition duration-300"
-              >
-                Back to Home
-              </Link>
-            </motion.div>
+          <div className="flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0">
+            <Link
+              to="/forgot-password"
+              className="text-xs sm:text-sm font-medium text-blue-600 hover:text-blue-800 transition duration-300"
+            >
+              Forgot Password?
+            </Link>
+            <Link
+              to="/"
+              className="text-xs sm:text-sm font-medium text-blue-600 hover:text-blue-800 transition duration-300"
+            >
+              Back to Home
+            </Link>
           </div>
 
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className={`w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300 ${
+            className={`w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 sm:py-3 px-4 rounded-lg transition duration-300 ${
               loading ? "opacity-50 cursor-not-allowed" : ""
             }`}
             type="submit"
