@@ -11,6 +11,8 @@ import TeacherTable from "../../../components/admin/TeacherTable";
 import SchawnnahJLoader from "../../../components/loaders/SchawnnahJLoader";
 import BiingsAlertSuccesss from "../../../components/alert/BiingsAlertSuccess";
 import BiingsAlertError from "../../../components/alert/BiingsAlertError";
+import DeleteSuccessAlert from "../../../components/alert/DeleteSuccessAlert";
+import DeleteErrorAlert from "../../../components/alert/DeleteErrorAlert";
 import "../../../components/alert/styles/BiingsAlert.css";
 
 const Teacher = () => {
@@ -20,6 +22,8 @@ const Teacher = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
   const [showErrorAlert, setShowErrorAlert] = useState(false);
+  const [showDeleteSuccess, setShowDeleteSuccess] = useState(false);
+  const [showDeleteError, setShowDeleteError] = useState(false);
   const [generatedAccounts, setGeneratedAccounts] = useState([]);
   const [teachers, setTeachers] = useState([]);
   const [selectedTeachers, setSelectedTeachers] = useState([]);
@@ -35,15 +39,22 @@ const Teacher = () => {
       const timer = setTimeout(() => setShowSuccessAlert(false), 5000);
       return () => clearTimeout(timer);
     }
-  }, [showSuccessAlert]);
 
-  useEffect(() => {
-    // Automatically hide error alert after 5 seconds
     if (showErrorAlert) {
       const timer = setTimeout(() => setShowErrorAlert(false), 5000);
       return () => clearTimeout(timer);
     }
-  }, [showErrorAlert]);
+
+    if (showDeleteSuccess) {
+      const timer = setTimeout(() => setShowDeleteSuccess(false), 5000);
+      return () => clearTimeout(timer);
+    }
+
+    if (showDeleteSuccess) {
+      const timer = setTimeout(() => setShowDeleteSuccess(false), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [showSuccessAlert, showErrorAlert, showDeleteSuccess]);
 
   const fetchData = async () => {
     try {
@@ -134,6 +145,7 @@ const Teacher = () => {
 
       if (response.status === 200) {
         setIsConfirmDelete(false);
+        setShowDeleteSuccess(true);
         fetchData();
       }
     } catch (error) {
@@ -261,6 +273,8 @@ const Teacher = () => {
           onCancel={() => setIsConfirmDelete(false)}
         />
       )}
+      {showDeleteSuccess && <DeleteSuccessAlert userType={"Teacher"} />}
+      {showDeleteError && <DeleteErrorAlert userType={"Teacher"} />}
 
       <div className="overflow-x-auto">
         <TeacherTable
