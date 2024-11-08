@@ -6,6 +6,7 @@ import { generatePdf } from "../../../utils/pdfUtils";
 import AddAccountModal from "../../../components/modal/admin/AddAccountModal";
 import GeneratedAccountModal from "../../../components/modal/admin/GeneratedAccountModal";
 import ConfirmDeleteModal from "../../../components/modal/admin/ConfirmDeleteModal";
+import TableSearchBar from "../../../components/admin/TableSearchBar";
 import TeacherTable from "../../../components/admin/TeacherTable";
 import SchawnnahJLoader from "../../../components/loaders/SchawnnahJLoader";
 import BiingsAlertSuccesss from "../../../components/alert/BiingsAlertSuccess";
@@ -202,6 +203,7 @@ const Teacher = () => {
           <FontAwesomeIcon icon={faTrashAlt} className="mr-2" />
           Delete Account
         </button>
+        <TableSearchBar />
       </div>
 
       {isLoading && <SchawnnahJLoader />}

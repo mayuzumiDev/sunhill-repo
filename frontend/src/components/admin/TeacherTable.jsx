@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import EditSuccessAlert from "../alert/EditSuccessAlert";
+import EditErrorAlert from "../alert/EditErrorAlert";
 import SchawnnahJLoader from "../loaders/SchawnnahJLoader";
 import SatyamLoader from "../loaders/SatyamLoader";
 import EditAccountModal from "../modal/admin/EditAccountModal";
@@ -15,16 +16,22 @@ const TeacherTable = ({
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [successAlert, setSuccessAlert] = useState(false);
+  const [errorAlert, setErrorAlert] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editingTeacher, setIsEditingTeacher] = useState(null);
 
   useEffect(() => {
-    // Automatically hide success alert after 5 seconds
+    // Automatically hide alert after 5 seconds
     if (successAlert) {
       const timer = setTimeout(() => setSuccessAlert(false), 5000);
       return () => clearTimeout(timer);
     }
-  }, [successAlert]);
+
+    if (errorAlert) {
+      const timer = setTimeout(() => setErrorAlert(false), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [successAlert, errorAlert]);
 
   const handleSave = async (formData) => {
     // Destructure formData to extract necessary fields
@@ -51,7 +58,7 @@ const TeacherTable = ({
           branch_name,
         }),
         axiosInstance.patch(`/user-admin/user-info/edit/${user_info_id}/`, {
-          ...(contact_no && { contact_no }), // Only include contact_no if it exists
+          contact_no: contact_no || null,
         }),
       ]);
 
@@ -67,6 +74,9 @@ const TeacherTable = ({
       }
     } catch (error) {
       console.error("An occured while saving the data.", error);
+      setIsLoading(false);
+      setIsEditing(false);
+      setErrorAlert(true);
     }
   };
 
@@ -161,6 +171,10 @@ const TeacherTable = ({
 
       {successAlert && (
         <EditSuccessAlert userType={"Teacher"} userData={editingTeacher} />
+      )}
+
+      {errorAlert && (
+        <EditErrorAlert userType={"Teacher"} userData={editingTeacher} />
       )}
 
       <style jsx>{`

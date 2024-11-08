@@ -7,9 +7,8 @@ from ...serializers.accounts.list_account_serializers import *
 class TeacherListView(generics.ListAPIView):
     permission_classes = [AllowAny]
     serializer_class = TeacherListSerializer
-    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
-    search_fields = ['id', 'user__first_name', 'user__last_name']
-    ordering_fields = ['user__first_name']
+    filter_backends = [filters.OrderingFilter, filters.SearchFilter]
+    search_fields = ['user__first_name', 'user__last_name']
     ordering = ['-user__date_joined']
 
     # Returns a queryset of UserInfo objects where the user's role is 'teacher'
