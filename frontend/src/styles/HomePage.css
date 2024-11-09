@@ -317,7 +317,7 @@ body {
   color: white;
   border: none;
   border-radius: 50%;
-  padding: 10px 15px;
+  padding: 13px 20px;
   font-size: 20px;
   cursor: pointer;
   z-index: 1000;
@@ -338,7 +338,6 @@ body {
   }
 }
 
-
 .letter {
   font-size: 3rem;
   font-weight: bold;
@@ -351,8 +350,6 @@ body {
   color: #050505;
   cursor: pointer;
 }
-
-
 
 /* Banner styles */
 .banner {

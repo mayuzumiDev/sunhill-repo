@@ -20,6 +20,7 @@ import Footer from "../components/home/Footer";
 import Programs from "../components/home/Programs";
 import LoginModal from "../components/home/LoginModal";
 import StepperComponent from "../components/home/Stepper";
+import Btn from "../components/home/Button";
 
 
 //import LoginModal from "./components/LoginModal";
@@ -222,18 +223,7 @@ const Home = () => {
               </Fade>
               <Fade direction="up" triggerOnce={true}>
                 <Link to="about" smooth={true} duration={500}>
-                  <Button
-                    variant="contained"
-                    endIcon={<FontAwesomeIcon icon={faArrowRight} />}
-                    sx={{
-                      mt: 2,
-                      padding: "0.75rem 2rem",
-                      borderRadius: "20px",
-                      fontSize: { xs: "0.875rem", sm: "1rem" },
-                    }}
-                  >
-                    Learn More
-                  </Button>
+               <Btn/>
                 </Link>
               </Fade>
             </Box>
