@@ -6,6 +6,8 @@ import EditAccountModal from "../modal/admin/EditAccountModal";
 import SchawnnahJLoader from "../loaders/SchawnnahJLoader";
 import SatyamLoader from "../loaders/SatyamLoader";
 import HideScrollBar from "../misc/HideScrollBar";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faExclamationTriangle } from "@fortawesome/free-solid-svg-icons";
 
 const TeacherTable = ({
   teacherAccounts,
@@ -179,7 +181,12 @@ const TeacherTable = ({
     return (
       <div className="text-center py-4 mt-24">
         <HideScrollBar />
-        <p>We couldn't find account matching that name. </p>
+        <FontAwesomeIcon
+          icon={faExclamationTriangle}
+          size="2x"
+          className="text-red-500 mb-2"
+        />
+        <p>We couldn't find an account matching that name.</p>
       </div>
     );
   } else {
