@@ -12,12 +12,33 @@ function EditAccountModal({ isOpen, onClose, onSave, userData, userRole }) {
     branch_name: userData.branch_name || "",
   });
 
+  const [errorMessage, setErrorMessage] = useState("");
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    setErrorMessage("");
   };
 
   const handleSave = () => {
+    // Check if the username is not empty and follows the required format
+    if (!formData.username) {
+      setErrorMessage("Username cannot be empty.");
+      return;
+    }
+
+    if (formData.username.length < 3 || formData.username.length > 20) {
+      setErrorMessage("Username must be between 3 and 20 characters.");
+      return;
+    }
+
+    // Check if the email is valid
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (formData.email && !emailPattern.test(formData.email)) {
+      setErrorMessage("Please enter a valid email address.");
+      return;
+    }
+
     onSave(formData);
   };
 
@@ -30,13 +51,29 @@ function EditAccountModal({ isOpen, onClose, onSave, userData, userRole }) {
           Edit {userRole} Information
         </h2>
 
+        {errorMessage && <p className="text-red-500 mb-4">{errorMessage}</p>}
+
+        <div className="flex">
+          <label className="block mb-4 mr-2 w-1/2">
+            <span className="text-gray-700 font-semibold">
+              {userRole} ID:{" "}
+              <span className="text-gray-700">{userData.user_id}</span>
+            </span>
+          </label>
+        </div>
+
         <div className="flex">
           {/* Username */}
           <label className="block mb-2 mr-2 w-1/2">
-            <span className="text-gray-700 font-semibold">Username</span>
+            <span className="text-gray-700 font-semibold">
+              Username <span className="text-red-500">*</span>
+            </span>
             <input
               type="text"
               name="username"
+              minLength="3"
+              maxLength="20"
+              required
               value={formData.username}
               onChange={handleChange}
               className="w-full mt-1 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -63,6 +100,8 @@ function EditAccountModal({ isOpen, onClose, onSave, userData, userRole }) {
             <input
               type="text"
               name="first_name"
+              minLength="2"
+              maxLength="50"
               value={formData.first_name}
               onChange={handleChange}
               className="w-full mt-1 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -75,6 +114,8 @@ function EditAccountModal({ isOpen, onClose, onSave, userData, userRole }) {
             <input
               type="text"
               name="last_name"
+              minLength="2"
+              maxLength="50"
               value={formData.last_name}
               onChange={handleChange}
               className="w-full mt-1 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -88,6 +129,8 @@ function EditAccountModal({ isOpen, onClose, onSave, userData, userRole }) {
           <input
             type="email"
             name="email"
+            minLength="5"
+            maxLength="255"
             value={formData.email}
             onChange={handleChange}
             className="w-full mt-1 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -100,6 +143,8 @@ function EditAccountModal({ isOpen, onClose, onSave, userData, userRole }) {
           <input
             type="tel"
             name="contact_no"
+            minLength="11"
+            maxLength="15"
             value={formData.contact_no}
             onChange={handleChange}
             className="w-full mt-1 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
