@@ -218,7 +218,9 @@ const Teacher = () => {
 
       {/* Responsive Button Container */}
       <div className="flex flex-col md:flex-row md:space-x-4 mb-4">
+      <div className="w-full md:w-auto mb-2 md:mb-0">
         <TableSearchBar onSearch={handleSearch} searchTerm={searchTerm} />
+      </div>
         <button
           onClick={() => setIsModalOpen(true)}
           className="bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600 transition flex items-center mb-2 md:mb-0"

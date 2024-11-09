@@ -349,20 +349,18 @@ body {
   transition: color 0.3s ease, letter-spacing 0.3s ease;
 }
 
-/* Adding the line under navigation links on hover */
-.navbar .nav-links a::after {
+.navbar .nav-links a:not(.login-btn)::after {
   content: "";
   position: absolute;
   bottom: 0;
   left: 0;
   width: 0;
-  height: 2px; /* Thickness of the line */
+  height: 2px; 
   background-color: #077656; /* Line color */
   transition: width 0.3s ease; /* Smooth transition for the underline */
 }
 
-
-.navbar .nav-links a:hover::after {
+.navbar .nav-links a:not(.login-btn):hover::after {
   width: 100%; /* Expand the line to full width */
 }
 
