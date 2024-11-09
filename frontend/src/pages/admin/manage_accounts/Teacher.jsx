@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUserPlus, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
 import { axiosInstance } from "../../../utils/axiosInstance";
@@ -13,6 +13,7 @@ import BiingsAlertSuccesss from "../../../components/alert/BiingsAlertSuccess";
 import BiingsAlertError from "../../../components/alert/BiingsAlertError";
 import DeleteSuccessAlert from "../../../components/alert/DeleteSuccessAlert";
 import DeleteErrorAlert from "../../../components/alert/DeleteErrorAlert";
+import SortBox from "../../../components/admin/SortBox";
 import "../../../components/alert/styles/BiingsAlert.css";
 
 const Teacher = () => {
@@ -235,6 +236,13 @@ const Teacher = () => {
           <FontAwesomeIcon icon={faTrashAlt} className="mr-2" />
           Delete Account
         </button>
+      </div>
+      <div className="flex flex-col md:flex-row md:space-x-4 md:justify-end mb-4 mr-4">
+        <SortBox
+          options={["Batangas", "Rosario", "Bauan", "Metro Tagaytay"]}
+          label="Branch"
+        />
+        <SortBox options={["Newest", "Oldest", "A-Z", "Z-A"]} />
       </div>
 
       {isLoading && <SchawnnahJLoader />}
