@@ -27,11 +27,12 @@ const Teacher = () => {
   const [generatedAccounts, setGeneratedAccounts] = useState([]);
   const [teachers, setTeachers] = useState([]);
   const [selectedTeachers, setSelectedTeachers] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     // Fetch data when the component mounts
     fetchData();
-  }, []);
+  }, [searchTerm]);
 
   useEffect(() => {
     // Automatically hide success alert after 5 seconds
@@ -51,15 +52,18 @@ const Teacher = () => {
     }
 
     if (showDeleteSuccess) {
-      const timer = setTimeout(() => setShowDeleteSuccess(false), 5000);
+      const timer = setTimeout(() => setShowDeleteError(false), 5000);
       return () => clearTimeout(timer);
     }
-  }, [showSuccessAlert, showErrorAlert, showDeleteSuccess]);
+  }, [showSuccessAlert, showErrorAlert, showDeleteSuccess, showDeleteError]);
 
   const fetchData = async () => {
     try {
+      const params = searchTerm ? { search: searchTerm } : {};
       // Fetch the list of teachers from the API
-      const response = await axiosInstance.get("/user-admin/teacher-list/");
+      const response = await axiosInstance.get("/user-admin/teacher-list/", {
+        params,
+      });
       if (response.status === 200) {
         setTeachers(response.data.teacher_list);
       }
@@ -153,6 +157,10 @@ const Teacher = () => {
     }
   };
 
+  const handleSearch = (inputValue) => {
+    setSearchTerm(inputValue);
+  };
+
   const handleOpenGenerateModal = () => {
     setIsModalOpen(false); // Close account creation modal
     setIsGeneratedModalOpen(true); // Open generated accounts modal
@@ -215,7 +223,7 @@ const Teacher = () => {
           <FontAwesomeIcon icon={faTrashAlt} className="mr-2" />
           Delete Account
         </button>
-        <TableSearchBar />
+        <TableSearchBar onSearch={handleSearch} searchTerm={searchTerm} />
       </div>
 
       {isLoading && <SchawnnahJLoader />}
