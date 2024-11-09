@@ -129,7 +129,7 @@ const SideNavbar = ({ currentTab, setCurrentTab, toggleSidebar, isSidebarOpen })
           <nav className="mt-4">
             <ul className="flex flex-col space-y-1">
               {isSidebarOpen && (
-                <li className="w-full text-left text-gray-400 ml-3 mt-4 font-semibold text-sm sm:text-base sm:ml-4">
+                <li className="w-full text-left text-gray-400 ml-3 mt-4 font-semibold text-xs md:text-xs sm:text-base sm:ml-4">
                   MENU
                 </li>
               )}
@@ -148,7 +148,7 @@ const SideNavbar = ({ currentTab, setCurrentTab, toggleSidebar, isSidebarOpen })
                       setTooltip(name);
                     }}
                     onMouseLeave={() => setTooltip("")}
-                    className={`link-hover flex items-center py-3 mx-2 rounded-2xl transition-all duration-200 ease-in-out ${currentTab === name ? "bg-blue-600 font-bold" : "text-white"} text-xs sm:text-base`}
+                    className={`link-hover flex items-center py-3 mx-2 rounded-2xl transition-all duration-200 ease-in-out ${currentTab === name ? "bg-blue-600 font-bold" : "text-white"} text-xs  md:text-xs sm:text-base`}
                     style={{ width: "calc(100% - 1rem)" }}
                     aria-label={name}
                     role="menuitem"
@@ -160,7 +160,7 @@ const SideNavbar = ({ currentTab, setCurrentTab, toggleSidebar, isSidebarOpen })
               ))}
 
               {isSidebarOpen && (
-                <li className="w-full text-left text-gray-400 ml-3 mt-4 font-semibold text-sm sm:text-base sm:ml-4">
+                <li className="w-full text-left text-gray-400 ml-3 mt-4 font-semibold text-xs md:text-xs sm:text-base sm:ml-4">
                   SUPPORT
                 </li>
               )}
@@ -179,7 +179,7 @@ const SideNavbar = ({ currentTab, setCurrentTab, toggleSidebar, isSidebarOpen })
                       setTooltip(name);
                     }}
                     onMouseLeave={() => setTooltip("")}
-                    className={`link-hover flex items-center py-3 mx-2 rounded-2xl transition-all duration-200 ease-in-out ${currentTab === name ? "bg-blue-600 font-bold" : "text-white"} text-xs sm:text-base`}
+                    className={`link-hover flex items-center py-3 mx-2 rounded-2xl transition-all duration-200 ease-in-out ${currentTab === name ? "bg-blue-600 font-bold" : "text-white"} text-xs md:text-xs sm:text-base`}
                     style={{ width: "calc(100% - 1rem)" }}
                     aria-label={name}
                     role="menuitem"

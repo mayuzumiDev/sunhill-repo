@@ -308,35 +308,7 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Scroll to top button styles */
-.scroll-to-top {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 50%;
-  padding: 13px 20px;
-  font-size: 20px;
-  cursor: pointer;
-  z-index: 1000;
-  transition: background-color 0.6s;
-  animation: upDown 0.3s infinite alternate; /* Add animation */
-}
 
-.scroll-to-top:hover {
-  background-color: #0056b3;
-}
-
-@keyframes upDown {
-  0% {
-    transform: translateY(0);
-  }
-  100% {
-    transform: translateY(-10px);
-  }
-}
 
 .letter {
   font-size: 3rem;
@@ -374,6 +346,24 @@ body {
   margin-right: 40px;
   font-size: 13px;
   position: relative;
+  transition: color 0.3s ease, letter-spacing 0.3s ease;
+}
+
+/* Adding the line under navigation links on hover */
+.navbar .nav-links a::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px; /* Thickness of the line */
+  background-color: #077656; /* Line color */
+  transition: width 0.3s ease; /* Smooth transition for the underline */
+}
+
+
+.navbar .nav-links a:hover::after {
+  width: 100%; /* Expand the line to full width */
 }
 
 /* Login button */
