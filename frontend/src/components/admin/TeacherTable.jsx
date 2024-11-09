@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
+import { axiosInstance } from "../../utils/axiosInstance";
 import EditSuccessAlert from "../alert/EditSuccessAlert";
 import EditErrorAlert from "../alert/EditErrorAlert";
+import EditAccountModal from "../modal/admin/EditAccountModal";
 import SchawnnahJLoader from "../loaders/SchawnnahJLoader";
 import SatyamLoader from "../loaders/SatyamLoader";
-import EditAccountModal from "../modal/admin/EditAccountModal";
-import { axiosInstance } from "../../utils/axiosInstance";
+import HideScrollBar from "../misc/HideScrollBar";
 
 const TeacherTable = ({
   teacherAccounts,
@@ -13,6 +14,7 @@ const TeacherTable = ({
   isSelected,
   allSelected,
   fetchData,
+  searchPerform,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [successAlert, setSuccessAlert] = useState(false);
@@ -85,9 +87,10 @@ const TeacherTable = ({
     setIsEditing(true);
   };
 
-  return (
-    <div className="overflow-x-auto">
-      {teacherAccounts && teacherAccounts.length > 0 ? (
+  if (teacherAccounts && teacherAccounts.length > 0) {
+    return (
+      <div className="overflow-x-auto">
+        <HideScrollBar />
         <table className="min-w-full bg-white shadow-md rounded-lg">
           <thead>
             <tr className="bg-gray-200 text-gray-700">
@@ -149,44 +152,45 @@ const TeacherTable = ({
             ))}
           </tbody>
         </table>
-      ) : (
-        <div className="display: flex justify-center items-start h-screen">
-          <div style={{ transform: "translateY(100%)" }}>
-            <SatyamLoader />
-          </div>
+
+        {isLoading && <SchawnnahJLoader />}
+
+        {isEditing && (
+          <EditAccountModal
+            isOpen={isEditing}
+            onClose={() => setIsEditing(false)}
+            onSave={handleSave}
+            userData={editingTeacher}
+            userRole={"Teacher"}
+          />
+        )}
+
+        {successAlert && (
+          <EditSuccessAlert userType={"Teacher"} userData={editingTeacher} />
+        )}
+
+        {errorAlert && (
+          <EditErrorAlert userType={"Teacher"} userData={editingTeacher} />
+        )}
+      </div>
+    );
+  } else if (searchPerform) {
+    // Show this message if a search was performed but no results were found
+    return (
+      <div className="text-center py-4 mt-24">
+        <HideScrollBar />
+        <p>We couldn't find account matching that name. </p>
+      </div>
+    );
+  } else {
+    return (
+      <div className="display: flex justify-center items-start h-screen">
+        <HideScrollBar />
+        <div style={{ transform: "translateY(100%)" }}>
+          <SatyamLoader />
         </div>
-      )}
-
-      {isLoading && <SchawnnahJLoader />}
-
-      {isEditing && (
-        <EditAccountModal
-          isOpen={isEditing}
-          onClose={() => setIsEditing(false)}
-          onSave={handleSave}
-          userData={editingTeacher}
-          userRole={"Teacher"}
-        />
-      )}
-
-      {successAlert && (
-        <EditSuccessAlert userType={"Teacher"} userData={editingTeacher} />
-      )}
-
-      {errorAlert && (
-        <EditErrorAlert userType={"Teacher"} userData={editingTeacher} />
-      )}
-
-      <style jsx>{`
-        /* Hide scrollbar in all browsers */
-        ::-webkit-scrollbar {
-          display: none;
-        }
-        body {
-          overflow: hidden; /* Prevent scrolling on the body */
-        }
-      `}</style>
-    </div>
-  );
+      </div>
+    );
+  }
 };
 export default TeacherTable;

@@ -20,7 +20,7 @@ const TableSearchBar = ({ onSearch, searchTerm }) => {
         </button>
         <input
           className="input"
-          placeholder="Type your text"
+          placeholder="Search by Name"
           required
           type="text"
           value={searchTerm}
@@ -50,7 +50,7 @@ const StyledWrapper = styled.div`
     --height-of-input: 40px;
     --border-height: 2px;
     --input-bg: #fff;
-    --border-color: #2f2ee9;
+    --border-color: #2196f3;
     --border-radius: 30px;
     --after-border-radius: 1px;
     position: relative;

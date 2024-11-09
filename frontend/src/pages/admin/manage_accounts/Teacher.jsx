@@ -28,6 +28,7 @@ const Teacher = () => {
   const [teachers, setTeachers] = useState([]);
   const [selectedTeachers, setSelectedTeachers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [searchPerform, setSearchPerform] = useState(false);
 
   useEffect(() => {
     // Fetch data when the component mounts
@@ -65,7 +66,12 @@ const Teacher = () => {
         params,
       });
       if (response.status === 200) {
-        setTeachers(response.data.teacher_list);
+        const teacher_list = response.data.teacher_list;
+        setTeachers(teacher_list);
+
+        if (teacher_list.length === 0) {
+          setSearchPerform(true);
+        }
       }
     } catch (error) {
       console.error("An error occurred while fetching the data.");
@@ -159,6 +165,9 @@ const Teacher = () => {
 
   const handleSearch = (inputValue) => {
     setSearchTerm(inputValue);
+    if (inputValue.length === 0) {
+      setSearchPerform(false);
+    }
   };
 
   const handleOpenGenerateModal = () => {
@@ -209,6 +218,7 @@ const Teacher = () => {
 
       {/* Responsive Button Container */}
       <div className="flex flex-col md:flex-row md:space-x-4 mb-4">
+        <TableSearchBar onSearch={handleSearch} searchTerm={searchTerm} />
         <button
           onClick={() => setIsModalOpen(true)}
           className="bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600 transition flex items-center mb-2 md:mb-0"
@@ -223,7 +233,6 @@ const Teacher = () => {
           <FontAwesomeIcon icon={faTrashAlt} className="mr-2" />
           Delete Account
         </button>
-        <TableSearchBar onSearch={handleSearch} searchTerm={searchTerm} />
       </div>
 
       {isLoading && <SchawnnahJLoader />}
@@ -292,6 +301,7 @@ const Teacher = () => {
           isSelected={isSelected}
           allSelected={allSelected}
           fetchData={fetchData}
+          searchPerform={searchPerform}
         />
       </div>
     </div>
