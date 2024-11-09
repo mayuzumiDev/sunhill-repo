@@ -105,7 +105,7 @@ const Navbar = ({ darkMode, toggleDarkMode, buttonPosition }) => {
               </button>
             </div>
             <RouterLink to="/login/" className="login-btn">
-              Login
+             <p>Login</p>
             </RouterLink>
           </div>
         </Fade>

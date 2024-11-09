@@ -241,7 +241,7 @@ const Home = () => {
               className="wave-background"
               sx={{
                 position: "absolute",
-                top: { xs: "9.5rem", sm: "13.5rem",  lg: "30.9rem" },
+                top: { xs: "9.5rem", sm: "13.5rem",  lg: "33rem" },
                 left: 0,
                 width: "100%",
                 zIndex: "2",

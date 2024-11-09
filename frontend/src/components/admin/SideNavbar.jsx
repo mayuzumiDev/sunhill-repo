@@ -54,19 +54,19 @@ const SideNavbar = ({ currentTab, setCurrentTab, toggleSidebar, isSidebarOpen })
   );
 
   const mainTabs = [
-    { name: "Dashboard", icon: <HomeOutline className="h-4 w-4" /> },
-    { name: "Teachers", icon: <TeacherOutline className="h-4 w-4" /> },
-    { name: "Students", icon: <UsersOutline className="h-4 w-4" /> },
-    { name: "Parents", icon: <UserOutline className="h-4 w-4" /> },
-    { name: "Public", icon: <BuildingOutline className="h-4 w-4" /> },
-    { name: "Branches", icon: <ClipboardOutline className="h-4 w-4" /> },
-    { name: "Events", icon: <BellOutline className="h-4 w-4" /> },
+    { name: "Dashboard", icon: <HomeOutline className="h-5 w-5" /> },
+    { name: "Teachers", icon: <UserOutline className="h-5 w-5" /> },
+    { name: "Students", icon: <TeacherOutline className="h-5 w-5" /> },
+    { name: "Parents", icon: <UsersOutline className="h-5 w-5" /> },
+    { name: "Public", icon: <BuildingOutline className="h-5 w-5" /> },
+    { name: "Branches", icon: <ClipboardOutline className="h-5 w-5" /> },
+    { name: "Events", icon: <BellOutline className="h-5 w-5" /> },
   ];
 
   const additionalTabs = [
-    { name: "Messages", icon: <MailOutline className="h-4 w-4" /> },
-    { name: "SpecialED Tool", icon: <SearchOutline className="h-4 w-4" /> },
-    { name: "FAQ", icon: <QuestionOutline className="h-4 w-4" /> },
+    { name: "Messages", icon: <MailOutline className="h-5 w-5" /> },
+    { name: "SpecialED Tool", icon: <SearchOutline className="h-5 w-5" /> },
+    { name: "FAQ", icon: <QuestionOutline className="h-5 w-5" /> },
   ];
 
   return (
@@ -88,7 +88,7 @@ const SideNavbar = ({ currentTab, setCurrentTab, toggleSidebar, isSidebarOpen })
           /* Apply hover animations to the entire Link element */
           .link-hover:hover {
             background-color: #3b82f6; /* blue-700 */
-            transform: scale(1.05); /* Slight scaling for the whole item */
+            transform: scale(1.0); /* Slight scaling for the whole item */
             transition: all 0.2s ease-in-out;
           }
           .link-hover:hover .rotate-on-hover {
@@ -153,7 +153,7 @@ const SideNavbar = ({ currentTab, setCurrentTab, toggleSidebar, isSidebarOpen })
                     aria-label={name}
                     role="menuitem"
                   >
-                    <span className="mr-4 ml-4 sm:ml-2.1 bounce-on-hover scale-on-hover rotate-on-hover">{icon}</span>
+                    <span className="mr-4 ml-3.5 sm:mr-2 bounce-on-hover scale-on-hover rotate-on-hover">{icon}</span>
                     {isSidebarOpen && <span>{name}</span>}
                   </Link>
                 </li>
@@ -184,7 +184,7 @@ const SideNavbar = ({ currentTab, setCurrentTab, toggleSidebar, isSidebarOpen })
                     aria-label={name}
                     role="menuitem"
                   >
-                    <span className="mr-4 ml-4 sm:ml-2.1 rotate-on-hover">{icon}</span>
+                    <span className="mr-4 ml-3.5 sm:mr-2 rotate-on-hover">{icon}</span>
                     {isSidebarOpen && <span>{name}</span>}
                   </Link>
                 </li>
