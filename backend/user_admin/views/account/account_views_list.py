@@ -1,4 +1,5 @@
 from django.http.response import JsonResponse
+from django.db.models import Q
 from rest_framework import generics, status, filters
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from ...models.account_models import UserInfo
@@ -7,14 +8,20 @@ from ...serializers.accounts.list_account_serializers import *
 class TeacherListView(generics.ListAPIView):
     permission_classes = [AllowAny]
     serializer_class = TeacherListSerializer
-    filter_backends = [filters.OrderingFilter, filters.SearchFilter]
+    filter_backends = [filters.SearchFilter]
     search_fields = ['user__first_name', 'user__last_name']
-    ordering = ['-user__date_joined']
 
-    # Returns a queryset of UserInfo objects where the user's role is 'teacher'
     def get_queryset(self):
-        query_set = UserInfo.objects.filter(user__role='teacher').order_by(*self.ordering)
-        return query_set 
+        queryset = UserInfo.objects.filter(user__role='teacher')
+        search_term = self.request.query_params.get('search', None)
+        if search_term:
+            search_term = search_term.lower()
+            query = Q()
+            for i in range(1, len(search_term) + 1):
+                substring = search_term[:i]
+                query &= Q(user__first_name__istartswith=substring) | Q(user__last_name__istartswith=substring)
+            queryset = queryset.filter(query)
+        return queryset
 
     # Handles GET requests and returns a JSON response with the list of teachers
     def get(self, request):
