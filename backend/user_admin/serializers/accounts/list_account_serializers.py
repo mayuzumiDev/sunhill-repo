@@ -1,6 +1,16 @@
 from rest_framework import serializers
-from api.models import CustomUser, UserRole
+from api.models import CustomUser
 from ...models.account_models import UserInfo, StudentInfo, ParentInfo
+
+class UserInfoListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserInfo
+        fields = ['contact_no']
+
+class StudentInfoListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StudentInfo
+        fields = ['grade_level']
 
 class TeacherListSerializer(serializers.ModelSerializer):
     user_id = serializers.IntegerField(source='user.id', read_only=True)
@@ -21,3 +31,24 @@ class TeacherListSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserInfo
         fields = ('user_id', 'id', 'first_name', 'last_name', 'username', 'email', 'branch_name', 'contact_no', 'is_teacher')
+
+class StudentListSerializer(serializers.ModelSerializer):
+    user_info = UserInfoListSerializer(source='userinfo', read_only=True)
+    student_info = StudentInfoListSerializer(source='userinfo.studentinfo', read_only=True)
+
+    class Meta:
+        model = CustomUser
+        fields = ('id', 'email', 'first_name', 'last_name', 'username', 'email', 'branch_name', 'user_info', 'student_info')
+
+    # def get_user_info(self, instance):
+    #     user_info = instance.userinfo
+    #     return {
+    #         'contact_no': user_info.contact_no
+    #     }
+    
+    # def get_student_info(self, instance):
+    #     user_info = instance.userinfo
+    #     student_info = user_info.studentinfo
+    #     return {
+    #         'grade_level': student_info.grade_level
+    #     }
