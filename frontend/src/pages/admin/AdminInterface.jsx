@@ -1,10 +1,7 @@
-// AdminInterface.js
-
 import React, { useState, useEffect } from "react";
 import SideNavbar from "../../components/admin/SideNavbar";
 import TopNavbar from "../../components/admin/TopNavbar";
 import Dashboard from "./Dashboard";
-import CreateAccount from "./CreateAccount";
 import Student from "./manage_accounts/Student";
 import Teacher from "./manage_accounts/Teacher";
 import Parent from "./manage_accounts/Parent";
@@ -42,9 +39,17 @@ function AdminInterface() {
   };
 
   return (
-    <div className={`flex h-screen overflow-hidden ${darkMode ? "bg-gray-800" : "bg-opacity-50"}`}>
+    <div
+      className={`flex h-screen overflow-hidden ${
+        darkMode ? "bg-gray-800" : "bg-opacity-50"
+      }`}
+    >
       {/* Sidebar */}
-      <div className={`fixed inset-y-0 left-0 z-10 ${darkMode ? "bg-gray-900" : "bg-white"} shadow-lg`}>
+      <div
+        className={`fixed inset-y-0 left-0 z-10 ${
+          darkMode ? "bg-gray-900" : "bg-white"
+        } shadow-lg`}
+      >
         <SideNavbar
           currentTab={currentTab}
           setCurrentTab={setCurrentTab}
@@ -55,7 +60,11 @@ function AdminInterface() {
       </div>
 
       {isSidebarOpen && (
-        <div className={`fixed inset-y-0 left-0 z-10  ${darkMode ? "bg-gray-900" : "bg-white"} shadow-lg`}>
+        <div
+          className={`fixed inset-y-0 left-0 z-10  ${
+            darkMode ? "bg-gray-900" : "bg-white"
+          } shadow-lg`}
+        >
           <SideNavbar
             currentTab={currentTab}
             setCurrentTab={setCurrentTab}
@@ -67,7 +76,15 @@ function AdminInterface() {
       )}
 
       {/* Main content area */}
-      <div className={`flex-1 flex flex-col transition-all duration-300 overflow-hidden ${window.innerWidth < 1024 && !isSidebarOpen ? 'ml-0' : isSidebarOpen ? "ml-64" : "ml-16"}`}>
+      <div
+        className={`flex-1 flex flex-col transition-all duration-300 overflow-hidden ${
+          window.innerWidth < 1024 && !isSidebarOpen
+            ? "ml-0"
+            : isSidebarOpen
+            ? "ml-64"
+            : "ml-16"
+        }`}
+      >
         {/* Top Navbar */}
         <div className="flex-none">
           <TopNavbar
@@ -77,11 +94,17 @@ function AdminInterface() {
             darkMode={darkMode}
             toggleDarkMode={toggleDarkMode}
           />
-          {showLogoutDialog && <Logout onClose={() => setShowLogoutDialog(false)} />}
+          {showLogoutDialog && (
+            <Logout onClose={() => setShowLogoutDialog(false)} />
+          )}
         </div>
 
         {/* Main content section */}
-        <div className={`flex-1 p-6 ${darkMode ? "bg-gray-700 text-white" : "bg-blue-50 text-black"} bg-opacity-60 mt-0 overflow-y-auto`}>
+        <div
+          className={`flex-1 p-6 ${
+            darkMode ? "bg-gray-700 text-white" : "bg-blue-50 text-black"
+          } bg-opacity-60 mt-0 overflow-y-auto`}
+        >
           <Breadcrumb pageName={currentTab} />
           {currentTab === "Dashboard" && <Dashboard />}
           {currentTab === "Teachers" && <Teacher />}
@@ -90,7 +113,6 @@ function AdminInterface() {
           {currentTab === "Public" && <Public />}
           {currentTab === "Branches" && <Branches />}
           {currentTab === "Events" && <SchoolEventsCalendar />}
-          {currentTab === "Create Account" && <CreateAccount />}
           {currentTab === "Settings" && <AdminSettings />}
         </div>
       </div>

@@ -11,7 +11,12 @@ import {
   Legend,
   ArcElement,
 } from "chart.js";
-import { FaUserGraduate, FaChalkboardTeacher, FaUsers, FaSchool } from "react-icons/fa";
+import {
+  FaUserGraduate,
+  FaChalkboardTeacher,
+  FaUsers,
+  FaSchool,
+} from "react-icons/fa";
 
 // Register Chart.js components
 ChartJS.register(
@@ -85,10 +90,30 @@ const Dashboard = () => {
 
   // Metrics data
   const metrics = [
-    { id: 1, label: "Students", value: 200, icon: <FaUserGraduate size={30} className="text-blue-500" /> },
-    { id: 2, label: "Teachers", value: 30, icon: <FaChalkboardTeacher size={30} className="text-green-500" /> },
-    { id: 3, label: "Parents", value: 150, icon: <FaUsers size={30} className="text-yellow-500" /> },
-    { id: 4, label: "Classes", value: 20, icon: <FaSchool size={30} className="text-red-500" /> },
+    {
+      id: 1,
+      label: "Students",
+      value: 200,
+      icon: <FaUserGraduate size={30} className="text-blue-500" />,
+    },
+    {
+      id: 2,
+      label: "Teachers",
+      value: 30,
+      icon: <FaChalkboardTeacher size={30} className="text-green-500" />,
+    },
+    {
+      id: 3,
+      label: "Parents",
+      value: 150,
+      icon: <FaUsers size={30} className="text-yellow-500" />,
+    },
+    {
+      id: 4,
+      label: "Classes",
+      value: 20,
+      icon: <FaSchool size={30} className="text-red-500" />,
+    },
   ];
 
   return (
@@ -104,8 +129,12 @@ const Dashboard = () => {
           >
             <div className="mr-4">{metric.icon}</div>
             <div>
-              <h3 className="text-xl md:text-2xl font-bold text-gray-700">{metric.value}</h3>
-              <p className="text-sm md:text-base text-gray-500">{metric.label}</p>
+              <h3 className="text-xl md:text-2xl font-bold text-gray-700">
+                {metric.value}
+              </h3>
+              <p className="text-sm md:text-base text-gray-500">
+                {metric.label}
+              </p>
             </div>
           </div>
         ))}

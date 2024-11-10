@@ -241,7 +241,7 @@ const Teacher = () => {
   };
 
   return (
-    <div className="p-4 md:p-6 min-h-screen font-montserrat">
+    <div className="p-4 md:p-6 font-montserrat">
       <h1 className="text-2xl md:text-4xl text-gray-800 font-bold mb-4">
         Manage Accounts
       </h1>
@@ -249,9 +249,9 @@ const Teacher = () => {
 
       {/* Responsive Button Container */}
       <div className="flex flex-col md:flex-row md:space-x-4 mb-4">
-      <div className="w-full md:w-auto mb-2 md:mb-0">
-        <TableSearchBar onSearch={handleSearch} searchTerm={searchTerm} />
-      </div>
+        <div className="w-full md:w-auto mb-2 md:mb-0">
+          <TableSearchBar onSearch={handleSearch} searchTerm={searchTerm} />
+        </div>
         <button
           onClick={() => setIsModalOpen(true)}
           className="bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600 transition flex items-center mb-2 md:mb-0"
@@ -341,7 +341,7 @@ const Teacher = () => {
       {showDeleteSuccess && <DeleteSuccessAlert userType={"Teacher"} />}
       {showDeleteError && <DeleteErrorAlert userType={"Teacher"} />}
 
-      <div className="overflow-x-auto">
+      <div className="overflow-y-auto">
         <TeacherTable
           teacherAccounts={teachers}
           handleSelectRow={handleSelectRow}
