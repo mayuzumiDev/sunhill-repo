@@ -1,6 +1,10 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUserPlus, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
+import {
+  faUserPlus,
+  faTrashAlt,
+  faEraser,
+} from "@fortawesome/free-solid-svg-icons";
 import { axiosInstance } from "../../../utils/axiosInstance";
 import { generatePdf } from "../../../utils/pdfUtils";
 import AddAccountModal from "../../../components/modal/admin/AddAccountModal";
@@ -16,6 +20,13 @@ import DeleteErrorAlert from "../../../components/alert/DeleteErrorAlert";
 import SortBox from "../../../components/admin/SortBox";
 import "../../../components/alert/styles/BiingsAlert.css";
 
+const orderByOptionsMap = {
+  Newest: "-user__date_joined",
+  Oldest: "user__date_joined",
+  "A-Z": "user__first_name",
+  "Z-A": "-user__first_name",
+};
+
 const Teacher = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isGeneratedModalOpen, setIsGeneratedModalOpen] = useState(false);
@@ -30,11 +41,13 @@ const Teacher = () => {
   const [selectedTeachers, setSelectedTeachers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchPerform, setSearchPerform] = useState(false);
+  const [branchFilter, setBranchFilter] = useState("");
+  const [orderBy, setOrderBy] = useState("");
 
   useEffect(() => {
     // Fetch data when the component mounts
     fetchData();
-  }, [searchTerm]);
+  }, [searchTerm, orderBy, branchFilter]);
 
   useEffect(() => {
     // Automatically hide success alert after 5 seconds
@@ -59,9 +72,33 @@ const Teacher = () => {
     }
   }, [showSuccessAlert, showErrorAlert, showDeleteSuccess, showDeleteError]);
 
+  const handleSearch = (inputValue) => {
+    setSearchTerm(inputValue);
+    if (inputValue.length === 0) {
+      setSearchPerform(false);
+    }
+  };
+
+  const handleOrderChange = (selectedOrder) => {
+    setOrderBy(orderByOptionsMap[selectedOrder] || "");
+  };
+
+  const handleBranchChange = (selectedBranch) => {
+    setBranchFilter(selectedBranch);
+  };
+
+  const handleClearAll = () => {
+    setBranchFilter("");
+    setOrderBy("");
+  };
+
   const fetchData = async () => {
     try {
-      const params = searchTerm ? { search: searchTerm } : {};
+      const params = {
+        ...(searchTerm && { search: searchTerm }),
+        ...(branchFilter && { branch_name: branchFilter }),
+        ...(orderBy && { ordering: orderBy }),
+      };
       // Fetch the list of teachers from the API
       const response = await axiosInstance.get("/user-admin/teacher-list/", {
         params,
@@ -164,13 +201,6 @@ const Teacher = () => {
     }
   };
 
-  const handleSearch = (inputValue) => {
-    setSearchTerm(inputValue);
-    if (inputValue.length === 0) {
-      setSearchPerform(false);
-    }
-  };
-
   const handleOpenGenerateModal = () => {
     setIsModalOpen(false); // Close account creation modal
     setIsGeneratedModalOpen(true); // Open generated accounts modal
@@ -239,8 +269,16 @@ const Teacher = () => {
         <SortBox
           options={["Batangas", "Rosario", "Bauan", "Metro Tagaytay"]}
           label="Branch"
+          onSelect={handleBranchChange}
         />
-        <SortBox options={["Newest", "Oldest", "A-Z", "Z-A"]} />
+        <SortBox
+          options={["Newest", "Oldest", "A-Z", "Z-A"]}
+          label="Sort By"
+          onSelect={handleOrderChange}
+        />
+        <button className="text-gray-700" onClick={handleClearAll}>
+          <FontAwesomeIcon icon={faEraser} /> Clear All
+        </button>
       </div>
 
       {isLoading && <SchawnnahJLoader />}
