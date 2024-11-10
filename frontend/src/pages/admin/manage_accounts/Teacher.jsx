@@ -247,40 +247,52 @@ const Teacher = () => {
       </h1>
       <h2 className="text-lg text-gray-700 font-semibold mb-4">Teachers</h2>
 
-      {/* Responsive Button Container */}
-      <div className="flex flex-col md:flex-row md:space-x-4 mb-4">
-        <div className="w-full md:w-auto mb-2 md:mb-0">
+      {/* Top Button Container with Create and Delete */}
+      <div className="flex flex-col-reverse md:flex-row justify-between items-center mb-4">
+        <div className="flex space-x-4 mb-4 md:mb-0">
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="bg-blue-500 text-white font-semibold py-2 px-3 rounded-lg hover:bg-blue-600 transition flex items-center text-xs sm:text-lg sm:py-2 sm:px-4"
+          >
+            <FontAwesomeIcon icon={faUserPlus} className="mr-2" />
+            Create Account
+          </button>
+          <button
+            onClick={() => setIsConfirmDelete(true)}
+            className="bg-red-500 text-white font-semibold py-2 px-3 rounded-lg hover:bg-red-600 transition flex items-center text-xs sm:text-lg sm:py-2 sm:px-4"
+          >
+            <FontAwesomeIcon icon={faTrashAlt} className="mr-2" />
+            Delete Account
+          </button>
+        </div>
+      </div>
+
+      {/* Sorting and Search Container */}
+      <div className="flex flex-col md:flex-row items-center justify-between mb-4">
+        {/* Left-aligned Search */}
+        <div className="w-full md:w-auto mb-4 md:mb-0">
           <TableSearchBar onSearch={handleSearch} searchTerm={searchTerm} />
         </div>
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600 transition flex items-center mb-2 md:mb-0"
-        >
-          <FontAwesomeIcon icon={faUserPlus} className="mr-2" />
-          Create Account
-        </button>
-        <button
-          onClick={() => setIsConfirmDelete(true)}
-          className="bg-red-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-600 transition flex items-center"
-        >
-          <FontAwesomeIcon icon={faTrashAlt} className="mr-2" />
-          Delete Account
-        </button>
-      </div>
-      <div className="flex flex-col md:flex-row md:space-x-4 md:justify-end mb-4 mr-4">
-        <SortBox
-          options={["Batangas", "Rosario", "Bauan", "Metro Tagaytay"]}
-          label="Branch"
-          onSelect={handleBranchChange}
-        />
-        <SortBox
-          options={["Newest", "Oldest", "A-Z", "Z-A"]}
-          label="Sort By"
-          onSelect={handleOrderChange}
-        />
-        <button className="text-gray-700" onClick={handleClearAll}>
-          <FontAwesomeIcon icon={faEraser} /> Clear All
-        </button>
+
+        {/* Right-aligned SortBox and Clear All */}
+        <div className="flex space-x-4 items-center ml-auto text-xs sm:text-sm">
+          <SortBox
+            options={["Batangas", "Rosario", "Bauan", "Metro Tagaytay"]}
+            label="Branch"
+            onSelect={handleBranchChange}
+          />
+          <SortBox
+            options={["Newest", "Oldest", "A-Z", "Z-A"]}
+            label="Sort By"
+            onSelect={handleOrderChange}
+          />
+          <button
+            className="text-gray-700 text-xs sm:text-sm"
+            onClick={handleClearAll}
+          >
+            <FontAwesomeIcon icon={faEraser} /> Clear All
+          </button>
+        </div>
       </div>
 
       {isLoading && <SchawnnahJLoader />}

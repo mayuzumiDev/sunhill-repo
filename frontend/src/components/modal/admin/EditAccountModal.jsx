@@ -26,26 +26,35 @@ function EditAccountModal({ isOpen, onClose, onSave, userData, userRole }) {
       setErrorMessage("Username cannot be empty.");
       return;
     }
-
+  
     if (formData.username.length < 3 || formData.username.length > 20) {
       setErrorMessage("Username must be between 3 and 20 characters.");
       return;
     }
-
+  
     // Check if the email is valid
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (formData.email && !emailPattern.test(formData.email)) {
       setErrorMessage("Please enter a valid email address.");
       return;
     }
-
+  
+    // Check if the contact number is a valid Philippine number (11 digits, starts with 09)
+    const contactNoPattern = /^09\d{9}$/; // Must start with "09" and be 11 digits total
+    if (!contactNoPattern.test(formData.contact_no)) {
+      setErrorMessage("Please enter a valid contact number.");
+      return;
+    }
+    // If all validations pass, call the onSave function
     onSave(formData);
   };
+  
+  
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center">
+    <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-30">
       <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
         <h2 className="text-2xl font-semibold mb-4">
           Edit {userRole} Information

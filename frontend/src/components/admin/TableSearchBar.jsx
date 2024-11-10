@@ -117,6 +117,39 @@ const StyledWrapper = styled.div`
     width: 17px;
     margin-top: 3px;
   }
+
+  /* Responsive Styles */
+  @media (max-width: 768px) {
+    /* Reduce width of the input */
+    .form {
+      --width-of-input: 170px;
+      --height-of-input: 35px;
+    }
+
+    .input {
+      font-size: 0.75rem; /* Smaller font size on mobile */
+    }
+
+    .form svg {
+      width: 15px; /* Smaller icon size */
+    }
+  }
+
+  @media (max-width: 480px) {
+    /* Further reduce input size for very small screens */
+    .form {
+      --width-of-input: 150px;
+      --height-of-input: 40px;
+    }
+
+    .input {
+      font-size: 0.65rem; /* Even smaller font size */
+    }
+
+    .form svg {
+      width: 10px; /* Even smaller icon size */
+    }
+  }
 `;
 
 export default TableSearchBar;

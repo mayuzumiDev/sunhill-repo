@@ -182,7 +182,7 @@ const Home = () => {
                 color: "text.primary",
                 textAlign: "center",
                 padding: "2rem",
-                top: { xs: "60%", sm: "70%", md: "70%", lg: "50%" },
+                top: { xs: "60%", sm: "70%", md: "38%", lg: "50%" },
                 transform: "translateY(-50%)",
                 maxWidth: "90%",
                 margin: "0 auto",
@@ -197,7 +197,7 @@ const Home = () => {
                   sx={{
                     mb: 2,
                     fontWeight: "bold",
-                    fontSize: { xs: "1.5rem", sm: "2.5rem" },
+                    fontSize: { xs: "1rem", sm: "2.5rem" },
                   }}
                 >
                   Welcome to
@@ -216,7 +216,7 @@ const Home = () => {
               <Fade triggerOnce={false} delay={300}>
                 <Typography
                   variant="body1"
-                  sx={{ mb: 2, fontSize: { xs: "0.875rem", sm: "1rem" } }}
+                  sx={{ mb: 2, fontSize: { xs: "0.5rem", sm: "0.5rem" } }}
                 >
                   We are an institution driven by our ultimate goal of bringing
                   each child closer to God.
@@ -232,11 +232,11 @@ const Home = () => {
               className="wave-background"
               sx={{
                 position: "absolute",
-                top: { xs: "9.5rem", sm: "13.5rem",  lg: "33rem" },
+                top: { xs: "9.5rem", sm: "17rem",  lg: "35rem" },
                 left: 0,
                 width: "100%",
                 zIndex: "2",
-                height: "auto",
+                height: { xs: "4rem", sm: "6rem", lg:"auto"},
                 display: { xs: "flex", sm: "flex", md: "none", lg: "flex"},
               }}
             >

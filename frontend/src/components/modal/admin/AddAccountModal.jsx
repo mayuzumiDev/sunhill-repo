@@ -43,7 +43,7 @@ const AddAccountModal = ({
 
   return (
     <div
-      className={`modal fixed z-10 inset-0 overflow-y-auto bg-black bg-opacity-50`}
+      className={`modal fixed z-50 inset-0 overflow-y-auto bg-black bg-opacity-50`}
       style={{ display: isModalOpen ? "block" : "none" }}
     >
       <div className="min-h-screen px-6 py-4 text-center flex justify-center items-center h-full">
