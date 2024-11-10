@@ -186,7 +186,7 @@ const TeacherTable = ({
           size="2x"
           className="text-red-500 mb-2"
         />
-        <p>We couldn't find an account matching that name.</p>
+        <p>No teacher account found.</p>
       </div>
     );
   } else {

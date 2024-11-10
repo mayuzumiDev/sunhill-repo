@@ -11,7 +11,7 @@ class TeacherListView(generics.ListAPIView):
     serializer_class = TeacherListSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['user__first_name', 'user__last_name']
-    ordering_fields = ['user__date_joined']
+    ordering_fields = ['user__date_joined', 'user__first_name']
     filterset_fields = ['user__branch_name']
 
     def get_queryset(self):
@@ -32,7 +32,7 @@ class TeacherListView(generics.ListAPIView):
 
         branch_name = self.request.query_params.get('branch_name', None)
         if branch_name:
-            queryset = queryset.filter(branch_name__icontains=branch_name) 
+            queryset = queryset.filter(user__branch_name__icontains=branch_name) 
 
         return queryset
 
