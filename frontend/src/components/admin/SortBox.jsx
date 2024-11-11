@@ -40,7 +40,7 @@ const SortBox = ({ options = [], label = "Sort By", onSelect }) => {
       </button>
 
       <div
-        className={`absolute right-0 mt-2 w-40 bg-white shadow-lg rounded-lg transition-transform transform ${
+        className={`absolute justify-center mt-2 w-40 bg-white shadow-lg rounded-lg transition-transform transform ${
           isOpen ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"
         }`}
         style={{ transition: "opacity 0.15s ease, transform 0.15s ease" }}

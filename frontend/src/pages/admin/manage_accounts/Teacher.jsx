@@ -19,6 +19,7 @@ import DeleteSuccessAlert from "../../../components/alert/DeleteSuccessAlert";
 import DeleteErrorAlert from "../../../components/alert/DeleteErrorAlert";
 import SortBox from "../../../components/admin/SortBox";
 import "../../../components/alert/styles/BiingsAlert.css";
+import Error from "../../../assets/img/home/error-5.mp3"
 
 const orderByOptionsMap = {
   Newest: "-user__date_joined",
@@ -39,6 +40,7 @@ const Teacher = () => {
   const [generatedAccounts, setGeneratedAccounts] = useState([]);
   const [teachers, setTeachers] = useState([]);
   const [selectedTeachers, setSelectedTeachers] = useState([]);
+  const [showSelectUserError, setShowSelectUserError] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchPerform, setSearchPerform] = useState(false);
   const [branchFilter, setBranchFilter] = useState("");
@@ -66,11 +68,25 @@ const Teacher = () => {
       return () => clearTimeout(timer);
     }
 
-    if (showDeleteSuccess) {
+    if (showDeleteError) {
       const timer = setTimeout(() => setShowDeleteError(false), 5000);
       return () => clearTimeout(timer);
     }
-  }, [showSuccessAlert, showErrorAlert, showDeleteSuccess, showDeleteError]);
+
+    if (showSelectUserError) {
+      // Play the error sound when the alert is triggered
+      const audio = new Audio(Error); // Correct way to instantiate the Audio object
+      audio.play();
+
+      // Set a timer to stop the audio
+      const timer = setTimeout(() => {
+        audio.pause(); // Stop the audio after 5 seconds
+        audio.currentTime = 0;  
+        setShowSelectUserError(false);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [showSuccessAlert, showErrorAlert, showDeleteSuccess, showDeleteError, showSelectUserError]);
 
   const handleSearch = (inputValue) => {
     setSearchTerm(inputValue);
@@ -182,6 +198,11 @@ const Teacher = () => {
   };
 
   const handleDeleteAccount = async () => {
+    if (selectedTeachers.length === 0) {
+      setShowSelectUserError(true);
+      return;
+    }
+  
     try {
       // Request to delete selected teacher accounts
       const response = await axiosInstance.post(
@@ -190,14 +211,16 @@ const Teacher = () => {
           id: selectedTeachers,
         }
       );
-
+  
       if (response.status === 200) {
         setIsConfirmDelete(false);
         setShowDeleteSuccess(true);
         fetchData();
+        setSelectedTeachers([]); // Clear selected teachers after successful deletion
       }
     } catch (error) {
-      console.error("An error occured while deleting the account.");
+      console.error("An error occurred while deleting the account.");
+      setShowDeleteError(true);
     }
   };
 
@@ -258,7 +281,14 @@ const Teacher = () => {
             Create Account
           </button>
           <button
-            onClick={() => setIsConfirmDelete(true)}
+             onClick={() => {
+              setShowSelectUserError(false); 
+              if (selectedTeachers.length > 0) {
+                setIsConfirmDelete(true); // Show confirmation modal only if users are selected
+              } else {
+                setShowSelectUserError(true); // Show error alert if no users are selected
+              }
+            }}
             className="bg-red-500 text-white font-semibold py-2 px-3 rounded-lg hover:bg-red-600 transition flex items-center text-xs sm:text-lg sm:py-2 sm:px-4"
           >
             <FontAwesomeIcon icon={faTrashAlt} className="mr-2" />
@@ -319,6 +349,17 @@ const Teacher = () => {
             onConfirm={handleDeleteAccount}
             onCancel={() => setIsConfirmDelete(false)}
           />
+        </div>
+      )}
+
+      {showSelectUserError && (
+        <div className="bg-red-200 text-red-800 border-l-4 border-red-600 px-6 py-3 rounded-md mb-4 shadow-lg flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M11 12h1m0 0h1m0 0h1m0 0h-1m-4 0H7m0 0H6m0 0h1m0 0h1m0 0h1m0 0h-1m0 0h-1m0 0h1m0 0H5m0 0H4m0 0h2m0 0h4m0 0h1m0 0h2m0 0h1m0 0h-1m0 0H6m0 0H4m0 0h1m0 0h1m0 0h1m0 0h1m0 0H9m0 0h2m0 0h2m0 0h-1m0 0h-1m0 0h1m0 0h-1m0 0h2m0 0h2m0 0h1m0 0h-1"/>
+          </svg>
+          <span className="text-sm font-medium">
+             <strong className="text-lg">ALERT!</strong>  You need to select the user(s) before proceeding with deletion.
+          </span>
         </div>
       )}
 
