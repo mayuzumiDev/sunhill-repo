@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { axiosInstance } from "../../utils/axiosInstance";
-import EditSuccessAlert from "../alert/EditSuccessAlert";
-import EditErrorAlert from "../alert/EditErrorAlert";
-import EditAccountModal from "../modal/admin/EditAccountModal";
-import SchawnnahJLoader from "../loaders/SchawnnahJLoader";
-import SatyamLoader from "../loaders/SatyamLoader";
-import HideScrollBar from "../misc/HideScrollBar";
+import { axiosInstance } from "../../../utils/axiosInstance";
+import EditSuccessAlert from "../../alert/EditSuccessAlert";
+import EditErrorAlert from "../../alert/EditErrorAlert";
+import EditAccountModal from "../../modal/admin/EditAccountModal";
+import SchawnnahJLoader from "../../loaders/SchawnnahJLoader";
+import SatyamLoader from "../../loaders/SatyamLoader";
+import HideScrollBar from "../../misc/HideScrollBar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faExclamationTriangle } from "@fortawesome/free-solid-svg-icons";
 
@@ -76,7 +76,6 @@ const TeacherTable = ({
         setSuccessAlert(true);
         fetchData();
       }
-      
     } catch (error) {
       console.error("An occured while saving the data.", error);
       setIsLoading(false);
@@ -103,61 +102,85 @@ const TeacherTable = ({
       <div className="overflow-x-auto">
         <HideScrollBar />
         <div className="max-h-96 overflow-y-auto relative rounded-lg shadow-lg border border-gray-200">
-  <table className="min-w-full bg-white">
-    <thead className="sticky top-0 z-10 bg-gray-200 rounded-t-lg border-l-4 shadow-sm">
-      <tr>
-        <th className="py-4 px-4 text-center font-bold text-gray-600 border-r border-gray-300">
-          <input
-            type="checkbox"
-            onChange={handleSelectAll}
-            checked={allSelected}
-            className="transform scale-125 text-blue-500 focus:ring focus:ring-blue-200 rounded"
-          />
-        </th>
-        <th className="py-4 px-4 text-center font-bold text-gray-600 border-r border-gray-300">ID</th>
-        <th className="py-4 px-4 text-center font-bold text-gray-600 border-r border-gray-300">Username</th>
-        <th className="py-4 px-4 text-center font-bold text-gray-600 border-r border-gray-300">Name</th>
-        <th className="py-4 px-4 text-center font-bold text-gray-600 border-r border-gray-300">Email</th>
-        <th className="py-4 px-4 text-center font-bold text-gray-600 border-r border-gray-300">Contact No.</th>
-        <th className="py-4 px-4 text-center font-bold text-gray-600">Branch</th>
-      </tr>
-    </thead>
-    <tbody>
-      {teacherAccounts.map((teacher_list) => (
-        <tr
-          key={teacher_list.user_id}
-          className="border-b hover:bg-blue-50 transition duration-150 ease-in-out"
-          onClick={(event) => handleRowClick(teacher_list, event)}
-        >
-          <td
-            className={`py-3 px-4 text-center ${
-              isSelected(teacher_list.user_id)
-                ? "border-l-4 border-blue-500"
-                : "border-l-4 border-gray-100"
-            }`}
-          >
-            <input
-              type="checkbox"
-              checked={isSelected(teacher_list.user_id)}
-              onChange={(event) => handleCheckboxClick(event, teacher_list.user_id)}
-              className="transform scale-125 text-blue-500 focus:ring focus:ring-blue-200 rounded"
-            />
-          </td>
-          <td className="py-3 px-4 text-center text-gray-700 font-medium">{teacher_list.user_id}</td>
-          <td className="py-3 px-4 text-center text-gray-700 font-medium">{teacher_list.username}</td>
-          <td className="py-3 px-4 text-center text-gray-700 font-medium">
-            {`${teacher_list.first_name || "-"} ${teacher_list.last_name || ""}`}
-          </td>
-          <td className="py-3 px-4 text-center text-gray-700 font-medium">{teacher_list.email || "-"}</td>
-          <td className="py-3 px-4 text-center text-gray-700 font-medium">{teacher_list.contact_no || "-"}</td>
-          <td className="py-3 px-4 text-center text-gray-700 font-medium">{teacher_list.branch_name || "-"}</td>
-        </tr>
-      ))}
-    </tbody>
-  </table>
-</div>
-
-
+          <table className="min-w-full bg-white">
+            <thead className="sticky top-0 z-10 bg-gray-200 rounded-t-lg border-l-4 shadow-sm">
+              <tr>
+                <th className="py-4 px-4 text-center font-bold text-gray-600 border-r border-gray-300">
+                  <input
+                    type="checkbox"
+                    onChange={handleSelectAll}
+                    checked={allSelected}
+                    className="transform scale-125 text-blue-500 focus:ring focus:ring-blue-200 rounded"
+                  />
+                </th>
+                <th className="py-4 px-4 text-center font-bold text-gray-600 border-r border-gray-300">
+                  ID
+                </th>
+                <th className="py-4 px-4 text-center font-bold text-gray-600 border-r border-gray-300">
+                  Username
+                </th>
+                <th className="py-4 px-4 text-center font-bold text-gray-600 border-r border-gray-300">
+                  Name
+                </th>
+                <th className="py-4 px-4 text-center font-bold text-gray-600 border-r border-gray-300">
+                  Email
+                </th>
+                <th className="py-4 px-4 text-center font-bold text-gray-600 border-r border-gray-300">
+                  Contact No.
+                </th>
+                <th className="py-4 px-4 text-center font-bold text-gray-600">
+                  Branch
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {teacherAccounts.map((teacher_list) => (
+                <tr
+                  key={teacher_list.user_id}
+                  className="border-b hover:bg-blue-50 transition duration-150 ease-in-out"
+                  onClick={(event) => handleRowClick(teacher_list, event)}
+                >
+                  <td
+                    className={`py-3 px-4 text-center ${
+                      isSelected(teacher_list.user_id)
+                        ? "border-l-4 border-blue-500"
+                        : "border-l-4 border-gray-100"
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={isSelected(teacher_list.user_id)}
+                      onChange={(event) =>
+                        handleCheckboxClick(event, teacher_list.user_id)
+                      }
+                      className="transform scale-125 text-blue-500 focus:ring focus:ring-blue-200 rounded"
+                    />
+                  </td>
+                  <td className="py-3 px-4 text-center text-gray-700 font-medium">
+                    {teacher_list.user_id}
+                  </td>
+                  <td className="py-3 px-4 text-center text-gray-700 font-medium">
+                    {teacher_list.username}
+                  </td>
+                  <td className="py-3 px-4 text-center text-gray-700 font-medium">
+                    {`${teacher_list.first_name || "-"} ${
+                      teacher_list.last_name || ""
+                    }`}
+                  </td>
+                  <td className="py-3 px-4 text-center text-gray-700 font-medium">
+                    {teacher_list.email || "-"}
+                  </td>
+                  <td className="py-3 px-4 text-center text-gray-700 font-medium">
+                    {teacher_list.contact_no || "-"}
+                  </td>
+                  <td className="py-3 px-4 text-center text-gray-700 font-medium">
+                    {teacher_list.branch_name || "-"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
         {isLoading && <SchawnnahJLoader />}
 
