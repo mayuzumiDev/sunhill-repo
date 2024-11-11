@@ -132,6 +132,7 @@ const Teacher = () => {
       if (response.status === 200) {
         const teacher_list = response.data.teacher_list;
         setTeachers(teacher_list);
+        console.log(teacher_list);
 
         if (teacher_list.length === 0) {
           setSearchPerform(true);

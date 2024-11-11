@@ -2,16 +2,6 @@ from rest_framework import serializers
 from api.models import CustomUser
 from ...models.account_models import UserInfo, StudentInfo, ParentInfo
 
-class UserInfoListSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UserInfo
-        fields = ['contact_no']
-
-class StudentInfoListSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = StudentInfo
-        fields = ['grade_level']
-
 class TeacherListSerializer(serializers.ModelSerializer):
     user_id = serializers.IntegerField(source='user.id', read_only=True)
     first_name = serializers.CharField(source='user.first_name', read_only=True)
@@ -40,6 +30,7 @@ class StudentListSerializer(serializers.ModelSerializer):
     def get_user_info(self, instance):
         user_info = instance.userinfo
         return {
+            'id': user_info.id,
             'contact_no': user_info.contact_no
         }
     
@@ -47,6 +38,7 @@ class StudentListSerializer(serializers.ModelSerializer):
         user_info = instance.userinfo
         student_info = user_info.studentinfo
         return {
+            'id': user_info.studentinfo.id,
             'grade_level': student_info.grade_level,
         }
 
