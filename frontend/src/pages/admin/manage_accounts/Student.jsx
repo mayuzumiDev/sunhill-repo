@@ -4,15 +4,43 @@ import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 
 const Student = () => {
   const [students, setStudents] = useState([
-    { id: 1, name: "Alice Johnson", grade: "5", branch: "Rosario", email: "alice@example.com", password: "password123" },
-    { id: 2, name: "Bob Smith", grade: "4", branch: "Batangas", email: "bob@example.com", password: "password123" },
-    { id: 3, name: "Charlie Brown", grade: "6", branch: "Tagaytay", email: "charlie@example.com", password: "password123" },
+    {
+      id: 1,
+      name: "Alice Johnson",
+      grade: "5",
+      branch: "Rosario",
+      email: "alice@example.com",
+      password: "password123",
+    },
+    {
+      id: 2,
+      name: "Bob Smith",
+      grade: "4",
+      branch: "Batangas",
+      email: "bob@example.com",
+      password: "password123",
+    },
+    {
+      id: 3,
+      name: "Charlie Brown",
+      grade: "6",
+      branch: "Tagaytay",
+      email: "charlie@example.com",
+      password: "password123",
+    },
   ]);
 
   const [selectedGrade, setSelectedGrade] = useState("");
   const [selectedBranch, setSelectedBranch] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newStudent, setNewStudent] = useState({ id: null, name: "", grade: "", branch: "", email: "", password: "" });
+  const [newStudent, setNewStudent] = useState({
+    id: null,
+    name: "",
+    grade: "",
+    branch: "",
+    email: "",
+    password: "",
+  });
   const [isEditing, setIsEditing] = useState(false);
 
   const grades = [...new Set(students.map((student) => student.grade))];
@@ -23,7 +51,9 @@ const Student = () => {
 
   const filteredStudents = students.filter((student) => {
     const gradeMatch = selectedGrade ? student.grade === selectedGrade : true;
-    const branchMatch = selectedBranch ? student.branch === selectedBranch : true;
+    const branchMatch = selectedBranch
+      ? student.branch === selectedBranch
+      : true;
     return gradeMatch && branchMatch;
   });
 
@@ -33,15 +63,34 @@ const Student = () => {
   };
 
   const handleAddStudent = () => {
-    if (newStudent.name && newStudent.grade && newStudent.branch && newStudent.email && newStudent.password) {
+    if (
+      newStudent.name &&
+      newStudent.grade &&
+      newStudent.branch &&
+      newStudent.email &&
+      newStudent.password
+    ) {
       if (isEditing) {
-        setStudents(students.map((student) => (student.id === newStudent.id ? newStudent : student)));
+        setStudents(
+          students.map((student) =>
+            student.id === newStudent.id ? newStudent : student
+          )
+        );
         setIsEditing(false);
       } else {
-        const newId = students.length ? students[students.length - 1].id + 1 : 1;
+        const newId = students.length
+          ? students[students.length - 1].id + 1
+          : 1;
         setStudents([...students, { id: newId, ...newStudent }]);
       }
-      setNewStudent({ id: null, name: "", grade: "", branch: "", email: "", password: "" });
+      setNewStudent({
+        id: null,
+        name: "",
+        grade: "",
+        branch: "",
+        email: "",
+        password: "",
+      });
       setIsModalOpen(false);
     }
   };
@@ -64,7 +113,14 @@ const Student = () => {
       <div className="flex justify-between mb-4">
         <button
           onClick={() => {
-            setNewStudent({ id: null, name: "", grade: "", branch: "", email: "", password: "" });
+            setNewStudent({
+              id: null,
+              name: "",
+              grade: "",
+              branch: "",
+              email: "",
+              password: "",
+            });
             setIsEditing(false);
             setIsModalOpen(true);
           }}
@@ -83,10 +139,10 @@ const Student = () => {
         handleBranchChange={handleBranchChange}
       />
 
-      <StudentTable 
-        filteredStudents={filteredStudents} 
-        onEditStudent={handleEditStudent} 
-        onDeleteStudent={handleDeleteStudent} 
+      <StudentTable
+        filteredStudents={filteredStudents}
+        onEditStudent={handleEditStudent}
+        onDeleteStudent={handleDeleteStudent}
       />
 
       {isModalOpen && (
@@ -101,10 +157,19 @@ const Student = () => {
   );
 };
 
-const Filters = ({ grades, selectedGrade, handleGradeChange, branches, selectedBranch, handleBranchChange }) => (
+const Filters = ({
+  grades,
+  selectedGrade,
+  handleGradeChange,
+  branches,
+  selectedBranch,
+  handleBranchChange,
+}) => (
   <div className="flex flex-wrap mb-4">
     <div className="flex items-center mr-4 mb-2">
-      <label htmlFor="grade" className="mr-2 text-sm text-gray-700">Filter by Grade:</label>
+      <label htmlFor="grade" className="mr-2 text-sm text-gray-700">
+        Filter by Grade:
+      </label>
       <select
         id="grade"
         value={selectedGrade}
@@ -113,12 +178,16 @@ const Filters = ({ grades, selectedGrade, handleGradeChange, branches, selectedB
       >
         <option value="">All</option>
         {grades.map((grade) => (
-          <option key={grade} value={grade}>{grade}</option>
+          <option key={grade} value={grade}>
+            {grade}
+          </option>
         ))}
       </select>
     </div>
     <div className="flex items-center mb-2">
-      <label htmlFor="branch" className="mr-2 text-sm text-gray-700">Filter by Branch:</label>
+      <label htmlFor="branch" className="mr-2 text-sm text-gray-700">
+        Filter by Branch:
+      </label>
       <select
         id="branch"
         value={selectedBranch}
@@ -127,7 +196,9 @@ const Filters = ({ grades, selectedGrade, handleGradeChange, branches, selectedB
       >
         <option value="">All</option>
         {branches.map((branch) => (
-          <option key={branch} value={branch}>{branch}</option>
+          <option key={branch} value={branch}>
+            {branch}
+          </option>
         ))}
       </select>
     </div>
@@ -159,10 +230,18 @@ const StudentTable = ({ filteredStudents, onEditStudent, onDeleteStudent }) => (
               <td className="py-2 px-4">{student.branch}</td>
               <td className="py-2 px-4">{student.email}</td>
               <td className="py-2 px-4 flex space-x-1">
-                <button className="text-blue-500 hover:underline" aria-label="Edit Student" onClick={() => onEditStudent(student)}>
+                <button
+                  className="text-blue-500 hover:underline"
+                  aria-label="Edit Student"
+                  onClick={() => onEditStudent(student)}
+                >
                   <FontAwesomeIcon icon={faEdit} />
                 </button>
-                <button className="text-red-500 hover:underline" aria-label="Delete Student" onClick={() => onDeleteStudent(student.id)}>
+                <button
+                  className="text-red-500 hover:underline"
+                  aria-label="Delete Student"
+                  onClick={() => onDeleteStudent(student.id)}
+                >
                   <FontAwesomeIcon icon={faTrash} />
                 </button>
               </td>
@@ -171,19 +250,24 @@ const StudentTable = ({ filteredStudents, onEditStudent, onDeleteStudent }) => (
         </tbody>
       </table>
     )}
-     <style jsx>{`
-        /* Hide scrollbar in all browsers */
-        ::-webkit-scrollbar {
-          display: none;
-        }
-        body {
-          overflow: hidden; /* Prevent scrolling on the body */
-        }
-      `}</style>
+    <style jsx>{`
+      /* Hide scrollbar in all browsers */
+      ::-webkit-scrollbar {
+        display: none;
+      }
+      body {
+        overflow: hidden; /* Prevent scrolling on the body */
+      }
+    `}</style>
   </div>
 );
 
-const Modal = ({ newStudent, handleInputChange, handleAddStudent, closeModal }) => (
+const Modal = ({
+  newStudent,
+  handleInputChange,
+  handleAddStudent,
+  closeModal,
+}) => (
   <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
     <div className="bg-white p-6 rounded-lg shadow-lg w-11/12 sm:w-96">
       <h2 className="text-lg font-semibold mb-4">Add New Student</h2>
@@ -203,10 +287,16 @@ const Modal = ({ newStudent, handleInputChange, handleAddStudent, closeModal }) 
         </div>
       ))}
       <div className="flex justify-between">
-        <button onClick={handleAddStudent} className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">
+        <button
+          onClick={handleAddStudent}
+          className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
+        >
           {newStudent.id ? "Update Student" : "Add Student"}
         </button>
-        <button onClick={closeModal} className="bg-gray-300 text-gray-700 py-2 px-4 rounded hover:bg-gray-400">
+        <button
+          onClick={closeModal}
+          className="bg-gray-300 text-gray-700 py-2 px-4 rounded hover:bg-gray-400"
+        >
           Cancel
         </button>
       </div>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faUserPlus,
@@ -10,16 +10,16 @@ import { generatePdf } from "../../../utils/pdfUtils";
 import AddAccountModal from "../../../components/modal/admin/AddAccountModal";
 import GeneratedAccountModal from "../../../components/modal/admin/GeneratedAccountModal";
 import ConfirmDeleteModal from "../../../components/modal/admin/ConfirmDeleteModal";
-import TableSearchBar from "../../../components/admin/TableSearchBar";
-import TeacherTable from "../../../components/admin/TeacherTable";
 import SchawnnahJLoader from "../../../components/loaders/SchawnnahJLoader";
 import BiingsAlertSuccesss from "../../../components/alert/BiingsAlertSuccess";
 import BiingsAlertError from "../../../components/alert/BiingsAlertError";
 import DeleteSuccessAlert from "../../../components/alert/DeleteSuccessAlert";
 import DeleteErrorAlert from "../../../components/alert/DeleteErrorAlert";
-import SortBox from "../../../components/admin/SortBox";
+import TableSearchBar from "../../../components/admin/tables/TableSearchBar";
+import TeacherTable from "../../../components/admin/tables/TeacherTable";
+import SortBox from "../../../components/admin/tables/SortBox";
+import Error from "../../../assets/img/home/error-5.mp3";
 import "../../../components/alert/styles/BiingsAlert.css";
-import Error from "../../../assets/img/home/error-5.mp3"
 
 const orderByOptionsMap = {
   Newest: "-user__date_joined",
@@ -81,18 +81,27 @@ const Teacher = () => {
       // Set a timer to stop the audio
       const timer = setTimeout(() => {
         audio.pause(); // Stop the audio after 5 seconds
-        audio.currentTime = 0;  
+        audio.currentTime = 0;
         setShowSelectUserError(false);
       }, 5000);
       return () => clearTimeout(timer);
     }
-  }, [showSuccessAlert, showErrorAlert, showDeleteSuccess, showDeleteError, showSelectUserError]);
+  }, [
+    showSuccessAlert,
+    showErrorAlert,
+    showDeleteSuccess,
+    showDeleteError,
+    showSelectUserError,
+  ]);
 
+  let typingTimer;
   const handleSearch = (inputValue) => {
-    setSearchTerm(inputValue);
-    if (inputValue.length === 0) {
-      setSearchPerform(false);
-    }
+    clearTimeout(typingTimer);
+
+    typingTimer = setTimeout(() => {
+      setSearchTerm(inputValue);
+      setSearchPerform(inputValue.length > 0);
+    }, 1000);
   };
 
   const handleOrderChange = (selectedOrder) => {
@@ -202,7 +211,7 @@ const Teacher = () => {
       setShowSelectUserError(true);
       return;
     }
-  
+
     try {
       // Request to delete selected teacher accounts
       const response = await axiosInstance.post(
@@ -211,7 +220,7 @@ const Teacher = () => {
           id: selectedTeachers,
         }
       );
-  
+
       if (response.status === 200) {
         setIsConfirmDelete(false);
         setShowDeleteSuccess(true);
@@ -281,8 +290,8 @@ const Teacher = () => {
             Create Account
           </button>
           <button
-             onClick={() => {
-              setShowSelectUserError(false); 
+            onClick={() => {
+              setShowSelectUserError(false);
               if (selectedTeachers.length > 0) {
                 setIsConfirmDelete(true); // Show confirmation modal only if users are selected
               } else {
@@ -354,11 +363,23 @@ const Teacher = () => {
 
       {showSelectUserError && (
         <div className="bg-red-200 text-red-800 border-l-4 border-red-600 px-6 py-3 rounded-md mb-4 shadow-lg flex items-center">
-          <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M11 12h1m0 0h1m0 0h1m0 0h-1m-4 0H7m0 0H6m0 0h1m0 0h1m0 0h1m0 0h-1m0 0h-1m0 0h1m0 0H5m0 0H4m0 0h2m0 0h4m0 0h1m0 0h2m0 0h1m0 0h-1m0 0H6m0 0H4m0 0h1m0 0h1m0 0h1m0 0h1m0 0H9m0 0h2m0 0h2m0 0h-1m0 0h-1m0 0h1m0 0h-1m0 0h2m0 0h2m0 0h1m0 0h-1"/>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-5 h-5 mr-3"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            strokeWidth="2"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M11 12h1m0 0h1m0 0h1m0 0h-1m-4 0H7m0 0H6m0 0h1m0 0h1m0 0h1m0 0h-1m0 0h-1m0 0h1m0 0H5m0 0H4m0 0h2m0 0h4m0 0h1m0 0h2m0 0h1m0 0h-1m0 0H6m0 0H4m0 0h1m0 0h1m0 0h1m0 0h1m0 0H9m0 0h2m0 0h2m0 0h-1m0 0h-1m0 0h1m0 0h-1m0 0h2m0 0h2m0 0h1m0 0h-1"
+            />
           </svg>
           <span className="text-sm font-medium">
-             <strong className="text-lg">ALERT!</strong>  You need to select the user(s) before proceeding with deletion.
+            <strong className="text-lg">ALERT!</strong> You need to select the
+            user(s) before proceeding with deletion.
           </span>
         </div>
       )}

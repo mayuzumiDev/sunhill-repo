@@ -33,22 +33,23 @@ class TeacherListSerializer(serializers.ModelSerializer):
         fields = ('user_id', 'id', 'first_name', 'last_name', 'username', 'email', 'branch_name', 'contact_no', 'is_teacher')
 
 class StudentListSerializer(serializers.ModelSerializer):
-    user_info = UserInfoListSerializer(source='userinfo', read_only=True)
-    student_info = StudentInfoListSerializer(source='userinfo.studentinfo', read_only=True)
+    user_info = serializers.SerializerMethodField()
+    student_info = serializers.SerializerMethodField()
+    
+
+    def get_user_info(self, instance):
+        user_info = instance.userinfo
+        return {
+            'contact_no': user_info.contact_no
+        }
+    
+    def get_student_info(self, instance):
+        user_info = instance.userinfo
+        student_info = user_info.studentinfo
+        return {
+            'grade_level': student_info.grade_level,
+        }
 
     class Meta:
         model = CustomUser
         fields = ('id', 'email', 'first_name', 'last_name', 'username', 'email', 'branch_name', 'user_info', 'student_info')
-
-    # def get_user_info(self, instance):
-    #     user_info = instance.userinfo
-    #     return {
-    #         'contact_no': user_info.contact_no
-    #     }
-    
-    # def get_student_info(self, instance):
-    #     user_info = instance.userinfo
-    #     student_info = user_info.studentinfo
-    #     return {
-    #         'grade_level': student_info.grade_level
-    #     }
