@@ -5,6 +5,7 @@ import {
   faTrashAlt,
   faEraser,
 } from "@fortawesome/free-solid-svg-icons";
+import { axiosInstance } from "../../../utils/axiosInstance";
 import SchawnnahJLoader from "../../../components/loaders/SchawnnahJLoader";
 import AddAccountModal from "../../../components/modal/admin/AddAccountModal";
 import GeneratedAccountModal from "../../../components/modal/admin/GeneratedAccountModal";
@@ -14,6 +15,7 @@ import BiingsAlertError from "../../../components/alert/BiingsAlertError";
 import DeleteSuccessAlert from "../../../components/alert/DeleteSuccessAlert";
 import DeleteErrorAlert from "../../../components/alert/DeleteErrorAlert";
 import SelectUserErrorAlert from "../../../components/alert/SelectUserErrorAlert";
+import StudentTable from "../../../components/admin/tables/StudentTable";
 import TableSearchBar from "../../../components/admin/tables/TableSearchBar";
 import SortBox from "../../../components/admin/tables/SortBox";
 
@@ -29,8 +31,46 @@ const Student = () => {
   const [showSelectUserError, setShowSelectUserError] = useState(false);
 
   const [generatedAccounts, setGeneratedAccounts] = useState([]);
+  const [students, setStudents] = useState([]);
 
   const [searchTerm, setSearchTerm] = useState("");
+  const [searchPerform, setSearchPerform] = useState(false);
+  const [filterStudent, setFilterStudent] = useState("");
+  const [orderBy, setOrderBy] = useState("");
+  const [selectedStudents, setSelectedStudents] = useState("");
+
+  useEffect(() => {
+    fetchData();
+  }, [searchTerm, filterStudent, orderBy]);
+
+  const allSelected =
+    students &&
+    students.length > 0 &&
+    selectedStudents.length === students.length;
+
+  const isSelected = (id) => selectedStudents.includes(id);
+
+  const handleSelectRow = (event, id) => {
+    // Update selected students based on checkbox state
+    setSelectedStudents(
+      (prev) =>
+        event.target.checked
+          ? [...prev, id] // Add ID if checked
+          : prev.filter((selectedId) => selectedId !== id) // Remove ID if unchecked
+    );
+  };
+
+  const handleSelectAll = (event) => {
+    if (event.target.checked) {
+      // Select all if checking the box
+      setSelectedStudents(students.map((students) => students.id));
+    } else {
+      // Unselect only if all were already selected, otherwise preserve individual selections
+      if (allSelected) {
+        setSelectedStudents([]);
+      }
+    }
+  };
 
   const handleSearch = () => {
     // search logic
@@ -46,6 +86,20 @@ const Student = () => {
 
   const handleClearAll = () => {
     // clear all logic
+  };
+
+  const fetchData = async () => {
+    try {
+      const response = await axiosInstance.get("/user-admin/student-list/");
+
+      if (response.status === 200) {
+        const student_list = response.data.student_list;
+        setStudents(student_list);
+        console.log(student_list);
+      }
+    } catch (error) {
+      console.error("An error occured while fetching data", error);
+    }
   };
 
   const handleGenerateAccount = () => {
@@ -172,7 +226,17 @@ const Student = () => {
       {showDeleteSuccess && <DeleteSuccessAlert userType={"Student"} />}
       {showDeleteError && <DeleteErrorAlert userType={"Student"} />}
 
-      <div className="overflow-y-auto">{/* Student Table */}</div>
+      <div className="overflow-y-auto">
+        <StudentTable
+          studentAccounts={students}
+          fetchData={fetchData}
+          searchPerform={searchPerform}
+          handleSelectRow={handleSelectRow}
+          handleSelectAll={handleSelectAll}
+          isSelected={isSelected}
+          allSelected={allSelected}
+        />
+      </div>
     </div>
   );
 };
