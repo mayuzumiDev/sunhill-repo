@@ -15,6 +15,7 @@ import BiingsAlertSuccesss from "../../../components/alert/BiingsAlertSuccess";
 import BiingsAlertError from "../../../components/alert/BiingsAlertError";
 import DeleteSuccessAlert from "../../../components/alert/DeleteSuccessAlert";
 import DeleteErrorAlert from "../../../components/alert/DeleteErrorAlert";
+import SelectUserErrorAlert from "../../../components/alert/SelectUserErrorAlert";
 import TableSearchBar from "../../../components/admin/tables/TableSearchBar";
 import TeacherTable from "../../../components/admin/tables/TeacherTable";
 import SortBox from "../../../components/admin/tables/SortBox";
@@ -141,7 +142,7 @@ const Teacher = () => {
     }
   };
 
-  const handelGenerateAccount = async (numAccounts, selectedBranch) => {
+  const handleGenerateAccount = async (numAccounts, selectedBranch) => {
     try {
       setIsLoading(true);
       // Request to generate teacher accounts
@@ -339,7 +340,7 @@ const Teacher = () => {
       <AddAccountModal
         isModalOpen={isModalOpen}
         setIsModalOpen={setIsModalOpen}
-        onGenerateAccount={handelGenerateAccount}
+        onGenerateAccount={handleGenerateAccount}
         userType={"Teacher"}
       />
 
@@ -350,40 +351,6 @@ const Teacher = () => {
         generatedAccounts={generatedAccounts}
         onSaveAccounts={handleSaveAndGenerate}
       />
-
-      {isConfirmDelete && (
-        <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-5 z-50">
-          <ConfirmDeleteModal
-            title="Are you sure you want to delete the selected accounts?"
-            onConfirm={handleDeleteAccount}
-            onCancel={() => setIsConfirmDelete(false)}
-          />
-        </div>
-      )}
-
-      {showSelectUserError && (
-        <div className="bg-red-200 text-red-800 border-l-4 border-red-600 px-6 py-3 rounded-md mb-4 shadow-lg flex items-center">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="w-5 h-5 mr-3"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            strokeWidth="2"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M11 12h1m0 0h1m0 0h1m0 0h-1m-4 0H7m0 0H6m0 0h1m0 0h1m0 0h1m0 0h-1m0 0h-1m0 0h1m0 0H5m0 0H4m0 0h2m0 0h4m0 0h1m0 0h2m0 0h1m0 0h-1m0 0H6m0 0H4m0 0h1m0 0h1m0 0h1m0 0h1m0 0H9m0 0h2m0 0h2m0 0h-1m0 0h-1m0 0h1m0 0h-1m0 0h2m0 0h2m0 0h1m0 0h-1"
-            />
-          </svg>
-          <span className="text-sm font-medium">
-            <strong className="text-lg">ALERT!</strong> You need to select the
-            user(s) before proceeding with deletion.
-          </span>
-        </div>
-      )}
-
       {showSuccessAlert && (
         <BiingsAlertSuccesss
           userType={"Teacher"}
@@ -406,12 +373,15 @@ const Teacher = () => {
       )}
 
       {isConfirmDelete && (
-        <ConfirmDeleteModal
-          title="Are you sure you want to delete the selected accounts?"
-          onConfirm={handleDeleteAccount}
-          onCancel={() => setIsConfirmDelete(false)}
-        />
+        <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-5 z-50">
+          <ConfirmDeleteModal
+            title="Are you sure you want to delete the selected accounts?"
+            onConfirm={handleDeleteAccount}
+            onCancel={() => setIsConfirmDelete(false)}
+          />
+        </div>
       )}
+      {showSelectUserError && <SelectUserErrorAlert />}
       {showDeleteSuccess && <DeleteSuccessAlert userType={"Teacher"} />}
       {showDeleteError && <DeleteErrorAlert userType={"Teacher"} />}
 

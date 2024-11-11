@@ -1,307 +1,180 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
+import {
+  faUserPlus,
+  faTrashAlt,
+  faEraser,
+} from "@fortawesome/free-solid-svg-icons";
+import SchawnnahJLoader from "../../../components/loaders/SchawnnahJLoader";
+import AddAccountModal from "../../../components/modal/admin/AddAccountModal";
+import GeneratedAccountModal from "../../../components/modal/admin/GeneratedAccountModal";
+import ConfirmDeleteModal from "../../../components/modal/admin/ConfirmDeleteModal";
+import BiingsAlertSuccess from "../../../components/alert/BiingsAlertSuccess";
+import BiingsAlertError from "../../../components/alert/BiingsAlertError";
+import DeleteSuccessAlert from "../../../components/alert/DeleteSuccessAlert";
+import DeleteErrorAlert from "../../../components/alert/DeleteErrorAlert";
+import SelectUserErrorAlert from "../../../components/alert/SelectUserErrorAlert";
+import TableSearchBar from "../../../components/admin/tables/TableSearchBar";
+import SortBox from "../../../components/admin/tables/SortBox";
 
 const Student = () => {
-  const [students, setStudents] = useState([
-    {
-      id: 1,
-      name: "Alice Johnson",
-      grade: "5",
-      branch: "Rosario",
-      email: "alice@example.com",
-      password: "password123",
-    },
-    {
-      id: 2,
-      name: "Bob Smith",
-      grade: "4",
-      branch: "Batangas",
-      email: "bob@example.com",
-      password: "password123",
-    },
-    {
-      id: 3,
-      name: "Charlie Brown",
-      grade: "6",
-      branch: "Tagaytay",
-      email: "charlie@example.com",
-      password: "password123",
-    },
-  ]);
-
-  const [selectedGrade, setSelectedGrade] = useState("");
-  const [selectedBranch, setSelectedBranch] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newStudent, setNewStudent] = useState({
-    id: null,
-    name: "",
-    grade: "",
-    branch: "",
-    email: "",
-    password: "",
-  });
-  const [isEditing, setIsEditing] = useState(false);
+  const [isGeneratedModalOpen, setIsGeneratedModalOpen] = useState(false);
+  const [isConfirmDelete, setIsConfirmDelete] = useState(false);
+  const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+  const [showErrorAlert, setShowErrorAlert] = useState(false);
+  const [showDeleteSuccess, setShowDeleteSuccess] = useState(false);
+  const [showDeleteError, setShowDeleteError] = useState(false);
+  const [showSelectUserError, setShowSelectUserError] = useState(false);
 
-  const grades = [...new Set(students.map((student) => student.grade))];
-  const branches = [...new Set(students.map((student) => student.branch))];
+  const [generatedAccounts, setGeneratedAccounts] = useState([]);
 
-  const handleGradeChange = (e) => setSelectedGrade(e.target.value);
-  const handleBranchChange = (e) => setSelectedBranch(e.target.value);
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const filteredStudents = students.filter((student) => {
-    const gradeMatch = selectedGrade ? student.grade === selectedGrade : true;
-    const branchMatch = selectedBranch
-      ? student.branch === selectedBranch
-      : true;
-    return gradeMatch && branchMatch;
-  });
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setNewStudent((prev) => ({ ...prev, [name]: value }));
+  const handleSearch = () => {
+    // search logic
   };
 
-  const handleAddStudent = () => {
-    if (
-      newStudent.name &&
-      newStudent.grade &&
-      newStudent.branch &&
-      newStudent.email &&
-      newStudent.password
-    ) {
-      if (isEditing) {
-        setStudents(
-          students.map((student) =>
-            student.id === newStudent.id ? newStudent : student
-          )
-        );
-        setIsEditing(false);
-      } else {
-        const newId = students.length
-          ? students[students.length - 1].id + 1
-          : 1;
-        setStudents([...students, { id: newId, ...newStudent }]);
-      }
-      setNewStudent({
-        id: null,
-        name: "",
-        grade: "",
-        branch: "",
-        email: "",
-        password: "",
-      });
-      setIsModalOpen(false);
-    }
+  const handleFilterChange = () => {
+    // filter logic
   };
 
-  const handleEditStudent = (student) => {
-    setNewStudent(student);
-    setIsEditing(true);
-    setIsModalOpen(true);
+  const handleOrderChange = () => {
+    // order logic
   };
 
-  const handleDeleteStudent = (id) => {
-    setStudents(students.filter((student) => student.id !== id));
+  const handleClearAll = () => {
+    // clear all logic
+  };
+
+  const handleGenerateAccount = () => {
+    // generate account logic
+  };
+
+  const handleSaveAndGenerate = () => {
+    // save and generate logic
+  };
+
+  const handleDeleteAccount = () => {
+    // delete account logic
+  };
+
+  const handleCloseGenerateModal = () => {
+    // close generate modal logic
   };
 
   return (
-    <div className="p-6 min-h-screen">
-      <h1 className="text-4xl text-gray-800 font-bold mb-4">Manage Students</h1>
+    <div className="p-4 md:p-6 font-montserrat">
+      <h1 className="text-2xl md:text-4xl text-gray-800 font-bold mb-4">
+        Manage Accounts
+      </h1>
       <h2 className="text-lg text-gray-700 font-semibold mb-4">Students</h2>
 
-      <div className="flex justify-between mb-4">
-        <button
-          onClick={() => {
-            setNewStudent({
-              id: null,
-              name: "",
-              grade: "",
-              branch: "",
-              email: "",
-              password: "",
-            });
-            setIsEditing(false);
-            setIsModalOpen(true);
-          }}
-          className="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition"
-        >
-          Add New Student
-        </button>
+      {/* Top Button Container with Create and Delete */}
+      <div className="flex flex-col-reverse md:flex-row justify-between items-center mb-4">
+        <div className="flex space-x-4 mb-4 md:mb-0">
+          <button className="bg-blue-500 text-white font-semibold py-2 px-3 rounded-lg hover:bg-blue-600 transition flex items-center text-xs sm:text-lg sm:py-2 sm:px-4">
+            <FontAwesomeIcon icon={faUserPlus} className="mr-2" />
+            Create Account
+          </button>
+          <button className="bg-red-500 text-white font-semibold py-2 px-3 rounded-lg hover:bg-red-600 transition flex items-center text-xs sm:text-lg sm:py-2 sm:px-4">
+            <FontAwesomeIcon icon={faTrashAlt} className="mr-2" />
+            Delete Account
+          </button>
+        </div>
       </div>
 
-      <Filters
-        grades={grades}
-        selectedGrade={selectedGrade}
-        handleGradeChange={handleGradeChange}
-        branches={branches}
-        selectedBranch={selectedBranch}
-        handleBranchChange={handleBranchChange}
+      {/* Sorting, Filtering, and Search Container */}
+      <div className="flex flex-col md:flex-row items-center justify-between mb-4">
+        <div className="w-full md:w-auto mb-4 md:mb-0">
+          <TableSearchBar onSearch={handleSearch} searchTerm={searchTerm} />
+        </div>
+        <div className="flex space-x-4 items-center ml-auto text-xs sm:text-sm">
+          <SortBox
+            options={["Batangas", "Rosario", "Bauan", "Metro Tagaytay"]}
+            label="Branch"
+            onSelect={handleFilterChange}
+          />
+          <SortBox
+            options={[
+              "Grade 1",
+              "Grade 2",
+              "Grade 3",
+              "Grade 4",
+              "Grade 5",
+              "Grade 6",
+            ]}
+            label="Grade Level"
+            onSelect={handleFilterChange}
+          />
+          <SortBox
+            options={["Newest", "Oldest", "A-Z", "Z-A"]}
+            label="Sort By"
+            onSelect={handleOrderChange}
+          />
+          <button
+            className="text-gray-700 text-xs sm:text-sm"
+            onClick={handleClearAll}
+          >
+            <FontAwesomeIcon icon={faEraser} /> Clear All
+          </button>
+        </div>
+      </div>
+
+      {isLoading && <SchawnnahJLoader />}
+
+      <AddAccountModal
+        isModalOpen={isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+        onGenerateAccount={handleGenerateAccount}
+        userType={"Student"}
       />
 
-      <StudentTable
-        filteredStudents={filteredStudents}
-        onEditStudent={handleEditStudent}
-        onDeleteStudent={handleDeleteStudent}
+      <GeneratedAccountModal
+        isModalOpen={isGeneratedModalOpen}
+        setIsModalOpen={setIsGeneratedModalOpen}
+        handleCloseModal={handleCloseGenerateModal}
+        generatedAccounts={generatedAccounts}
+        onSaveAccounts={handleSaveAndGenerate}
       />
-
-      {isModalOpen && (
-        <Modal
-          newStudent={newStudent}
-          handleInputChange={handleInputChange}
-          handleAddStudent={handleAddStudent}
-          closeModal={() => setIsModalOpen(false)}
+      {showSuccessAlert && (
+        <BiingsAlertSuccess
+          userType={"Student"}
+          className={`animate-fade-in-down ${
+            showSuccessAlert
+              ? "opacity-100"
+              : "opacity-0 transition-opacity duration-500 ease-in-out"
+          }`}
         />
       )}
+      {showErrorAlert && (
+        <BiingsAlertError
+          userType={"Student"}
+          className={`animate-fade-in-down ${
+            showErrorAlert
+              ? "opacity-100"
+              : "opacity-0 transition-opacity duration-500 ease-in-out"
+          }`}
+        />
+      )}
+
+      {isConfirmDelete && (
+        <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-5 z-50">
+          <ConfirmDeleteModal
+            title="Are you sure you want to delete the selected accounts?"
+            onConfirm={handleDeleteAccount}
+            onCancel={() => setIsConfirmDelete(false)}
+          />
+        </div>
+      )}
+      {showSelectUserError && <SelectUserErrorAlert />}
+      {showDeleteSuccess && <DeleteSuccessAlert userType={"Student"} />}
+      {showDeleteError && <DeleteErrorAlert userType={"Student"} />}
+
+      <div className="overflow-y-auto">{/* Student Table */}</div>
     </div>
   );
 };
-
-const Filters = ({
-  grades,
-  selectedGrade,
-  handleGradeChange,
-  branches,
-  selectedBranch,
-  handleBranchChange,
-}) => (
-  <div className="flex flex-wrap mb-4">
-    <div className="flex items-center mr-4 mb-2">
-      <label htmlFor="grade" className="mr-2 text-sm text-gray-700">
-        Filter by Grade:
-      </label>
-      <select
-        id="grade"
-        value={selectedGrade}
-        onChange={handleGradeChange}
-        className="border rounded p-2 focus:outline-none focus:ring focus:ring-blue-300"
-      >
-        <option value="">All</option>
-        {grades.map((grade) => (
-          <option key={grade} value={grade}>
-            {grade}
-          </option>
-        ))}
-      </select>
-    </div>
-    <div className="flex items-center mb-2">
-      <label htmlFor="branch" className="mr-2 text-sm text-gray-700">
-        Filter by Branch:
-      </label>
-      <select
-        id="branch"
-        value={selectedBranch}
-        onChange={handleBranchChange}
-        className="border rounded p-2 focus:outline-none focus:ring focus:ring-blue-300"
-      >
-        <option value="">All</option>
-        {branches.map((branch) => (
-          <option key={branch} value={branch}>
-            {branch}
-          </option>
-        ))}
-      </select>
-    </div>
-  </div>
-);
-
-const StudentTable = ({ filteredStudents, onEditStudent, onDeleteStudent }) => (
-  <div className="overflow-x-auto">
-    {filteredStudents.length === 0 ? (
-      <div className="text-center text-gray-500">No students found.</div>
-    ) : (
-      <table className="min-w-full bg-white shadow-md rounded-lg">
-        <thead>
-          <tr className="bg-gray-200 text-gray-700">
-            <th className="py-2 px-4 text-left">ID</th>
-            <th className="py-2 px-4 text-left">Name</th>
-            <th className="py-2 px-4 text-left">Grade</th>
-            <th className="py-2 px-4 text-left">Branch</th>
-            <th className="py-2 px-4 text-left">Email</th>
-            <th className="py-2 px-4 text-left">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredStudents.map((student) => (
-            <tr key={student.id} className="border-b hover:bg-gray-100">
-              <td className="py-2 px-4">{student.id}</td>
-              <td className="py-2 px-4">{student.name}</td>
-              <td className="py-2 px-4">{student.grade}</td>
-              <td className="py-2 px-4">{student.branch}</td>
-              <td className="py-2 px-4">{student.email}</td>
-              <td className="py-2 px-4 flex space-x-1">
-                <button
-                  className="text-blue-500 hover:underline"
-                  aria-label="Edit Student"
-                  onClick={() => onEditStudent(student)}
-                >
-                  <FontAwesomeIcon icon={faEdit} />
-                </button>
-                <button
-                  className="text-red-500 hover:underline"
-                  aria-label="Delete Student"
-                  onClick={() => onDeleteStudent(student.id)}
-                >
-                  <FontAwesomeIcon icon={faTrash} />
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    )}
-    <style jsx>{`
-      /* Hide scrollbar in all browsers */
-      ::-webkit-scrollbar {
-        display: none;
-      }
-      body {
-        overflow: hidden; /* Prevent scrolling on the body */
-      }
-    `}</style>
-  </div>
-);
-
-const Modal = ({
-  newStudent,
-  handleInputChange,
-  handleAddStudent,
-  closeModal,
-}) => (
-  <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-    <div className="bg-white p-6 rounded-lg shadow-lg w-11/12 sm:w-96">
-      <h2 className="text-lg font-semibold mb-4">Add New Student</h2>
-      {["name", "grade", "branch", "email", "password"].map((field) => (
-        <div className="mb-4" key={field}>
-          <label className="block mb-1 text-sm" htmlFor={field}>
-            {field.charAt(0).toUpperCase() + field.slice(1)}:
-          </label>
-          <input
-            type={field === "password" ? "password" : "text"}
-            name={field}
-            value={newStudent[field]}
-            onChange={handleInputChange}
-            className="border rounded p-2 w-full"
-            required
-          />
-        </div>
-      ))}
-      <div className="flex justify-between">
-        <button
-          onClick={handleAddStudent}
-          className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
-        >
-          {newStudent.id ? "Update Student" : "Add Student"}
-        </button>
-        <button
-          onClick={closeModal}
-          className="bg-gray-300 text-gray-700 py-2 px-4 rounded hover:bg-gray-400"
-        >
-          Cancel
-        </button>
-      </div>
-    </div>
-  </div>
-);
 
 export default Student;
