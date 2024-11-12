@@ -1,24 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
-import { FaBell, FaCaretDown, FaBars, FaMoon, FaSun } from "react-icons/fa"; // Import necessary icons
+import { FaBell, FaCaretDown, FaBars, FaMoon, FaSun } from "react-icons/fa";
 import uriel from '../../assets/img/home/uriel.jpg';
 
 const TopNavbar = ({ setShowLogoutDialog, userName, userRole, notifications = [], toggleSidebar, darkMode, toggleDarkMode }) => {
-  const [greeting, setGreeting] = useState("");
   const [isNotifDropdownOpen, setIsNotifDropdownOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const notifDropdownRef = useRef(null);
   const profileDropdownRef = useRef(null);
 
-  // Greeting based on the current time
-  useEffect(() => {
-    const getGreeting = () => {
-      const currentHour = new Date().getHours();
-      if (currentHour < 12) return "Good Morning";
-      if (currentHour < 18) return "Good Afternoon";
-      return "Good Evening";
-    };
-    setGreeting(getGreeting());
-  }, []);
+ 
 
   const toggleNotifDropdown = () => setIsNotifDropdownOpen(prev => !prev);
   const toggleProfileDropdown = () => setIsProfileDropdownOpen(prev => !prev);
@@ -46,10 +36,6 @@ const TopNavbar = ({ setShowLogoutDialog, userName, userRole, notifications = []
         <button onClick={toggleSidebar} className="mr-4 text-green-700 focus:outline-none">
           <FaBars className="text-2xl" />
         </button>
-        {/* Show greeting only on larger screens */}
-        <span className={`text-${darkMode ? 'white' : 'green-700'} font-semibold text-lg sm:text-xl hidden sm:block`}>
-          {greeting}, Teacher!
-        </span>
       </div>
 
       {/* Right Side: Profile and Notification Section */}
@@ -91,16 +77,14 @@ const TopNavbar = ({ setShowLogoutDialog, userName, userRole, notifications = []
         {/* Profile Section with Dropdown */}
         <div className="relative">
           <button className="flex items-center space-x-3 focus:outline-none" onClick={toggleProfileDropdown}>
-            {/* Display Profile Picture */}
             <img
               src={uriel}
               alt="Profile"
               className={`w-10 h-10 rounded-full border-2 ${darkMode ? 'border-gray-700' : 'border-green-500'}`}
             />
-            {/* Show user info only on larger screens */}
             <div className="hidden sm:flex flex-col items-start">
-              <span className={`text-${darkMode ? 'white' : 'green-700'} font-semibold text-base`}>{userName} Uriel Fruelda</span>
-              <span className="text-gray-500 text-xs">{userRole} Teacher</span>
+              <span className={`text-${darkMode ? 'white' : 'green-700'} font-semibold text-base`}>{userName}</span>
+              <span className="text-gray-500 text-xs">{userRole}</span>
             </div>
             <FaCaretDown className={`text-gray-700 text-lg ${darkMode ? 'text-white' : ''}`} />
           </button>

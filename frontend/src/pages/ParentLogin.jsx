@@ -114,7 +114,7 @@ function ParentLogin() {
                 >
                   <FontAwesomeIcon
                     icon={showPassword ? faEyeSlash : faEye}
-                    className="h-6 w-6 text-gray-700"
+                    className="h-6 w-6 text-gray-300"
                   />
                 </button>
               </div>
