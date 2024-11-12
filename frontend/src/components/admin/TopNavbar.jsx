@@ -1,5 +1,6 @@
 import React, { useCallback, useState, useEffect } from "react";
 import { FaCaretDown, FaBars, FaBell } from "react-icons/fa";
+import Button from "../LogoutButton"
 import { useNavigate } from "react-router-dom"; // Import useNavigate
 import Image from "../../assets/img/home/uriel.jpg";
 
@@ -148,15 +149,10 @@ const TopNavbar = ({
                   </button>
                 </li>
                 <li className="py-1">
-                  <button
-                    onClick={() => {
+                <Button  onClick={() => {
                       setShowLogoutDialog(true);
                       setIsDropdownOpen(false);
-                    }}
-                    className="text-sm text-gray-700 hover:text-gray-900 w-full text-left"
-                  >
-                    Logout
-                  </button>
+                    }}/>
                 </li>
               </ul>
             </div>

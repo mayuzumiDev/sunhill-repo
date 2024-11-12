@@ -88,7 +88,7 @@ function TeacherInterface() {
           {currentTab === "SpecialED Tool" && <SpecialEducationTool darkMode={darkMode} />}
           {currentTab === "Messages" && <Messages darkMode={darkMode} />}
           {currentTab === "Settings" && <TeacherSettings darkMode={darkMode} />}
-          {currentTab === "AccountSettings" && <AccountSettings darkMode={darkMode} />}
+          {currentTab === "Account Settings" && <AccountSettings darkMode={darkMode} />}
         </div>
       </div>
     </div>
