@@ -64,6 +64,8 @@ const StudentTable = ({
       branch_name,
     } = studentData;
 
+    console.log(studentData);
+
     try {
       setIsLoading(true);
       // Make simultaneous API calls to update user and user info
@@ -85,7 +87,7 @@ const StudentTable = ({
         axiosInstance.patch(
           `/user-admin/student-info/edit/${student_info_id}/`,
           {
-            grade_level,
+            grade_level: grade_level,
           }
         ),
       ]);

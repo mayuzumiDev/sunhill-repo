@@ -6,7 +6,7 @@ from api.models import CustomUser
 from ...serializers.accounts.create_account_serializers import *
 
 class GenerateAccountView(generics.CreateAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     serializer_class = CreateAccountSerializer
 
     def post(self, request):
@@ -28,6 +28,8 @@ class GenerateAccountView(generics.CreateAPIView):
             account_storage.append({
                 'username': account_data['generated_username'],
                 'password': account_data['generated_password'],
+                'parent_username': account_data['parent_username'],
+                'parent_password': account_data['parent_password'],
                 'role': role,
                 'branch_name': branch_name
             })
@@ -35,7 +37,7 @@ class GenerateAccountView(generics.CreateAPIView):
         return JsonResponse({'accounts':  account_storage}, status=status.HTTP_201_CREATED)
 
 class CreateAccountView(generics.CreateAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     serializer_class = CreateAccountSerializer
     queryset = CustomUser.objects.all()
 

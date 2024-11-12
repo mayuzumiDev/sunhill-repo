@@ -10,6 +10,8 @@ export const generatePdf = async (apiEndpoint, accountsData) => {
       accounts: accountsData.map((account) => ({
         username: account.username,
         password: account.password,
+        parent_username: account?.parent_username,
+        parent_password: account?.parent_password,
         role: account.role,
         branch_name: account.branch_name,
       })),

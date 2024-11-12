@@ -12,13 +12,17 @@ const GeneratedAccountModal = ({
       className="fixed inset-0 z-20 flex items-center justify-center bg-black bg-opacity-50"
       style={{ display: isModalOpen ? "block" : "none" }}
     >
-      <div className="min-h-screen px-6 py-4 text-center flex justify-center items-center h-full">
-        <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md min-h-[350px] flex flex-col font-montserrat">
+      <div className="min-h-screen px-6 py-4 text-center flex justify-center items-center h-full ">
+        <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-max min-h-[350px] flex flex-col font-montserrat">
           <h1 className="text-xl font-semibold mb-4 text-left">
-            Generated Teacher Accounts
+            Generated Student & Parent Accounts
           </h1>
+          <p className="text-gray-700 text-sm mb-4 max-w-md mx-auto bg-gray-100 border-l-4 border-blue-500 p-3 rounded-md">
+            For each student account generated, a corresponding parent account
+            has been created and linked.
+          </p>
           <p className="text-gray-600 text-left mb-4">
-            Total Accounts: {generatedAccounts.length}
+            Total Accounts: {generatedAccounts.length * 2}
           </p>
           <div
             className="overflow-y-auto max-h-[200px] mb-4"
@@ -28,15 +32,31 @@ const GeneratedAccountModal = ({
               <thead>
                 <tr>
                   <th
+                    colSpan="2"
                     className="px-4 py-2 sticky top-0 bg-white"
                     style={{ zIndex: 1 }}
                   >
-                    Username
+                    Student
                   </th>
                   <th
+                    colSpan="2"
                     className="px-4 py-2 sticky top-0 bg-white"
                     style={{ zIndex: 1 }}
                   >
+                    Parent
+                  </th>
+                </tr>
+                <tr>
+                  <th className="bg-white sticky top-10 px-4 py-2 border-b border-r">
+                    Username
+                  </th>
+                  <th className="bg-white sticky top-10 px-4 py-2 border-b">
+                    Password
+                  </th>
+                  <th className="bg-white sticky top-10 px-4 py-2 border-b border-r">
+                    Username
+                  </th>
+                  <th className="bg-white sticky top-10 px-4 py-2 border-b">
                     Password
                   </th>
                 </tr>
@@ -46,6 +66,12 @@ const GeneratedAccountModal = ({
                   <tr key={i}>
                     <td className="border px-4 py-2">{account.username}</td>
                     <td className="border px-4 py-2">{account.password}</td>
+                    <td className="border px-4 py-2">
+                      {account.parent_username}
+                    </td>
+                    <td className="border px-4 py-2">
+                      {account.parent_password}
+                    </td>
                   </tr>
                 ))}
               </tbody>
