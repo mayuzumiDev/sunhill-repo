@@ -6,6 +6,7 @@ import {
   faEraser,
 } from "@fortawesome/free-solid-svg-icons";
 import { axiosInstance } from "../../../utils/axiosInstance";
+import { generatePdf } from "../../../utils/pdfUtils";
 import SchawnnahJLoader from "../../../components/loaders/SchawnnahJLoader";
 import AddStudentModal from "../../../components/modal/admin/AddStudentModal";
 import GeneratedStudentModal from "../../../components/modal/admin/GeneratedStudentModal";
@@ -22,10 +23,10 @@ import Error from "../../../assets/img/home/error-5.mp3";
 import "../../../components/alert/styles/BiingsAlert.css";
 
 const orderByOptionsMap = {
-  Newest: "-user__date_joined",
-  Oldest: "user__date_joined",
-  "A-Z": "user__first_name",
-  "Z-A": "-user__first_name",
+  Newest: "-date_joined",
+  Oldest: "date_joined",
+  "A-Z": "first_name",
+  "Z-A": "-first_name",
 };
 
 const Student = () => {
@@ -139,7 +140,7 @@ const Student = () => {
     }));
   };
 
-  const handleOrderChange = () => {
+  const handleOrderChange = (selectedOrder) => {
     setOrderBy(orderByOptionsMap[selectedOrder] || "");
   };
 
@@ -209,10 +210,7 @@ const Student = () => {
 
   const handleGeneratePdf = async () => {
     try {
-      await generatedAccounts(
-        "/user-admin/generate-pdf/student/",
-        generatedAccounts
-      );
+      await generatePdf("/user-admin/generate-pdf/student/", generatedAccounts);
     } catch (error) {
       console.error("An error occured while generating pdf", error);
     }
@@ -275,9 +273,12 @@ const Student = () => {
   return (
     <div className="p-4 md:p-6 font-montserrat">
       <h1 className="text-2xl md:text-4xl text-gray-800 font-bold mb-4">
-        Manage Accounts
+        Manage Accounts{" "}
+        <span className="text-lg text-gray-700 font-semibold mb-4">
+          {" "}
+          Students
+        </span>
       </h1>
-      <h2 className="text-lg text-gray-700 font-semibold mb-4">Students</h2>
 
       {/* Top Button Container with Create and Delete */}
       <div className="flex flex-col-reverse md:flex-row justify-between items-center mb-4">
@@ -338,6 +339,7 @@ const Student = () => {
             options={["Newest", "Oldest", "A-Z", "Z-A"]}
             label="Sort By"
             onSelect={handleOrderChange}
+            filterType={null}
           />
           <button
             className="text-gray-700 text-xs sm:text-sm"

@@ -94,7 +94,6 @@ class CreateAccountSerializer(serializers.ModelSerializer):
         if validated_data['role'] == 'student':
             try:
                 student_info = StudentInfo.objects.create(student_info=user_info)
-                print(f"StudentInfo:  {student_info.id}")
 
             except Exception as e:
                 raise serializers.ValidationError(f'Creating instance to StudentInfo failed: {e}')

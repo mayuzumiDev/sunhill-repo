@@ -139,8 +139,18 @@ class GeneratePdfWithParent(APIView):
         user_roles = set([account.get('role', 'N/A') for account in account_data])
         branches = set([account.get('branch_name', 'N/A') for account in account_data])
 
+        # If "student" is present in user_roles, explicitly add "teacher"
+        if "student" in user_roles:
+            user_roles.add("parent")
+
+        # Ensure "student" appears first, followed by other roles
+        ordered_roles = ["student" if "student" in user_roles else None] + sorted(user_roles - {"student"})
+
+        # Convert the roles list into a string and join with commas
+        user_roles_display = ", ".join(filter(None, ordered_roles))
+
         pdf_canvas.drawString(page_margin, page_height - page_margin - 20, 
-                                f"User Role: {', '.join(user_roles)}")
+                                f"User Role: {user_roles_display}")
         pdf_canvas.drawString(page_margin, page_height - page_margin - 35, 
                                 f"Branch: {', '.join(branches)}")
         # ----------------------------------------------------------------
@@ -149,7 +159,7 @@ class GeneratePdfWithParent(APIView):
         data = [
             ["Student Username", " Student Password", "Parent Username", "Parent Password"],  # Header row
         ]
-        data.extend([account.get('username', ''), account.get('password', '') , account.get('password', ''), ] for account in account_data)
+        data.extend([account.get('username', ''), account.get('password', '') , account.get('parent_username', ''), account.get('parent_password', ''), ] for account in account_data)
 
         # Calculate table height and number of pages
         table_height = len(data) * row_height
@@ -166,7 +176,7 @@ class GeneratePdfWithParent(APIView):
             page_data = data[0:1] + data[start_row:end_row]  # Include header on each page
 
             # Create table for the current page
-            table = Table(page_data, colWidths=[table_width/2, table_width/2])
+            table = Table(page_data, colWidths=[table_width/4, table_width/4, table_width/4, table_width/4])
             table.setStyle(TableStyle([
                 ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
                 ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
