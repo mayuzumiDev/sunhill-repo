@@ -211,7 +211,7 @@ const formattedDate = currentDate.toLocaleDateString('en-US', { weekday: 'long',
   </div>
 
   {/* Enlarged teacher illustration on the right */}
-  <div className="flex-shrink-0 mr-4 lg:mr-0 w-32 h-32 lg:w-45 lg:h-40">
+  <div className="flex-shrink-0 mr-4 lg:mr-5 w-32 h-40 lg:w-45 lg:h-45">
     <img
       src={illustrations}
       alt="Teacher Illustration"
