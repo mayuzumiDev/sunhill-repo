@@ -48,7 +48,7 @@ const TopNavbar = ({ setShowLogoutDialog, userName, currentTab,
   {/* Left Side: Sidebar Toggle and Greeting Message */}
   <div className="flex items-center">
     <button onClick={toggleSidebar} className="group relative inline-block w-[44px] p-[5px] h-[35px] ">
-      <span className="mx-[auto] my-[0] relative top-[0px] w-[30px] h-[4px] bg-green-600 block [transition-property:margin,_width] group-hover:w-[20px] duration-200 after:absolute after:content-[''] after:mt-[8px] after:w-[30px] after:h-[4px] after:bg-green-600 after:block after:left-[0] after:[transition-property:margin,_left] after:duration-200 group-hover:after:mt-[4px] group-hover:after:-left-[5px] before:absolute before:content-[''] before:-mt-[8px] before:w-[30px] before:h-[4px] before:bg-green-600 before:block before:left-[0] before:[transition-property:margin,_width,_left] before:duration-200 group-hover:before:-mt-[4px] group-hover:before:w-[10px] group-hover:before:left-[5px]" />
+      <span className="mx-[auto] my-[0] relative top-[0px] w-[20px] h-[4px] bg-green-600 block [transition-property:margin,_width] group-hover:w-[20px] duration-200 after:absolute after:content-[''] after:mt-[8px] after:w-[30px] after:h-[4px] after:bg-green-600 after:block after:left-[0] after:[transition-property:margin,_left] after:duration-200 group-hover:after:mt-[4px] group-hover:after:-left-[5px] before:absolute before:content-[''] before:-mt-[8px] before:w-[30px] before:h-[4px] before:bg-green-600 before:block before:left-[0] before:[transition-property:margin,_width,_left] before:duration-200 group-hover:before:-mt-[4px] group-hover:before:w-[10px] group-hover:before:left-[5px]" />
     </button>
 
       </div>
