@@ -1,14 +1,15 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { FaBell, FaCaretDown, FaBars, FaMoon, FaSun } from "react-icons/fa";
+import { useNavigate } from 'react-router-dom'; 
 import uriel from '../../assets/img/home/uriel.jpg';
 
-const TopNavbar = ({ setShowLogoutDialog, userName, userRole, notifications = [], toggleSidebar, darkMode, toggleDarkMode }) => {
+const TopNavbar = ({ setShowLogoutDialog, userName,  currentTab,
+  setCurrentTab, userRole, notifications = [], toggleSidebar, darkMode, toggleDarkMode }) => {
   const [isNotifDropdownOpen, setIsNotifDropdownOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const notifDropdownRef = useRef(null);
   const profileDropdownRef = useRef(null);
-
- 
+  const navigate = useNavigate(); // Initialize useNavigate
 
   const toggleNotifDropdown = () => setIsNotifDropdownOpen(prev => !prev);
   const toggleProfileDropdown = () => setIsProfileDropdownOpen(prev => !prev);
@@ -28,6 +29,17 @@ const TopNavbar = ({ setShowLogoutDialog, userName, userRole, notifications = []
       document.removeEventListener('mousedown', handleOutsideClick);
     };
   }, [isNotifDropdownOpen, isProfileDropdownOpen]);
+
+  // handleTabClick to use navigate for redirection
+  const handleTabClick = useCallback(
+    (tab) => {
+      if (tab !== currentTab) {
+        setCurrentTab(tab);
+        // navigate(`/settings`); // Redirect to settings page on tab click
+      }
+    },
+    [setCurrentTab, currentTab, navigate] // Added navigate to dependencies
+  );
 
   return (
     <div className={`shadow-lg p-4 flex justify-between items-center rounded-b-lg ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
@@ -102,7 +114,13 @@ const TopNavbar = ({ setShowLogoutDialog, userName, userRole, notifications = []
                   </button>
                 </li>
                 <li>
-                  <button className="block px-4 py-2 text-gray-700 hover:bg-gray-100 w-full text-left">
+                  <button
+                    onClick={() => {
+                      handleTabClick("AccountSettings"); //navigate to accountsettings
+                      setIsProfileDropdownOpen(false); // close the dropdown after navigating
+                    }}
+                    className="block px-4 py-2 text-gray-700 hover:bg-gray-100 w-full text-left"
+                  >
                     Account Settings
                   </button>
                 </li>

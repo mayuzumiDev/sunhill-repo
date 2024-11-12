@@ -193,19 +193,19 @@ const formattedDate = currentDate.toLocaleDateString('en-US', { weekday: 'long',
   <div className="col-span-3">
   <h1 className="text-2xl font-bold mb-6">Teacher Dashboard</h1>
 
-<div
+  <div
   className={`mb-8 p-4 rounded-lg shadow-lg transition-all flex flex-col lg:flex-row items-center justify-between ${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-green-700'}`}
 >
   <div className="flex-1 mb-4 lg:mb-0"> {/* This div holds the greeting, secondary message, and date */}
     <p className="font-bold text-2xl mb-1 bg-gradient-to-r from-orange-600 via-green-700 via-blue-800 to-purple-900 text-transparent bg-clip-text">
       {greeting.split(',')[0]}, {userName}!
     </p>
-    <p className="text-sm text-gray-600 mb-2">
+    <p className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'} mb-2`}>
       {greeting.split(',').slice(1).join(',').trim()}
     </p>
 
     {/* Date placed in the left section */}
-    <p className="text-xs text-gray-400">
+    <p className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
       {formattedDate}
     </p>
   </div>
@@ -219,6 +219,7 @@ const formattedDate = currentDate.toLocaleDateString('en-US', { weekday: 'long',
     />
   </div>
 </div>
+
 
 
 

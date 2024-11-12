@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import userThree from '../../assets/img/home/uriel.jpg'; // Ensure the path is correct
 
-const Settings = () => {
+const AccountSettings = () => {
   // State for form inputs
   const [formData, setFormData] = useState({
     fullName: 'Christine Faith',
@@ -232,4 +232,4 @@ const Settings = () => {
   );
 };
 
-export default Settings;
+export default AccountSettings;
