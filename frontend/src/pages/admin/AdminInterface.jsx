@@ -40,7 +40,7 @@ function AdminInterface() {
 
   return (
     <div
-      className={`flex h-screen overflow-hidden ${
+      className={`font-montserrat flex h-screen overflow-hidden ${
         darkMode ? "bg-gray-800" : "bg-opacity-50"
       }`}
     >
@@ -105,7 +105,7 @@ function AdminInterface() {
             darkMode ? "bg-gray-700 text-white" : "bg-blue-50 text-black"
           } bg-opacity-60 mt-0 overflow-y-auto`}
         >
-          <Breadcrumb pageName={currentTab} />
+          {/* <Breadcrumb pageName={currentTab} /> */}
           {currentTab === "Dashboard" && <Dashboard />}
           {currentTab === "Teachers" && <Teacher />}
           {currentTab === "Students" && <Student />}
