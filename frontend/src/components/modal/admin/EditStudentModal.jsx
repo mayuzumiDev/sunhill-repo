@@ -4,6 +4,8 @@ function EditStudentModal({ isOpen, onClose, onSave, userData, userRole }) {
   console.log(userData);
   const [formData, setFormData] = useState({
     id: userData.id,
+    user_info_id: userData.user_info.id || "",
+    student_info_id: userData.student_info.id || "",
     username: userData.username || "",
     first_name: userData.first_name || "",
     last_name: userData.last_name || "",
@@ -11,8 +13,6 @@ function EditStudentModal({ isOpen, onClose, onSave, userData, userRole }) {
     contact_no: userData.user_info.contact_no || "",
     branch_name: userData.branch_name || "",
     grade_level: userData.student_info.grade_level || "",
-    user_info_id: userData.user_info.id || "",
-    student_info_id: userData.student_info.id || "",
   });
 
   const [errorMessage, setErrorMessage] = useState("");
@@ -43,11 +43,11 @@ function EditStudentModal({ isOpen, onClose, onSave, userData, userRole }) {
     }
 
     // Check if the contact number is a valid Philippine number (11 digits, starts with 09)
-    // const contactNoPattern = /^09\d{9}$/; // Must start with "09" and be 11 digits total
-    // if (!contactNoPattern.test(formData.contact_no)) {
-    //   setErrorMessage("Please enter a valid contact number.");
-    //   return;
-    // }
+    const contactNoPattern = /^09\d{9}$/; // Must start with "09" and be 11 digits total
+    if (!contactNoPattern.test(formData.contact_no)) {
+      setErrorMessage("Please enter a valid contact number.");
+      return;
+    }
     // If all validations pass, call the onSave function
     onSave(formData);
   };
@@ -57,9 +57,7 @@ function EditStudentModal({ isOpen, onClose, onSave, userData, userRole }) {
   return (
     <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-30">
       <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
-        <h2 className="text-2xl font-semibold mb-4">
-          Edit {userRole} Information
-        </h2>
+        <h2 className="text-2xl font-semibold mb-4">{userRole} Information</h2>
 
         {errorMessage && <p className="text-red-500 mb-4">{errorMessage}</p>}
 

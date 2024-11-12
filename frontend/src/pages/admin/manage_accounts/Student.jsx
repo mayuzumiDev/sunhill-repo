@@ -7,8 +7,8 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { axiosInstance } from "../../../utils/axiosInstance";
 import SchawnnahJLoader from "../../../components/loaders/SchawnnahJLoader";
-import AddAccountModal from "../../../components/modal/admin/AddAccountModal";
-import GeneratedAccountModal from "../../../components/modal/admin/GeneratedAccountModal";
+import AddStudentModal from "../../../components/modal/admin/AddStudentModal";
+import GeneratedStudentModal from "../../../components/modal/admin/GeneratedStudentModal";
 import ConfirmDeleteModal from "../../../components/modal/admin/ConfirmDeleteModal";
 import BiingsAlertSuccess from "../../../components/alert/BiingsAlertSuccess";
 import BiingsAlertError from "../../../components/alert/BiingsAlertError";
@@ -18,6 +18,15 @@ import SelectUserErrorAlert from "../../../components/alert/SelectUserErrorAlert
 import StudentTable from "../../../components/admin/tables/StudentTable";
 import TableSearchBar from "../../../components/admin/tables/TableSearchBar";
 import SortBox from "../../../components/admin/tables/SortBox";
+import Error from "../../../assets/img/home/error-5.mp3";
+import "../../../components/alert/styles/BiingsAlert.css";
+
+const orderByOptionsMap = {
+  Newest: "-user__date_joined",
+  Oldest: "user__date_joined",
+  "A-Z": "user__first_name",
+  "Z-A": "-user__first_name",
+};
 
 const Student = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -35,13 +44,59 @@ const Student = () => {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [searchPerform, setSearchPerform] = useState(false);
-  const [filterStudent, setFilterStudent] = useState("");
+  const [filters, setFilters] = useState({
+    branch: "",
+    grade: "",
+  });
   const [orderBy, setOrderBy] = useState("");
   const [selectedStudents, setSelectedStudents] = useState("");
 
   useEffect(() => {
     fetchData();
-  }, [searchTerm, filterStudent, orderBy]);
+  }, [searchTerm, filters, orderBy]);
+
+  useEffect(() => {
+    // Automatically hide success alert after 5 seconds
+    if (showSuccessAlert) {
+      const timer = setTimeout(() => setShowSuccessAlert(false), 5000);
+      return () => clearTimeout(timer);
+    }
+
+    if (showErrorAlert) {
+      const timer = setTimeout(() => setShowErrorAlert(false), 5000);
+      return () => clearTimeout(timer);
+    }
+
+    if (showDeleteSuccess) {
+      const timer = setTimeout(() => setShowDeleteSuccess(false), 5000);
+      return () => clearTimeout(timer);
+    }
+
+    if (showDeleteError) {
+      const timer = setTimeout(() => setShowDeleteError(false), 5000);
+      return () => clearTimeout(timer);
+    }
+
+    if (showSelectUserError) {
+      // Play the error sound when the alert is triggered
+      const audio = new Audio(Error); // Correct way to instantiate the Audio object
+      audio.play();
+
+      // Set a timer to stop the audio
+      const timer = setTimeout(() => {
+        audio.pause(); // Stop the audio after 5 seconds
+        audio.currentTime = 0;
+        setShowSelectUserError(false);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [
+    showSuccessAlert,
+    showErrorAlert,
+    showDeleteSuccess,
+    showDeleteError,
+    showSelectUserError,
+  ]);
 
   const allSelected =
     students &&
@@ -72,50 +127,149 @@ const Student = () => {
     }
   };
 
-  const handleSearch = () => {
-    // search logic
+  const handleSearch = (inputValue) => {
+    setSearchTerm(inputValue);
+    setSearchPerform(inputValue.length > 0);
   };
 
-  const handleFilterChange = () => {
-    // filter logic
+  const handleFilterChange = (filterType, value) => {
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      [filterType]: value,
+    }));
   };
 
   const handleOrderChange = () => {
-    // order logic
+    setOrderBy(orderByOptionsMap[selectedOrder] || "");
   };
 
   const handleClearAll = () => {
-    // clear all logic
+    setFilters("");
+    setOrderBy("");
   };
 
   const fetchData = async () => {
     try {
-      const response = await axiosInstance.get("/user-admin/student-list/");
+      const params = {
+        ...(searchTerm && { search: searchTerm }),
+        ...(filters.branch && { branch_name: filters.branch }),
+        ...(filters.grade && { grade_level: filters.grade }),
+        ...(orderBy && { ordering: orderBy }),
+      };
+
+      const response = await axiosInstance.get("/user-admin/student-list/", {
+        params,
+      });
 
       if (response.status === 200) {
         const student_list = response.data.student_list;
         setStudents(student_list);
-        console.log(student_list);
       }
     } catch (error) {
       console.error("An error occured while fetching data", error);
     }
   };
 
-  const handleGenerateAccount = () => {
-    // generate account logic
+  const handleGenerateAccount = async (numAccounts, selectedBranch) => {
+    try {
+      setIsLoading(true);
+
+      const response = await axiosInstance.post(
+        "/user-admin/generate-account/",
+        {
+          account_count: numAccounts,
+          role: "student",
+          branch_name: selectedBranch,
+        }
+      );
+
+      if (response.status === 201) {
+        setGeneratedAccounts(response.data.accounts);
+        handleOpenGenerateModal();
+      }
+    } catch (error) {
+      console.error(
+        "An error occured while generating teacher accounts",
+        error
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleSaveAndGenerate = () => {
-    // save and generate logic
+  const handleSaveAccounts = async () => {
+    try {
+      await axiosInstance.post("/user-admin/create-account/", {
+        accounts: generatedAccounts,
+      });
+    } catch (error) {
+      console.error("An error occured while saving accounts", error);
+    }
   };
 
-  const handleDeleteAccount = () => {
-    // delete account logic
+  const handleGeneratePdf = async () => {
+    try {
+      await generatedAccounts(
+        "/user-admin/generate-pdf/student/",
+        generatedAccounts
+      );
+    } catch (error) {
+      console.error("An error occured while generating pdf", error);
+    }
+  };
+
+  const handleSaveAndGenerate = async () => {
+    try {
+      setIsLoading(true);
+
+      await handleSaveAccounts();
+      await handleGeneratePdf();
+
+      setShowSuccessAlert(true);
+      fetchData();
+    } catch (error) {
+      console.error("An error occured while saving and generating", error);
+    } finally {
+      setIsLoading(false);
+      setIsGeneratedModalOpen(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (selectedStudents.length === 0) {
+      setShowSelectUserError(true);
+      return;
+    }
+
+    try {
+      // Request to delete selected teacher accounts
+      const response = await axiosInstance.post(
+        "/user-admin/custom-user/delete/",
+        {
+          id: selectedStudents,
+        }
+      );
+
+      if (response.status === 200) {
+        setIsConfirmDelete(false);
+        setShowDeleteSuccess(true);
+        fetchData();
+        setSelectedStudents([]);
+      }
+    } catch (error) {
+      console.error("An error occurred while deleting the account.");
+      setShowDeleteError(true);
+    }
+  };
+
+  const handleOpenGenerateModal = () => {
+    setIsModalOpen(false); // Close account creation modal
+    setIsGeneratedModalOpen(true); // Open generated accounts modal
   };
 
   const handleCloseGenerateModal = () => {
-    // close generate modal logic
+    setIsGeneratedModalOpen(false); // Close generated accounts modal
+    setIsModalOpen(true); // Reopen account creation modal
   };
 
   return (
@@ -128,11 +282,24 @@ const Student = () => {
       {/* Top Button Container with Create and Delete */}
       <div className="flex flex-col-reverse md:flex-row justify-between items-center mb-4">
         <div className="flex space-x-4 mb-4 md:mb-0">
-          <button className="bg-blue-500 text-white font-semibold py-2 px-3 rounded-lg hover:bg-blue-600 transition flex items-center text-xs sm:text-lg sm:py-2 sm:px-4">
+          <button
+            className="bg-blue-500 text-white font-semibold py-2 px-3 rounded-lg hover:bg-blue-600 transition flex items-center text-xs sm:text-lg sm:py-2 sm:px-4"
+            onClick={() => setIsModalOpen(true)}
+          >
             <FontAwesomeIcon icon={faUserPlus} className="mr-2" />
             Create Account
           </button>
-          <button className="bg-red-500 text-white font-semibold py-2 px-3 rounded-lg hover:bg-red-600 transition flex items-center text-xs sm:text-lg sm:py-2 sm:px-4">
+          <button
+            className="bg-red-500 text-white font-semibold py-2 px-3 rounded-lg hover:bg-red-600 transition flex items-center text-xs sm:text-lg sm:py-2 sm:px-4"
+            onClick={() => {
+              setShowSelectUserError(false);
+              if (selectedStudents.length > 0) {
+                setIsConfirmDelete(true); // Show confirmation modal only if users are selected
+              } else {
+                setShowSelectUserError(true); // Show error alert if no users are selected
+              }
+            }}
+          >
             <FontAwesomeIcon icon={faTrashAlt} className="mr-2" />
             Delete Account
           </button>
@@ -149,9 +316,13 @@ const Student = () => {
             options={["Batangas", "Rosario", "Bauan", "Metro Tagaytay"]}
             label="Branch"
             onSelect={handleFilterChange}
+            filterType={"branch"}
           />
           <SortBox
             options={[
+              "Nursery",
+              "Casa 1",
+              "Casa 2",
               "Grade 1",
               "Grade 2",
               "Grade 3",
@@ -161,6 +332,7 @@ const Student = () => {
             ]}
             label="Grade Level"
             onSelect={handleFilterChange}
+            filterType={"grade"}
           />
           <SortBox
             options={["Newest", "Oldest", "A-Z", "Z-A"]}
@@ -178,14 +350,13 @@ const Student = () => {
 
       {isLoading && <SchawnnahJLoader />}
 
-      <AddAccountModal
+      <AddStudentModal
         isModalOpen={isModalOpen}
         setIsModalOpen={setIsModalOpen}
         onGenerateAccount={handleGenerateAccount}
-        userType={"Student"}
       />
 
-      <GeneratedAccountModal
+      <GeneratedStudentModal
         isModalOpen={isGeneratedModalOpen}
         setIsModalOpen={setIsGeneratedModalOpen}
         handleCloseModal={handleCloseGenerateModal}

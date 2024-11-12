@@ -12,6 +12,7 @@ urlpatterns = [
     path("user-info/edit/<int:pk>/", UserInfoEditView.as_view(), name='user_info_edit'),
     path("student-info/edit/<int:pk>/", StudentInfoEditView.as_view(), name='student_info_edit'),
     path("generate-pdf/", GeneratePdf.as_view(), name='generate_pdf'),
+    path("generate-pdf/student/", GeneratePdfWithParent.as_view(), name='generate_pdf_student'),
     path('teacher-list/', TeacherListView.as_view(), name='teacher_list'),
     path('student-list/', StudentListView.as_view(), name='student_list')
 ]

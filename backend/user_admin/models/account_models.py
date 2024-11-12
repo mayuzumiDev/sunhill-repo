@@ -1,7 +1,18 @@
 from django.db import models
 from django.forms import ImageField
-from django.core.validators import MinValueValidator, MaxValueValidator
 from api.models import CustomUser
+
+GRADE_LEVEL_CHOICES = [
+    ('Nursery', 'Nursery'),
+    ('Casa 1', 'Casa 1'),
+    ('Casa 2', 'Casa 2'),
+    ('Grade 1', 'Grade 1'),
+    ('Grade 2', 'Grade 2'),
+    ('Grade 3', 'Grade 3'),
+    ('Grade 4', 'Grade 4'),
+    ('Grade 5', 'Grade 5'),
+    ('Grade 6', 'Grade 6'),
+]
 
 # Create your models here.
 class UserInfo(models.Model):
@@ -11,7 +22,7 @@ class UserInfo(models.Model):
 
 class StudentInfo(models.Model):
     student_info = models.OneToOneField(UserInfo, on_delete=models.CASCADE, related_name="studentinfo") # Links to UserInfo for student-specific information
-    grade_level = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(6)],null=True)
+    grade_level = models.CharField(max_length=20, choices=GRADE_LEVEL_CHOICES, null=True)
 
 class ParentInfo(models.Model):
     parent_info = models.OneToOneField(UserInfo, on_delete=models.CASCADE) # Links to UserInfo for parent-specific information

@@ -35,7 +35,7 @@ class AccountGenerator:
 
             return username # Ex: tch-24-1234
         else:
-            return slugify(f"-{role}-{random_part}")
+            return slugify(f"{role}-{current_year}-{random_part}")
     
     # Generate a password based on the user's role
     def generate_password(self, role, random_part=None):
@@ -61,10 +61,18 @@ class CreateAccountSerializer(serializers.ModelSerializer):
 
         username = account_generator.generate_username(role)
         password = account_generator.generate_password(role)
+        parent_username = None
+        parent_password = None
+
+        if(role == "student"):
+            parent_username = account_generator.generate_username("parent")
+            parent_password = account_generator.generate_password("parent")
 
         return {
             'generated_username': username,
             'generated_password': password,
+            'parent_username': parent_username,
+            'parent_password': parent_password
         }
 
     # Create a new user account
