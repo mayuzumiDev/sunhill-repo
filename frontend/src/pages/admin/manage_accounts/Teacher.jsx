@@ -20,6 +20,7 @@ import TableSearchBar from "../../../components/admin/tables/TableSearchBar";
 import TeacherTable from "../../../components/admin/tables/TeacherTable";
 import SortBox from "../../../components/admin/tables/SortBox";
 import Error from "../../../assets/img/home/error-5.mp3";
+import Success from "../../../assets/img/home/success-1.mp3"
 import "../../../components/alert/styles/BiingsAlert.css";
 
 const orderByOptionsMap = {
@@ -55,28 +56,59 @@ const Teacher = () => {
   useEffect(() => {
     // Automatically hide success alert after 5 seconds
     if (showSuccessAlert) {
-      const timer = setTimeout(() => setShowSuccessAlert(false), 5000);
-      return () => clearTimeout(timer);
+       // Play the error sound when the alert is triggered
+       const audio = new Audio(Success); 
+       audio.play();
+ 
+       const timer = setTimeout(() => {
+         audio.pause(); 
+         audio.currentTime = 0;
+         setShowSuccessAlert(false);
+       }, 5000);
+       return () => clearTimeout(timer);
     }
 
     if (showErrorAlert) {
-      const timer = setTimeout(() => setShowErrorAlert(false), 5000);
+      const audio = new Audio(Error); 
+      audio.play();
+
+      const timer = setTimeout(() => {
+        audio.pause(); 
+        audio.currentTime = 0;
+        setShowErrorAlert(false);
+      }, 5000);
       return () => clearTimeout(timer);
     }
 
     if (showDeleteSuccess) {
-      const timer = setTimeout(() => setShowDeleteSuccess(false), 5000);
+      const audio = new Audio(Success); 
+      audio.play();
+
+      // Set a timer to stop the audio
+      const timer = setTimeout(() => {
+        audio.pause(); // Stop the audio after 5 seconds
+        audio.currentTime = 0;
+        setShowDeleteSuccess(false);
+      }, 5000);
       return () => clearTimeout(timer);
-    }
+   }
 
     if (showDeleteError) {
-      const timer = setTimeout(() => setShowDeleteError(false), 5000);
+      const audio = new Audio(Error); 
+      audio.play();
+
+      // Set a timer to stop the audio
+      const timer = setTimeout(() => {
+        audio.pause(); // Stop the audio after 5 seconds
+        audio.currentTime = 0;
+        setShowDeleteError(false);
+      }, 5000);
       return () => clearTimeout(timer);
-    }
+   }
 
     if (showSelectUserError) {
       // Play the error sound when the alert is triggered
-      const audio = new Audio(Error); // Correct way to instantiate the Audio object
+      const audio = new Audio(Error); 
       audio.play();
 
       // Set a timer to stop the audio
@@ -299,7 +331,7 @@ const Teacher = () => {
               if (selectedTeachers.length > 0) {
                 setIsConfirmDelete(true); // Show confirmation modal only if users are selected
               } else {
-                setShowSelectUserError(true); // Show error alert if no users are selected
+                setShowSelectUserError(true); 
               }
             }}
             className="bg-red-500 text-white font-semibold py-2 px-3 rounded-lg hover:bg-red-600 transition flex items-center text-xs sm:text-lg sm:py-2 sm:px-4"
@@ -356,16 +388,13 @@ const Teacher = () => {
         generatedAccounts={generatedAccounts}
         onSaveAccounts={handleSaveAndGenerate}
       />
-      {showSuccessAlert && (
+       {showSuccessAlert && (
         <BiingsAlertSuccesss
           userType={"Teacher"}
-          className={`animate-fade-in-down ${
-            showSuccessAlert
-              ? "opacity-100"
-              : "opacity-0 transition-opacity duration-500 ease-in-out"
-          }`}
+          className={`animate-fade-in-down ${showSuccessAlert ? "opacity-100" : "opacity-0"}`}
         />
       )}
+
       {showErrorAlert && (
         <BiingsAlertError
           userType={"Teacher"}
