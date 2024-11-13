@@ -2,8 +2,9 @@ import React, { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronDown } from "@fortawesome/free-solid-svg-icons";
 
-const SortBox = ({ options = [], label = "Sort By", onSelect, filterType }) => {
+const SortBox = ({ options = [], label = "Sort By", onSelect, filterType, resetSelection }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [selectedOption, setSelectedOption] = useState(null); // Track the selected option
   const uniqueId = `sortbox-${label.replace(/\s+/g, "-").toLowerCase()}`;
   const sortBoxRef = useRef(null);
 
@@ -14,14 +15,21 @@ const SortBox = ({ options = [], label = "Sort By", onSelect, filterType }) => {
   const handleOptionClick = (option) => {
     if (filterType !== null) {
       onSelect(filterType, option);
+      setSelectedOption(option); // Set the selected option
       setIsOpen(false);
       return;
     }
 
     onSelect(option);
+    setSelectedOption(option); // Set the selected option
     setIsOpen(false);
   };
-
+  
+  useEffect(() => {
+    if (resetSelection) {
+      setSelectedOption(null); // Reset the selected option
+    }
+  }, [resetSelection])
   // Close the dropdown when clicking outside of it
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -42,7 +50,7 @@ const SortBox = ({ options = [], label = "Sort By", onSelect, filterType }) => {
         className="flex items-center justify-between space-x-1 cursor-pointer bg-white border border-gray-300 px-3 py-2 rounded-lg shadow-sm hover:bg-gray-100 transition duration-150 ease-in-out focus:outline-none w-full md:w-auto"
       >
         <span className="text-xs sm:text-sm md:text-base font-medium">
-          {label}
+          {selectedOption || label} {/* Display selected option or label */}
         </span>
         <FontAwesomeIcon
           icon={faChevronDown}
@@ -63,7 +71,9 @@ const SortBox = ({ options = [], label = "Sort By", onSelect, filterType }) => {
             <li key={index}>
               <button
                 onClick={() => handleOptionClick(option)}
-                className="block w-full text-left px-4 py-2 text-xs md:text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-150 ease-in-out focus:outline-none"
+                className={`block w-full text-left px-4 py-2 text-xs md:text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-150 ease-in-out focus:outline-none ${
+                  selectedOption === option ? "bg-gray-200" : ""
+                }`} // Highlight selected option
               >
                 {option}
               </button>

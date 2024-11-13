@@ -20,6 +20,7 @@ import StudentTable from "../../../components/admin/tables/StudentTable";
 import TableSearchBar from "../../../components/admin/tables/TableSearchBar";
 import SortBox from "../../../components/admin/tables/SortBox";
 import Error from "../../../assets/img/home/error-5.mp3";
+import Success from "../../../assets/img/home/success-1.mp3"
 import "../../../components/alert/styles/BiingsAlert.css";
 
 const orderByOptionsMap = {
@@ -39,6 +40,7 @@ const Student = () => {
   const [showDeleteSuccess, setShowDeleteSuccess] = useState(false);
   const [showDeleteError, setShowDeleteError] = useState(false);
   const [showSelectUserError, setShowSelectUserError] = useState(false);
+  const [resetSelection, setResetSelection] = useState(false);
 
   const [generatedAccounts, setGeneratedAccounts] = useState([]);
   const [students, setStudents] = useState([]);
@@ -59,38 +61,69 @@ const Student = () => {
   useEffect(() => {
     // Automatically hide success alert after 5 seconds
     if (showSuccessAlert) {
-      const timer = setTimeout(() => setShowSuccessAlert(false), 5000);
-      return () => clearTimeout(timer);
-    }
-
-    if (showErrorAlert) {
-      const timer = setTimeout(() => setShowErrorAlert(false), 5000);
-      return () => clearTimeout(timer);
-    }
-
-    if (showDeleteSuccess) {
-      const timer = setTimeout(() => setShowDeleteSuccess(false), 5000);
-      return () => clearTimeout(timer);
-    }
-
-    if (showDeleteError) {
-      const timer = setTimeout(() => setShowDeleteError(false), 5000);
-      return () => clearTimeout(timer);
-    }
-
-    if (showSelectUserError) {
       // Play the error sound when the alert is triggered
-      const audio = new Audio(Error); // Correct way to instantiate the Audio object
+      const audio = new Audio(Success); 
       audio.play();
 
-      // Set a timer to stop the audio
       const timer = setTimeout(() => {
-        audio.pause(); // Stop the audio after 5 seconds
+        audio.pause(); 
         audio.currentTime = 0;
-        setShowSelectUserError(false);
+        setShowSuccessAlert(false);
       }, 5000);
       return () => clearTimeout(timer);
-    }
+   }
+
+   if (showErrorAlert) {
+     const audio = new Audio(Error); 
+     audio.play();
+
+     const timer = setTimeout(() => {
+       audio.pause(); 
+       audio.currentTime = 0;
+       setShowErrorAlert(false);
+     }, 5000);
+     return () => clearTimeout(timer);
+   }
+
+   if (showDeleteSuccess) {
+     const audio = new Audio(Success); 
+     audio.play();
+
+     // Set a timer to stop the audio
+     const timer = setTimeout(() => {
+       audio.pause(); // Stop the audio after 5 seconds
+       audio.currentTime = 0;
+       setShowDeleteSuccess(false);
+     }, 5000);
+     return () => clearTimeout(timer);
+  }
+
+   if (showDeleteError) {
+     const audio = new Audio(Error); 
+     audio.play();
+
+     // Set a timer to stop the audio
+     const timer = setTimeout(() => {
+       audio.pause(); // Stop the audio after 5 seconds
+       audio.currentTime = 0;
+       setShowDeleteError(false);
+     }, 5000);
+     return () => clearTimeout(timer);
+  }
+
+   if (showSelectUserError) {
+     // Play the error sound when the alert is triggered
+     const audio = new Audio(Error); 
+     audio.play();
+
+     // Set a timer to stop the audio
+     const timer = setTimeout(() => {
+       audio.pause(); // Stop the audio after 5 seconds
+       audio.currentTime = 0;
+       setShowSelectUserError(false);
+     }, 5000);
+     return () => clearTimeout(timer);
+   }
   }, [
     showSuccessAlert,
     showErrorAlert,
@@ -147,6 +180,7 @@ const Student = () => {
   const handleClearAll = () => {
     setFilters("");
     setOrderBy("");
+    setResetSelection((prev) => !prev);
   };
 
   const fetchData = async () => {
@@ -320,6 +354,7 @@ const Student = () => {
             options={["Batangas", "Rosario", "Bauan", "Metro Tagaytay"]}
             label="Branch"
             onSelect={handleFilterChange}
+             resetSelection={resetSelection}
             filterType={"branch"}
           />
           <SortBox
@@ -336,12 +371,14 @@ const Student = () => {
             ]}
             label="Grade Level"
             onSelect={handleFilterChange}
+            resetSelection={resetSelection}
             filterType={"grade"}
           />
           <SortBox
             options={["Newest", "Oldest", "A-Z", "Z-A"]}
             label="Sort By"
             onSelect={handleOrderChange}
+            resetSelection={resetSelection}
             filterType={null}
           />
           <button

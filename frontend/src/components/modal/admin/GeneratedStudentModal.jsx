@@ -1,4 +1,5 @@
 import React from "react";
+import {InformationCircleIcon} from '@heroicons/react/24/outline';
 
 const GeneratedAccountModal = ({
   isModalOpen,
@@ -17,9 +18,9 @@ const GeneratedAccountModal = ({
           <h1 className="text-xl font-semibold mb-4 text-left">
             Generated Student & Parent Accounts
           </h1>
-          <p className="text-gray-700 text-sm mb-4 max-w-md mx-auto bg-gray-100 border-l-4 border-blue-500 p-3 rounded-md">
-            For each student account generated, a corresponding parent account
-            has been created and linked.
+          <p className="text-gray-700 text-xs sm:text-sm mb-4 max-w-md mx-auto bg-gray-100 border-l-4 border-blue-500 p-3 rounded-md flex items-center">
+            <InformationCircleIcon className="h-14 w-15 text-blue-500 mr-2 md:h-15 sm:h-15" />
+            For each student account generated, a corresponding parent account has been created and linked.
           </p>
           <p className="text-gray-600 text-left mb-4">
             Total Accounts: {generatedAccounts.length * 2}
@@ -80,7 +81,7 @@ const GeneratedAccountModal = ({
           <div className="flex justify-between mt-auto space-x-4">
             <button
               onClick={onSaveAccounts}
-              className="bg-blue-600 hover:bg-blue-700 focus:bg-blue-800 focus:outline-none text-white font-bold py-2 px-6 rounded-lg transition-colors duration-200"
+              className="bg-blue-600 hover:bg-blue-700 focus:bg-blue-800 focus:outline-none text-white text-xs sm:text-sm font-bold py-2 px-6 rounded-lg transition-colors duration-200"
             >
               Save & Print
             </button>
