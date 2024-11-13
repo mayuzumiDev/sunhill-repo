@@ -10,7 +10,7 @@ import Branches from "./Branches";
 import SchoolEventsCalendar from "./Events";
 import AdminSettings from "./AdminSettings";
 import Logout from "../../components/Logout";
-import Breadcrumb from "../../components/Breadcrumbs";
+// import Breadcrumb from "../../components/Breadcrumbs";
 
 function AdminInterface() {
   const [currentTab, setCurrentTab] = useState("Dashboard");

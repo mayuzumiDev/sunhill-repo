@@ -46,11 +46,11 @@ const SortBox = ({ options = [], label = "Sort By", onSelect, filterType, resetS
     <div ref={sortBoxRef} className="relative z-20 w-full md:w-auto">
       <button
         onClick={toggleMenu}
-        className={`flex items-center justify-between px-2 py-1 md:px-4 md:py-3 rounded-full shadow-md transition duration-200 ease-in-out transform hover:scale-105 focus:outline-none w-full md:w-auto ${
+        className={`flex items-center justify-between px-2 py-1 md:px-3 md:py-2 rounded-full shadow-md transition duration-200 ease-in-out transform hover:scale-105 focus:outline-none w-full md:w-auto ${
           selectedOption ? "bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg" : "bg-white text-gray-800"
         }`}
       >
-        <span className="text-xs sm:text-base font-medium">
+        <span className="text-xs sm:text-sm font-medium">
           {selectedOption || label}
         </span>
         <FontAwesomeIcon
@@ -71,7 +71,7 @@ const SortBox = ({ options = [], label = "Sort By", onSelect, filterType, resetS
             <li key={index}>
               <button
                 onClick={() => handleOptionClick(option)}
-                className={`block w-full text-left px-3 py-2 text-sm md:px-4 md:py-2 md:text-base focus:outline-none transition-colors duration-150 ${
+                className={`block w-full text-left px-3 py-2 text-sm md:px-4 md:py-2 md:text-md focus:outline-none transition-colors duration-150 ${
                   selectedOption === option
                     ? "bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold"
                     : "bg-white text-gray-700 hover:bg-indigo-100"

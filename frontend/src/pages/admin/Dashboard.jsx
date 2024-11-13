@@ -160,7 +160,7 @@ const Dashboard = () => {
       </div>
 
       {/* Styles to hide scrollbar */}
-      <style jsx>{`
+      <style>{`
         /* Hide scrollbar in all browsers */
         ::-webkit-scrollbar {
           display: none;

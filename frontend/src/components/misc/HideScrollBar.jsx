@@ -2,7 +2,7 @@ import React from "react";
 
 const HideScrollbar = () => {
   return (
-    <style jsx>{`
+    <style>{`
       /* Hide scrollbar in all browsers */
       ::-webkit-scrollbar {
         display: none;
