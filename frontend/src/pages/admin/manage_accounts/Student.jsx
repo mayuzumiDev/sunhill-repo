@@ -40,6 +40,7 @@ const Student = () => {
   const [showDeleteSuccess, setShowDeleteSuccess] = useState(false);
   const [showDeleteError, setShowDeleteError] = useState(false);
   const [showSelectUserError, setShowSelectUserError] = useState(false);
+  const [resetSelection, setResetSelection] = useState(false);
 
   const [generatedAccounts, setGeneratedAccounts] = useState([]);
   const [students, setStudents] = useState([]);
@@ -179,6 +180,7 @@ const Student = () => {
   const handleClearAll = () => {
     setFilters("");
     setOrderBy("");
+    setResetSelection((prev) => !prev);
   };
 
   const fetchData = async () => {
@@ -352,6 +354,7 @@ const Student = () => {
             options={["Batangas", "Rosario", "Bauan", "Metro Tagaytay"]}
             label="Branch"
             onSelect={handleFilterChange}
+             resetSelection={resetSelection}
             filterType={"branch"}
           />
           <SortBox
@@ -368,12 +371,14 @@ const Student = () => {
             ]}
             label="Grade Level"
             onSelect={handleFilterChange}
+            resetSelection={resetSelection}
             filterType={"grade"}
           />
           <SortBox
             options={["Newest", "Oldest", "A-Z", "Z-A"]}
             label="Sort By"
             onSelect={handleOrderChange}
+            resetSelection={resetSelection}
             filterType={null}
           />
           <button

@@ -47,6 +47,7 @@ const Teacher = () => {
   const [searchPerform, setSearchPerform] = useState(false);
   const [branchFilter, setBranchFilter] = useState("");
   const [orderBy, setOrderBy] = useState("");
+  const [resetSelection, setResetSelection] = useState(false);
 
   useEffect(() => {
     // Fetch data when the component mounts
@@ -60,8 +61,9 @@ const Teacher = () => {
        const audio = new Audio(Success); 
        audio.play();
  
+       // Set a timer to stop the audio
        const timer = setTimeout(() => {
-         audio.pause(); 
+         audio.pause(); // Stop the audio after 5 seconds
          audio.currentTime = 0;
          setShowSuccessAlert(false);
        }, 5000);
@@ -148,6 +150,7 @@ const Teacher = () => {
   const handleClearAll = () => {
     setBranchFilter("");
     setOrderBy("");
+    setResetSelection((prev) => !prev);
   };
 
   const fetchData = async () => {
@@ -355,12 +358,14 @@ const Teacher = () => {
             options={["Batangas", "Rosario", "Bauan", "Metro Tagaytay"]}
             label="Branch"
             onSelect={handleBranchChange}
+            resetSelection={resetSelection}
             filterType={null}
           />
           <SortBox
             options={["Newest", "Oldest", "A-Z", "Z-A"]}
             label="Sort By"
             onSelect={handleOrderChange}
+            resetSelection={resetSelection}
             filterType={null}
           />
           <button
