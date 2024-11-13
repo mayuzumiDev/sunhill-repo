@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronDown } from "@fortawesome/free-solid-svg-icons";
+import { faChevronDown, faChevronUp } from "@fortawesome/free-solid-svg-icons";
 
 const SortBox = ({ options = [], label = "Sort By", onSelect, filterType, resetSelection }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedOption, setSelectedOption] = useState(null); // Track the selected option
-  const uniqueId = `sortbox-${label.replace(/\s+/g, "-").toLowerCase()}`;
+  const [selectedOption, setSelectedOption] = useState(null);
   const sortBoxRef = useRef(null);
 
   const toggleMenu = () => {
@@ -15,22 +14,22 @@ const SortBox = ({ options = [], label = "Sort By", onSelect, filterType, resetS
   const handleOptionClick = (option) => {
     if (filterType !== null) {
       onSelect(filterType, option);
-      setSelectedOption(option); // Set the selected option
+      setSelectedOption(option);
       setIsOpen(false);
       return;
     }
-
     onSelect(option);
-    setSelectedOption(option); // Set the selected option
+    setSelectedOption(option);
     setIsOpen(false);
   };
-  
+
   useEffect(() => {
     if (resetSelection) {
-      setSelectedOption(null); // Reset the selected option
+      setSelectedOption(null);
     }
-  }, [resetSelection])
-  // Close the dropdown when clicking outside of it
+  }, [resetSelection]);
+
+  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (sortBoxRef.current && !sortBoxRef.current.contains(event.target)) {
@@ -44,36 +43,39 @@ const SortBox = ({ options = [], label = "Sort By", onSelect, filterType, resetS
   }, []);
 
   return (
-    <div ref={sortBoxRef} className="relative text-gray-800 z-20 w-full md:w-auto">
+    <div ref={sortBoxRef} className="relative z-20 w-full md:w-auto">
       <button
         onClick={toggleMenu}
-        className="flex items-center justify-between space-x-1 cursor-pointer bg-white border border-gray-300 px-3 py-2 rounded-lg shadow-sm hover:bg-gray-100 transition duration-150 ease-in-out focus:outline-none w-full md:w-auto"
+        className={`flex items-center justify-between px-2 py-1 md:px-4 md:py-3 rounded-full shadow-md transition duration-200 ease-in-out transform hover:scale-105 focus:outline-none w-full md:w-auto ${
+          selectedOption ? "bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg" : "bg-white text-gray-800"
+        }`}
       >
-        <span className="text-xs sm:text-sm md:text-base font-medium">
-          {selectedOption || label} {/* Display selected option or label */}
+        <span className="text-xs sm:text-base font-medium">
+          {selectedOption || label}
         </span>
         <FontAwesomeIcon
-          icon={faChevronDown}
-          className="h-4 w-4 text-gray-500"
+          icon={isOpen ? faChevronUp : faChevronDown}
+          className={`h-4 w-4 md:h-5 md:w-5 ml-2 transition-transform duration-300 ease-in-out ${
+            selectedOption ? "text-white" : "text-gray-600"
+          }`}
         />
       </button>
 
       <div
-        className={`absolute left-0 right-0 md:right-auto md:left-auto md:mt-2 w-full md:w-40 bg-white shadow-lg rounded-lg transition-transform transform ${
-          isOpen
-            ? "opacity-100 scale-100"
-            : "opacity-0 scale-95 pointer-events-none"
+        className={`absolute left-0 right-0 md:right-auto md:left-auto mt-2 w-full md:w-48 bg-white shadow-lg rounded-lg overflow-hidden transition-all duration-300 ease-in-out transform ${
+          isOpen ? "opacity-100 scale-100 translate-y-1" : "opacity-0 scale-95 pointer-events-none -translate-y-1"
         }`}
-        style={{ transition: "opacity 0.15s ease, transform 0.15s ease" }}
       >
         <ul className="py-2">
           {options.map((option, index) => (
             <li key={index}>
               <button
                 onClick={() => handleOptionClick(option)}
-                className={`block w-full text-left px-4 py-2 text-xs md:text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-150 ease-in-out focus:outline-none ${
-                  selectedOption === option ? "bg-gray-200" : ""
-                }`} // Highlight selected option
+                className={`block w-full text-left px-3 py-2 text-sm md:px-4 md:py-2 md:text-base focus:outline-none transition-colors duration-150 ${
+                  selectedOption === option
+                    ? "bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold"
+                    : "bg-white text-gray-700 hover:bg-indigo-100"
+                }`}
               >
                 {option}
               </button>
