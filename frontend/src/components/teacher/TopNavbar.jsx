@@ -191,17 +191,19 @@ const TopNavbar = ({
               </h5>
               <ul className="mt-2">
                 <li>
-                  <button
+                <button
                     onClick={() => {
                       handleTabClick("Account Settings"); // Use handleTabClick to navigate to settings
                       setIsProfileDropdownOpen(false);
                     }}
-                    className="text-sm text-gray-700 hover:text-green-700 hover:bg-gray-200 w-full text-left px-2 py-1 rounded"
+                    className={`text-sm px-2 py-1 w-full text-left rounded 
+                      ${darkMode ? 'text-white hover:text-green-700 hover:bg-gray-800' : 'text-gray-700 hover:text-green-700 hover:bg-gray-200'}`}
                   >
                     Account Settings
                   </button>
+
                 </li>
-                <li className="py-1">
+                <li className="py-2 ml-2">
                   <Button
                     onClick={() => {
                       setShowLogoutDialog(true);

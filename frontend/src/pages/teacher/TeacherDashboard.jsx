@@ -191,97 +191,103 @@
     };
 
     return (
-      <div className="p-3 min-h-screen">
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Main Dashboard Content */}
-        <div className="col-span-3">
-          <h1 className="text-2xl font-bold mb-6">Teacher Dashboard</h1>
-          {/* Greeting Section */}
-          <div className={`mb-8 p-4 rounded-lg shadow-lg flex flex-col lg:flex-row items-center justify-between ${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-green-700'}`}>
-            <div className="flex-1 mb-4 lg:mb-0">
-              <p className="font-bold text-2xl mb-1 bg-gradient-to-r from-orange-600 via-green-700 via-blue-800 to-purple-900 text-transparent bg-clip-text">
-                {greeting.split(',')[0]}, {userName}!
-              </p>
-              <p className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'} mb-2`}>
-                {greeting.split(',').slice(1).join(',').trim()}
-              </p>
-              <p className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
-                {formattedDate}
-              </p>
-            </div>
-            <div className="flex-shrink-0 mr-4 lg:mr-5 w-32 h-40 lg:w-45 lg:h-45">
-              <img src={illustrations} alt="Teacher Illustration" className="w-full h-full object-cover rounded-lg" />
-            </div>
-          </div>
-    
-          {/* Metrics and Charts */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            {metrics.map((metric) => (
-              <div key={metric.title} className={`p-4 rounded-lg shadow-lg ${metric.color} text-white`}>
-                <h2 className="text-sm font-semibold">{metric.title}</h2>
-                <p className="text-2xl font-bold">{metric.value}</p>
-              </div>
-            ))}
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className={`rounded-lg shadow-lg p-4 ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
-              <h2 className="text-md font-semibold mb-4">Assignments Completion Over Time</h2>
-              <Bar data={barChartData} options={chartOptions} />
-            </div>
-            <div className={`rounded-lg shadow-lg p-4 ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
-              <h2 className="text-md font-semibold mb-4">Student Performance Over Time</h2>
-              <Line data={lineChartData} options={chartOptions} />
-            </div>
-          </div>
-    
-          {/* Top Performing Students */}
-          <div className={`mt-8 rounded-lg shadow-lg p-6 ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
-            <h2 className="text-md font-semibold mb-4">Top Performing Students</h2>
-            <input
-              type="text"
-              placeholder="Filter students by name"
-              value={filter}
-              onChange={(e) => setFilter(e.target.value)}
-              className="p-2 border border-gray-300 rounded mb-4 w-full"
-            />
-            <div className="grid grid-cols-1 gap-4">
-              {filteredStudents.map((student, index) => (
-                <div key={index} className="flex justify-between p-2 border-b">
-                  <span>{student.name} (Rank: {student.rank})</span>
-                  <span>{student.score}%</span>
-                  <button onClick={() => viewReports(student.name)} className="text-blue-600 hover:underline">
-                    View Report
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-    
-        {/* Right Sidebar: Quick Links and Calendar */}
-        <div className="col-span-1 py-0  sm:py-6 space-y-6 mt-0 md:mt-8">
-          {/* Calendar Component */}
-          <div className={`rounded-lg shadow-lg p-3   ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
-            <h2 className="text-lg font-semibold mb-4 ml-1">Calendar</h2>
-            <Calendar onChange={setDate} value={date} className={`${darkMode ? 'bg-gray-800' : 'bg-white'}`} />
-          </div>
+<div className=" mt-8 sm:mt-0 sm:p-3 min-h-screen">
+  <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+    {/* Main Dashboard Content */}
+    <div className="col-span-3">
+      <h1 className="text-2xl font-bold mb-6">Teacher Dashboard</h1>
 
-          <div className={`rounded-lg shadow-lg p-6 ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
-            <h2 className="text-lg font-semibold mb-4">Quick Links</h2>
-            <ul className="space-y-4">
-              {quickLinks.map((link, index) => (
-                <li key={index} className="flex items-center p-2 cursor-pointer hover:bg-gray-200 rounded">
-                  <span className="text-xl mr-3">{link.icon}</span>
-                  <span onClick={link.action} className="hover:underline">{link.title}</span>
-                </li>
-              ))}
-            </ul>
+      {/* Greeting Section */}
+      <div className={`mb-8 p-4 rounded-lg shadow-lg flex flex-col lg:flex-row items-center justify-between ${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-green-700'}`}>
+        <div className="flex-1 mb-4 lg:mb-0">
+          <p className="font-bold text-2xl mb-1 bg-gradient-to-r from-orange-600 via-green-700 via-blue-800 to-purple-900 text-transparent bg-clip-text">
+            {greeting.split(',')[0]}, {userName}!
+          </p>
+          <p className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'} mb-2`}>
+            {greeting.split(',').slice(1).join(',').trim()}
+          </p>
+          <p className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+            {formattedDate}
+          </p>
+        </div>
+        <div className="flex-shrink-0 w-32 h-40 lg:w-45 lg:h-45">
+          <img src={illustrations} alt="Teacher Illustration" className="w-full h-full object-cover rounded-lg" />
+        </div>
+      </div>
+
+      {/* Metrics and Charts */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        {metrics.map((metric) => (
+          <div key={metric.title} className={`p-4 rounded-lg shadow-lg ${metric.color} text-white`}>
+            <h2 className="text-sm font-semibold">{metric.title}</h2>
+            <p className="text-2xl font-bold">{metric.value}</p>
           </div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className={`rounded-lg shadow-lg p-4 ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
+          <h2 className="text-md font-semibold mb-4">Assignments Completion Over Time</h2>
+          <Bar data={barChartData} options={chartOptions} />
+        </div>
+        <div className={`rounded-lg shadow-lg p-4 ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
+          <h2 className="text-md font-semibold mb-4">Student Performance Over Time</h2>
+          <Line data={lineChartData} options={chartOptions} />
+        </div>
+      </div>
+
+      {/* Top Performing Students */}
+      <div className={`mt-8 rounded-lg shadow-lg p-6 ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
+        <h2 className="text-md font-semibold mb-4">Top Performing Students</h2>
+        <input
+          type="text"
+          placeholder="Filter students by name"
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+          className="p-2 border border-gray-300 rounded mb-4 w-full"
+        />
+        <div className="grid grid-cols-1 gap-4">
+          {filteredStudents.map((student, index) => (
+            <div key={index} className="flex justify-between p-2 border-b">
+              <span>{student.name} (Rank: {student.rank})</span>
+              <span>{student.score}%</span>
+              <button onClick={() => viewReports(student.name)} className="text-blue-600 hover:underline">
+                View Report
+              </button>
+            </div>
+          ))}
         </div>
       </div>
     </div>
-    
-    );
-  };
 
-  export default TeacherDashboard;
+    {/* Right Sidebar: Calendar and Quick Links */}
+    <div className="sm:col-span-1 col-span-3 space-y-6 mt-0 lg:mt-11 py-3">
+      {/* Calendar Component */}
+      <div className={`rounded-lg shadow-lg p-3 py-5 ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
+        <h2 className="text-lg font-semibold mb-4 ml-1">Calendar</h2>
+        <Calendar onChange={setDate} value={date} className={`${darkMode ? 'bg-gray-800' : 'bg-white'}`} />
+      </div>
+
+      {/* Quick Links */}
+      <div className={`rounded-lg shadow-lg p-6 ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
+        <h2 className="text-lg font-semibold mb-4">Quick Links</h2>
+        <ul className="space-y-4">
+          {quickLinks.map((link, index) => (
+            <li key={index} className="flex items-center p-2 cursor-pointer hover:bg-gray-200 rounded">
+              <span className="text-xl mr-3">{link.icon}</span>
+              <span onClick={link.action} className="hover:underline">{link.title}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+  
+      
+
+      );
+    };
+
+    export default TeacherDashboard;

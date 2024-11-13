@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { FaCaretDown, FaBars, FaBell } from "react-icons/fa";
 import Button from "../LogoutButton";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
@@ -21,27 +21,31 @@ const TopNavbar = ({
     new Date().toLocaleString()
   );
 
-  const handleTabClick = useCallback(
-    (tab) => {
-      if (tab !== currentTab) {
-        setCurrentTab(tab);
-        // navigate(`/settings`); // Redirect to settings page on tab click
-      }
-    },
-    [setCurrentTab, currentTab, navigate] // Added navigate to dependencies
-  );
+  const dropdownRef = useRef(null);
+  const notifDropdownRef = useRef(null);
+
+  const handleTabClick = (tab) => {
+    if (tab !== currentTab) {
+      setCurrentTab(tab);
+      // navigate(`/settings`); // Redirect to settings page on tab click
+    }
+  };
 
   const toggleDropdown = () => setIsDropdownOpen((prev) => !prev);
   const toggleNotifDropdown = () => setIsNotifDropdownOpen((prev) => !prev);
 
-  const handleClickOutside = (event) => {
-    const dropdown = document.getElementById("dropdown-menu");
-    const notifDropdown = document.getElementById("notif-dropdown-menu");
-
-    if (dropdown && !dropdown.contains(event.target)) {
+  const handleOutsideClick = (e) => {
+    // Close dropdowns if clicked outside
+    if (
+      (dropdownRef.current && !dropdownRef.current.contains(e.target)) &&
+      isDropdownOpen
+    ) {
       setIsDropdownOpen(false);
     }
-    if (notifDropdown && !notifDropdown.contains(event.target)) {
+    if (
+      (notifDropdownRef.current && !notifDropdownRef.current.contains(e.target)) &&
+      isNotifDropdownOpen
+    ) {
       setIsNotifDropdownOpen(false);
     }
   };
@@ -51,13 +55,13 @@ const TopNavbar = ({
       setCurrentDateTime(new Date().toLocaleString());
     }, 1000);
 
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("mousedown", handleOutsideClick);
 
     return () => {
       clearInterval(interval);
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("mousedown", handleOutsideClick);
     };
-  }, []);
+  }, [isDropdownOpen, isNotifDropdownOpen]);
 
   useEffect(() => {
     setNotificationCount(notifications.length);
@@ -94,7 +98,7 @@ const TopNavbar = ({
 
           {isNotifDropdownOpen && (
             <div
-              id="notif-dropdown-menu"
+              ref={notifDropdownRef}
               className="absolute right-0 top-12 bg-white rounded-md shadow-xl border border-gray-300 z-10 p-4 w-56 sm:w-64 md:w-72 lg:w-80"
             >
               <h5 className="text-sm font-bold text-gray-800 lg:text-sm md:text-md sm:text-sm">
@@ -132,7 +136,7 @@ const TopNavbar = ({
 
           {isDropdownOpen && (
             <div
-              id="dropdown-menu"
+              ref={dropdownRef}
               className="absolute right-0 top-12 bg-white rounded-md shadow-xl border border-gray-300 z-10 p-4 w-48"
             >
               <h5 className="text-sm font-bold text-gray-800">Account</h5>
@@ -143,7 +147,7 @@ const TopNavbar = ({
                       handleTabClick("Settings"); // Use handleTabClick to navigate to settings
                       setIsDropdownOpen(false);
                     }}
-                    className="text-sm text-gray-700 hover:text-gray-900 w-full text-left"
+                    className="text-sm px-2 py-1 w-full text-left rounded hover:text-green-100 hover:bg-gray-800"
                   >
                     Account Settings
                   </button>
