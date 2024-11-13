@@ -6,7 +6,7 @@ from api.models import CustomUser
 from ...serializers.accounts.create_account_serializers import *
 
 class GenerateAccountView(generics.CreateAPIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     serializer_class = CreateAccountSerializer
 
     def post(self, request):
@@ -37,7 +37,7 @@ class GenerateAccountView(generics.CreateAPIView):
         return JsonResponse({'accounts':  account_storage}, status=status.HTTP_201_CREATED)
 
 class CreateAccountView(generics.CreateAPIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     serializer_class = CreateAccountSerializer
     queryset = CustomUser.objects.all()
 
@@ -107,6 +107,16 @@ class CustomUserDeleteView(generics.DestroyAPIView):
         for user_id in user_ids:
             try:
                 user = CustomUser.objects.get(pk=user_id)
+
+                if user.role == 'student':
+                    try:
+                        student_info = user.user_info.student_info
+                        parent_info = ParentInfo.objects.get(student_info=student_info)
+                        parent_info.parent_info.user.delete()
+                        deleted_count += 1
+                    except (StudentInfo.DoesNotExist, ParentInfo.DoesNotExist, CustomUser.DoesNotExist):
+                        pass
+
                 user.delete()
                 deleted_count += 1
             except CustomUser.DoesNotExist:

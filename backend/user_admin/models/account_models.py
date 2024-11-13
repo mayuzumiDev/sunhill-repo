@@ -16,14 +16,14 @@ GRADE_LEVEL_CHOICES = [
 
 # Create your models here.
 class UserInfo(models.Model):
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name="userinfo")
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name="user_info")
     contact_no = models.CharField(max_length=20, null=True)
     profile_image = models.ImageField(upload_to='profile_images/', blank=True, null=True)
 
 class StudentInfo(models.Model):
-    student_info = models.OneToOneField(UserInfo, on_delete=models.CASCADE, related_name="studentinfo") # Links to UserInfo for student-specific information
+    student_info = models.OneToOneField(UserInfo, on_delete=models.CASCADE, related_name="student_info") 
     grade_level = models.CharField(max_length=20, choices=GRADE_LEVEL_CHOICES, null=True)
 
 class ParentInfo(models.Model):
-    parent_info = models.OneToOneField(UserInfo, on_delete=models.CASCADE) # Links to UserInfo for parent-specific information
-    student_info = models.ForeignKey(StudentInfo, on_delete=models.CASCADE, related_name='parents') # Establishes a relationship between parent and student
+    parent_info = models.OneToOneField(UserInfo, on_delete=models.CASCADE, related_name='parent_info') 
+    student_info = models.ForeignKey(StudentInfo, on_delete=models.CASCADE, related_name='parent_student') 

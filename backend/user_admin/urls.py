@@ -14,5 +14,6 @@ urlpatterns = [
     path("generate-pdf/", GeneratePdf.as_view(), name='generate_pdf'),
     path("generate-pdf/student/", GeneratePdfWithParent.as_view(), name='generate_pdf_student'),
     path('teacher-list/', TeacherListView.as_view(), name='teacher_list'),
-    path('student-list/', StudentListView.as_view(), name='student_list')
+    path('student-list/', StudentListView.as_view(), name='student_list'),
+    path('parent-list/', ParentListView.as_view(), name='parent_list'),
 ]

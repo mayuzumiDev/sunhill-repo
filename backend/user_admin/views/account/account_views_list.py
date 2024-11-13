@@ -7,7 +7,7 @@ from ...models.account_models import UserInfo
 from ...serializers.accounts.list_account_serializers import *
 
 class TeacherListView(generics.ListAPIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     serializer_class = TeacherListSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['user__first_name', 'user__last_name']
@@ -48,12 +48,12 @@ class TeacherListView(generics.ListAPIView):
                              }, status=status.HTTP_200_OK)
     
 class StudentListView(generics.ListAPIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     serializer_class = StudentListSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['first_name', 'last_name']
     ordering_fields = ['date_joined', 'first_name']
-    filterset_fields = ['branch_name','userinfo__studentinfo__grade_level']
+    filterset_fields = ['branch_name','user_info__student_info__grade_level']
 
     def get_queryset(self):
         queryset = CustomUser.objects.filter(role='student')
@@ -68,7 +68,7 @@ class StudentListView(generics.ListAPIView):
 
         grade_level = self.request.query_params.get("grade_level")
         if grade_level:
-            queryset = queryset.filter(userinfo__studentinfo__grade_level__icontains=grade_level)
+            queryset = queryset.filter(user_info__student_info__grade_level__icontains=grade_level)
 
         return queryset
     
@@ -79,6 +79,34 @@ class StudentListView(generics.ListAPIView):
 
         return JsonResponse({'message': 'Student list retrieved successfully',
                              'student_list': student_list}, status=status.HTTP_200_OK)
+
+class ParentListView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ParentListSerializer
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['first_name', 'last_name']
+    ordering = ['date_joined', 'first_name']
+    filterset_fields = ['branch_name']
+
+    def get_queryset(self):
+        queryset = CustomUser.objects.filter(role="parent")
+
+        params = {
+            'ordering': self.request.query_params.get("ordering"),
+            'search': self.request.query_params.get('search'),
+            'branch_name': self.request.query_params.get('branch_name'),
+        }
+
+        queryset = filter_queryset(queryset, params)
+        return queryset
+    
+    def list(self, request):
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True)
+        parent_list = serializer.data
+
+        return JsonResponse({'message': 'Parent list retrieved successfully',
+                                'parent_list': parent_list}, status=status.HTTP_200_OK)
 
 
 def filter_queryset(queryset, params):
