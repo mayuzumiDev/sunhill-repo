@@ -45,7 +45,7 @@ const Teacher = () => {
   const [selectedTeachers, setSelectedTeachers] = useState([]);
   const [showSelectUserError, setShowSelectUserError] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [searchPerform, setSearchPerform] = useState(false);
+  const [isOperationRunning, setIsOperationRunning] = useState(false);
   const [branchFilter, setBranchFilter] = useState("");
   const [orderBy, setOrderBy] = useState("");
   const [resetSelection, setResetSelection] = useState(false);
@@ -137,7 +137,7 @@ const Teacher = () => {
 
     typingTimer = setTimeout(() => {
       setSearchTerm(inputValue);
-      setSearchPerform(inputValue.length > 0);
+      setIsOperationRunning(inputValue.length > 0);
     }, 1000);
   };
 
@@ -147,6 +147,12 @@ const Teacher = () => {
 
   const handleBranchChange = (selectedBranch) => {
     setBranchFilter(selectedBranch);
+
+    if (selectedBranch !== "") {
+      setIsOperationRunning(true);
+    } else {
+      setIsOperationRunning(false);
+    }
   };
 
   const handleClearAll = () => {
@@ -172,7 +178,7 @@ const Teacher = () => {
         const teacher_list = response.data.teacher_list;
         setTeachers(teacher_list);
 
-        if (teacher_list.length === 0 && !searchPerform) {
+        if (teacher_list.length === 0 && !isOperationRunning) {
           setIsEmpty(true);
         }
       }
@@ -448,7 +454,7 @@ const Teacher = () => {
             isSelected={isSelected}
             allSelected={allSelected}
             fetchData={fetchData}
-            searchPerform={searchPerform}
+            isOperationRunning={isOperationRunning}
           />
         </div>
       )}

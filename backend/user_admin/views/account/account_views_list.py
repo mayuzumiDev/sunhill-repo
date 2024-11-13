@@ -10,7 +10,7 @@ class TeacherListView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = TeacherListSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    search_fields = ['user__first_name', 'user__last_name']
+    search_fields = ['user__id', 'user__first_name', 'user__last_name']
     ordering_fields = ['user__date_joined', 'user__first_name']
     filterset_fields = ['user__branch_name']
 
@@ -27,7 +27,7 @@ class TeacherListView(generics.ListAPIView):
             query = Q()
             for i in range(1, len(search_term) + 1):
                 substring = search_term[:i]
-                query &= Q(user__first_name__istartswith=substring) | Q(user__last_name__istartswith=substring)
+                query &= Q(user__first_name__istartswith=substring) | Q(user__last_name__istartswith=substring) | Q(user__id__icontains=substring)
             queryset = queryset.filter(query)
 
         branch_name = self.request.query_params.get('branch_name', None)
@@ -51,7 +51,7 @@ class StudentListView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = StudentListSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    search_fields = ['first_name', 'last_name']
+    search_fields = ['id', 'first_name', 'last_name']
     ordering_fields = ['date_joined', 'first_name']
     filterset_fields = ['branch_name','user_info__student_info__grade_level']
 
@@ -84,7 +84,7 @@ class ParentListView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = ParentListSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    search_fields = ['first_name', 'last_name']
+    search_fields = ['id', 'first_name', 'last_name']
     ordering = ['date_joined', 'first_name']
     filterset_fields = ['branch_name']
 
@@ -119,7 +119,7 @@ def filter_queryset(queryset, params):
         query = Q()
         for i in range(1, len(search_term) + 1):
             substring = search_term[:i]
-            query &= Q(first_name__istartswith=substring) | Q(last_name__istartswith=substring)
+            query &= Q(first_name__istartswith=substring) | Q(last_name__istartswith=substring) | Q(id__icontains=substring)
         queryset = queryset.filter(query)
 
     branch_name = params.get('branch_name', None)
