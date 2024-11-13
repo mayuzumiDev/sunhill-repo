@@ -4,6 +4,7 @@ import {
   faUserPlus,
   faTrashAlt,
   faEraser,
+  faExclamationTriangle,
 } from "@fortawesome/free-solid-svg-icons";
 import { axiosInstance } from "../../../utils/axiosInstance";
 import { generatePdf } from "../../../utils/pdfUtils";
@@ -20,7 +21,7 @@ import TableSearchBar from "../../../components/admin/tables/TableSearchBar";
 import TeacherTable from "../../../components/admin/tables/TeacherTable";
 import SortBox from "../../../components/admin/tables/SortBox";
 import Error from "../../../assets/img/home/error-5.mp3";
-import Success from "../../../assets/img/home/success-1.mp3"
+import Success from "../../../assets/img/home/success-1.mp3";
 import "../../../components/alert/styles/BiingsAlert.css";
 
 const orderByOptionsMap = {
@@ -48,6 +49,7 @@ const Teacher = () => {
   const [branchFilter, setBranchFilter] = useState("");
   const [orderBy, setOrderBy] = useState("");
   const [resetSelection, setResetSelection] = useState(false);
+  const [isEmpty, setIsEmpty] = useState(false);
 
   useEffect(() => {
     // Fetch data when the component mounts
@@ -57,25 +59,25 @@ const Teacher = () => {
   useEffect(() => {
     // Automatically hide success alert after 5 seconds
     if (showSuccessAlert) {
-       // Play the error sound when the alert is triggered
-       const audio = new Audio(Success); 
-       audio.play();
- 
-       // Set a timer to stop the audio
-       const timer = setTimeout(() => {
-         audio.pause(); // Stop the audio after 5 seconds
-         audio.currentTime = 0;
-         setShowSuccessAlert(false);
-       }, 5000);
-       return () => clearTimeout(timer);
+      // Play the error sound when the alert is triggered
+      const audio = new Audio(Success);
+      audio.play();
+
+      // Set a timer to stop the audio
+      const timer = setTimeout(() => {
+        audio.pause(); // Stop the audio after 5 seconds
+        audio.currentTime = 0;
+        setShowSuccessAlert(false);
+      }, 5000);
+      return () => clearTimeout(timer);
     }
 
     if (showErrorAlert) {
-      const audio = new Audio(Error); 
+      const audio = new Audio(Error);
       audio.play();
 
       const timer = setTimeout(() => {
-        audio.pause(); 
+        audio.pause();
         audio.currentTime = 0;
         setShowErrorAlert(false);
       }, 5000);
@@ -83,7 +85,7 @@ const Teacher = () => {
     }
 
     if (showDeleteSuccess) {
-      const audio = new Audio(Success); 
+      const audio = new Audio(Success);
       audio.play();
 
       // Set a timer to stop the audio
@@ -93,10 +95,10 @@ const Teacher = () => {
         setShowDeleteSuccess(false);
       }, 5000);
       return () => clearTimeout(timer);
-   }
+    }
 
     if (showDeleteError) {
-      const audio = new Audio(Error); 
+      const audio = new Audio(Error);
       audio.play();
 
       // Set a timer to stop the audio
@@ -106,11 +108,11 @@ const Teacher = () => {
         setShowDeleteError(false);
       }, 5000);
       return () => clearTimeout(timer);
-   }
+    }
 
     if (showSelectUserError) {
       // Play the error sound when the alert is triggered
-      const audio = new Audio(Error); 
+      const audio = new Audio(Error);
       audio.play();
 
       // Set a timer to stop the audio
@@ -155,6 +157,8 @@ const Teacher = () => {
 
   const fetchData = async () => {
     try {
+      setIsEmpty(false);
+
       const params = {
         ...(searchTerm && { search: searchTerm }),
         ...(branchFilter && { branch_name: branchFilter }),
@@ -168,8 +172,8 @@ const Teacher = () => {
         const teacher_list = response.data.teacher_list;
         setTeachers(teacher_list);
 
-        if (teacher_list.length === 0) {
-          setSearchPerform(true);
+        if (teacher_list.length === 0 && !searchPerform) {
+          setIsEmpty(true);
         }
       }
     } catch (error) {
@@ -334,7 +338,7 @@ const Teacher = () => {
               if (selectedTeachers.length > 0) {
                 setIsConfirmDelete(true); // Show confirmation modal only if users are selected
               } else {
-                setShowSelectUserError(true); 
+                setShowSelectUserError(true);
               }
             }}
             className="bg-red-500 text-white font-semibold py-2 px-3 rounded-lg hover:bg-red-600 transition flex items-center text-xs sm:text-lg sm:py-2 sm:px-4"
@@ -393,10 +397,12 @@ const Teacher = () => {
         generatedAccounts={generatedAccounts}
         onSaveAccounts={handleSaveAndGenerate}
       />
-       {showSuccessAlert && (
+      {showSuccessAlert && (
         <BiingsAlertSuccesss
           userType={"Teacher"}
-          className={`animate-fade-in-down ${showSuccessAlert ? "opacity-100" : "opacity-0"}`}
+          className={`animate-fade-in-down ${
+            showSuccessAlert ? "opacity-100" : "opacity-0"
+          }`}
         />
       )}
 
@@ -424,17 +430,28 @@ const Teacher = () => {
       {showDeleteSuccess && <DeleteSuccessAlert userType={"Teacher"} />}
       {showDeleteError && <DeleteErrorAlert userType={"Teacher"} />}
 
-      <div className="overflow-y-auto">
-        <TeacherTable
-          teacherAccounts={teachers}
-          handleSelectRow={handleSelectRow}
-          handleSelectAll={handleSelectAll}
-          isSelected={isSelected}
-          allSelected={allSelected}
-          fetchData={fetchData}
-          searchPerform={searchPerform}
-        />
-      </div>
+      {isEmpty ? (
+        <div className="text-center py-4 mt-24">
+          <FontAwesomeIcon
+            icon={faExclamationTriangle}
+            size="2x"
+            className="text-red-500 mb-2"
+          />
+          <p>Teacher list is currently empty.</p>
+        </div>
+      ) : (
+        <div className="overflow-y-auto">
+          <TeacherTable
+            teacherAccounts={teachers}
+            handleSelectRow={handleSelectRow}
+            handleSelectAll={handleSelectAll}
+            isSelected={isSelected}
+            allSelected={allSelected}
+            fetchData={fetchData}
+            searchPerform={searchPerform}
+          />
+        </div>
+      )}
     </div>
   );
 };
