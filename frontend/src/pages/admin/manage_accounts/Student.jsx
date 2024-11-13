@@ -308,10 +308,13 @@ const Student = () => {
 
       {/* Sorting, Filtering, and Search Container */}
       <div className="flex flex-col md:flex-row items-center justify-between mb-4">
+        {/* Search Bar */}
         <div className="w-full md:w-auto mb-4 md:mb-0">
           <TableSearchBar onSearch={handleSearch} searchTerm={searchTerm} />
         </div>
-        <div className="flex space-x-4 items-center ml-auto text-xs sm:text-sm">
+
+      {/* Sort and Filter Options */}
+        <div className="flex  md:flex-row space-y-2 md:space-y-0 md:space-x-4  md:space-y-1 items-center text-xs sm:text-sm  ">
           <SortBox
             options={["Batangas", "Rosario", "Bauan", "Metro Tagaytay"]}
             label="Branch"
@@ -340,10 +343,10 @@ const Student = () => {
             onSelect={handleOrderChange}
           />
           <button
-            className="text-gray-700 text-xs sm:text-sm"
+            className="text-gray-700 text-xs sm:text-sm flex items-center mt-2 md:mt-0"
             onClick={handleClearAll}
           >
-            <FontAwesomeIcon icon={faEraser} /> Clear All
+            <FontAwesomeIcon icon={faEraser} className="mr-1" /> Clear All
           </button>
         </div>
       </div>
