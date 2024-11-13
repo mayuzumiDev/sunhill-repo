@@ -48,7 +48,7 @@ const Student = () => {
   const [isEmpty, setIsEmpty] = useState(false);
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [searchPerform, setSearchPerform] = useState(false);
+  const [isOperationRunning, setIsOperationRunning] = useState(false);
   const [filters, setFilters] = useState({
     branch: "",
     grade: "",
@@ -165,7 +165,7 @@ const Student = () => {
 
   const handleSearch = (inputValue) => {
     setSearchTerm(inputValue);
-    setSearchPerform(inputValue.length > 0);
+    setIsOperationRunning(inputValue.length > 0);
   };
 
   const handleFilterChange = (filterType, value) => {
@@ -173,6 +173,12 @@ const Student = () => {
       ...prevFilters,
       [filterType]: value,
     }));
+
+    if (value !== "") {
+      setIsOperationRunning(true);
+    } else {
+      setIsOperationRunning(false);
+    }
   };
 
   const handleOrderChange = (selectedOrder) => {
@@ -204,7 +210,7 @@ const Student = () => {
         const student_list = response.data.student_list;
         setStudents(student_list);
 
-        if (student_list.length === 0 && !searchPerform) {
+        if (student_list.length === 0 && !isOperationRunning) {
           setIsEmpty(true);
         }
       }
@@ -461,7 +467,7 @@ const Student = () => {
           <StudentTable
             studentAccounts={students}
             fetchData={fetchData}
-            searchPerform={searchPerform}
+            isOperationRunning={isOperationRunning}
             handleSelectRow={handleSelectRow}
             handleSelectAll={handleSelectAll}
             isSelected={isSelected}

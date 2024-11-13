@@ -1,168 +1,330 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
+import {
+  faUserPlus,
+  faTrashAlt,
+  faEraser,
+  faExclamationTriangle,
+} from "@fortawesome/free-solid-svg-icons";
+import { axiosInstance } from "../../../utils/axiosInstance";
+import ConfirmDeleteModal from "../../../components/modal/admin/ConfirmDeleteModal";
+import BiingsAlertSuccess from "../../../components/alert/BiingsAlertSuccess";
+import BiingsAlertError from "../../../components/alert/BiingsAlertError";
+import DeleteSuccessAlert from "../../../components/alert/DeleteSuccessAlert";
+import DeleteErrorAlert from "../../../components/alert/DeleteErrorAlert";
+import SelectUserErrorAlert from "../../../components/alert/SelectUserErrorAlert";
+import ParentTable from "../../../components/admin/tables/ParentTable";
+import TableSearchBar from "../../../components/admin/tables/TableSearchBar";
+import SortBox from "../../../components/admin/tables/SortBox";
+import Error from "../../../assets/img/home/error-5.mp3";
+import Success from "../../../assets/img/home/success-1.mp3";
+import "../../../components/alert/styles/BiingsAlert.css";
+
+const orderByOptionsMap = {
+  Newest: "-date_joined",
+  Oldest: "date_joined",
+  "A-Z": "first_name",
+  "Z-A": "-first_name",
+};
 
 const Parent = () => {
-  const [parents, setParents] = useState([
-    { id: 1, name: "John Doe", email: "john@example.com", phone: "123-456-7890" },
-    { id: 2, name: "Jane Smith", email: "jane@example.com", phone: "987-654-3210" },
+  const [isLoading, setIsLoading] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isGeneratedModalOpen, setIsGeneratedModalOpen] = useState(false);
+  const [isConfirmDelete, setIsConfirmDelete] = useState(false);
+  const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+  const [showErrorAlert, setShowErrorAlert] = useState(false);
+  const [showDeleteSuccess, setShowDeleteSuccess] = useState(false);
+  const [showDeleteError, setShowDeleteError] = useState(false);
+  const [showSelectUserError, setShowSelectUserError] = useState(false);
+  const [resetSelection, setResetSelection] = useState(false);
+
+  const [generatedAccounts, setGeneratedAccounts] = useState([]);
+  const [parents, setParents] = useState([]);
+  const [isEmpty, setIsEmpty] = useState(false);
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isOperationRunning, setIsOperationRunning] = useState(false);
+  const [filters, setFilters] = useState({
+    branch: "",
+    grade: "",
+  });
+  const [orderBy, setOrderBy] = useState("");
+  const [selectedParents, setSelectedParents] = useState("");
+
+  useEffect(() => {
+    fetchData();
+  }, [searchTerm, filters, orderBy]);
+
+  useEffect(() => {
+    // Automatically hide success alert after 5 seconds
+    if (showSuccessAlert) {
+      // Play the error sound when the alert is triggered
+      const audio = new Audio(Success);
+      audio.play();
+
+      const timer = setTimeout(() => {
+        audio.pause();
+        audio.currentTime = 0;
+        setShowSuccessAlert(false);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+
+    if (showErrorAlert) {
+      const audio = new Audio(Error);
+      audio.play();
+
+      const timer = setTimeout(() => {
+        audio.pause();
+        audio.currentTime = 0;
+        setShowErrorAlert(false);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+
+    if (showDeleteSuccess) {
+      const audio = new Audio(Success);
+      audio.play();
+
+      // Set a timer to stop the audio
+      const timer = setTimeout(() => {
+        audio.pause(); // Stop the audio after 5 seconds
+        audio.currentTime = 0;
+        setShowDeleteSuccess(false);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+
+    if (showDeleteError) {
+      const audio = new Audio(Error);
+      audio.play();
+
+      // Set a timer to stop the audio
+      const timer = setTimeout(() => {
+        audio.pause(); // Stop the audio after 5 seconds
+        audio.currentTime = 0;
+        setShowDeleteError(false);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+
+    if (showSelectUserError) {
+      // Play the error sound when the alert is triggered
+      const audio = new Audio(Error);
+      audio.play();
+
+      // Set a timer to stop the audio
+      const timer = setTimeout(() => {
+        audio.pause(); // Stop the audio after 5 seconds
+        audio.currentTime = 0;
+        setShowSelectUserError(false);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [
+    showSuccessAlert,
+    showErrorAlert,
+    showDeleteSuccess,
+    showDeleteError,
+    showSelectUserError,
   ]);
 
-  const [newParent, setNewParent] = useState({ id: null, name: "", email: "", phone: "" });
-  const [isEditing, setIsEditing] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const allSelected =
+    parents && parents.length > 0 && selectedParents.length === parents.length;
 
-  // Handle input changes for parent details
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setNewParent((prev) => ({ ...prev, [name]: value }));
+  const isSelected = (id) => selectedParents.includes(id);
+
+  const handleSelectRow = (event, id) => {
+    // Update selected parents based on checkbox state
+    setSelectedParents(
+      (prev) =>
+        event.target.checked
+          ? [...prev, id] // Add ID if checked
+          : prev.filter((selectedId) => selectedId !== id) // Remove ID if unchecked
+    );
   };
 
-  // Add or update parent based on whether we're editing or adding a new one
-  const handleAddParent = () => {
-    if (newParent.name && newParent.email && newParent.phone) {
-      if (isEditing) {
-        // Update existing parent
-        setParents(parents.map((parent) => (parent.id === newParent.id ? newParent : parent)));
-        setIsEditing(false);
-      } else {
-        // Add new parent
-        const newId = parents.length ? parents[parents.length - 1].id + 1 : 1;
-        setParents([...parents, { id: newId, ...newParent }]);
+  const handleSelectAll = (event) => {
+    if (event.target.checked) {
+      // Select all if checking the box
+      setSelectedParents(parents.map((parents) => parents.id));
+    } else {
+      // Unselect only if all were already selected, otherwise preserve individual selections
+      if (allSelected) {
+        setSelectedParents([]);
       }
-      // Reset input fields and close modal
-      setNewParent({ id: null, name: "", email: "", phone: "" });
-      setIsModalOpen(false);
     }
   };
 
-  // Prepare to edit a parent's details
-  const handleEditParent = (parent) => {
-    setNewParent(parent);
-    setIsEditing(true);
-    setIsModalOpen(true);
+  const handleSearch = (inputValue) => {
+    setSearchTerm(inputValue);
+    setIsOperationRunning(inputValue.length > 0);
   };
 
-  // Delete a parent account
-  const handleDeleteParent = (id) => {
-    setParents(parents.filter((parent) => parent.id !== id));
+  const handleFilterChange = (filterType, value) => {
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      [filterType]: value,
+    }));
+
+    if (value !== "") {
+      setIsOperationRunning(true);
+    } else {
+      setIsOperationRunning(false);
+    }
+  };
+
+  const handleOrderChange = (selectedOrder) => {
+    setOrderBy(orderByOptionsMap[selectedOrder] || "");
+  };
+
+  const handleClearAll = () => {
+    setFilters("");
+    setOrderBy("");
+    setResetSelection((prev) => !prev);
+  };
+
+  const fetchData = async () => {
+    try {
+      setIsEmpty(false);
+
+      const params = {
+        ...(searchTerm && { search: searchTerm }),
+        ...(filters.branch && { branch_name: filters.branch }),
+        ...(orderBy && { orderBy: orderBy }),
+      };
+
+      const response = await axiosInstance.get("/user-admin/parent-list/", {
+        params,
+      });
+
+      if (response.status === 200) {
+        const parent_list = response.data.parent_list;
+        setParents(parent_list);
+        console.log(parent_list);
+        if (parent_list.length === 0 && !isOperationRunning) {
+          setIsEmpty(true);
+        }
+      }
+    } catch (error) {
+      console.error("An error occured while fetching data", error);
+    }
   };
 
   return (
-    <div className="p-6 min-h-screen">
-      <h1 className="text-4xl text-gray-800 font-bold mb-4">Manage Parents</h1>
-      <h2 className="text-lg text-gray-700 font-semibold mb-4">Parents</h2>
+    <div className="p-4 md:p-6 font-montserrat">
+      <h1 className="text-2xl md:text-4xl text-gray-800 font-bold mb-4">
+        Manage Accounts{" "}
+        <span className="text-lg text-gray-700 font-semibold mb-4">
+          {" "}
+          Parents
+        </span>
+      </h1>
 
-      <button
-        onClick={() => {
-          setNewParent({ id: null, name: "", email: "", phone: "" });
-          setIsEditing(false);
-          setIsModalOpen(true);
-        }}
-        className="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition mt-4"
-      >
-        Add New Parent
-      </button>
+      {/* Top Button Container with Create and Delete */}
+      <div className="flex flex-col-reverse md:flex-row justify-between items-center mb-4">
+        <div className="flex space-x-4 mb-4 md:mb-0">
+          <button
+            className="bg-blue-500 text-white font-semibold py-2 px-3 rounded-lg hover:bg-blue-600 transition flex items-center text-xs sm:text-lg sm:py-2 sm:px-4"
+            onClick={() => setIsModalOpen(true)}
+          >
+            <FontAwesomeIcon icon={faUserPlus} className="mr-2" />
+            Create Account
+          </button>
+          <button
+            className="bg-red-500 text-white font-semibold py-2 px-3 rounded-lg hover:bg-red-600 transition flex items-center text-xs sm:text-lg sm:py-2 sm:px-4"
+            onClick={() => {
+              setShowSelectUserError(false);
+              if (selectedParents.length > 0) {
+                setIsConfirmDelete(true); // Show confirmation modal only if users are selected
+              } else {
+                setShowSelectUserError(true); // Show error alert if no users are selected
+              }
+            }}
+          >
+            <FontAwesomeIcon icon={faTrashAlt} className="mr-2" />
+            Delete Account
+          </button>
+        </div>
+      </div>
 
-      <ParentTable 
-        parents={parents} 
-        onEditParent={handleEditParent} 
-        onDeleteParent={handleDeleteParent} 
-      />
+      {/* Sorting, Filtering, and Search Container */}
+      <div className="flex flex-col md:flex-row items-center justify-between mb-4">
+        {/* Search Bar */}
+        <div className="w-full md:w-auto mb-4 md:mb-0">
+          <TableSearchBar onSearch={handleSearch} searchTerm={searchTerm} />
+        </div>
+        {/* Sort and Filter Options */}
+        <div className="flex  md:flex-row space-y-2 md:space-x-4  md:space-y-1 items-center text-xs sm:text-sm  ">
+          <SortBox
+            options={["Batangas", "Rosario", "Bauan", "Metro Tagaytay"]}
+            label="Branch"
+            onSelect={handleFilterChange}
+            resetSelection={resetSelection}
+            filterType={"branch"}
+          />
+          <SortBox
+            options={["Newest", "Oldest", "A-Z", "Z-A"]}
+            label="Sort By"
+            onSelect={handleOrderChange}
+            resetSelection={resetSelection}
+            filterType={null}
+          />
+          <button
+            className="text-gray-700 text-xs sm:text-sm flex items-center mt-2 md:mt-0"
+            onClick={handleClearAll}
+          >
+            <FontAwesomeIcon icon={faEraser} className="mr-1" /> Clear All
+          </button>
+        </div>
+      </div>
 
-      {isModalOpen && (
-        <Modal
-          newParent={newParent}
-          handleInputChange={handleInputChange}
-          handleAddParent={handleAddParent}
-          closeModal={() => setIsModalOpen(false)}
-        />
+      {/* AddAccountModal */}
+
+      {/* GeneratedAccountModal */}
+
+      {/* showSuccessAlert */}
+
+      {/* showErrorAlert */}
+
+      {isConfirmDelete && (
+        <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-5 z-50">
+          <ConfirmDeleteModal
+            title="Are you sure you want to delete the selected accounts?"
+            onConfirm={handleDeleteAccount}
+            onCancel={() => setIsConfirmDelete(false)}
+          />
+        </div>
+      )}
+      {showSelectUserError && <SelectUserErrorAlert />}
+      {showDeleteSuccess && <DeleteSuccessAlert userType={"Parent"} />}
+      {showDeleteError && <DeleteErrorAlert userType={"Parent"} />}
+
+      {isEmpty ? (
+        <div className="text-center py-4 mt-24">
+          <FontAwesomeIcon
+            icon={faExclamationTriangle}
+            size="2x"
+            className="text-red-500 mb-2"
+          />
+          <p>Parent list is currently empty.</p>
+        </div>
+      ) : (
+        <div className="overflow-y-auto">
+          <ParentTable
+            parentAccounts={parents}
+            fetchData={fetchData}
+            isOperationRunning={isOperationRunning}
+            handleSelectRow={handleSelectRow}
+            handleSelectAll={handleSelectAll}
+            isSelected={isSelected}
+            allSelected={allSelected}
+          />
+        </div>
       )}
     </div>
   );
 };
-
-const ParentTable = ({ parents, onEditParent, onDeleteParent }) => (
-  <div className="overflow-x-auto mt-4">
-    {parents.length === 0 ? (
-      <div className="text-center text-gray-500">No parents found.</div>
-    ) : (
-      <table className="min-w-full bg-white shadow-md rounded-lg">
-        <thead>
-          <tr className="bg-gray-200 text-gray-700">
-            <th className="py-2 px-4 text-left">ID</th>
-            <th className="py-2 px-4 text-left">Name</th>
-            <th className="py-2 px-4 text-left">Email</th>
-            <th className="py-2 px-4 text-left">Phone</th>
-            <th className="py-2 px-4 text-left">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {parents.map((parent) => (
-            <tr key={parent.id} className="border-b hover:bg-gray-100">
-              <td className="py-2 px-4">{parent.id}</td>
-              <td className="py-2 px-4">{parent.name}</td>
-              <td className="py-2 px-4">{parent.email}</td>
-              <td className="py-2 px-4">{parent.phone}</td>
-              <td className="py-2 px-4 flex space-x-1">
-                <button 
-                  className="text-blue-500 hover:underline" 
-                  aria-label="Edit Parent" 
-                  onClick={() => onEditParent(parent)}
-                >
-                  <FontAwesomeIcon icon={faEdit} />
-                </button>
-                <button 
-                  className="text-red-500 hover:underline" 
-                  aria-label="Delete Parent" 
-                  onClick={() => onDeleteParent(parent.id)}
-                >
-                  <FontAwesomeIcon icon={faTrash} />
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    )}
-  </div>
-);
-
-const Modal = ({ newParent, handleInputChange, handleAddParent, closeModal }) => (
-  <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-    <div className="bg-white p-6 rounded-lg shadow-lg w-11/12 sm:w-96">
-      <h2 className="text-lg font-semibold mb-4">{newParent.id ? "Edit Parent" : "Add New Parent"}</h2>
-      {["name", "email", "phone"].map((field) => (
-        <div className="mb-4" key={field}>
-          <label className="block mb-1 text-sm" htmlFor={field}>
-            {field.charAt(0).toUpperCase() + field.slice(1)}:
-          </label>
-          <input
-            type={field === "email" ? "email" : "text"}
-            name={field}
-            value={newParent[field]}
-            onChange={handleInputChange}
-            className="border rounded p-2 w-full"
-            required
-          />
-        </div>
-      ))}
-      <div className="flex justify-between">
-        <button 
-          onClick={handleAddParent} 
-          className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
-        >
-          {newParent.id ? "Update Parent" : "Add Parent"}
-        </button>
-        <button 
-          onClick={closeModal} 
-          className="bg-gray-300 text-gray-700 py-2 px-4 rounded hover:bg-gray-400"
-        >
-          Cancel
-        </button>
-      </div>
-    </div>
-  </div>
-);
 
 export default Parent;

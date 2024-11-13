@@ -12,7 +12,7 @@ import HideScrollBar from "../../misc/HideScrollBar";
 const StudentTable = ({
   studentAccounts,
   fetchData,
-  searchPerform,
+  isOperationRunning,
   handleSelectRow,
   handleSelectAll,
   isSelected,
@@ -211,8 +211,7 @@ const StudentTable = ({
         )}
       </div>
     );
-  } else if (searchPerform) {
-    // Show this message if a search was performed but no results were found
+  } else if (isOperationRunning) {
     return (
       <div className="text-center py-4 mt-24">
         <HideScrollBar />
