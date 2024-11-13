@@ -12,7 +12,13 @@ const SortBox = ({ options = [], label = "Sort By", onSelect, filterType }) => {
   };
 
   const handleOptionClick = (option) => {
-    onSelect(filterType, option);
+    if (filterType !== null) {
+      onSelect(filterType, option);
+      setIsOpen(false);
+      return;
+    }
+
+    onSelect(option);
     setIsOpen(false);
   };
 

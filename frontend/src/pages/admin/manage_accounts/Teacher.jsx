@@ -132,7 +132,6 @@ const Teacher = () => {
       if (response.status === 200) {
         const teacher_list = response.data.teacher_list;
         setTeachers(teacher_list);
-        console.log(teacher_list);
 
         if (teacher_list.length === 0) {
           setSearchPerform(true);
@@ -277,9 +276,12 @@ const Teacher = () => {
   return (
     <div className="p-4 md:p-6 font-montserrat">
       <h1 className="text-2xl md:text-4xl text-gray-800 font-bold mb-4">
-        Manage Accounts
+        Manage Accounts{" "}
+        <span className="text-lg text-gray-700 font-semibold mb-4">
+          {" "}
+          Teachers
+        </span>
       </h1>
-      <h2 className="text-lg text-gray-700 font-semibold mb-4">Teachers</h2>
 
       {/* Top Button Container with Create and Delete */}
       <div className="flex flex-col-reverse md:flex-row justify-between items-center mb-4">
@@ -321,11 +323,13 @@ const Teacher = () => {
             options={["Batangas", "Rosario", "Bauan", "Metro Tagaytay"]}
             label="Branch"
             onSelect={handleBranchChange}
+            filterType={null}
           />
           <SortBox
             options={["Newest", "Oldest", "A-Z", "Z-A"]}
             label="Sort By"
             onSelect={handleOrderChange}
+            filterType={null}
           />
           <button
             className="text-gray-700 text-xs sm:text-sm"
