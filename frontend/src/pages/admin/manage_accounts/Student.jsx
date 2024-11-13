@@ -313,7 +313,7 @@ const Student = () => {
   };
 
   return (
-    <div className="p-4 md:p-6 font-montserrat">
+    <div className="p-3 sm:p-6 font-montserrat">
       <h1 className="text-2xl md:text-4xl text-gray-800 font-bold mb-4">
         Manage Accounts{" "}
         <span className="text-lg text-gray-700 font-semibold mb-4">
