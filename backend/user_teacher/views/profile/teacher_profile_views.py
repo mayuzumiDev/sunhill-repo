@@ -2,6 +2,7 @@ from django.http import JsonResponse
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.exceptions import ValidationError
+from api.models import CustomUser
 from ...serializers.profile.current_teacher_serializer import *
 
 class GetCurrentTeacherView(generics.RetrieveAPIView):
@@ -10,15 +11,14 @@ class GetCurrentTeacherView(generics.RetrieveAPIView):
 
     def retrieve(self, request, *args, **kwargs):
         try:
-            user = request.user
+            user_id = request.user.id
+            print(user_id)
+            teacher_info = CustomUser.objects.get(id=user_id)
 
-            teacher_info = CustomUser.objects.filter(user=user, role="teacher").first()
-
-            if not teacher_info:
+            if teacher_info.role != 'teacher':
                 return JsonResponse({"error": "Teacher not found"}, status=status.HTTP_404_NOT_FOUND)
 
             serializer = self.serializer_class(teacher_info, context={'request': request})
-            serializer.is_valid(raise_exception=True)
 
             return JsonResponse({"teacher_profile": serializer.data}, status=status.HTTP_200_OK)
         
