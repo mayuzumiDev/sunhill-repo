@@ -76,7 +76,7 @@ const AddAccountModal = ({
                 htmlFor="numAccounts"
                 className="text-gray-700 font-montserrat font-semibold mb-2 flex items-center"
               >
-                <FontAwesomeIcon icon={faUserCheck} className="mr-2 text-gray-600" />
+                  
                 Number of Accounts
               </label>
               <input

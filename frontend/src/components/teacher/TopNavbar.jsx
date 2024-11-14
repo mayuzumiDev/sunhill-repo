@@ -1,26 +1,43 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { FaBell, FaCaretDown, FaBars, FaMoon, FaSun } from "react-icons/fa";
+import { axiosInstance } from "../../utils/axiosInstance"; // Assuming this is where your axios instance is set up
+import { FaBell, FaCaretDown, FaMoon, FaSun } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import Button from "../LogoutButton";
 import Notif from "../NotifButton";
-import uriel from "../../assets/img/home/uriel.jpg";
+import unknown from "../../assets/img/home/unknown.jpg"; // Default image in case no profile image is available
 
 const TopNavbar = ({
   setShowLogoutDialog,
-  userName,
   currentTab,
   setCurrentTab,
-  userRole,
   notifications = [],
   toggleSidebar,
   darkMode,
   toggleDarkMode,
 }) => {
+  const [teacherData, setTeacherData] = useState(null);
   const [isNotifDropdownOpen, setIsNotifDropdownOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const notifDropdownRef = useRef(null);
   const profileDropdownRef = useRef(null);
-  const navigate = useNavigate(); // Initialize useNavigate
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchTeacherData = async () => {
+      try {
+        const response = await axiosInstance.get("/user-admin/current-teacher/");
+        if (response.status === 200) {
+          const current_teacher = response.data;
+          setTeacherData(current_teacher);
+        }
+      } catch (error) {
+        console.error("An error occurred while fetching the data:", error);
+      }
+    };
+
+    fetchTeacherData();
+  }, []);
+  // Empty dependency array means this runs only once when the component mounts
 
   const toggleNotifDropdown = () => setIsNotifDropdownOpen((prev) => !prev);
   const toggleProfileDropdown = () => setIsProfileDropdownOpen((prev) => !prev);
@@ -49,49 +66,38 @@ const TopNavbar = ({
     };
   }, [isNotifDropdownOpen, isProfileDropdownOpen]);
 
-  // handleTabClick to use navigate for redirection
   const handleTabClick = useCallback(
     (tab) => {
       if (tab !== currentTab) {
         setCurrentTab(tab);
-        // navigate(`/settings`); // Redirect to settings page on tab click
       }
     },
-    [setCurrentTab, currentTab, navigate] // Added navigate to dependencies
+    [setCurrentTab, currentTab, navigate]
   );
 
   return (
     <div
-      className={`shadow-lg p-4 flex justify-between items-center rounded-b-lg ${
-        darkMode ? "bg-gray-800" : "bg-white"
-      }`}
+      className={`shadow-lg p-4 flex justify-between items-center rounded-b-lg ${darkMode ? "bg-gray-800" : "bg-white"}`}
     >
-      {/* Left Side: Sidebar Toggle and Greeting Message */}
       <div className="flex items-center">
         <button
           onClick={toggleSidebar}
-          className="group relative inline-block w-[44px] p-[5px] h-[35px] "
+          className="group relative inline-block w-[44px] p-[5px] h-[35px]"
         >
           <span className="mx-[auto] my-[0] relative top-[0px] w-[20px] h-[4px] bg-green-600 block [transition-property:margin,_width] group-hover:w-[20px] duration-200 after:absolute after:content-[''] after:mt-[8px] after:w-[30px] after:h-[4px] after:bg-green-600 after:block after:left-[0] after:[transition-property:margin,_left] after:duration-200 group-hover:after:mt-[4px] group-hover:after:-left-[5px] before:absolute before:content-[''] before:-mt-[8px] before:w-[30px] before:h-[4px] before:bg-green-600 before:block before:left-[0] before:[transition-property:margin,_width,_left] before:duration-200 group-hover:before:-mt-[4px] group-hover:before:w-[10px] group-hover:before:left-[5px]" />
         </button>
       </div>
 
-      {/* Right Side: Profile and Notification Section */}
       <div className="flex items-center space-x-4 relative">
-        {/* Dark Mode Toggle */}
         <button
           onClick={toggleDarkMode}
           className="text-green-700 focus:outline-none"
         >
-          {darkMode ? (
-            <FaSun className="text-2xl" />
-          ) : (
-            <FaMoon className="text-2xl" />
-          )}
+          {darkMode ? <FaSun className="text-2xl" /> : <FaMoon className="text-2xl" />}
         </button>
 
-        {/* Notification Button */}
-        <div className="relative">
+         {/* Notification Button */}
+         <div className="relative">
           <button
             onClick={toggleNotifDropdown}
             className={`flex items-center ${
@@ -142,38 +148,32 @@ const TopNavbar = ({
           )}
         </div>
 
-        {/* Profile Section with Dropdown */}
-        <div className="relative">
-          <button
-            className="flex items-center space-x-3 focus:outline-none"
-            onClick={toggleProfileDropdown}
-          >
-            <img
-              src={uriel}
-              alt="Profile"
-              className={`w-10 h-10 rounded-full border-2 ${
-                darkMode ? "border-gray-700" : "border-green-500"
-              }`}
-            />
-            <div className="hidden sm:flex flex-col items-start">
-              <span
-                className={`text-${
-                  darkMode ? "white" : "green-700"
-                } font-semibold text-base`}
-              >
-                Uriel Fruelda{userName}
-              </span>
-              <span className="text-gray-500 text-xs">Teacher{userRole}</span>
-            </div>
-            <FaCaretDown
-              className={`text-gray-700 text-lg ${
-                darkMode ? "text-white" : ""
-              }`}
-            />
-          </button>
 
-          {/* Dropdown Menu */}
-          {isProfileDropdownOpen && (
+        {teacherData && (
+          <div className="relative">
+            <button
+              onClick={toggleProfileDropdown}
+              className="flex items-center text-green-700 focus:outline-none"
+            >
+              <img
+                src={teacherData.profile_image || unknown}
+                alt="Profile"
+                className={`w-10 h-10 rounded-full border-2  ${
+                  darkMode ? "border-gray-700" : "border-green-500"
+                }`}  
+              />
+               <div className="hidden sm:flex flex-col ml-2 items-start">
+               <span     className={`text-${
+                  darkMode ? "white" : "green-700"
+                } font-semibold text-base`}>
+                  {teacherData.first_name} {teacherData.last_name}
+                </span>
+                <span className="text-gray-500 text-xs">{teacherData.role}</span>
+                </div>
+              <FaCaretDown />
+            </button>
+
+            {isProfileDropdownOpen && (
             <div
               ref={profileDropdownRef}
               className={`absolute right-0 top-12 mt-3 rounded-md shadow-xl z-10 p-4 w-56 ${
@@ -216,6 +216,7 @@ const TopNavbar = ({
             </div>
           )}
         </div>
+        )}
       </div>
     </div>
   );
