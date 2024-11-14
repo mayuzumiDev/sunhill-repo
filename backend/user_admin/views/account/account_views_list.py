@@ -47,24 +47,6 @@ class TeacherListView(generics.ListAPIView):
                              'teacher_list': teacher_list
                              }, status=status.HTTP_200_OK)
     
-class CurrentTeacherView(generics.ListAPIView):
-    permission_classes = [IsAuthenticated]
-    serializer_class = CurrentTeacherSerializer
-
-    def get(self, request):
-        try:
-            # Fetch the teacher info for the logged-in user
-            teacher_info = UserInfo.objects.filter(user=request.user, user__role="teacher").first()
-            if not teacher_info:
-                return JsonResponse({"error": "Teacher not found"}, status=status.HTTP_404_NOT_FOUND)
-
-            serializer = self.serializer_class(teacher_info)
-            return JsonResponse(serializer.data, status=status.HTTP_200_OK)
-
-        except Exception as e:
-            return JsonResponse({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-    
 class StudentListView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = StudentListSerializer
