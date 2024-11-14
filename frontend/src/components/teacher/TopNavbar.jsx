@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { axiosInstance } from "../../utils/axiosInstance"; // Assuming this is where your axios instance is set up
-import { FaBell, FaCaretDown, FaMoon, FaSun } from "react-icons/fa";
+import { FaCaretDown} from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import Button from "../LogoutButton";
 import Notif from "../NotifButton";
