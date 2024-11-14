@@ -25,11 +25,12 @@ class TeacherListSerializer(serializers.ModelSerializer):
 class CurrentTeacherSerializer(serializers.ModelSerializer):
     first_name = serializers.CharField(source='user.first_name')
     last_name = serializers.CharField(source='user.last_name')
+    branch_name = serializers.CharField(source='user.branch_name')
     role = serializers.CharField(source='user.role')
 
     class Meta:
         model = UserInfo
-        fields = ['first_name', 'last_name', 'role']
+        fields = ['first_name', 'last_name', 'branch_name','role']
 
 class StudentListSerializer(serializers.ModelSerializer):
     user_info = serializers.SerializerMethodField()

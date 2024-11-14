@@ -34,7 +34,7 @@ const StyledWrapper = styled.div`
     /* the size is adjusted using font-size,
        this is not transform scale,
        so you can choose any size */
-    --container-width: 5.625em;
+    --container-width: 5em;
     --container-height: 2.5em;
     --container-radius: 6.25em;
     /* radius 0 - minecraft mode :) */
