@@ -1,15 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faUserPlus,
   faTrashAlt,
   faEraser,
   faExclamationTriangle,
 } from "@fortawesome/free-solid-svg-icons";
 import { axiosInstance } from "../../../utils/axiosInstance";
 import ConfirmDeleteModal from "../../../components/modal/admin/ConfirmDeleteModal";
-import BiingsAlertSuccess from "../../../components/alert/BiingsAlertSuccess";
-import BiingsAlertError from "../../../components/alert/BiingsAlertError";
 import DeleteSuccessAlert from "../../../components/alert/DeleteSuccessAlert";
 import DeleteErrorAlert from "../../../components/alert/DeleteErrorAlert";
 import SelectUserErrorAlert from "../../../components/alert/SelectUserErrorAlert";
@@ -28,18 +25,12 @@ const orderByOptionsMap = {
 };
 
 const Parent = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isGeneratedModalOpen, setIsGeneratedModalOpen] = useState(false);
   const [isConfirmDelete, setIsConfirmDelete] = useState(false);
-  const [showSuccessAlert, setShowSuccessAlert] = useState(false);
-  const [showErrorAlert, setShowErrorAlert] = useState(false);
   const [showDeleteSuccess, setShowDeleteSuccess] = useState(false);
   const [showDeleteError, setShowDeleteError] = useState(false);
   const [showSelectUserError, setShowSelectUserError] = useState(false);
   const [resetSelection, setResetSelection] = useState(false);
 
-  const [generatedAccounts, setGeneratedAccounts] = useState([]);
   const [parents, setParents] = useState([]);
   const [isEmpty, setIsEmpty] = useState(false);
 
@@ -58,31 +49,6 @@ const Parent = () => {
 
   useEffect(() => {
     // Automatically hide success alert after 5 seconds
-    if (showSuccessAlert) {
-      // Play the error sound when the alert is triggered
-      const audio = new Audio(Success);
-      audio.play();
-
-      const timer = setTimeout(() => {
-        audio.pause();
-        audio.currentTime = 0;
-        setShowSuccessAlert(false);
-      }, 5000);
-      return () => clearTimeout(timer);
-    }
-
-    if (showErrorAlert) {
-      const audio = new Audio(Error);
-      audio.play();
-
-      const timer = setTimeout(() => {
-        audio.pause();
-        audio.currentTime = 0;
-        setShowErrorAlert(false);
-      }, 5000);
-      return () => clearTimeout(timer);
-    }
-
     if (showDeleteSuccess) {
       const audio = new Audio(Success);
       audio.play();
@@ -122,13 +88,7 @@ const Parent = () => {
       }, 5000);
       return () => clearTimeout(timer);
     }
-  }, [
-    showSuccessAlert,
-    showErrorAlert,
-    showDeleteSuccess,
-    showDeleteError,
-    showSelectUserError,
-  ]);
+  }, [showDeleteSuccess, showDeleteError, showSelectUserError]);
 
   const allSelected =
     parents && parents.length > 0 && selectedParents.length === parents.length;
@@ -192,7 +152,7 @@ const Parent = () => {
       const params = {
         ...(searchTerm && { search: searchTerm }),
         ...(filters.branch && { branch_name: filters.branch }),
-        ...(orderBy && { orderBy: orderBy }),
+        ...(orderBy && { ordering: orderBy }),
       };
 
       const response = await axiosInstance.get("/user-admin/parent-list/", {
@@ -202,7 +162,6 @@ const Parent = () => {
       if (response.status === 200) {
         const parent_list = response.data.parent_list;
         setParents(parent_list);
-        console.log(parent_list);
         if (parent_list.length === 0 && !isOperationRunning) {
           setIsEmpty(true);
         }
@@ -225,13 +184,6 @@ const Parent = () => {
       {/* Top Button Container with Create and Delete */}
       <div className="flex flex-col-reverse md:flex-row justify-between items-center mb-4">
         <div className="flex space-x-4 mb-4 md:mb-0">
-          <button
-            className="bg-blue-500 text-white font-semibold py-2 px-3 rounded-lg hover:bg-blue-600 transition flex items-center text-xs sm:text-lg sm:py-2 sm:px-4"
-            onClick={() => setIsModalOpen(true)}
-          >
-            <FontAwesomeIcon icon={faUserPlus} className="mr-2" />
-            Create Account
-          </button>
           <button
             className="bg-red-500 text-white font-semibold py-2 px-3 rounded-lg hover:bg-red-600 transition flex items-center text-xs sm:text-lg sm:py-2 sm:px-4"
             onClick={() => {
@@ -279,14 +231,6 @@ const Parent = () => {
           </button>
         </div>
       </div>
-
-      {/* AddAccountModal */}
-
-      {/* GeneratedAccountModal */}
-
-      {/* showSuccessAlert */}
-
-      {/* showErrorAlert */}
 
       {isConfirmDelete && (
         <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-5 z-50">

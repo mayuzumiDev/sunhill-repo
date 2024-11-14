@@ -21,6 +21,7 @@ class AccountGenerator:
             'teacher': 'TCH',
             'student': 'STU',
             'parent': 'PAR',
+            'public': 'PUB', # must be delete before deploying
         }
 
         username_role = username_role_map.get(role, 'PUB')

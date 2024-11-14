@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faExclamationTriangle } from "@fortawesome/free-solid-svg-icons";
 import { axiosInstance } from "../../../utils/axiosInstance";
+import EditParentModal from "../../../components/modal/admin/EditParentModal";
 import EditSuccessAlert from "../../alert/EditSuccessAlert";
 import EditErrorAlert from "../../alert/EditErrorAlert";
 import SchawnnahJLoader from "../../loaders/SchawnnahJLoader";
@@ -50,10 +51,9 @@ const ParentTable = ({
   };
 
   const handleSave = async (parentData) => {
-    /*     const {
+    const {
       id,
       user_info_id,
-      Parent_info_id,
       username,
       first_name,
       last_name,
@@ -61,8 +61,6 @@ const ParentTable = ({
       contact_no,
       branch_name,
     } = parentData;
-
-    console.log(parentData);
 
     try {
       setIsLoading(true);
@@ -82,9 +80,6 @@ const ParentTable = ({
         axiosInstance.patch(`/user-admin/user-info/edit/${user_info_id}/`, {
           contact_no: contact_no ? contact_no : null,
         }),
-        axiosInstance.patch(`/user-admin/Parent-info/edit/${Parent_info_id}/`, {
-          grade_level: grade_level,
-        }),
       ]);
 
       // Check if both API responses are successful
@@ -103,7 +98,7 @@ const ParentTable = ({
       setIsLoading(false);
       setIsEditing(false);
       setErrorAlert(true);
-    } */
+    }
   };
 
   if (parentAccounts && parentAccounts.length > 0) {
@@ -199,7 +194,15 @@ const ParentTable = ({
 
         {isLoading && <SchawnnahJLoader />}
 
-        {isEditing && <div>// EditParentModal</div>}
+        {isEditing && (
+          <EditParentModal
+            isOpen={isEditing}
+            onClose={() => setIsEditing(false)}
+            onSave={handleSave}
+            userData={editingParent}
+            userRole={"Parent"}
+          />
+        )}
 
         {successAlert && (
           <EditSuccessAlert userType={"Parent"} userData={editingParent} />

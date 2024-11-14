@@ -71,3 +71,17 @@ class ParentListSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ('id', 'parent_info_id', 'first_name', 'last_name', 'username', 'email', 'branch_name', 'user_info', 'student_info')
+
+class PublicUserListSerializer(serializers.ModelSerializer):
+    user_info = serializers.SerializerMethodField()
+
+    def get_user_info (self, instance):
+        user_info = instance.user_info
+        return {
+            'id': user_info.id,
+            'contact_no': user_info.contact_no
+        }
+
+    class Meta:
+        model = CustomUser
+        fields = ('id', 'first_name', 'last_name', 'username', 'email', 'user_info')
