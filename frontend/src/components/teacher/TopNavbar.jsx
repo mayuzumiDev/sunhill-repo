@@ -163,12 +163,11 @@ const TopNavbar = ({
                 }`}  
               />
                <div className="hidden sm:flex flex-col ml-2 items-start">
-               <span     className={`text-${
-                  darkMode ? "white" : "green-700"
-                } font-semibold text-base`}>
+               <span  className={`text-${darkMode ? "white" : "green-700"} font-semibold text-base overflow-hidden whitespace-nowrap text-ellipsis`}
+                style={{ maxWidth: "150px" }} >   
                   {teacherData.first_name} {teacherData.last_name}
                 </span>
-                <span className="text-gray-500 text-xs">{teacherData.role}</span>
+                <span className="text-gray-400 text-xs">{teacherData.role}</span>
                 </div>
               <FaCaretDown />
             </button>

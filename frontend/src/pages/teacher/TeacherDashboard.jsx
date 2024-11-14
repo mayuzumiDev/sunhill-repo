@@ -7,6 +7,7 @@
   import teachingIllusFri from "../../assets/img/home/illustrationFri.png";
   import teachingIllusSat from "../../assets/img/home/illustrationSat.png";
   import teachingIllusSun from "../../assets/img/home/illustrationSun.png";
+  import { axiosInstance } from "../../utils/axiosInstance";
   import Calendar from 'react-calendar';
   import 'react-calendar/dist/Calendar.css';
   import {
@@ -45,6 +46,7 @@
     const [date, setDate] = useState(new Date());
     const [illustrations, setIllustration] = useState(teachingIllusMon);
     const [filter, setFilter] = useState('');
+    const [teacherData, setTeacherData] = useState(null);
 
     // Setting greeting message and daily illustration
     useEffect(() => {
@@ -101,7 +103,7 @@
 
         const dayMessageOptions = dayMessages[dayOfWeek];
         const randomMessage = dayMessageOptions[Math.floor(Math.random() * dayMessageOptions.length)];
-        greetingMessage += `, ${userName}. ${randomMessage}`;
+        greetingMessage += `, ${randomMessage}`;
 
         setGreeting(greetingMessage);
 
@@ -190,6 +192,22 @@
       alert(`Viewing reports for ${studentName}`);
     };
 
+    useEffect(() => {
+      const fetchTeacherData = async () => {
+        try {
+          const response = await axiosInstance.get("/user-admin/current-teacher/");
+          if (response.status === 200) {
+            const current_teacher = response.data;
+            setTeacherData(current_teacher);
+          }
+        } catch (error) {
+          console.error("An error occurred while fetching the data:", error);
+        }
+      };
+  
+      fetchTeacherData();
+    }, []);
+
     return (
 <div className=" mt-8 sm:mt-0 sm:p-3 min-h-screen">
   <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -197,11 +215,12 @@
     <div className="col-span-3">
       <h1 className="text-2xl font-bold mb-6">Teacher Dashboard</h1>
 
-      {/* Greeting Section */}
+    {/* Greeting Section */}
+    {teacherData && (
       <div className={`mb-8 p-4 rounded-lg shadow-lg flex flex-col lg:flex-row items-center justify-between ${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-green-700'}`}>
         <div className="flex-1 mb-4 lg:mb-0">
           <p className="font-bold text-2xl mb-1 bg-gradient-to-r from-orange-600 via-green-700 via-blue-800 to-purple-900 text-transparent bg-clip-text">
-            {greeting.split(',')[0]}, {userName}!
+            {greeting.split(',')[0]}, Teacher {teacherData.first_name}!
           </p>
           <p className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'} mb-2`}>
             {greeting.split(',').slice(1).join(',').trim()}
@@ -210,10 +229,12 @@
             {formattedDate}
           </p>
         </div>
-        <div className="flex-shrink-0 w-32 h-40 lg:w-45 lg:h-45">
+        <div className="flex-shrink-0 w-32 h-40 lg:w-48 lg:h-48">
           <img src={illustrations} alt="Teacher Illustration" className="w-full h-full object-cover rounded-lg" />
         </div>
       </div>
+    )}
+
 
       {/* Metrics and Charts */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
