@@ -108,6 +108,31 @@ class ParentListView(generics.ListAPIView):
         return JsonResponse({'message': 'Parent list retrieved successfully',
                                 'parent_list': parent_list}, status=status.HTTP_200_OK)
 
+class PublicUserListView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = PublicUserListSerializer
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['id', 'first_name', 'last_name']
+    ordering = ['date_joined', 'first_name']
+
+    def get_queryset(self):
+        queryset = CustomUser.objects.filter(role="public")
+
+        params = {
+            'ordering': self.request.query_params.get('ordering'),
+            'search': self.request.query_params.get('search')
+        }
+
+        queryset = filter_queryset(queryset, params)
+        return queryset
+
+    def list(self, request):
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True)
+        public_user_list = serializer.data
+
+        return JsonResponse({'message': 'Public user list retrieved successfully', 
+                             'public_user_list': public_user_list}, status=status.HTTP_200_OK)
 
 def filter_queryset(queryset, params):
     if not params.get('ordering'):

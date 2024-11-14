@@ -16,4 +16,5 @@ urlpatterns = [
     path('teacher-list/', TeacherListView.as_view(), name='teacher_list'),
     path('student-list/', StudentListView.as_view(), name='student_list'),
     path('parent-list/', ParentListView.as_view(), name='parent_list'),
+    path('public-user-list/', PublicUserListView.as_view(), name='public_user_list')
 ]
