@@ -4,6 +4,7 @@ import { FaBell, FaCaretDown, FaMoon, FaSun } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import Button from "../LogoutButton";
 import Notif from "../NotifButton";
+import Switch from "../Switch";
 import unknown from "../../assets/img/home/unknown.jpg"; // Default image in case no profile image is available
 
 const TopNavbar = ({
@@ -88,13 +89,12 @@ const TopNavbar = ({
         </button>
       </div>
 
-      <div className="flex items-center space-x-4 relative">
-        <button
-          onClick={toggleDarkMode}
-          className="text-green-700 focus:outline-none"
-        >
-          {darkMode ? <FaSun className="text-2xl" /> : <FaMoon className="text-2xl" />}
-        </button>
+        <div className="flex items-center space-x-4 relative">
+          <button
+            onChange={toggleDarkMode}
+          >
+            <Switch  checked={darkMode} />     
+          </button>
 
          {/* Notification Button */}
          <div className="relative">
