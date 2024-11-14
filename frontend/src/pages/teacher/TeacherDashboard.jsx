@@ -225,10 +225,10 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
     const fetchTeacherData = async () => {
       try {
         const response = await axiosInstance.get(
-          "/user-admin/current-teacher/"
+          "/user-teacher/current-teacher/"
         );
         if (response.status === 200) {
-          const current_teacher = response.data;
+          const current_teacher = response.data.teacher_profile;
           setTeacherData(current_teacher);
         }
       } catch (error) {
@@ -247,43 +247,41 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
           <h1 className="text-2xl font-bold mb-6">Teacher Dashboard</h1>
 
           {/* Greeting Section */}
-        
-            <div
-              className={`mb-8 p-4 rounded-lg shadow-lg flex flex-col lg:flex-row items-center justify-between ${
-                darkMode ? "bg-gray-800 text-white" : "bg-white text-green-700"
-              }`}
-            >
-               
-              <div className="flex-1 mb-4 lg:mb-0">
-                {teacherData && (
-                <p className="font-bold text-2xl mb-1 bg-gradient-to-r from-orange-600 via-green-700 via-blue-800 to-purple-900 text-transparent bg-clip-text">
+
+          <div
+            className={`mb-8 p-4 rounded-lg shadow-lg flex flex-col lg:flex-row items-center justify-between ${
+              darkMode ? "bg-gray-800 text-white" : "bg-white text-green-700"
+            }`}
+          >
+            <div className="flex-1 mb-4 lg:mb-0">
+              {teacherData && (
+                <p className="font-bold text-2xl mb-1 bg-gradient-to-r from-orange-600 via-green-700  to-purple-900 text-transparent bg-clip-text">
                   {greeting.split(",")[0]}, Teacher {teacherData.first_name}!
                 </p>
               )}
-                <p
-                  className={`text-sm ${
-                    darkMode ? "text-gray-300" : "text-gray-600"
-                  } mb-2`}
-                >
-                  {greeting.split(",").slice(1).join(",").trim()}
-                </p>
-                <p
-                  className={`text-xs ${
-                    darkMode ? "text-gray-500" : "text-gray-400"
-                  }`}
-                >
-                  {formattedDate}
-                </p>
-              </div>
-              <div className="flex-shrink-0 w-32 h-40 lg:w-48 lg:h-48">
-                <img
-                  src={illustrations}
-                  alt="Teacher Illustration"
-                  className="w-full h-full object-cover rounded-lg"
-                />
-              </div>
+              <p
+                className={`text-sm ${
+                  darkMode ? "text-gray-300" : "text-gray-600"
+                } mb-2`}
+              >
+                {greeting.split(",").slice(1).join(",").trim()}
+              </p>
+              <p
+                className={`text-xs ${
+                  darkMode ? "text-gray-500" : "text-gray-400"
+                }`}
+              >
+                {formattedDate}
+              </p>
             </div>
-          
+            <div className="flex-shrink-0 w-32 h-40 lg:w-48 lg:h-48">
+              <img
+                src={illustrations}
+                alt="Teacher Illustration"
+                className="w-full h-full object-cover rounded-lg"
+              />
+            </div>
+          </div>
 
           {/* Metrics and Charts */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
