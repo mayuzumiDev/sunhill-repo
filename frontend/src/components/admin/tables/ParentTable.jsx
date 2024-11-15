@@ -167,7 +167,9 @@ const ParentTable = ({
                     {parent_list.id}
                   </td>
                   <td className="py-3 px-4 text-center text-gray-700 font-medium">
-                    {parent_list.student_info.student_user_id}
+                    {parent_list.student_info
+                      .map((student) => student.student_user_id)
+                      .join(", ")}
                   </td>
                   <td className="py-3 px-4 text-center text-gray-700 font-medium">
                     {parent_list.username}

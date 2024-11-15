@@ -40,3 +40,4 @@ class StudentInfoEditView(generics.UpdateAPIView):
         response = super().partial_update(request, pk, *args, **kwargs)
 
         return JsonResponse ({'message': 'User Info updated successfully.'}, status=status.HTTP_200_OK)
+    

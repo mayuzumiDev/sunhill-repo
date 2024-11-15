@@ -153,8 +153,9 @@ class ParentStudentLinkSerializer(serializers.ModelSerializer):
             # Create a ParentInfo instance linking the parent and student info
             parent_info = ParentInfo.objects.create(
                 parent_info=parent_user_info,
-                student_info=student_instance
             )
+
+            parent_info.student_info.set([student_instance])
 
             return {
                 'user': parent_user,

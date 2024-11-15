@@ -81,7 +81,7 @@ class StudentListView(generics.ListAPIView):
                              'student_list': student_list}, status=status.HTTP_200_OK)
 
 class ParentListView(generics.ListAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     serializer_class = ParentListSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['id', 'first_name', 'last_name']

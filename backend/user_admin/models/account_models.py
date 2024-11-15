@@ -26,4 +26,4 @@ class StudentInfo(models.Model):
 
 class ParentInfo(models.Model):
     parent_info = models.OneToOneField(UserInfo, on_delete=models.CASCADE, related_name='parent_info') 
-    student_info = models.ForeignKey(StudentInfo, on_delete=models.CASCADE, related_name='parent_student') 
+    student_info = models.ManyToManyField(StudentInfo, related_name='parent_student') 

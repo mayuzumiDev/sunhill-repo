@@ -61,12 +61,18 @@ class ParentListSerializer(serializers.ModelSerializer):
         # Access the ParentInfo, then StudentInfo, and retrieve both id and grade_level
         parent_info = instance.user_info.parent_info if hasattr(instance.user_info, 'parent_info') else None
         if parent_info and parent_info.student_info:
-            student_user = parent_info.student_info.student_info.user
-            return {
-                'student_user_id': student_user.id if student_user else None,
-                'grade_level': parent_info.student_info.grade_level
-            }
-        return None
+            student_info_list = []
+            for student_info in parent_info.student_info.all():
+                user_info = student_info.student_info
+                
+                custom_user_id = user_info.user.id if user_info and user_info.user else None
+                
+                student_info_list.append({
+                    'student_user_id': custom_user_id,
+                    'grade_level': student_info.grade_level if student_info else None
+                })
+
+            return student_info_list
 
     class Meta:
         model = CustomUser
