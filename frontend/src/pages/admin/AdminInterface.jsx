@@ -10,6 +10,7 @@ import Branches from "./Branches";
 import SchoolEventsCalendar from "./Events";
 import AdminSettings from "./AdminSettings";
 import Logout from "../../components/Logout";
+import SpecialED from "./SpecialEd";
 // import Breadcrumb from "../../components/Breadcrumbs";
 
 function AdminInterface() {
@@ -114,6 +115,7 @@ function AdminInterface() {
           {currentTab === "Branches" && <Branches />}
           {currentTab === "Events" && <SchoolEventsCalendar />}
           {currentTab === "Settings" && <AdminSettings />}
+          {currentTab === "SpecialED" && <SpecialED />}
         </div>
       </div>
     </div>

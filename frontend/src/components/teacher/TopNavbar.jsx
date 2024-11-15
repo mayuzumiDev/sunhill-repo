@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { axiosInstance } from "../../utils/axiosInstance"; // Assuming this is where your axios instance is set up
+import { axiosInstance } from "../../utils/axiosInstance";
 import { FaCaretDown} from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import Button from "../LogoutButton";
 import Notif from "../NotifButton";
 import Switch from "../Switch";
-import unknown from "../../assets/img/home/uriel.jpg"; // Default image in case no profile image is available
+import unknown from "../../assets/img/home/unknown.jpg"; // Default image in case no profile image is available
 
 const TopNavbar = ({
   setShowLogoutDialog,

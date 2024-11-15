@@ -4,6 +4,7 @@ import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button, TextField, Typography, Divider, IconButton, Box, Modal, CircularProgress, useTheme } from '@mui/material';
 import GoogleIcon from '@mui/icons-material/Google';
+import { useNavigate } from "react-router-dom";
 import axios from 'axios';
 
 const LoginModal = ({ isVisible, onClose }) => {
@@ -14,6 +15,7 @@ const LoginModal = ({ isVisible, onClose }) => {
   const [loading, setLoading] = useState(false);
   const [hasAccount, setHasAccount] = useState(true);
   const theme = useTheme();
+  const navigate = useNavigate();
 
   const googleLogin = useGoogleLogin({
     flow: 'auth-code',
@@ -24,7 +26,12 @@ const LoginModal = ({ isVisible, onClose }) => {
           code: codeResponse.code,
         });
         console.log('Tokens:', tokens);
-        // Handle the received tokens
+        
+        // Save user data (or tokens) if needed
+        sessionStorage.setItem('user', JSON.stringify(tokens.data));
+
+        // Redirect to the dashboard
+        navigate("/login/");
       } catch (error) {
         console.error('Error during Google login:', error);
       } finally {

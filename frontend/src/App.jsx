@@ -52,6 +52,7 @@ const App = () => {
   }, [location]);
 
   return (
+     
     <>
       <Routes>
         <Route path="/" element={<HomePage />} />
