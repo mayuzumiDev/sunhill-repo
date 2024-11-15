@@ -110,36 +110,40 @@ class CustomUserDeleteView(generics.DestroyAPIView):
 
                 if user.role == 'student':
                     try:
-                        user_info_instance = user.user_info
-                        student_info_instance = user_info_instance.student_info
-                        parent_infos = student_info_instance.parent_student.all()
+                        user_info_instance = user.user_info # Get the user_info instance associated with the student user.
+                        student_info_instance = user_info_instance.student_info # Get the student_info instance associated with the user_info
+                        parent_infos = student_info_instance.parent_student.all() # Retrieve all parent_info instances associated with the student_info.
 
+                        parent_infos_count = len(parent_infos)
+                        print(f"\nNumber of parent info instances associated with the student: {parent_infos_count}\n")
+                        
                         for parent_info in parent_infos: 
-                            parent_user = parent_info.parent_info.user
-                            parent_user.delete()
+                            
+                            if parent_infos_count == 1:
+                                parent_user = parent_info.parent_info.user  # Get the parent user associated with the parent_info.
+                                parent_user.delete()
 
-                        deleted_count += len(parent_infos)
                     except StudentInfo.DoesNotExist:
                         pass
                 
                 elif user.role == 'parent':
                     try:
-                        parent_info = ParentInfo.objects.get(user=user)
+                        user_info_instance = user.user_info # Get the user_info instance associated with the parent user.
+                        parent_info = user_info_instance.parent_info # Get the parent_info instance associated with the user_info.
                         students = parent_info.student_info.all()
 
                         for student in students:
-                            student.user.delete()
+                            student_user = student.student_info.user  # Get the student user associated with the student_info.
+                            student_user.delete()
 
-                        deleted_count += len(students)
                     except ParentInfo.DoesNotExist:
                         pass                        
 
                 user.delete()
-                deleted_count += 1
             except CustomUser.DoesNotExist:
               pass
         
-        return JsonResponse({"success": f"{deleted_count} users deleted."}, status=status.HTTP_200_OK)
+        return JsonResponse({"success": "User deleted successfully."}, status=status.HTTP_200_OK)
 
 
 
