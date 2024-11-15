@@ -91,7 +91,7 @@ class CreateAccountView(generics.CreateAPIView):
         return JsonResponse({'accounts': response_data}, status=status.HTTP_201_CREATED)
 
 class CustomUserDeleteView(generics.DestroyAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
 
@@ -110,12 +110,29 @@ class CustomUserDeleteView(generics.DestroyAPIView):
 
                 if user.role == 'student':
                     try:
-                        student_info = user.user_info.student_info
-                        parent_info = ParentInfo.objects.get(student_info=student_info)
-                        parent_info.parent_info.user.delete()
-                        deleted_count += 1
-                    except (StudentInfo.DoesNotExist, ParentInfo.DoesNotExist, CustomUser.DoesNotExist):
+                        user_info_instance = user.user_info
+                        student_info_instance = user_info_instance.student_info
+                        parent_infos = student_info_instance.parent_student.all()
+
+                        for parent_info in parent_infos: 
+                            parent_user = parent_info.parent_info.user
+                            parent_user.delete()
+
+                        deleted_count += len(parent_infos)
+                    except StudentInfo.DoesNotExist:
                         pass
+                
+                elif user.role == 'parent':
+                    try:
+                        parent_info = ParentInfo.objects.get(user=user)
+                        students = parent_info.student_info.all()
+
+                        for student in students:
+                            student.user.delete()
+
+                        deleted_count += len(students)
+                    except ParentInfo.DoesNotExist:
+                        pass                        
 
                 user.delete()
                 deleted_count += 1
