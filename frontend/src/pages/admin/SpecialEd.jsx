@@ -8,7 +8,7 @@ import { PDFDownloadLink, Document, Page, Text, View, StyleSheet } from '@react-
 import axios from 'axios';
 // import Chart from 'react-chartjs-2';
 
-// PDF styles
+// PDF styles 
 const styles = StyleSheet.create({
   page: { padding: 30 },
   header: { fontSize: 24, marginBottom: 20, textAlign: 'center' },

@@ -18,7 +18,7 @@ function Tooltip({ name, position, isVisible }) {
 
   const style = {
     top: position.top + 8 + "px",
-    left: position.left + 9 + "px", // Offset from the sidebar for better visibility
+    left: position.left + 11 + "px", // Offset from the sidebar for better visibility
     zIndex: 1000,
     whiteSpace: "nowrap",
   };
@@ -87,7 +87,7 @@ const Sidebar = ({
 
   return (
     <div>
-    <style>
+      <style>
         {`
           @keyframes rotate {
             0% {
@@ -112,119 +112,121 @@ const Sidebar = ({
         `}
       </style>
 
-    <div
-      className={`fixed top-0 left-0 h-full ${darkMode ? "bg-gray-900 text-white" : "bg-white text-black"} shadow-lg transition-all duration-300 ease-in-out ${
-        isSidebarOpen ? "w-64" : "w-20"
-      } ${window.innerWidth < 1024 && !isSidebarOpen ? "hidden" : ""}`}
-    >
-      {/* Fixed Logo and title */}
-      <div className="flex flex-col items-center justify-center mt-4 mb-7 h-20 border-b border-gray-200">
-        <div className="flex items-center p-4">
-          <img
-            src={sunhillLogo}
-            alt="Sunhill Logo"
-            className="h-12 w-12 rounded-full shadow-md" 
-          />
-          {isSidebarOpen && (
-            <div className="flex flex-col ml-2">
-              <h1 className="font-semibold text-lg">
-                <span className="text-red-500">S</span>
-                <span className="text-orange-500">u</span>
-                <span className="text-green-500">n</span>
-                <span className="text-teal-500">h</span>
-                <span className="text-blue-500">i</span>
-                <span className="text-purple-500">l</span>
-                <span className="text-orange-500">l</span>
-                <span className="text-green-800"> LMS</span>
-              </h1>
-              <p className="text-xs italic">Educating the Leaders of the Future...Today!</p>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Scrollable Main navigation */}
-      <div className="overflow-y-auto h-[calc(100vh-4rem)] scrollbar-hidden rounded-b-t-lg">
-        <nav className="mt-4">
-          <ul className="flex flex-col space-y-2">
-            {/* Menu Header */}
+      <div
+        className={`fixed top-0 left-0 h-full ${darkMode ? "bg-gray-900 text-white" : "bg-white text-black"} shadow-lg transition-all duration-300 ease-in-out ${
+          isSidebarOpen ? "w-64" : "w-20"
+        } ${window.innerWidth < 1024 && !isSidebarOpen ? "hidden" : ""}`}
+      >
+        {/* Fixed Logo and title */}
+        <div className="flex flex-col items-center justify-center mt-4 mb-7 h-20 border-b border-gray-200">
+          <div className="flex items-center p-4">
+            <img
+              src={sunhillLogo}
+              alt="Sunhill Logo"
+              className="h-12 w-12 rounded-full shadow-md"
+            />
             {isSidebarOpen && (
-              <li
-                className={`w-full text-left ml-4 font-semibold text-sm sm:text-base ${
-                  darkMode ? "text-gray-400" : "text-gray-600"
-                }`}
-              >
-                MENU
-              </li>
+              <div className="flex flex-col ml-2">
+                <h1 className="font-semibold text-lg">
+                  <span className="text-red-500">S</span>
+                  <span className="text-orange-500">u</span>
+                  <span className="text-green-500">n</span>
+                  <span className="text-teal-500">h</span>
+                  <span className="text-blue-500">i</span>
+                  <span className="text-purple-500">l</span>
+                  <span className="text-orange-500">l</span>
+                  <span className="text-green-800"> LMS</span>
+                </h1>
+                <p className="text-xs italic">Educating the Leaders of the Future...Today!</p>
+              </div>
             )}
+          </div>
+        </div>
 
-            {/* Main Tabs */}
-            {mainTabs.map(({ name, icon }) => (
-              <li key={name} className="w-full relative">
-                <Link
-                  to={`/teacher/${name.toLowerCase()}/`}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleTabClick(name);
-                  }}
-                  
-                  className={`link-hover flex items-center py-3 mx-2 rounded-full transition-all duration-200 ease-in-out transform ${
-                    currentTab === name
-                      ? "bg-green-500 text-white font-bold shadow-xl"
-                      : `${
-                          darkMode
-                            ? "text-gray-300 hover:bg-gray-700"
-                            : "text-gray-700 hover:bg-green-200"
-                        } hover:shadow-xl`
-                  } text-sm sm:text-base`}
-                  style={{ width: "calc(100% - 1rem)" }}
-                  aria-label={name}
-                  role="menuitem"
+        {/* Scrollable Main navigation */}
+        <div className="overflow-y-auto h-[calc(100vh-4rem)] scrollbar-hidden rounded-b-t-lg">
+          <nav className="mt-4">
+            <ul className="flex flex-col space-y-2">
+              {/* Menu Header */}
+              {isSidebarOpen && (
+                <li
+                  className={`w-full text-left ml-4 font-semibold text-sm sm:text-base ${
+                    darkMode ? "text-gray-400" : "text-gray-600"
+                  }`}
                 >
-                  <span className="mr-4 ml-6 transform transition-transform duration-200 hover:scale-110 rotate-on-hover">
-                    {icon}
-                  </span>
-                  {isSidebarOpen && <span>{name}</span>}
-                </Link>
-              </li>
-            ))}
+                  MENU
+                </li>
+              )}
 
-            {/* Additional Tabs */}
-            {additionalTabs.map(({ name, icon }) => (
-              <li key={name} className="w-full relative">
-                <Link
-                  to={`/teacher/${name.toLowerCase().replace(/\s+/g, "-")}/`}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleTabClick(name);
-                  }}
-                  onMouseLeave={() => setTooltip("")}
-                  className={`link-hover flex items-center py-3 mx-2 rounded-full transition-all duration-200 ease-in-out transform ${
-                    currentTab === name
-                      ? "bg-green-500 text-white font-bold shadow-xl"
-                      : `${
-                          darkMode
-                            ? "text-gray-300 hover:bg-gray-700"
-                            : "text-gray-700 hover:bg-green-200"
-                        } hover:shadow-xl`
-                  } text-sm sm:text-base`}
-                  style={{ width: "calc(100% - 1rem)" }}
-                  aria-label={name}
-                  role="menuitem"
-                >
-                  <span className="mr-4 ml-6 transform transition-transform duration-200 hover:scale-110 rotate-on-hover">
-                    {icon}
-                  </span>
-                  {isSidebarOpen && <span>{name}</span>}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
+              {/* Main Tabs */}
+              {mainTabs.map(({ name, icon }) => (
+                <li key={name} className="w-full relative">
+                  <Link
+                    to={`/teacher/${name.toLowerCase()}/`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleTabClick(name);
+                    }}
+                    onMouseEnter={(e) => handleMouseEnter(name, e)}
+                    onMouseLeave={() => setTooltip("")}
+                    className={`link-hover flex items-center py-3 mx-2 rounded-full transition-all duration-200 ease-in-out transform ${
+                      currentTab === name
+                        ? "bg-green-500 text-white font-bold shadow-xl"
+                        : `${
+                            darkMode
+                              ? "text-gray-300 hover:bg-gray-700"
+                              : "text-gray-700 hover:bg-green-200"
+                          } hover:shadow-xl`
+                    } text-sm sm:text-base`}
+                    style={{ width: "calc(100% - 1rem)" }}
+                    aria-label={name}
+                    role="menuitem"
+                  >
+                    <span className="mr-4 ml-6 transform transition-transform duration-200 hover:scale-110 rotate-on-hover">
+                      {icon}
+                    </span>
+                    {isSidebarOpen && <span>{name}</span>}
+                  </Link>
+                </li>
+              ))}
+
+              {/* Additional Tabs */}
+              {additionalTabs.map(({ name, icon }) => (
+                <li key={name} className="w-full relative">
+                  <Link
+                    to={`/teacher/${name.toLowerCase().replace(/\s+/g, "-")}/`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleTabClick(name);
+                    }}
+                    onMouseEnter={(e) => handleMouseEnter(name, e)}
+                    onMouseLeave={() => setTooltip("")}
+                    className={`link-hover flex items-center py-3 mx-2 rounded-full transition-all duration-200 ease-in-out transform ${
+                      currentTab === name
+                        ? "bg-green-500 text-white font-bold shadow-xl"
+                        : `${
+                            darkMode
+                              ? "text-gray-300 hover:bg-gray-700"
+                              : "text-gray-700 hover:bg-green-200"
+                          } hover:shadow-xl`
+                    } text-sm sm:text-base`}
+                    style={{ width: "calc(100% - 1rem)" }}
+                    aria-label={name}
+                    role="menuitem"
+                  >
+                    <span className="mr-4 ml-6 transform transition-transform duration-200 hover:scale-110 rotate-on-hover">
+                      {icon}
+                    </span>
+                    {isSidebarOpen && <span>{name}</span>}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </div>
+        {/* Tooltip */}
+        <Tooltip name={tooltip} position={tooltipPosition} isVisible={!!tooltip} />
       </div>
-      {/* Tooltip */}
-      <Tooltip name={tooltip} position={tooltipPosition} isVisible={!!tooltip} />
-    </div>
     </div>
   );
 };
