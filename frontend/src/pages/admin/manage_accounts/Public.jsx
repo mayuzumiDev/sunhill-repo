@@ -170,6 +170,33 @@ const Public = () => {
     }
   };
 
+  const handleDeleteAccount = async () => {
+    if (selectedPublicUser.length === 0) {
+      setShowSelectUserError(true);
+      return;
+    }
+
+    try {
+      // Request to delete selected teacher accounts
+      const response = await axiosInstance.post(
+        "/user-admin/custom-user/delete/",
+        {
+          id: selectedPublicUser,
+        }
+      );
+
+      if (response.status === 200) {
+        setIsConfirmDelete(false);
+        setShowDeleteSuccess(true);
+        fetchData();
+        setSelectedPublicUser([]);
+      }
+    } catch (error) {
+      console.error("An error occurred while deleting the account.");
+      setShowDeleteError(true);
+    }
+  };
+
   return (
     <div className="p-4 md:p-6 font-montserrat">
       <h1 className="text-2xl md:text-4xl text-gray-800 font-bold mb-4">
