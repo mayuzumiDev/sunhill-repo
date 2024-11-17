@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.utils.text import slugify
 from api.models import CustomUser, UserRole
-from ...models.account_models import UserInfo, StudentInfo, ParentInfo
+from ...models.account_models import *
 import random
 import datetime
 
@@ -91,8 +91,14 @@ class CreateAccountSerializer(serializers.ModelSerializer):
 
         user_info = UserInfo.objects.create(user=user) # Create a UserInfo instance associated with the user
 
+        if validated_data['role'] == 'teacher':
+            try:
+                teacher_info = TeacherInfo.objects.create(teacher_info=user_info)
+
+            except Exception as e:
+                raise serializers.ValidationError(f'Creating instance to TeacherInfo failed: {e}')
         # If the role is 'student', create a StudentInfo instance
-        if validated_data['role'] == 'student':
+        elif validated_data['role'] == 'student':
             try:
                 student_info = StudentInfo.objects.create(student_info=user_info)
 

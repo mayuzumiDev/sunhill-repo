@@ -20,6 +20,10 @@ class UserInfo(models.Model):
     contact_no = models.CharField(max_length=20, null=True)
     profile_image = models.ImageField(upload_to='profile_images/', blank=True, null=True)
 
+class TeacherInfo(models.Model):
+    teacher_info = models.OneToOneField(UserInfo, on_delete=models.CASCADE, related_name="teacher_info")
+    staff_position = models.CharField(max_length=20, null=True)
+
 class StudentInfo(models.Model):
     student_info = models.OneToOneField(UserInfo, on_delete=models.CASCADE, related_name="student_info") 
     grade_level = models.CharField(max_length=20, choices=GRADE_LEVEL_CHOICES, null=True)
