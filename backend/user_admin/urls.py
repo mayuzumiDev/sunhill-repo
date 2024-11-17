@@ -1,10 +1,12 @@
 from django.urls import path
+from .views.current_admin_views import *
 from .views.account.account_views_create import *
 from .views.account.account_views_list import *
 from .views.account.account_views_edit import *
 from .views.account.pdf_accounts import *
 
 urlpatterns = [
+    path('current-admin/', CurrentAdminView.as_view(), name="current_admin" ),
     path('generate-account/', GenerateAccountView.as_view(), name="generate_account" ),
     path("create-account/", CreateAccountView.as_view(), name='create_account'),
     path("custom-user/delete/", CustomUserDeleteView.as_view(), name="custom_user_delete"),

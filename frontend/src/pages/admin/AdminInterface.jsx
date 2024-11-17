@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { axiosInstance } from "../../utils/axiosInstance";
 import SideNavbar from "../../components/admin/SideNavbar";
 import TopNavbar from "../../components/admin/TopNavbar";
 import Dashboard from "./Dashboard";
@@ -15,9 +16,53 @@ import SpecialED from "./SpecialEd";
 
 function AdminInterface() {
   const [currentTab, setCurrentTab] = useState("Dashboard");
+  const [previousTab, setPreviousTab] = useState("Dashboard");
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
+
+  const [adminData, setAdminData] = useState({
+    id: "",
+    user_info_id: "",
+    username: "",
+    // password: "",
+    email: "",
+    contact_no: "",
+    first_name: "",
+    last_name: "",
+  });
+
+  useEffect(() => {
+    const fetchAdminData = async () => {
+      try {
+        const response = await axiosInstance.get("/user-admin/current-admin/");
+
+        if (response.status === 200 && response.data.current_admin) {
+          const data = response.data.current_admin;
+
+          setAdminData({
+            id: data.id || "",
+            user_info_id: data.user_info.id || "",
+            username: data.username || "",
+            // password: "",
+            email: data.email || "",
+            contact_no: data.user_info?.contact_no || "",
+            first_name: data.first_name || "",
+            last_name: data.last_name || "",
+          });
+        } else {
+          console.error("Invalid response format:", response.data);
+        }
+      } catch (error) {
+        console.error("Error fetching admin data:", error);
+        if (error.response) {
+          console.error("Error response:", error.response.data);
+        }
+      }
+    };
+
+    fetchAdminData();
+  }, []);
 
   // Responsive sidebar toggle based on screen size
   useEffect(() => {
@@ -30,6 +75,11 @@ function AdminInterface() {
 
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  const handleTabChange = (tab) => {
+    setPreviousTab(currentTab);
+    setCurrentTab(tab);
+  };
 
   const toggleSidebar = () => {
     setIsSidebarOpen((prev) => !prev);
@@ -53,7 +103,7 @@ function AdminInterface() {
       >
         <SideNavbar
           currentTab={currentTab}
-          setCurrentTab={setCurrentTab}
+          setCurrentTab={handleTabChange}
           toggleSidebar={toggleSidebar}
           isSidebarOpen={isSidebarOpen}
           darkMode={darkMode} // Pass dark mode state to Sidebar
@@ -68,7 +118,7 @@ function AdminInterface() {
         >
           <SideNavbar
             currentTab={currentTab}
-            setCurrentTab={setCurrentTab}
+            setCurrentTab={handleTabChange}
             toggleSidebar={toggleSidebar}
             darkMode={darkMode}
             isSidebarOpen={isSidebarOpen}
@@ -89,7 +139,7 @@ function AdminInterface() {
         {/* Top Navbar */}
         <div className="flex-none">
           <TopNavbar
-            setCurrentTab={setCurrentTab}
+            setCurrentTab={handleTabChange}
             setShowLogoutDialog={setShowLogoutDialog}
             toggleSidebar={toggleSidebar}
             darkMode={darkMode}
@@ -114,7 +164,14 @@ function AdminInterface() {
           {currentTab === "Public" && <Public />}
           {currentTab === "Branches" && <Branches />}
           {currentTab === "Events" && <SchoolEventsCalendar />}
-          {currentTab === "Settings" && <AdminSettings />}
+          {currentTab === "Settings" && (
+            <AdminSettings
+              previousTab={previousTab}
+              setCurrentTab={handleTabChange}
+              adminData={adminData}
+              setAdminData={setAdminData}
+            />
+          )}
           {currentTab === "SpecialED" && <SpecialED />}
         </div>
       </div>
