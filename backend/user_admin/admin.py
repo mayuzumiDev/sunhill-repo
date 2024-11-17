@@ -20,6 +20,6 @@ class ParentInfoAdmin(UserInfoAdmin):
     )
 
 admin.site.register(UserInfo, UserInfoAdmin)
-admin.site.register(StudentInfo,  StudentInfoAdmin)  
+admin.site.register(StudentInfo, StudentInfoAdmin)  
 admin.site.register(ParentInfo, ParentInfoAdmin)
 

@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { axiosInstance } from "../../utils/axiosInstance";
-import { FaCaretDown} from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { FaCaretDown } from "react-icons/fa";
 import Button from "../LogoutButton";
 import Notif from "../NotifButton";
 import Switch from "../Switch";
-import unknown from "../../assets/img/home/unknown.jpg"; // Default image in case no profile image is available
+import unknown from "../../assets/img/home/unknown.jpg";
+import { useTeacher } from "../../context/TeacherContext";
 
 const TopNavbar = ({
   setShowLogoutDialog,
@@ -16,7 +16,8 @@ const TopNavbar = ({
   darkMode,
   toggleDarkMode,
 }) => {
-  const [teacherData, setTeacherData] = useState(null);
+  const { teacherData, refreshTeacherData } = useTeacher();
+  const [profileImage, setProfileImage] = useState(unknown);
   const [isNotifDropdownOpen, setIsNotifDropdownOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const notifDropdownRef = useRef(null);
@@ -24,25 +25,18 @@ const TopNavbar = ({
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchTeacherData = async () => {
-      try {
-        console.log(teacherData);
-        const response = await axiosInstance.get(
-          "/user-teacher/current-teacher/"
-        );
-        if (response.status === 200) {
-          console.log(response.status);
-          const current_teacher = response.data.teacher_profile;
-          setTeacherData(current_teacher);
-        }
-      } catch (error) {
-        console.error("An error occurred while fetching the data:", error);
-      }
-    };
+    refreshTeacherData();
+  }, [refreshTeacherData]);
 
-    fetchTeacherData();
-  }, []);
-  // Empty dependency array means this runs only once when the component mounts
+  useEffect(() => {
+    if (teacherData?.user_info?.profile_image) {
+      console.log('Setting profile image:', teacherData.user_info.profile_image);
+      setProfileImage(teacherData.user_info.profile_image);
+    } else {
+      console.log('Setting default image');
+      setProfileImage(unknown);
+    }
+  }, [teacherData]);
 
   const toggleNotifDropdown = () => setIsNotifDropdownOpen((prev) => !prev);
   const toggleProfileDropdown = () => setIsProfileDropdownOpen((prev) => !prev);
@@ -159,11 +153,16 @@ const TopNavbar = ({
               className="flex items-center text-green-700 focus:outline-none"
             >
               <img
-                src={teacherData.profile_image || unknown}
+                src={profileImage}
                 alt="Profile"
-                className={`w-10 h-10 rounded-full border-2 ${
+                className={`w-10 h-10 rounded-full border-2 object-cover ${
                   darkMode ? "border-gray-700" : "border-green-500"
                 }`}
+                onError={(e) => {
+                  console.error('Image failed to load:', e);
+                  setProfileImage(unknown);
+                  e.target.src = unknown;
+                }}
               />
 
               {/* Profile Details (Shown only on medium screens and up) */}
