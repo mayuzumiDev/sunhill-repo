@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faExclamationTriangle } from "@fortawesome/free-solid-svg-icons";
 import { axiosInstance } from "../../../utils/axiosInstance";
-import EditParentModal from "../../../components/modal/admin/EditParentModal";
+import EditParentModal from "../../../components/modal/admin/manage_account/EditParentModal";
 import EditSuccessAlert from "../../alert/EditSuccessAlert";
 import EditErrorAlert from "../../alert/EditErrorAlert";
 import SchawnnahJLoader from "../../loaders/SchawnnahJLoader";
