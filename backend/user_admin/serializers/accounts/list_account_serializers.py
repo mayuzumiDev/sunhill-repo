@@ -1,8 +1,8 @@
 from rest_framework import serializers
 from api.models import CustomUser
-from ...models.account_models import UserInfo, StudentInfo, ParentInfo
+from ...models.account_models import *
 
-class TeacherListSerializer(serializers.ModelSerializer):
+""" class TeacherListSerializer(serializers.ModelSerializer):
     user_id = serializers.IntegerField(source='user.id', read_only=True)
     first_name = serializers.CharField(source='user.first_name', read_only=True)
     last_name = serializers.CharField(source='user.last_name', read_only=True)
@@ -20,7 +20,30 @@ class TeacherListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserInfo
-        fields = ('user_id', 'id', 'first_name', 'last_name', 'username', 'email', 'branch_name', 'contact_no', 'is_teacher')
+        fields = ('user_id', 'id', 'first_name', 'last_name', 'username', 'email', 'branch_name', 'contact_no', 'is_teacher') """
+
+class TeacherListSerializer(serializers.ModelSerializer):
+    user_info = serializers.SerializerMethodField()
+    teacher_info = serializers.SerializerMethodField()
+
+    def get_user_info(self, instance):
+        user_info = instance.user_info
+        return {
+            'id': user_info.id,
+            'contact_no': user_info.contact_no
+        }
+    
+    def get_teacher_info(self, instance):
+        user_info = instance.user_info
+        teacher_info = user_info.teacher_info
+        return {
+            'id': teacher_info.id,
+            'staff_position': teacher_info.staff_position
+        }
+
+    class Meta:
+        model = CustomUser
+        fields = ('id', 'first_name', 'last_name', 'username', 'email', 'branch_name', 'user_info', 'teacher_info')
 
 class StudentListSerializer(serializers.ModelSerializer):
     user_info = serializers.SerializerMethodField()

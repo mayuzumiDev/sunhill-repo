@@ -23,23 +23,32 @@ class UserInfoEditView(generics.UpdateAPIView):
     serializer_class = UserInfoEditSerializer
     http_method_names = ['patch']
 
-    # Method to handle partial updates to user info
     def partial_update(self, request,  pk=None, *args, **kwargs):
         response = super().partial_update(request, pk, *args, **kwargs)
 
         return JsonResponse ({'message': 'User Info updated successfully.'}, status=status.HTTP_200_OK)
-    
+
+class TeacherInfoEditView(generics.UpdateAPIView):
+    permission_classes = [IsAuthenticated]
+    queryset = TeacherInfo.objects.all()
+    serializer_class = TeacherInfoEditSerializer
+    http_method_names = ['patch']
+
+    def partial_update(self, request,  pk=None, *args, **kwargs):
+        response = super().partial_update(request, pk, *args, **kwargs)
+
+        return JsonResponse ({'message': 'Teacher Info updated successfully.'}, status=status.HTTP_200_OK)
+
 class StudentInfoEditView(generics.UpdateAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = StudentInfoEditSerializer
     queryset = StudentInfo.objects.all()
     http_method_names = ['patch']
 
-    # Method to handle partial updates to user info
     def partial_update(self, request,  pk=None, *args, **kwargs):
         response = super().partial_update(request, pk, *args, **kwargs)
 
-        return JsonResponse ({'message': 'User Info updated successfully.'}, status=status.HTTP_200_OK)
+        return JsonResponse ({'message': 'Student Info updated successfully.'}, status=status.HTTP_200_OK)
     
 class ParentInfoEditView(generics.UpdateAPIView):
     permission_classes = [AllowAny]
@@ -47,7 +56,6 @@ class ParentInfoEditView(generics.UpdateAPIView):
     queryset = ParentInfo.objects.all()
     http_method_names = ['patch']
 
-    # Method to handle partial updates to user info
     def partial_update(self, request,  pk=None, *args, **kwargs):
         response = super().partial_update(request, pk, *args, **kwargs)
 
