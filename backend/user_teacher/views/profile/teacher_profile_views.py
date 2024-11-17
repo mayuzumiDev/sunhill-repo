@@ -4,7 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import ValidationError
 from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser
-from user_admin.models.account_models import CustomUser
+from user_admin.models.account_models import CustomUser, UserInfo
 from ...serializers.profile.current_teacher_serializer import GetCurrentTeacherSerializer
 import os
 import re
@@ -59,12 +59,14 @@ class TeacherProfileUpdateView(APIView):
             if user.role != 'teacher':
                 return JsonResponse({"error": "Not authorized"}, status=status.HTTP_403_FORBIDDEN)
 
+            # Get or create user_info
+            user_info, created = UserInfo.objects.get_or_create(user=user)
+            if created:
+                logger.info(f"Created new UserInfo for user {user.id}")
+
             # Update user info
-            if hasattr(user, 'user_info'):
-                user_info = user.user_info
-                
-                # Update phone number if provided
-                phone_number = request.data.get('phone_number')
+            if 'phone_number' in request.data:
+                phone_number = request.data['phone_number']
                 if phone_number:
                     if not self.validate_phone_number(phone_number):
                         return JsonResponse(
@@ -72,13 +74,11 @@ class TeacherProfileUpdateView(APIView):
                             status=status.HTTP_400_BAD_REQUEST
                         )
                     user_info.contact_no = phone_number
-                
-                # Update email if provided
-                email = request.data.get('email')
-                if email:
-                    user_info.email = email
-                
-                user_info.save()
+
+            if 'email' in request.data:
+                user_info.email = request.data['email']
+
+            user_info.save()
 
             # Update user fields
             if 'first_name' in request.data:
@@ -118,27 +118,27 @@ class TeacherProfileImageView(APIView):
             if 'profile_image' not in request.FILES:
                 return JsonResponse({"error": "No image provided"}, status=status.HTTP_400_BAD_REQUEST)
 
-            if hasattr(user, 'user_info'):
-                user_info = user.user_info
-                
-                # Delete old image if it exists
-                if user_info.profile_image:
-                    if os.path.exists(user_info.profile_image.path):
-                        os.remove(user_info.profile_image.path)
+            # Get or create user_info
+            user_info, created = UserInfo.objects.get_or_create(user=user)
+            if created:
+                logger.info(f"Created new UserInfo for user {user.id}")
 
-                user_info.profile_image = request.FILES['profile_image']
-                user_info.save()
+            # Delete old image if it exists
+            if user_info.profile_image:
+                if os.path.exists(user_info.profile_image.path):
+                    os.remove(user_info.profile_image.path)
 
-                # Build absolute URL for the image
-                image_url = request.build_absolute_uri(user_info.profile_image.url)
-                logger.info(f"Profile image uploaded successfully. URL: {image_url}")
+            user_info.profile_image = request.FILES['profile_image']
+            user_info.save()
 
-                return JsonResponse({
-                    "message": "Image uploaded successfully",
-                    "image_url": image_url
-                })
-            else:
-                return JsonResponse({"error": "User info not found"}, status=status.HTTP_404_NOT_FOUND)
+            # Build absolute URL for the image
+            image_url = request.build_absolute_uri(user_info.profile_image.url)
+            logger.info(f"Profile image uploaded successfully. URL: {image_url}")
+
+            return JsonResponse({
+                "message": "Image uploaded successfully",
+                "image_url": image_url
+            })
                 
         except Exception as e:
             logger.error(f"Error uploading profile image: {str(e)}")
@@ -150,30 +150,30 @@ class TeacherProfileImageView(APIView):
             if user.role != 'teacher':
                 return JsonResponse({"error": "Not authorized"}, status=status.HTTP_403_FORBIDDEN)
 
-            if hasattr(user, 'user_info'):
-                user_info = user.user_info
+            # Get or create user_info
+            user_info, created = UserInfo.objects.get_or_create(user=user)
+            if created:
+                logger.info(f"Created new UserInfo for user {user.id}")
                 
-                # Delete the physical file if it exists
-                if user_info.profile_image:
-                    if os.path.exists(user_info.profile_image.path):
-                        os.remove(user_info.profile_image.path)
-                    
-                    # Clear the profile_image field
-                    user_info.profile_image = None
-                    user_info.save()
-                    
-                    logger.info(f"Profile image deleted successfully for user {user.id}")
-                    return JsonResponse({
-                        "message": "Profile image deleted successfully",
-                        "status": "success"
-                    })
-                else:
-                    return JsonResponse({
-                        "message": "No profile image to delete",
-                        "status": "success"
-                    })
+            # Delete the physical file if it exists
+            if user_info.profile_image:
+                if os.path.exists(user_info.profile_image.path):
+                    os.remove(user_info.profile_image.path)
+                
+                # Clear the profile_image field
+                user_info.profile_image = None
+                user_info.save()
+                
+                logger.info(f"Profile image deleted successfully for user {user.id}")
+                return JsonResponse({
+                    "message": "Profile image deleted successfully",
+                    "status": "success"
+                })
             else:
-                return JsonResponse({"error": "User info not found"}, status=status.HTTP_404_NOT_FOUND)
+                return JsonResponse({
+                    "message": "No profile image to delete",
+                    "status": "success"
+                })
                 
         except Exception as e:
             logger.error(f"Error deleting profile image: {str(e)}")
