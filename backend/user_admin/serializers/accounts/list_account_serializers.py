@@ -69,6 +69,7 @@ class ParentListSerializer(serializers.ModelSerializer):
                 
                 student_info_list.append({
                     'student_user_id': custom_user_id,
+                    'student_info_id': student_info.id,
                     'grade_level': student_info.grade_level if student_info else None
                 })
 
