@@ -159,11 +159,11 @@ const TeacherTable = ({
             </tbody>
           </table>
         </div>
-        <div className="mt-4 flex flex-col sm:flex-row justify-between items-center">
+        <div className=" flex flex-col sm:flex-row justify-between border-b border-gray-200 pt-4 items-center">
           <span className="text-xs sm:text-sm font-semibold text-gray-600 mb-2 sm:mb-0">
             Showing {indexOfFirstItem + 1}-{Math.min(indexOfLastItem, teacherAccounts.length)} of {teacherAccounts.length} Teacher Accounts
           </span>
-          <div className="flex space-x-2">
+          <div className="flex space-x-2 mb-2">
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
