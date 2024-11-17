@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faExclamationCircle } from "@fortawesome/free-solid-svg-icons";
-import SlimyTigerLoader from "../../loaders/SlimyTigerLoader";
+import SlimyTigerLoader from "../../../loaders/SlimyTigerLoader";
 
 function ConfirmDeleteModal({ title, onConfirm, onCancel }) {
   const [isLoading, setIsloading] = useState(false);

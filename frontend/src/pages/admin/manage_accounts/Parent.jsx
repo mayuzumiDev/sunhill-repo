@@ -6,7 +6,7 @@ import {
   faExclamationTriangle,
 } from "@fortawesome/free-solid-svg-icons";
 import { axiosInstance } from "../../../utils/axiosInstance";
-import ConfirmDeleteModal from "../../../components/modal/admin/ConfirmDeleteModal";
+import ConfirmDeleteModal from "../../../components/modal/admin/manage_account/ConfirmDeleteModal";
 import DeleteSuccessAlert from "../../../components/alert/DeleteSuccessAlert";
 import DeleteErrorAlert from "../../../components/alert/DeleteErrorAlert";
 import SelectUserErrorAlert from "../../../components/alert/SelectUserErrorAlert";

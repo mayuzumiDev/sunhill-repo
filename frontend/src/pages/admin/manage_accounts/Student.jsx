@@ -11,7 +11,7 @@ import { generatePdf } from "../../../utils/pdfUtils";
 import SchawnnahJLoader from "../../../components/loaders/SchawnnahJLoader";
 import AddStudentModal from "../../../components/modal/admin/manage_account/AddStudentModal";
 import GeneratedStudentModal from "../../../components/modal/admin/manage_account/GeneratedStudentModal";
-import ConfirmDeleteModal from "../../../components/modal/admin/ConfirmDeleteModal";
+import ConfirmDeleteModal from "../../../components/modal/admin/manage_account/ConfirmDeleteModal";
 import BiingsAlertSuccess from "../../../components/alert/BiingsAlertSuccess";
 import BiingsAlertError from "../../../components/alert/BiingsAlertError";
 import DeleteSuccessAlert from "../../../components/alert/DeleteSuccessAlert";
