@@ -166,7 +166,7 @@ const StudentTable = ({
                     />
                   </td>
                   <td className="py-3 px-4 text-center text-gray-700 font-medium">
-                    {student_list.id}
+                    {student_list.student_info.id}
                   </td>
                   <td className="py-3 px-4 text-center text-gray-700 font-medium">
                     {student_list.username}

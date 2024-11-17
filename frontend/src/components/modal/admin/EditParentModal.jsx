@@ -3,8 +3,11 @@ import React, { useEffect, useState } from "react";
 function EditParentModal({ isOpen, onClose, onSave, userData, userRole }) {
   const [formData, setFormData] = useState({
     user_id: userData.id,
+    parent_info_id: userData.parent_info_id,
     user_info_id: userData.user_info.id,
-    student_user_id: userData.student_info.student_user_id,
+    student_info_id: userData.student_info
+      .map((student) => student.student_info_id)
+      .join(", "),
     username: userData.username || "",
     first_name: userData.first_name || "",
     last_name: userData.last_name || "",
@@ -63,13 +66,7 @@ function EditParentModal({ isOpen, onClose, onSave, userData, userRole }) {
           <label className="block mb-4 mr-2 w-1/2">
             <span className="text-gray-700 font-semibold">
               {userRole} ID:{" "}
-              <span className="text-gray-700">{formData.user_id}</span>
-            </span>
-          </label>
-          <label className="block mb-4 w-1/2">
-            <span className="text-gray-700 font-semibold">
-              Linked Student ID:{" "}
-              <span className="text-gray-700">{formData.student_user_id}</span>
+              <span className="text-gray-700">{formData.parent_info_id}</span>
             </span>
           </label>
         </div>
@@ -150,7 +147,7 @@ function EditParentModal({ isOpen, onClose, onSave, userData, userRole }) {
         </label>
 
         {/* Contact No */}
-        <label className="block mb-2">
+        <label className="block mb-4">
           <span className="text-gray-700 font-semibold">Contact No</span>
           <input
             type="tel"
@@ -158,6 +155,18 @@ function EditParentModal({ isOpen, onClose, onSave, userData, userRole }) {
             minLength="11"
             maxLength="15"
             value={formData.contact_no}
+            onChange={handleChange}
+            className="w-full mt-1 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </label>
+
+        <label className="block mb-2 mr-2 w-1/2">
+          <span className="text-gray-700 font-semibold">Linked Student ID</span>
+          <input
+            type="text"
+            name="student_info_id"
+            maxLength="30"
+            value={formData.student_info_id}
             onChange={handleChange}
             className="w-full mt-1 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />

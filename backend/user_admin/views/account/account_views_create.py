@@ -91,7 +91,7 @@ class CreateAccountView(generics.CreateAPIView):
         return JsonResponse({'accounts': response_data}, status=status.HTTP_201_CREATED)
 
 class CustomUserDeleteView(generics.DestroyAPIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
 
