@@ -110,12 +110,8 @@ const AccountSettings = () => {
         branch_name: formData.branch_name
       };
 
-      const response = await axiosInstance.patch('/user-teacher/profile/update/', updateData);
-      if (response.status === 200) {
-        setMessage('Profile updated successfully!');
-        // Refresh teacher data immediately after successful update
-        await refreshTeacherData();
-      }
+      await axiosInstance.patch('/user-teacher/profile/update/', updateData);
+      setMessage('Profile updated successfully!');
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to update profile');
     }
@@ -129,16 +125,23 @@ const AccountSettings = () => {
         const formData = new FormData();
         formData.append('profile_image', file);
 
-        const response = await axiosInstance.post('/user-teacher/profile/upload-image/', formData, {
+        const response = await axiosInstance.post('/user-teacher/profile/image/', formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
         });
 
-        if (response.status === 200) {
+        if (response.data.image_url) {
+          setProfileImage(response.data.image_url);
           setMessage('Profile image updated successfully!');
-          // Refresh teacher data immediately after successful image upload
+          
+          // Refresh teacher data immediately
           await refreshTeacherData();
+          
+          // Force a small delay and refresh again to ensure the new image is loaded
+          setTimeout(async () => {
+            await refreshTeacherData();
+          }, 500);
         }
       } catch (err) {
         console.error('Error uploading image:', err);
@@ -150,13 +153,19 @@ const AccountSettings = () => {
   const handleDeleteImage = async () => {
     try {
       setError('');
-      const response = await axiosInstance.delete('/user-teacher/profile/delete-image/');
+      const response = await axiosInstance.delete('/user-teacher/profile/image/');
       
       if (response.status === 200) {
-        setMessage('Profile image deleted successfully!');
         setProfileImage(userThree);
-        // Refresh teacher data immediately after successful image deletion
+        setMessage('Profile image deleted successfully!');
+        
+        // Refresh teacher data immediately
         await refreshTeacherData();
+        
+        // Force a small delay and refresh again to ensure the update is propagated
+        setTimeout(async () => {
+          await refreshTeacherData();
+        }, 500);
       }
     } catch (err) {
       console.error('Error deleting image:', err);
