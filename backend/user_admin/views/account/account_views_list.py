@@ -89,10 +89,10 @@ class TeacherListView(generics.ListAPIView):
     def list(self, request):
         queryset = self.filter_queryset(self.get_queryset())
         serializer = self.get_serializer(queryset, many=True)
-        student_list = serializer.data
+        teacher_list = serializer.data
 
         return JsonResponse({'message': 'Teacher list retrieved successfully',
-                             'student_list': student_list}, status=status.HTTP_200_OK)
+                             'student_list': teacher_list}, status=status.HTTP_200_OK)
 
 
 class StudentListView(generics.ListAPIView):
