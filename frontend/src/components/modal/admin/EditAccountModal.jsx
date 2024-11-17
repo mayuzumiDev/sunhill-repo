@@ -2,13 +2,15 @@ import React, { useState } from "react";
 
 function EditAccountModal({ isOpen, onClose, onSave, userData, userRole }) {
   const [formData, setFormData] = useState({
-    user_id: userData.user_id,
-    user_info_id: userData.id,
+    id: userData.id,
+    user_info_id: userData.user_info.id,
+    teacher_info_id: userData.teacher_info.id,
     username: userData.username || "",
     first_name: userData.first_name || "",
     last_name: userData.last_name || "",
     email: userData.email || "",
-    contact_no: userData.contact_no || "",
+    contact_no: userData.user_info.contact_no || "",
+    staff_position: userData.teacher_info.staff_position || "",
     branch_name: userData.branch_name || "",
   });
 
@@ -62,7 +64,7 @@ function EditAccountModal({ isOpen, onClose, onSave, userData, userRole }) {
           <label className="block mb-4 mr-2 w-1/2">
             <span className="text-gray-700 font-semibold">
               {userRole} ID:{" "}
-              <span className="text-gray-700">{userData.user_id}</span>
+              <span className="text-gray-700">{userData.teacher_info.id}</span>
             </span>
           </label>
         </div>
@@ -92,6 +94,26 @@ function EditAccountModal({ isOpen, onClose, onSave, userData, userRole }) {
               type="text"
               name="branch_name"
               value={formData.branch_name}
+              onChange={handleChange}
+              className="w-full mt-1 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </label>
+        </div>
+
+        
+        <div className="flex">
+          {/* Username */}
+          <label className="block mb-2 mr-2 w-1/2">
+            <span className="text-gray-700 font-semibold">
+              Staff Position 
+            </span>
+            <input
+              type="text"
+              name="staff_position"
+              minLength="10"
+              maxLength="20"
+              required
+              value={formData.staff_position}
               onChange={handleChange}
               className="w-full mt-1 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
@@ -143,7 +165,7 @@ function EditAccountModal({ isOpen, onClose, onSave, userData, userRole }) {
         </label>
 
         {/* Contact No */}
-        <label className="block mb-2">
+        <label className="block mb-4">
           <span className="text-gray-700 font-semibold">Contact No</span>
           <input
             type="tel"

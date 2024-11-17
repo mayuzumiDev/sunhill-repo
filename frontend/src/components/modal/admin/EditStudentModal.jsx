@@ -64,7 +64,7 @@ function EditStudentModal({ isOpen, onClose, onSave, userData, userRole }) {
           <label className="block mb-4 mr-2 w-1/2">
             <span className="text-gray-700 font-semibold">
               {userRole} ID:{" "}
-              <span className="text-gray-700">{userData.id}</span>
+              <span className="text-gray-700">{userData.student_info_id}</span>
             </span>
           </label>
         </div>

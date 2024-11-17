@@ -25,6 +25,7 @@ const TeacherTable = ({
   const [editingTeacher, setIsEditingTeacher] = useState(null);
 
   useEffect(() => {
+    console.log(teacherAccounts);
     // Automatically hide alert after 5 seconds
     if (successAlert) {
       const timer = setTimeout(() => setSuccessAlert(false), 5000);
@@ -40,21 +41,23 @@ const TeacherTable = ({
   const handleSave = async (formData) => {
     // Destructure formData to extract necessary fields
     const {
-      user_id,
+      id,
       user_info_id,
+      teacher_info_id,
       username,
       first_name,
       last_name,
       email,
       contact_no,
+      staff_position,
       branch_name,
     } = formData;
 
     try {
       setIsLoading(true);
       // Make simultaneous API calls to update user and user info
-      const [customUserDataResponse, userInfoDataResponse] = await Promise.all([
-        axiosInstance.patch(`/user-admin/custom-user/edit/${user_id}/`, {
+      const [customUserDataResponse, userInfoDataResponse, teacherInfoDataResponse] = await Promise.all([
+        axiosInstance.patch(`/user-admin/custom-user/edit/${id}/`, {
           username,
           email,
           first_name,
@@ -64,12 +67,16 @@ const TeacherTable = ({
         axiosInstance.patch(`/user-admin/user-info/edit/${user_info_id}/`, {
           contact_no: contact_no ? contact_no : null,
         }),
+        axiosInstance.patch(`/user-admin/teacher-info/edit/${teacher_info_id}/`, {
+          staff_position,
+        }),
       ]);
 
       // Check if both API responses are successful
       if (
         customUserDataResponse.status === 200 &&
-        userInfoDataResponse.status === 200
+        userInfoDataResponse.status === 200 &&
+        teacherInfoDataResponse.status === 200
       ) {
         setIsLoading(false);
         setIsEditing(false);
@@ -128,6 +135,9 @@ const TeacherTable = ({
                 <th className="py-4 px-4 text-center font-bold text-gray-600 border-r border-gray-300">
                   Contact No.
                 </th>
+                <th className="py-4 px-4 text-center font-bold text-gray-600 border-r border-gray-300">
+                  Staff Position
+                </th>
                 <th className="py-4 px-4 text-center font-bold text-gray-600">
                   Branch
                 </th>
@@ -136,28 +146,28 @@ const TeacherTable = ({
             <tbody>
               {teacherAccounts.map((teacher_list) => (
                 <tr
-                  key={teacher_list.user_id}
+                  key={teacher_list.id}
                   className="border-b hover:bg-blue-50 transition duration-150 ease-in-out"
                   onClick={(event) => handleRowClick(teacher_list, event)}
                 >
                   <td
                     className={`py-3 px-4 text-center ${
-                      isSelected(teacher_list.user_id)
+                      isSelected(teacher_list.id)
                         ? "border-l-4 border-blue-500"
                         : "border-l-4 border-gray-100"
                     }`}
                   >
                     <input
                       type="checkbox"
-                      checked={isSelected(teacher_list.user_id)}
+                      checked={isSelected(teacher_list.id)}
                       onChange={(event) =>
-                        handleCheckboxClick(event, teacher_list.user_id)
+                        handleCheckboxClick(event, teacher_list.id)
                       }
                       className="transform scale-125 text-blue-500 focus:ring focus:ring-blue-200 rounded"
                     />
                   </td>
                   <td className="py-3 px-4 text-center text-gray-700 font-medium">
-                    {teacher_list.user_id}
+                    {teacher_list.teacher_info.id}
                   </td>
                   <td className="py-3 px-4 text-center text-gray-700 font-medium">
                     {teacher_list.username}
@@ -171,7 +181,10 @@ const TeacherTable = ({
                     {teacher_list.email || "-"}
                   </td>
                   <td className="py-3 px-4 text-center text-gray-700 font-medium">
-                    {teacher_list.contact_no || "-"}
+                    {teacher_list.user_info.contact_no || "-"}
+                  </td>
+                  <td className="py-3 px-4 text-center text-gray-700 font-medium">
+                    {teacher_list.teacher_info.staff_position || "-"}
                   </td>
                   <td className="py-3 px-4 text-center text-gray-700 font-medium">
                     {teacher_list.branch_name || "-"}

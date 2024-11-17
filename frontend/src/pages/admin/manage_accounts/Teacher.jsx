@@ -25,10 +25,10 @@ import Success from "../../../assets/img/home/success-1.mp3";
 import "../../../components/alert/styles/BiingsAlert.css";
 
 const orderByOptionsMap = {
-  Newest: "-user__date_joined",
-  Oldest: "user__date_joined",
-  "A-Z": "user__first_name",
-  "Z-A": "-user__first_name",
+  Newest: "-date_joined",
+  Oldest: "date_joined",
+  "A-Z": "first_name",
+  "Z-A": "-first_name",
 };
 
 const Teacher = () => {
@@ -175,7 +175,9 @@ const Teacher = () => {
         params,
       });
       if (response.status === 200) {
+        console.log(response.data);
         const teacher_list = response.data.teacher_list;
+        console.log(teacher_list);
         setTeachers(teacher_list);
 
         if (teacher_list.length === 0 && !isOperationRunning) {
@@ -309,7 +311,7 @@ const Teacher = () => {
   const handleSelectAll = (event) => {
     if (event.target.checked) {
       // Select all if checking the box
-      setSelectedTeachers(teachers.map((teacher) => teacher.user_id));
+      setSelectedTeachers(teachers.map((teacher) => teacher.id));
     } else {
       // Unselect only if all were already selected, otherwise preserve individual selections
       if (allSelected) {
