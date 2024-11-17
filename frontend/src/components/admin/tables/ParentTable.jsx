@@ -25,6 +25,7 @@ const ParentTable = ({
   const [editingParent, setIsEditingParent] = useState(null);
 
   useEffect(() => {
+    console.log(parentAccounts);
     // Automatically hide alert after 5 seconds
     if (successAlert) {
       const timer = setTimeout(() => setSuccessAlert(false), 5000);
@@ -52,7 +53,8 @@ const ParentTable = ({
 
   const handleSave = async (parentData) => {
     const {
-      id,
+      user_id,
+      parent_info_id,
       user_info_id,
       username,
       first_name,
@@ -62,6 +64,22 @@ const ParentTable = ({
       branch_name,
     } = parentData;
 
+    let student_info_id = parentData.student_info_id;
+
+    // Check if student_info_id is not an array, and if so, make it an array
+    if (!Array.isArray(student_info_id)) {
+      // Split the string by comma and trim whitespace
+      student_info_id = student_info_id.split(",").map((id) => id.trim());
+    }
+
+    // Convert to numbers
+    student_info_id = student_info_id
+      .map((id) => {
+        const num = Number(id);
+        return isNaN(num) ? null : num; // Replace NaN with null or handle it as needed
+      })
+      .filter((id) => id !== null); // Remove any null values if necessary
+
     try {
       setIsLoading(true);
       // Make simultaneous API calls to update user and user info
@@ -70,7 +88,7 @@ const ParentTable = ({
         userInfoDataResponse,
         ParentInfoDataResponse,
       ] = await Promise.all([
-        axiosInstance.patch(`/user-admin/custom-user/edit/${id}/`, {
+        axiosInstance.patch(`/user-admin/custom-user/edit/${user_id}/`, {
           username,
           email,
           first_name,
@@ -79,6 +97,9 @@ const ParentTable = ({
         }),
         axiosInstance.patch(`/user-admin/user-info/edit/${user_info_id}/`, {
           contact_no: contact_no ? contact_no : null,
+        }),
+        axiosInstance.patch(`/user-admin/parent-info/edit/${parent_info_id}/`, {
+          student_info: student_info_id,
         }),
       ]);
 
@@ -164,11 +185,11 @@ const ParentTable = ({
                     />
                   </td>
                   <td className="py-3 px-4 text-center text-gray-700 font-medium">
-                    {parent_list.id}
+                    {parent_list.parent_info_id}
                   </td>
                   <td className="py-3 px-4 text-center text-gray-700 font-medium">
                     {parent_list.student_info
-                      .map((student) => student.student_user_id)
+                      .map((student) => student.student_info_id)
                       .join(", ")}
                   </td>
                   <td className="py-3 px-4 text-center text-gray-700 font-medium">

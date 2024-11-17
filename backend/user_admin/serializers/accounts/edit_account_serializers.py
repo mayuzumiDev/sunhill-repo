@@ -17,3 +17,19 @@ class StudentInfoEditSerializer(serializers.ModelSerializer):
     class Meta:
         model = StudentInfo
         fields = ['id', 'grade_level']
+
+class ParentInfoEditSerializer(serializers.ModelSerializer):
+    student_info = serializers.PrimaryKeyRelatedField(many=True, queryset=StudentInfo.objects.all())
+
+    class Meta:
+        model = ParentInfo
+        fields = ['id', 'student_info']
+
+    def update(self, instance, validated_data):
+        student_info = validated_data.pop('student_info', None)
+
+        print(f"\n{student_info}\n")
+        
+        if student_info is not None:
+            instance.student_info.set(student_info)
+        return super().update(instance, validated_data)
