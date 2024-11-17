@@ -92,7 +92,7 @@ class TeacherListView(generics.ListAPIView):
         teacher_list = serializer.data
 
         return JsonResponse({'message': 'Teacher list retrieved successfully',
-                             'student_list': teacher_list}, status=status.HTTP_200_OK)
+                             'teacher_list': teacher_list}, status=status.HTTP_200_OK)
 
 
 class StudentListView(generics.ListAPIView):

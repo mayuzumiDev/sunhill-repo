@@ -25,6 +25,7 @@ const StudentTable = ({
   const [editingStudent, setIsEditingStudent] = useState(null);
 
   useEffect(() => {
+    console.log(studentAccounts);
     // Automatically hide alert after 5 seconds
     if (successAlert) {
       const timer = setTimeout(() => setSuccessAlert(false), 5000);
