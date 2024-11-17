@@ -4,7 +4,7 @@ import { faExclamationTriangle } from "@fortawesome/free-solid-svg-icons";
 import { axiosInstance } from "../../../utils/axiosInstance";
 import EditSuccessAlert from "../../alert/EditSuccessAlert";
 import EditErrorAlert from "../../alert/EditErrorAlert";
-import EditStudentModal from "../../modal/admin/EditStudentModal";
+import EditStudentModal from "../../modal/admin/manage_account/EditStudentModal";
 import SchawnnahJLoader from "../../loaders/SchawnnahJLoader";
 import SatyamLoader from "../../loaders/SatyamLoader";
 import HideScrollBar from "../../misc/HideScrollBar";
