@@ -8,9 +8,9 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { axiosInstance } from "../../../utils/axiosInstance";
 import { generatePdf } from "../../../utils/pdfUtils";
-import AddAccountModal from "../../../components/modal/admin/AddAccountModal";
-import GeneratedAccountModal from "../../../components/modal/admin/GeneratedAccountModal";
-import ConfirmDeleteModal from "../../../components/modal/admin/ConfirmDeleteModal";
+import AddAccountModal from "../../../components/modal/admin/manage_account/AddAccountModal";
+import GeneratedAccountModal from "../../../components/modal/admin/manage_account/GeneratedAccountModal";
+import ConfirmDeleteModal from "../../../components/modal/admin/manage_account/ConfirmDeleteModal";
 import SchawnnahJLoader from "../../../components/loaders/SchawnnahJLoader";
 import BiingsAlertSuccesss from "../../../components/alert/BiingsAlertSuccess";
 import BiingsAlertError from "../../../components/alert/BiingsAlertError";
