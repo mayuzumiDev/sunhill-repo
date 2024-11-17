@@ -23,6 +23,8 @@ const StudentTable = ({
   const [errorAlert, setErrorAlert] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editingStudent, setIsEditingStudent] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   useEffect(() => {
     console.log(studentAccounts);
@@ -49,6 +51,14 @@ const StudentTable = ({
   const handleCheckboxClick = (event, studentId) => {
     event.stopPropagation(); // Prevent triggering row click when clicking checkbox
     handleSelectRow(event, studentId);
+  };
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = studentAccounts ? studentAccounts.slice(indexOfFirstItem, indexOfLastItem) : [];
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
   };
 
   const handleSave = async (studentData) => {
@@ -144,7 +154,7 @@ const StudentTable = ({
               </tr>
             </thead>
             <tbody>
-              {studentAccounts.map((student_list) => (
+              {currentItems.map((student_list) => (
                 <tr
                   key={student_list.id}
                   className="border-b hover:bg-blue-50 transition duration-150 ease-in-out"
@@ -187,8 +197,37 @@ const StudentTable = ({
               ))}
             </tbody>
           </table>
-        </div>
-
+          </div>
+            <div className="mt-4 flex flex-col sm:flex-row justify-between items-center">
+            <span className="text-xs sm:text-sm font-semibold text-gray-600 mb-2 sm:mb-0">
+              Showing {indexOfFirstItem + 1}-{Math.min(indexOfLastItem, studentAccounts.length)} of {studentAccounts.length} Student Accounts
+            </span>
+            <div className="flex space-x-2">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="px-2 sm:px-3 py-1 bg-blue-500 text-white rounded disabled:bg-gray-300 hover:bg-blue-600 transition duration-150 ease-in-out"
+                aria-label="Previous page"
+              >
+                <svg className="h-4 w-4 sm:h-5 sm:w-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+              </button>
+              <span className="px-2 sm:px-3 py-1 bg-gray-200 text-gray-700 rounded text-sm sm:text-base">
+                {currentPage} / {Math.ceil(studentAccounts.length / itemsPerPage)}
+              </span>
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === Math.ceil(studentAccounts.length / itemsPerPage)}
+                className="px-2 sm:px-3 py-1 bg-blue-500 text-white rounded disabled:bg-gray-300 hover:bg-blue-600 transition duration-150 ease-in-out"
+                aria-label="Next page"
+              >
+                <svg className="h-4 w-4 sm:h-5 sm:w-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                </svg>
+              </button>
+            </div>
+          </div>
         {isLoading && <SchawnnahJLoader />}
 
         {isEditing && (
