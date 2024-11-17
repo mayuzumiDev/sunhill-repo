@@ -112,6 +112,13 @@ const AccountSettings = () => {
 
       await axiosInstance.patch('/user-teacher/profile/update/', updateData);
       setMessage('Profile updated successfully!');
+      
+      // Clear success message after 5 seconds
+      setTimeout(() => {
+        setMessage('');
+      }, 5000);
+      
+      await refreshTeacherData();
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to update profile');
     }
@@ -134,6 +141,11 @@ const AccountSettings = () => {
         if (response.data.image_url) {
           setProfileImage(response.data.image_url);
           setMessage('Profile image updated successfully!');
+          
+          // Clear success message after 3 seconds
+          setTimeout(() => {
+            setMessage('');
+          }, 3000);
           
           // Refresh teacher data immediately
           await refreshTeacherData();
@@ -158,6 +170,11 @@ const AccountSettings = () => {
       if (response.status === 200) {
         setProfileImage(userThree);
         setMessage('Profile image deleted successfully!');
+        
+        // Clear success message after 3 seconds
+        setTimeout(() => {
+          setMessage('');
+        }, 3000);
         
         // Refresh teacher data immediately
         await refreshTeacherData();
