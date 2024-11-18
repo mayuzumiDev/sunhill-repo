@@ -111,6 +111,23 @@ const TopNavbar = ({
     fetchProfileImage();
   }, []);
 
+  useEffect(() => {
+    const handleUserInfoUpdate = (event) => {
+      const { first_name, last_name, email, username, contact_no } = event.detail;
+      setAdminInfo(prevInfo => ({
+        ...prevInfo,
+        first_name,
+        last_name,
+        email,
+        username,
+        contact_no
+      }));
+    };
+
+    window.addEventListener('USER_INFO_UPDATED', handleUserInfoUpdate);
+    return () => window.removeEventListener('USER_INFO_UPDATED', handleUserInfoUpdate);
+  }, []);
+
   const handleTabClick = (tab) => {
     if (tab !== currentTab) {
       setCurrentTab(tab);

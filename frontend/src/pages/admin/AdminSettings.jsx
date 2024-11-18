@@ -7,6 +7,7 @@ import {
 import PhotoUpload from "../../components/admin/settings/PhotoUpload";
 import HideScrollbar from "../../components/misc/HideScrollBar";
 import ErrorMessage from "../../components/alert/forms/ErrorMessage";
+import { FaSpinner, FaCheckCircle } from "react-icons/fa";
 
 const Settings = ({ previousTab, setCurrentTab, adminData, setAdminData }) => {
   const [formData, setFormData] = useState({
@@ -27,6 +28,9 @@ const Settings = ({ previousTab, setCurrentTab, adminData, setAdminData }) => {
     confirm_password: "",
   });
 
+  const [isLoading, setIsLoading] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -46,6 +50,8 @@ const Settings = ({ previousTab, setCurrentTab, adminData, setAdminData }) => {
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
+    setShowSuccess(false);
 
     setErrors({
       username: "",
@@ -59,6 +65,7 @@ const Settings = ({ previousTab, setCurrentTab, adminData, setAdminData }) => {
         ...prev,
         username: usernameError,
       }));
+      setIsLoading(false);
       return;
     }
 
@@ -71,6 +78,7 @@ const Settings = ({ previousTab, setCurrentTab, adminData, setAdminData }) => {
         ...prev,
         ...passwordErrors,
       }));
+      setIsLoading(false);
       return;
     }
 
@@ -100,10 +108,27 @@ const Settings = ({ previousTab, setCurrentTab, adminData, setAdminData }) => {
           password: "",
         });
 
-        setCurrentTab(previousTab);
+        // Dispatch custom event for TopNavbar update
+        const event = new CustomEvent('USER_INFO_UPDATED', {
+          detail: {
+            first_name: submitData.first_name,
+            last_name: submitData.last_name,
+            email: submitData.email,
+            username: submitData.username,
+            contact_no: submitData.contact_no
+          }
+        });
+        window.dispatchEvent(event);
+        
+        setShowSuccess(true);
+        setTimeout(() => {
+          setCurrentTab(previousTab);
+        }, 1500);
       }
     } catch (error) {
       console.error("Error updating admin data:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -281,9 +306,10 @@ const Settings = ({ previousTab, setCurrentTab, adminData, setAdminData }) => {
 
                 <div className="flex justify-end gap-5 mt-7">
                   <button
-                    className="flex justify-center rounded border border-gray-400 py-2 px-4 md:px-6 font-bold text-gray-800 hover:shadow-md hover:bg-gray-200 transition-colors duration-200 text-sm md:text-base" // Adjusted padding and font size for responsiveness
+                    className="flex justify-center rounded border border-gray-400 py-2 px-4 md:px-6 font-bold text-gray-800 hover:shadow-md hover:bg-gray-200 transition-colors duration-200 text-sm md:text-base"
                     type="button"
                     onClick={() => setCurrentTab(previousTab)}
+                    disabled={isLoading}
                   >
                     Cancel
                   </button>
@@ -291,8 +317,16 @@ const Settings = ({ previousTab, setCurrentTab, adminData, setAdminData }) => {
                     type="submit"
                     className="flex justify-center rounded bg-blue-600 py-2 px-4 md:px-6 font-bold text-white hover:bg-blue-700 transition-colors duration-200 text-sm md:text-base"
                     onClick={handleSubmit}
+                    disabled={isLoading}
                   >
-                    Save
+                    {isLoading ? (
+                      <div className="flex items-center">
+                        <FaSpinner className="animate-spin mr-2" />
+                        Saving...
+                      </div>
+                    ) : (
+                      'Save'
+                    )}
                   </button>
                 </div>
               </form>
@@ -305,6 +339,31 @@ const Settings = ({ previousTab, setCurrentTab, adminData, setAdminData }) => {
           <PhotoUpload />
         </div>
       </div>
+
+      {/* Success Message */}
+      {showSuccess && (
+        <div className="fixed bottom-5 right-5 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded flex items-center animate-fade-in-up">
+          <FaCheckCircle className="text-green-500 mr-2" />
+          <span>Settings updated successfully!</span>
+        </div>
+      )}
+
+      {/* Add animation styles */}
+      <style jsx>{`
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-fade-in-up {
+          animation: fadeInUp 0.3s ease-out forwards;
+        }
+      `}</style>
     </div>
   );
 };
