@@ -100,13 +100,10 @@ function EditAccountModal({ isOpen, onClose, onSave, userData, userRole }) {
           </label>
         </div>
 
-        
         <div className="flex">
-          {/* Username */}
+          {/* Staff Position */}
           <label className="block mb-2 mr-2 w-1/2">
-            <span className="text-gray-700 font-semibold">
-              Staff Position 
-            </span>
+            <span className="text-gray-700 font-semibold">Staff Position</span>
             <input
               type="text"
               name="staff_position"
