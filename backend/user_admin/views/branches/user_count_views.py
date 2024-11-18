@@ -7,7 +7,7 @@ from api.models import CustomUser
 from ...serializers.branches.user_count_serializers import *
 
 class BranchUserCountView(generics.CreateAPIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     serializer_class = UserRoleCountSerializer
 
     def create(self, request, *args, **kwargs):

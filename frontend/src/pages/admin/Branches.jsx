@@ -1,5 +1,19 @@
 import React, { useState } from "react";
-import { FaSearch, FaMapMarkerAlt, FaPhone, FaEnvelope, FaUserTie, FaUsers, FaBook, FaChalkboardTeacher, FaCalendarAlt, FaChartLine, FaPlus, FaImage, FaTimes } from "react-icons/fa";
+import {
+  FaSearch,
+  FaMapMarkerAlt,
+  FaPhone,
+  FaEnvelope,
+  FaUserTie,
+  FaUsers,
+  FaBook,
+  FaChalkboardTeacher,
+  FaCalendarAlt,
+  FaChartLine,
+  FaPlus,
+  FaImage,
+  FaTimes,
+} from "react-icons/fa";
 import sunhillBats from "../../assets/img/home/sunhill-bats.jpg";
 import rosario from "../../assets/img/home/rosario.jpg";
 import bauan from "../../assets/img/home/bauan.jpg";
@@ -18,14 +32,24 @@ const Branches = () => {
       parents: 80,
       classes: 10,
       image: sunhillBats,
-      facilities: ["Computer Lab", "Science Lab", "Library", "Playground", "Cafeteria"],
+      facilities: [
+        "Computer Lab",
+        "Science Lab",
+        "Library",
+        "Playground",
+        "Cafeteria",
+      ],
       programs: ["Regular Classes", "After-school Programs", "Summer Camps"],
-      achievements: ["Best School Award 2023", "100% Graduation Rate", "Regional Math Competition Winners"],
+      achievements: [
+        "Best School Award 2023",
+        "100% Graduation Rate",
+        "Regional Math Competition Winners",
+      ],
       stats: {
         attendance: 95,
         satisfaction: 90,
-        academicPerformance: 88
-      }
+        academicPerformance: 88,
+      },
     },
     {
       id: 2,
@@ -39,14 +63,24 @@ const Branches = () => {
       parents: 90,
       classes: 15,
       image: rosario,
-      facilities: ["Music Room", "Art Studio", "Gymnasium", "Library", "Science Lab"],
+      facilities: [
+        "Music Room",
+        "Art Studio",
+        "Gymnasium",
+        "Library",
+        "Science Lab",
+      ],
       programs: ["Special Education", "Arts Program", "Sports Program"],
-      achievements: ["Excellence in Arts 2023", "Sports Championship", "Perfect NAT Scores"],
+      achievements: [
+        "Excellence in Arts 2023",
+        "Sports Championship",
+        "Perfect NAT Scores",
+      ],
       stats: {
         attendance: 92,
         satisfaction: 88,
-        academicPerformance: 85
-      }
+        academicPerformance: 85,
+      },
     },
     {
       id: 4,
@@ -60,14 +94,23 @@ const Branches = () => {
       parents: 70,
       classes: 12,
       image: bauan,
-      facilities: ["Innovation Hub", "Sports Complex", "Multimedia Room", "Library"],
+      facilities: [
+        "Innovation Hub",
+        "Sports Complex",
+        "Multimedia Room",
+        "Library",
+      ],
       programs: ["STEM Focus", "Language Programs", "Leadership Training"],
-      achievements: ["Innovation Award 2023", "Environmental Initiative Recognition", "Perfect Licensure Passing Rate"],
+      achievements: [
+        "Innovation Award 2023",
+        "Environmental Initiative Recognition",
+        "Perfect Licensure Passing Rate",
+      ],
       stats: {
         attendance: 94,
         satisfaction: 92,
-        academicPerformance: 90
-      }
+        academicPerformance: 90,
+      },
     },
   ];
 
@@ -93,8 +136,8 @@ const Branches = () => {
     stats: {
       attendance: 0,
       satisfaction: 0,
-      academicPerformance: 0
-    }
+      academicPerformance: 0,
+    },
   });
 
   const handleImageUpload = (e) => {
@@ -102,9 +145,9 @@ const Branches = () => {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setNewBranch(prev => ({
+        setNewBranch((prev) => ({
           ...prev,
-          image: reader.result
+          image: reader.result,
         }));
       };
       reader.readAsDataURL(file);
@@ -117,7 +160,7 @@ const Branches = () => {
       return;
     }
 
-    const newId = Math.max(...branches.map(b => b.id)) + 1;
+    const newId = Math.max(...branches.map((b) => b.id)) + 1;
     setBranches([...branches, { ...newBranch, id: newId }]);
     setShowAddModal(false);
     setNewBranch({
@@ -137,8 +180,8 @@ const Branches = () => {
       stats: {
         attendance: 0,
         satisfaction: 0,
-        academicPerformance: 0
-      }
+        academicPerformance: 0,
+      },
     });
   };
 
@@ -148,13 +191,17 @@ const Branches = () => {
   };
 
   const handleDeleteBranch = (id) => {
-    if (window.confirm("Are you sure you want to delete this branch? This action cannot be undone.")) {
-      setBranches(branches.filter(branch => branch.id !== id));
+    if (
+      window.confirm(
+        "Are you sure you want to delete this branch? This action cannot be undone."
+      )
+    ) {
+      setBranches(branches.filter((branch) => branch.id !== id));
       setSelectedBranch(null);
     }
   };
 
-  const filteredBranches = branches.filter(branch =>
+  const filteredBranches = branches.filter((branch) =>
     branch.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -167,16 +214,29 @@ const Branches = () => {
           <div className="space-y-4">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between">
               <div>
-                <h3 className="text-xl font-semibold text-gray-800 mb-2">Contact Information</h3>
+                <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                  Contact Information
+                </h3>
                 <div className="space-y-2">
-                  <p className="flex items-center text-gray-600"><FaMapMarkerAlt className="mr-2" /> {selectedBranch.address}</p>
-                  <p className="flex items-center text-gray-600"><FaPhone className="mr-2" /> {selectedBranch.phone}</p>
-                  <p className="flex items-center text-gray-600"><FaEnvelope className="mr-2" /> {selectedBranch.email}</p>
+                  <p className="flex items-center text-gray-600">
+                    <FaMapMarkerAlt className="mr-2" /> {selectedBranch.address}
+                  </p>
+                  <p className="flex items-center text-gray-600">
+                    <FaPhone className="mr-2" /> {selectedBranch.phone}
+                  </p>
+                  <p className="flex items-center text-gray-600">
+                    <FaEnvelope className="mr-2" /> {selectedBranch.email}
+                  </p>
                 </div>
               </div>
               <div className="mt-4 md:mt-0">
-                <h3 className="text-xl font-semibold text-gray-800 mb-2">Leadership</h3>
-                <p className="flex items-center text-gray-600"><FaUserTie className="mr-2" /> Principal: {selectedBranch.principal}</p>
+                <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                  Leadership
+                </h3>
+                <p className="flex items-center text-gray-600">
+                  <FaUserTie className="mr-2" /> Principal:{" "}
+                  {selectedBranch.principal}
+                </p>
               </div>
             </div>
 
@@ -207,7 +267,13 @@ const Branches = () => {
                 </h4>
                 <ul className="space-y-2 text-gray-700">
                   <li>Classes: {selectedBranch.classes}</li>
-                  <li>Student-Teacher Ratio: {Math.round(selectedBranch.students / selectedBranch.teachers)}:1</li>
+                  <li>
+                    Student-Teacher Ratio:{" "}
+                    {Math.round(
+                      selectedBranch.students / selectedBranch.teachers
+                    )}
+                    :1
+                  </li>
                 </ul>
               </div>
             </div>
@@ -216,10 +282,15 @@ const Branches = () => {
       case "facilities":
         return (
           <div className="space-y-4">
-            <h3 className="text-xl font-semibold text-gray-800 mb-4">Available Facilities</h3>
+            <h3 className="text-xl font-semibold text-gray-800 mb-4">
+              Available Facilities
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {selectedBranch.facilities.map((facility, index) => (
-                <div key={index} className="bg-white p-4 rounded-lg shadow border">
+                <div
+                  key={index}
+                  className="bg-white p-4 rounded-lg shadow border"
+                >
                   <h4 className="font-semibold text-gray-800">{facility}</h4>
                 </div>
               ))}
@@ -229,10 +300,15 @@ const Branches = () => {
       case "programs":
         return (
           <div className="space-y-4">
-            <h3 className="text-xl font-semibold text-gray-800 mb-4">Educational Programs</h3>
+            <h3 className="text-xl font-semibold text-gray-800 mb-4">
+              Educational Programs
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {selectedBranch.programs.map((program, index) => (
-                <div key={index} className="bg-white p-4 rounded-lg shadow border">
+                <div
+                  key={index}
+                  className="bg-white p-4 rounded-lg shadow border"
+                >
                   <h4 className="font-semibold text-gray-800">{program}</h4>
                 </div>
               ))}
@@ -242,10 +318,15 @@ const Branches = () => {
       case "achievements":
         return (
           <div className="space-y-4">
-            <h3 className="text-xl font-semibold text-gray-800 mb-4">Recent Achievements</h3>
+            <h3 className="text-xl font-semibold text-gray-800 mb-4">
+              Recent Achievements
+            </h3>
             <div className="space-y-4">
               {selectedBranch.achievements.map((achievement, index) => (
-                <div key={index} className="bg-white p-4 rounded-lg shadow border">
+                <div
+                  key={index}
+                  className="bg-white p-4 rounded-lg shadow border"
+                >
                   <h4 className="font-semibold text-gray-800">{achievement}</h4>
                 </div>
               ))}
@@ -271,7 +352,7 @@ const Branches = () => {
             <FaPlus className="mr-2" /> Add Branch
           </button>
         </div>
-        
+
         <div className="relative mb-7">
           <input
             type="text"
@@ -297,14 +378,22 @@ const Branches = () => {
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-80" />
               <div className="relative p-6 flex flex-col h-[200px] justify-between">
                 <div>
-                  <h2 className="text-2xl font-bold text-white mb-2">{branch.name}</h2>
+                  <h2 className="text-2xl font-bold text-white mb-2">
+                    {branch.name}
+                  </h2>
                   <p className="text-gray-200 text-sm">
                     <FaMapMarkerAlt className="inline mr-1" /> {branch.address}
                   </p>
                 </div>
                 <div className="text-white text-sm space-y-1">
-                  <p><FaUsers className="inline mr-1" /> {branch.students} Students</p>
-                  <p><FaChalkboardTeacher className="inline mr-1" /> {branch.teachers} Teachers</p>
+                  <p>
+                    <FaUsers className="inline mr-1" /> {branch.students}{" "}
+                    Students
+                  </p>
+                  <p>
+                    <FaChalkboardTeacher className="inline mr-1" />{" "}
+                    {branch.teachers} Teachers
+                  </p>
                 </div>
               </div>
             </div>
@@ -318,7 +407,7 @@ const Branches = () => {
                 {selectedBranch.name} Branch
               </h2>
               <div className="flex space-x-2">
-                <button 
+                <button
                   onClick={() => handleDeleteBranch(selectedBranch.id)}
                   className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
                 >
@@ -329,25 +418,25 @@ const Branches = () => {
 
             <div className="mb-6">
               <div className="flex space-x-4 border-b">
-                {["overview", "facilities", "programs", "achievements"].map((tab) => (
-                  <button
-                    key={tab}
-                    onClick={() => setActiveTab(tab)}
-                    className={`px-4 py-2 font-medium transition-colors ${
-                      activeTab === tab
-                        ? "text-blue-600 border-b-2 border-blue-600"
-                        : "text-gray-600 hover:text-blue-600"
-                    }`}
-                  >
-                    {tab.charAt(0).toUpperCase() + tab.slice(1)}
-                  </button>
-                ))}
+                {["overview", "facilities", "programs", "achievements"].map(
+                  (tab) => (
+                    <button
+                      key={tab}
+                      onClick={() => setActiveTab(tab)}
+                      className={`px-4 py-2 font-medium transition-colors ${
+                        activeTab === tab
+                          ? "text-blue-600 border-b-2 border-blue-600"
+                          : "text-gray-600 hover:text-blue-600"
+                      }`}
+                    >
+                      {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                    </button>
+                  )
+                )}
               </div>
             </div>
 
-            <div className="mt-6">
-              {renderTabContent()}
-            </div>
+            <div className="mt-6">{renderTabContent()}</div>
           </div>
         )}
       </div>
@@ -357,7 +446,9 @@ const Branches = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-800">Add New Branch</h2>
+              <h2 className="text-2xl font-bold text-gray-800">
+                Add New Branch
+              </h2>
               <button
                 onClick={() => setShowAddModal(false)}
                 className="text-gray-500 hover:text-gray-700"
@@ -369,18 +460,22 @@ const Branches = () => {
             <div className="space-y-6">
               {/* Image Upload */}
               <div className="flex flex-col items-center space-y-4">
-                <div 
+                <div
                   className="w-full h-48 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer overflow-hidden relative"
                   style={{
-                    backgroundImage: newBranch.image ? `url(${newBranch.image})` : 'none',
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center'
+                    backgroundImage: newBranch.image
+                      ? `url(${newBranch.image})`
+                      : "none",
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
                   }}
                 >
                   {!newBranch.image && (
                     <div className="flex flex-col items-center">
                       <FaImage className="text-4xl text-gray-400" />
-                      <p className="text-sm text-gray-500 mt-2">Click to upload cover photo</p>
+                      <p className="text-sm text-gray-500 mt-2">
+                        Click to upload cover photo
+                      </p>
                       <p className="text-xs text-gray-400 mt-1">(Required)</p>
                     </div>
                   )}
@@ -402,7 +497,9 @@ const Branches = () => {
                   <input
                     type="text"
                     value={newBranch.name}
-                    onChange={(e) => setNewBranch({ ...newBranch, name: e.target.value })}
+                    onChange={(e) =>
+                      setNewBranch({ ...newBranch, name: e.target.value })
+                    }
                     className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-blue-500"
                     required
                   />
@@ -414,26 +511,36 @@ const Branches = () => {
                   <input
                     type="text"
                     value={newBranch.address}
-                    onChange={(e) => setNewBranch({ ...newBranch, address: e.target.value })}
+                    onChange={(e) =>
+                      setNewBranch({ ...newBranch, address: e.target.value })
+                    }
                     className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-blue-500"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Phone</label>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Phone
+                  </label>
                   <input
                     type="tel"
                     value={newBranch.phone}
-                    onChange={(e) => setNewBranch({ ...newBranch, phone: e.target.value })}
+                    onChange={(e) =>
+                      setNewBranch({ ...newBranch, phone: e.target.value })
+                    }
                     className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-blue-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Email</label>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Email
+                  </label>
                   <input
                     type="email"
                     value={newBranch.email}
-                    onChange={(e) => setNewBranch({ ...newBranch, email: e.target.value })}
+                    onChange={(e) =>
+                      setNewBranch({ ...newBranch, email: e.target.value })
+                    }
                     className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-blue-500"
                   />
                 </div>
@@ -442,31 +549,52 @@ const Branches = () => {
               {/* Additional Information */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Teachers</label>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Teachers
+                  </label>
                   <input
                     type="number"
                     value={newBranch.teachers}
-                    onChange={(e) => setNewBranch({ ...newBranch, teachers: parseInt(e.target.value) || 0 })}
+                    onChange={(e) =>
+                      setNewBranch({
+                        ...newBranch,
+                        teachers: parseInt(e.target.value) || 0,
+                      })
+                    }
                     className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-blue-500"
                     min="0"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Students</label>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Students
+                  </label>
                   <input
                     type="number"
                     value={newBranch.students}
-                    onChange={(e) => setNewBranch({ ...newBranch, students: parseInt(e.target.value) || 0 })}
+                    onChange={(e) =>
+                      setNewBranch({
+                        ...newBranch,
+                        students: parseInt(e.target.value) || 0,
+                      })
+                    }
                     className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-blue-500"
                     min="0"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Classes</label>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Classes
+                  </label>
                   <input
                     type="number"
                     value={newBranch.classes}
-                    onChange={(e) => setNewBranch({ ...newBranch, classes: parseInt(e.target.value) || 0 })}
+                    onChange={(e) =>
+                      setNewBranch({
+                        ...newBranch,
+                        classes: parseInt(e.target.value) || 0,
+                      })
+                    }
                     className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-blue-500"
                     min="0"
                   />
