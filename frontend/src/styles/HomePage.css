@@ -327,7 +327,8 @@ body {
 .banner {
   flex: 1;
   padding: 0 2rem;
-  text-align: center;
+  text-align: left;
+  margin-right: 15rem;
 }
 
 .banner h2 {
@@ -345,15 +346,7 @@ body {
   color: #e7ecec;
 }
 
-/* Banner responsiveness */
-@media screen and (min-width: 1640px) {
-  .banner {
-    margin-left: -15%;
-  }
-  .banner h2 {
-    font-size: 1.75rem;
-  }
-}
+
 
 @media screen and (max-width: 1440px) {
   .banner {
@@ -570,6 +563,7 @@ body {
   top: 540px;
   overflow: hidden;
   line-height: 0;
+  z-index: 2;
 }
 
 .wave-background2 {
@@ -941,9 +935,7 @@ Note: Beware of modifying this element as it can break the animations - you shou
 } */
 
 @media screen and (min-width: 1640px) {
-  .banner {
-    margin-left: -60%;
-  }
+
   .special-identification-content {
     display: inline-flex;
     padding: 40px;
@@ -1431,8 +1423,173 @@ Note: Beware of modifying this element as it can break the animations - you shou
   fill: #181818;
 }
 
-@media screen and (max-width: 768px) {
-  .wave-background2 {
-    display: none;
+/* Wave Animation */
+.wave-container {
+  transform: translateY(1px);
+}
+
+.waves-svg {
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+.wave {
+  fill: white;
+  animation: wave-animation 10s cubic-bezier(0.36, 0.45, 0.63, 0.53) infinite;
+  transform-origin: center bottom;
+}
+
+.wave1 {
+  opacity: 0.7;
+  animation-delay: -2s;
+}
+
+.wave2 {
+  opacity: 0.5;
+  animation-delay: -4s;
+}
+
+.wave3 {
+  opacity: 0.3;
+  animation-delay: -6s;
+}
+
+.wave4 {
+  opacity: 1;
+  animation-delay: -8s;
+}
+
+@keyframes wave-animation {
+  0% {
+    transform: translateX(-25%);
   }
+  50% {
+    transform: translateX(-35%);
+  }
+  100% {
+    transform: translateX(-25%);
+  }
+}
+
+/* Gradient Animation */
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient 8s ease infinite;
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Scroll to Top Button */
+.scroll-to-top {
+  animation: bounce-subtle 2s ease-in-out infinite;
+  background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+}
+
+.dark .scroll-to-top {
+  background: linear-gradient(135deg, #F59E0B 0%, #EA580C 100%);
+}
+
+@keyframes bounce-subtle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+/* Section Transitions */
+.section-transition {
+  position: relative;
+  transition: all 0.5s ease-in-out;
+}
+
+.section-transition::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+}
+
+.section-transition:hover::before {
+  opacity: 0.05;
+}
+
+/* Card Hover Effects */
+.card-hover {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-hover:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.card-hover:hover img {
+  transform: scale(1.08);
+}
+
+/* Smooth Scroll Behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Parallax Effect */
+.parallax {
+  will-change: transform;
+  transition: transform 0.1s linear;
+}
+
+/* Dark Mode Transitions */
+.dark-mode-transition {
+  transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, #3B82F6, #2563EB);
+  border-radius: 5px;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #1F2937;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, #F59E0B, #EA580C);
+}
+
+/* Image Hover Effects */
+.img-hover {
+  overflow: hidden;
+}
+
+.img-hover img {
+  transition: transform 0.5s ease-in-out;
+}
+
+.img-hover:hover img {
+  transform: scale(1.1) rotate(2deg);
 }
