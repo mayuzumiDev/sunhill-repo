@@ -242,13 +242,13 @@ const Faqs = () => {
             href="mailto:support@sunhill.edu" 
             className="flex items-center text-blue-700 hover:text-blue-800 transition-colors"
           >
-            <span className="mr-2">📧</span> support@sunhill.edu
+            <span className="mr-2">📧</span> dev.sunhill.lms@gmail.com
           </a>
           <a 
             href="tel:+11234567890" 
             className="flex items-center text-blue-700 hover:text-blue-800 transition-colors"
           >
-            <span className="mr-2">📞</span> (123) 456-7890
+            <span className="mr-2">📞</span> 09215910324
           </a>
           <div className="flex items-center text-blue-700">
             <span className="mr-2">🕒</span> Monday - Friday, 8:00 AM - 5:00 PM
