@@ -344,15 +344,15 @@ const Home = () => {
               <div className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow duration-300">
                 <h3 className="text-lg font-bold text-gray-800 mb-4">Contact Details</h3>
                 <div className="space-y-3">
-                  <p className="flex items-center text-xs text-gray-600 hover:bg-gray-50 p-2 rounded-lg transition-colors duration-200">
+                  <p className="flex items-center text-xs sm:text-sm text-gray-600 hover:bg-gray-50 p-2 rounded-lg transition-colors duration-200">
                     <FontAwesomeIcon icon={faMapMarkerAlt} className="mr-3 text-red-500" />
                     {branches[currentBranchIndex].address}
                   </p>
-                  <p className="flex items-center text-xs text-gray-600 hover:bg-gray-50 p-2 rounded-lg transition-colors duration-200">
+                  <p className="flex items-center text-xs sm:text-sm text-gray-600 hover:bg-gray-50 p-2 rounded-lg transition-colors duration-200">
                     <FontAwesomeIcon icon={faPhone} className="mr-3 text-green-500" />
                     {branches[currentBranchIndex].phone}
                   </p>
-                  <p className="flex items-center text-xs text-gray-600 hover:bg-gray-50 p-2 rounded-lg transition-colors duration-200">
+                  <p className="flex items-center text-xs sm:text-sm text-gray-600 hover:bg-gray-50 p-2 rounded-lg transition-colors duration-200">
                     <FontAwesomeIcon icon={faEnvelope} className="mr-3 text-blue-500" />
                     {branches[currentBranchIndex].email}
                   </p>
@@ -360,7 +360,7 @@ const Home = () => {
                     href={branches[currentBranchIndex].fbPage}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center text-xs hover:bg-blue-50 p-2 rounded-lg transition-colors duration-200"
+                    className="flex items-center text-xs sm:text-sm text-gray-600 hover:bg-blue-50 p-2 rounded-lg transition-colors duration-200"
                   >
                     <FontAwesomeIcon icon={faFacebook} className="mr-3 text-[#4267B2]" />
                     <span className="text-blue-600 font-medium hover:text-blue-700">{branches[currentBranchIndex].fbPageName}</span>

@@ -17,6 +17,7 @@ import CreateNewPassword from "./components/login/CreateNewPass";
 import PasswordChanged from "./components/login/PassChangeConfirm";
 import PrivacyPolicy from "./components/PrivacyPolicy";
 import TermsOfService from "./components/TermofService";
+import FAQ from "../src/pages/admin/Faqs";
 import NotFound from "./components/404NotFound";
 import { TeacherProvider } from './context/TeacherContext';
 
@@ -99,6 +100,7 @@ const App = () => {
         <Route path="/password-changed/" element={<PasswordChanged />} />
         <Route path="/terms-of-service/" element={<TermsOfService />} />
         <Route path="/privacy-policy/" element={<PrivacyPolicy />} />
+        <Route path="/faq/" element={<FAQ />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </TeacherProvider>
