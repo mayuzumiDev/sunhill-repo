@@ -13,7 +13,7 @@ const Settings = ({ previousTab, setCurrentTab, adminData, setAdminData }) => {
     id: adminData.id,
     user_info_id: adminData.user_info_id,
     username: adminData.username,
-    password: adminData.password,
+    password: "",
     confirm_password: "",
     email: adminData.email,
     contact_no: adminData.contact_no,

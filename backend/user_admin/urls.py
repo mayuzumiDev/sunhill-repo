@@ -4,6 +4,7 @@ from .views.account.account_views_create import *
 from .views.account.account_views_list import *
 from .views.account.account_views_edit import *
 from .views.account.pdf_accounts import *
+from .views.profile.admin_profile_views import AdminProfileImageView
 
 urlpatterns = [
     path('current-admin/', CurrentAdminView.as_view(), name="current_admin" ),
@@ -20,5 +21,6 @@ urlpatterns = [
     path('teacher-list/', TeacherListView.as_view(), name='teacher_list'),
     path('student-list/', StudentListView.as_view(), name='student_list'),
     path('parent-list/', ParentListView.as_view(), name='parent_list'),
-    path('public-user-list/', PublicUserListView.as_view(), name='public_user_list')
+    path('public-user-list/', PublicUserListView.as_view(), name='public_user_list'),
+    path('user-info/profile-image/', AdminProfileImageView.as_view(), name='admin_profile_image'),
 ]
