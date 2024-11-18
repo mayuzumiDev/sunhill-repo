@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faUserPlus,
@@ -23,6 +23,7 @@ import SortBox from "../../../components/admin/tables/SortBox";
 import Error from "../../../assets/img/home/error-5.mp3";
 import Success from "../../../assets/img/home/success-1.mp3";
 import "../../../components/alert/styles/BiingsAlert.css";
+import debounce from "lodash.debounce";
 
 const orderByOptionsMap = {
   Newest: "-date_joined",
@@ -131,14 +132,16 @@ const Teacher = () => {
     showSelectUserError,
   ]);
 
-  let typingTimer;
-  const handleSearch = (inputValue) => {
-    clearTimeout(typingTimer);
+  const debouncedSearch = useCallback(
+    debounce((value) => {
+      setIsOperationRunning(value.length >= 2);
+    }, 500),
+    []
+  );
 
-    typingTimer = setTimeout(() => {
-      setSearchTerm(inputValue);
-      setIsOperationRunning(inputValue.length > 0);
-    }, 1000);
+  const handleSearch = (inputValue) => {
+    setSearchTerm(inputValue);
+    debouncedSearch(inputValue);
   };
 
   const handleOrderChange = (selectedOrder) => {

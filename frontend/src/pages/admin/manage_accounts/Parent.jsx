@@ -16,6 +16,7 @@ import SortBox from "../../../components/admin/tables/SortBox";
 import Error from "../../../assets/img/home/error-5.mp3";
 import Success from "../../../assets/img/home/success-1.mp3";
 import "../../../components/alert/styles/BiingsAlert.css";
+import debounce from "lodash.debounce";
 
 const orderByOptionsMap = {
   Newest: "-date_joined",
@@ -117,9 +118,16 @@ const Parent = () => {
     }
   };
 
+  const debouncedSearch = useCallback(
+    debounce((value) => {
+      setIsOperationRunning(value.length >= 2);
+    }, 500),
+    []
+  );
+
   const handleSearch = (inputValue) => {
     setSearchTerm(inputValue);
-    setIsOperationRunning(inputValue.length > 0);
+    debouncedSearch(inputValue);
   };
 
   const handleFilterChange = (filterType, value) => {
