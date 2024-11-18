@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+  import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUpload, faUser } from "@fortawesome/free-solid-svg-icons";
 import { axiosInstance } from "../../../utils/axiosInstance";
@@ -54,16 +54,30 @@ const PhotoUpload = ({ adminData, refreshAdminData }) => {
     }
   }, [adminData]);
 
+  // Clear messages after 5 seconds
+  useEffect(() => {
+    let timer;
+    if (message || error) {
+      timer = setTimeout(() => {
+        setMessage("");
+        setError("");
+      }, 5000);
+    }
+    return () => clearTimeout(timer);
+  }, [message, error]);
+
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (file) {
       try {
+        console.log('Starting image upload...');
         setLoading(true);
         setError('');
         setMessage('');
         
         // Validate file size (max 5MB)
         if (file.size > 5 * 1024 * 1024) {
+          console.error('File size exceeds 5MB limit');
           setError("File size should not exceed 5MB");
           setLoading(false);
           return;
@@ -72,6 +86,7 @@ const PhotoUpload = ({ adminData, refreshAdminData }) => {
         // Validate file type
         const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
         if (!validTypes.includes(file.type)) {
+          console.error('Invalid file type:', file.type);
           setError("Please upload a valid image file (JPEG, PNG, or GIF)");
           setLoading(false);
           return;
@@ -80,6 +95,7 @@ const PhotoUpload = ({ adminData, refreshAdminData }) => {
         const formData = new FormData();
         formData.append('profile_image', file);
 
+        console.log('Sending image upload request...');
         const response = await axiosInstance.patch(
           '/user-admin/user-info/profile-image/',
           formData,
@@ -93,14 +109,17 @@ const PhotoUpload = ({ adminData, refreshAdminData }) => {
         console.log('Upload response:', response.data);
 
         if (response.data.profile_image) {
+          console.log('Profile image updated successfully:', response.data.profile_image);
           setMessage('Profile image updated successfully!');
           setProfileImage(response.data.profile_image);
           
           // Dispatch event for profile image update
+          console.log('Dispatching profile image update event...');
           dispatchProfileImageUpdate(response.data.profile_image);
           
           // Refresh admin data
           try {
+            console.log('Refreshing admin data...');
             const adminResponse = await axiosInstance.get('/user-admin/current-admin/');
             if (refreshAdminData) {
               refreshAdminData(adminResponse.data);
@@ -179,20 +198,20 @@ const PhotoUpload = ({ adminData, refreshAdminData }) => {
               )}
             </div>
             <div>
-              <span className="mb-1.5 block font-medium text-black">
+              <span className="mb-1.5 text-xs sm:text-sm inline-block font-medium text-black">
                 Edit your photo
               </span>
               <span className="flex gap-2.5">
                 <button
                   type="button"
-                  className="text-sm text-red-500 cursor-pointer hover:underline"
+                  className="text-xs sm:text-sm text-red-500 cursor-pointer hover:underline"
                   onClick={handleImageDelete}
                   disabled={loading || profileImage === userThree}
                 >
                   Delete
                 </button>
                 <label
-                  className="text-sm text-blue-500 cursor-pointer hover:underline"
+                  className="text-xs sm:text-sm text-blue-500 cursor-pointer hover:underline"
                   htmlFor="profileImageUpload"
                 >
                   Update
@@ -224,9 +243,9 @@ const PhotoUpload = ({ adminData, refreshAdminData }) => {
               <span className="flex h-10 w-10 items-center justify-center rounded-full border border-stroke bg-white">
                 <FontAwesomeIcon icon={faUpload} />
               </span>
-              <span className="text-sm font-medium">Upload your photo</span>
-              <span className="text-xs">Supported formats: JPEG, PNG, GIF</span>
-              <span className="text-xs">Maximum size: 5MB</span>
+              <span className="text-xs sm:text-sm  font-medium">Upload your photo</span>
+              <span className="text-xs sm:text-sm">Supported formats: JPEG, PNG, GIF</span>
+              <span className="text-xs sm:text-sm">Maximum size: 5MB</span>
             </div>
           </div>
         </form>

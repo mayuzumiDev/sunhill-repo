@@ -114,7 +114,7 @@ const Settings = ({ previousTab, setCurrentTab, adminData, setAdminData }) => {
         <div className="col-span-5 xl:col-span-3">
           <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
             <div className="border-b border-stroke py-4 px-7 dark:border-strokedark">
-              <h3 className="font-bold text-gray-800">Personal Information</h3>
+              <h3 className="font-meduim text-black">Personal Information</h3>
             </div>
             <div className="p-7">
               <form onSubmit={handleSubmit}>
@@ -129,7 +129,7 @@ const Settings = ({ previousTab, setCurrentTab, adminData, setAdminData }) => {
                       <span className="text-meta-1 text-red-500 ml-1">*</span>
                     </label>
                     <input
-                      className="w-full rounded border border-stroke bg-gray py-3 px-2  text-gray-800 transition duration-300 ease-in-out hover:shadow-lg focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-gray-800 dark:focus:border-primary"
+                      className="w-full rounded border text-xs sm:text-sm border-stroke bg-gray py-3 px-2  text-gray-800 transition duration-300 ease-in-out hover:shadow-lg focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-gray-800 dark:focus:border-primary"
                       type="text"
                       name="username"
                       id="username"
@@ -157,7 +157,7 @@ const Settings = ({ previousTab, setCurrentTab, adminData, setAdminData }) => {
                       <span className="text-meta-1 text-red-500 ml-1">*</span>
                     </label>
                     <input
-                      className="w-full rounded border border-stroke bg-gray py-3 px-2 text-gray-800 transition duration-300 ease-in-out hover:shadow-lg focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-gray-800 dark:focus:border-primary"
+                      className="w-full rounded border text-xs sm:text-sm border-stroke bg-gray py-3 px-2 text-gray-800 transition duration-300 ease-in-out hover:shadow-lg focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-gray-800 dark:focus:border-primary"
                       type="password"
                       name="password"
                       id="password"
@@ -174,7 +174,7 @@ const Settings = ({ previousTab, setCurrentTab, adminData, setAdminData }) => {
                   </div>
                   <div className="w-full sm:w-1/2 mt-8">
                     <input
-                      className="w-full rounded border border-stroke bg-gray py-3 px-2 text-gray-800 transition duration-300 ease-in-out hover:shadow-lg focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-gray-800 dark:focus:border-primary"
+                      className="w-full rounded border text-xs sm:text-sm border-stroke bg-gray py-3 px-2 text-gray-800 transition duration-300 ease-in-out hover:shadow-lg focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-gray-800 dark:focus:border-primary"
                       type="password"
                       name="confirm_password"
                       id="confirm_password"
@@ -202,7 +202,7 @@ const Settings = ({ previousTab, setCurrentTab, adminData, setAdminData }) => {
                       <span className="text-meta-1 text-red-500 ml-1">*</span>
                     </label>
                     <input
-                      className="w-full rounded border border-stroke bg-gray py-3 px-2 text-gray-800 transition duration-300 ease-in-out hover:shadow-lg focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-gray-800 dark:focus:border-primary"
+                      className="w-full rounded text-xs sm:text-sm border border-stroke bg-gray py-3 px-2 text-gray-800 transition duration-300 ease-in-out hover:shadow-lg focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-gray-800 dark:focus:border-primary"
                       type="email"
                       name="email"
                       id="email"
@@ -224,7 +224,7 @@ const Settings = ({ previousTab, setCurrentTab, adminData, setAdminData }) => {
                       Contact No
                     </label>
                     <input
-                      className="w-full rounded border border-stroke bg-gray py-3 px-2 text-gray-800 transition duration-300 ease-in-out hover:shadow-lg focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-gray-800 dark:focus:border-primary"
+                      className="w-full rounded text-xs sm:text-sm border border-stroke bg-gray py-3 px-2 text-gray-800 transition duration-300 ease-in-out hover:shadow-lg focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-gray-800 dark:focus:border-primary"
                       type="text"
                       name="contact_no"
                       id="contact_no"
@@ -246,7 +246,7 @@ const Settings = ({ previousTab, setCurrentTab, adminData, setAdminData }) => {
                       First Name
                     </label>
                     <input
-                      className="w-full rounded border border-stroke bg-gray py-3 px-2 text-gray-800 transition duration-300 ease-in-out hover:shadow-lg focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-gray-800 dark:focus:border-primary"
+                      className="w-full  text-xs sm:text-sm rounded border border-stroke bg-gray py-3 px-2 text-gray-800 transition duration-300 ease-in-out hover:shadow-lg focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-gray-800 dark:focus:border-primary"
                       type="text"
                       name="first_name"
                       id="first_name"
@@ -266,7 +266,7 @@ const Settings = ({ previousTab, setCurrentTab, adminData, setAdminData }) => {
                       Last Name
                     </label>
                     <input
-                      className="w-full rounded border border-stroke bg-gray py-3 px-2 text-gray-800 transition duration-300 ease-in-out hover:shadow-lg focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-gray-800 dark:focus:border-primary"
+                      className="w-full  text-xs sm:text-sm rounded border border-stroke bg-gray py-3 px-2 text-gray-800 transition duration-300 ease-in-out hover:shadow-lg focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-gray-800 dark:focus:border-primary"
                       type="text"
                       name="last_name"
                       id="last_name"
