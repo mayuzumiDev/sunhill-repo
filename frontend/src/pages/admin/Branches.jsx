@@ -3,74 +3,80 @@ import { FaSearch, FaMapMarkerAlt, FaPhone, FaEnvelope, FaUserTie, FaUsers, FaBo
 import sunhillBats from "../../assets/img/home/sunhill-bats.jpg";
 import rosario from "../../assets/img/home/rosario.jpg";
 import bauan from "../../assets/img/home/bauan.jpg";
+import { toast } from 'react-toastify';
+
+const initialBranches = [
+  {
+    id: 1,
+    name: "BATANGAS",
+    address: "123 Main Street, Batangas City",
+    phone: "+63 (43) 123-4567",
+    email: "batangas@sunhill.edu",
+    principal: "Dr. Maria Santos",
+    image: sunhillBats,
+    facilities: ["Computer Lab", "Science Lab", "Library", "Playground", "Cafeteria"],
+    programs: ["Regular Classes", "After-school Programs", "Summer Camps"],
+    achievements: ["Best School Award 2023", "100% Graduation Rate", "Regional Math Competition Winners"],
+    stats: {
+      attendance: 95,
+      satisfaction: 90,
+      academicPerformance: 88
+    }
+  },
+  {
+    id: 2,
+    name: "ROSARIO",
+    address: "456 School Avenue, Rosario",
+    phone: "+63 (43) 234-5678",
+    email: "rosario@sunhill.edu",
+    principal: "Dr. Juan Cruz",
+    image: rosario,
+    facilities: ["Music Room", "Art Studio", "Gymnasium", "Library", "Science Lab"],
+    programs: ["Special Education", "Arts Program", "Sports Program"],
+    achievements: ["Excellence in Arts 2023", "Sports Championship", "Perfect NAT Scores"],
+    stats: {
+      attendance: 92,
+      satisfaction: 88,
+      academicPerformance: 85
+    }
+  },
+  {
+    id: 3,
+    name: "BAUAN",
+    address: "789 Education Road, Bauan",
+    phone: "+63 (43) 345-6789",
+    email: "bauan@sunhill.edu",
+    principal: "Dr. Ana Reyes",
+    image: bauan,
+    facilities: ["Innovation Hub", "Sports Complex", "Multimedia Room", "Library"],
+    programs: ["STEM Focus", "Language Programs", "Leadership Training"],
+    achievements: ["Innovation Award 2023", "Environmental Initiative Recognition", "Perfect Licensure Passing Rate"],
+    stats: {
+      attendance: 94,
+      satisfaction: 92,
+      academicPerformance: 90
+    }
+  },
+  {
+    id: 4,
+    name: "METRO TAGAYTAY",
+    address: "101 Tagaytay Ridge, Metro Tagaytay",
+    phone: "+63 (43) 456-7890",
+    email: "tagaytay@sunhill.edu",
+    principal: "Dr. Jose Garcia",
+    image: sunhillBats,
+    facilities: ["Modern Labs", "Auditorium", "Sports Field", "Library"],
+    programs: ["International Curriculum", "Music Program", "Tech Innovation"],
+    achievements: ["Digital Excellence Award", "Community Service Recognition", "Math Olympics Champions"],
+    stats: {
+      attendance: 96,
+      satisfaction: 94,
+      academicPerformance: 92
+    }
+  }
+];
 
 const Branches = () => {
-  const initialBranches = [
-    {
-      id: 1,
-      name: "Batangas",
-      address: "123 Main Street, Batangas City",
-      phone: "+63 (43) 123-4567",
-      email: "batangas@sunhill.edu",
-      principal: "Dr. Maria Santos",
-      teachers: 5,
-      students: 120,
-      parents: 80,
-      classes: 10,
-      image: sunhillBats,
-      facilities: ["Computer Lab", "Science Lab", "Library", "Playground", "Cafeteria"],
-      programs: ["Regular Classes", "After-school Programs", "Summer Camps"],
-      achievements: ["Best School Award 2023", "100% Graduation Rate", "Regional Math Competition Winners"],
-      stats: {
-        attendance: 95,
-        satisfaction: 90,
-        academicPerformance: 88
-      }
-    },
-    {
-      id: 2,
-      name: "Rosario",
-      address: "456 School Avenue, Rosario",
-      phone: "+63 (43) 234-5678",
-      email: "rosario@sunhill.edu",
-      principal: "Dr. Juan Cruz",
-      teachers: 7,
-      students: 150,
-      parents: 90,
-      classes: 15,
-      image: rosario,
-      facilities: ["Music Room", "Art Studio", "Gymnasium", "Library", "Science Lab"],
-      programs: ["Special Education", "Arts Program", "Sports Program"],
-      achievements: ["Excellence in Arts 2023", "Sports Championship", "Perfect NAT Scores"],
-      stats: {
-        attendance: 92,
-        satisfaction: 88,
-        academicPerformance: 85
-      }
-    },
-    {
-      id: 4,
-      name: "Bauan",
-      address: "789 Education Road, Bauan",
-      phone: "+63 (43) 345-6789",
-      email: "bauan@sunhill.edu",
-      principal: "Dr. Ana Reyes",
-      teachers: 6,
-      students: 100,
-      parents: 70,
-      classes: 12,
-      image: bauan,
-      facilities: ["Innovation Hub", "Sports Complex", "Multimedia Room", "Library"],
-      programs: ["STEM Focus", "Language Programs", "Leadership Training"],
-      achievements: ["Innovation Award 2023", "Environmental Initiative Recognition", "Perfect Licensure Passing Rate"],
-      stats: {
-        attendance: 94,
-        satisfaction: 92,
-        academicPerformance: 90
-      }
-    },
-  ];
-
   const [branches, setBranches] = useState(initialBranches);
   const [selectedBranch, setSelectedBranch] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -82,10 +88,6 @@ const Branches = () => {
     phone: "",
     email: "",
     principal: "",
-    teachers: 0,
-    students: 0,
-    parents: 0,
-    classes: 0,
     image: null,
     facilities: [],
     programs: [],
@@ -113,12 +115,21 @@ const Branches = () => {
 
   const handleAddBranch = () => {
     if (!newBranch.name || !newBranch.address || !newBranch.image) {
-      alert("Please fill in all required fields (Name, Address, and Image)");
+      toast.error("Please fill in all required fields (Name, Address, and Image)");
       return;
     }
 
     const newId = Math.max(...branches.map(b => b.id)) + 1;
-    setBranches([...branches, { ...newBranch, id: newId }]);
+    const branchToAdd = {
+      ...newBranch,
+      id: newId,
+      facilities: [],
+      programs: [],
+      achievements: []
+    };
+
+    setBranches([...branches, branchToAdd]);
+    toast.success('Branch created successfully');
     setShowAddModal(false);
     setNewBranch({
       name: "",
@@ -126,10 +137,6 @@ const Branches = () => {
       phone: "",
       email: "",
       principal: "",
-      teachers: 0,
-      students: 0,
-      parents: 0,
-      classes: 0,
       image: null,
       facilities: [],
       programs: [],
@@ -151,6 +158,7 @@ const Branches = () => {
     if (window.confirm("Are you sure you want to delete this branch? This action cannot be undone.")) {
       setBranches(branches.filter(branch => branch.id !== id));
       setSelectedBranch(null);
+      toast.success('Branch deleted successfully');
     }
   };
 
@@ -186,9 +194,9 @@ const Branches = () => {
                   <FaUsers className="mr-2" /> Population
                 </h4>
                 <ul className="space-y-2 text-gray-700">
-                  <li>Teachers: {selectedBranch.teachers}</li>
-                  <li>Students: {selectedBranch.students}</li>
-                  <li>Parents: {selectedBranch.parents}</li>
+                  <li>Teachers: {selectedBranch.stats.attendance}%</li>
+                  <li>Students: {selectedBranch.stats.satisfaction}%</li>
+                  <li>Parents: {selectedBranch.stats.academicPerformance}%</li>
                 </ul>
               </div>
               <div className="bg-green-50 p-4 rounded-lg">
@@ -206,7 +214,7 @@ const Branches = () => {
                   <FaBook className="mr-2" /> Education
                 </h4>
                 <ul className="space-y-2 text-gray-700">
-                  <li>Classes: {selectedBranch.classes}</li>
+                  <li>Classes: {selectedBranch.programs.length}</li>
                   <li>Student-Teacher Ratio: {Math.round(selectedBranch.students / selectedBranch.teachers)}:1</li>
                 </ul>
               </div>
@@ -303,8 +311,8 @@ const Branches = () => {
                   </p>
                 </div>
                 <div className="text-white text-sm space-y-1">
-                  <p><FaUsers className="inline mr-1" /> {branch.students} Students</p>
-                  <p><FaChalkboardTeacher className="inline mr-1" /> {branch.teachers} Teachers</p>
+                  <p><FaUsers className="inline mr-1" /> {branch.stats.attendance}% Attendance</p>
+                  <p><FaChalkboardTeacher className="inline mr-1" /> {branch.stats.satisfaction}% Satisfaction</p>
                 </div>
               </div>
             </div>
