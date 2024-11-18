@@ -239,13 +239,13 @@ const Faqs = () => {
         </p>
         <div className="space-y-3">
           <a 
-            href="mailto:support@sunhill.edu" 
+            href="dev.sunhill.lms@gmail.com"
             className="flex items-center text-blue-700 hover:text-blue-800 transition-colors"
           >
             <span className="mr-2">📧</span> dev.sunhill.lms@gmail.com
           </a>
           <a 
-            href="tel:+11234567890" 
+            href="tel:+630215910324" 
             className="flex items-center text-blue-700 hover:text-blue-800 transition-colors"
           >
             <span className="mr-2">📞</span> 09215910324
