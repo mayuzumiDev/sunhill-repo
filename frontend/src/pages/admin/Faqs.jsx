@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { FaChevronDown, FaChevronUp, FaSearch } from 'react-icons/fa';
+import { FaChevronDown, FaChevronUp, FaSearch, FaTimes } from 'react-icons/fa';
 
 const Faqs = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [openItems, setOpenItems] = useState({});
+  const [selectedCategory, setSelectedCategory] = useState('all');
 
   const faqCategories = [
     {
@@ -100,13 +101,30 @@ const Faqs = () => {
     }));
   };
 
-  const filteredFaqs = faqCategories.map(category => ({
-    ...category,
-    questions: category.questions.filter(item =>
-      item.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.answer.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-  })).filter(category => category.questions.length > 0);
+  const handleKeyPress = (e, id) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      toggleItem(id);
+    }
+  };
+
+  const clearSearch = () => {
+    setSearchTerm('');
+    setSelectedCategory('all');
+  };
+
+  const categories = ['all', ...new Set(faqCategories.map(cat => cat.category))];
+
+  const filteredFaqs = faqCategories
+    .map(category => ({
+      ...category,
+      questions: category.questions.filter(item =>
+        (selectedCategory === 'all' || category.category === selectedCategory) &&
+        (item.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
+         item.answer.toLowerCase().includes(searchTerm.toLowerCase()))
+      )
+    }))
+    .filter(category => category.questions.length > 0);
 
   return (
     <div className="p-4 max-w-5xl mx-auto">
@@ -114,45 +132,85 @@ const Faqs = () => {
         <h1 className="text-2xl font-bold text-gray-800 mb-2">Frequently Asked Questions</h1>
         <p className="text-gray-600">Find answers to common questions about the admin dashboard and LMS system.</p>
         
-        {/* Search Bar */}
-        <div className="mt-4 relative">
-          <input
-            type="text"
-            placeholder="Search FAQs..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full px-4 py-2 pl-10 pr-4 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <FaSearch className="absolute left-3 top-3 text-gray-400" />
+        {/* Search and Filter Section */}
+        <div className="mt-6 space-y-4">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Search FAQs..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full px-4 py-3 pl-10 pr-10 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+              aria-label="Search FAQs"
+            />
+            <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            {searchTerm && (
+              <button
+                onClick={clearSearch}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                aria-label="Clear search"
+              >
+                <FaTimes />
+              </button>
+            )}
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            {categories.map((category) => (
+              <button
+                key={category}
+                onClick={() => setSelectedCategory(category)}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                  selectedCategory === category
+                    ? 'bg-blue-500 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+                aria-pressed={selectedCategory === category}
+              >
+                {category === 'all' ? 'All Categories' : category}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
       {/* FAQ Categories */}
-      <div className="space-y-6">
+      <div className="space-y-6" role="region" aria-label="FAQ Categories">
         {filteredFaqs.map((category) => (
-          <div key={category.category} className="bg-white rounded-lg shadow-sm border border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-800 p-4 border-b border-gray-200">
+          <div 
+            key={category.category} 
+            className="bg-white rounded-lg shadow-sm border border-gray-200 transition-all duration-200 hover:shadow-md"
+          >
+            <h2 className="text-lg font-semibold text-gray-800 p-4 border-b border-gray-200 bg-gray-50">
               {category.category}
             </h2>
             <div className="divide-y divide-gray-200">
               {category.questions.map((item) => (
-                <div key={item.id} className="p-4">
+                <div key={item.id} className="transition-all duration-200">
                   <button
                     onClick={() => toggleItem(item.id)}
-                    className="w-full flex justify-between items-start text-left"
+                    onKeyDown={(e) => handleKeyPress(e, item.id)}
+                    className="w-full p-4 flex justify-between items-start text-left hover:bg-gray-50 transition-colors"
+                    aria-expanded={openItems[item.id]}
+                    aria-controls={`answer-${item.id}`}
                   >
-                    <span className="text-gray-800 font-medium">{item.question}</span>
-                    {openItems[item.id] ? (
-                      <FaChevronUp className="text-gray-500 mt-1" />
-                    ) : (
-                      <FaChevronDown className="text-gray-500 mt-1" />
-                    )}
+                    <span className="text-gray-800 font-medium pr-4">{item.question}</span>
+                    <span className="text-gray-500 transition-transform duration-200" style={{
+                      transform: openItems[item.id] ? 'rotate(180deg)' : 'rotate(0deg)'
+                    }}>
+                      <FaChevronDown />
+                    </span>
                   </button>
-                  {openItems[item.id] && (
-                    <div className="mt-2 text-gray-600 whitespace-pre-line">
+                  <div
+                    id={`answer-${item.id}`}
+                    className={`overflow-hidden transition-all duration-200 ${
+                      openItems[item.id] ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'
+                    }`}
+                  >
+                    <div className="p-4 pt-0 text-gray-600 whitespace-pre-line bg-gray-50">
                       {item.answer}
                     </div>
-                  )}
+                  </div>
                 </div>
               ))}
             </div>
@@ -162,22 +220,40 @@ const Faqs = () => {
 
       {/* No Results Message */}
       {filteredFaqs.length === 0 && (
-        <div className="text-center py-8">
-          <p className="text-gray-500">No FAQs found matching your search.</p>
+        <div className="text-center py-8 bg-gray-50 rounded-lg border border-gray-200">
+          <p className="text-gray-500 mb-4">No FAQs found matching your search.</p>
+          <button
+            onClick={clearSearch}
+            className="text-blue-500 hover:text-blue-600 font-medium transition-colors"
+          >
+            Clear filters and try again
+          </button>
         </div>
       )}
 
       {/* Help Section */}
-      <div className="mt-8 p-4 bg-blue-50 rounded-lg border border-blue-100">
-        <h2 className="text-lg font-semibold text-blue-800 mb-2">Need More Help?</h2>
-        <p className="text-blue-600">
+      <div className="mt-8 p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border border-blue-200">
+        <h2 className="text-xl font-semibold text-blue-800 mb-3">Need More Help?</h2>
+        <p className="text-blue-700 mb-4">
           If you couldn't find what you're looking for, please contact our support team:
         </p>
-        <ul className="mt-2 space-y-1 text-blue-700">
-          <li>• Email: support@sunhill.edu</li>
-          <li>• Phone: (123) 456-7890</li>
-          <li>• Hours: Monday - Friday, 8:00 AM - 5:00 PM</li>
-        </ul>
+        <div className="space-y-3">
+          <a 
+            href="mailto:support@sunhill.edu" 
+            className="flex items-center text-blue-700 hover:text-blue-800 transition-colors"
+          >
+            <span className="mr-2">📧</span> support@sunhill.edu
+          </a>
+          <a 
+            href="tel:+11234567890" 
+            className="flex items-center text-blue-700 hover:text-blue-800 transition-colors"
+          >
+            <span className="mr-2">📞</span> (123) 456-7890
+          </a>
+          <div className="flex items-center text-blue-700">
+            <span className="mr-2">🕒</span> Monday - Friday, 8:00 AM - 5:00 PM
+          </div>
+        </div>
       </div>
     </div>
   );
