@@ -8,7 +8,7 @@ import {
   faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 
-const EventCard = ({ event }) => {
+const EventCard = ({ event, onDelete }) => {
   const getAudienceBadgeColor = (audience) => {
     switch (audience) {
       case "students":
@@ -70,7 +70,7 @@ const EventCard = ({ event }) => {
             <FontAwesomeIcon icon={faPencilAlt} className="w-4 h-4" />
           </button>
           <button
-            // onClick={() => onDelete(event)}
+            onClick={() => onDelete(event)}
             className="text-red-600 hover:text-red-800 p-2 rounded-full hover:bg-red-50 transition-colors"
           >
             <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />

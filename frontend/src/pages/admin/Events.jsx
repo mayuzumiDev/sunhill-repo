@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPlus,
+  faTrash,
   faExclamationTriangle,
 } from "@fortawesome/free-solid-svg-icons";
 import { axiosInstance } from "../../utils/axiosInstance";
@@ -11,14 +12,21 @@ import SatyamLoader from "../../components/loaders/SatyamLoader";
 import HideScrollbar from "../../components/misc/HideScrollBar";
 
 const Events = () => {
+  const [successMessage, setSuccessMessage] = useState(null);
+  const [errorMessage, setErrorMessage] = useState(null);
   const [isAddEventOpen, setIsAddEventOpen] = useState(false);
   const [isEmpty, setIsEmpty] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState({
+    show: false,
+    eventId: null,
+    eventTitle: "",
+  });
 
   const [events, setEvents] = useState([]);
 
   useEffect(() => {
     fetchEvents();
-  }, []);
+  }, [events]);
 
   const fetchEvents = async () => {
     try {
@@ -27,7 +35,6 @@ const Events = () => {
       const response = await axiosInstance.get("/user-admin/event/list/");
       if (response.status === 200) {
         const eventData = response.data.events_list;
-        console.log("Events:", eventData);
         if (eventData.length === 0) {
           setIsEmpty(true);
         }
@@ -42,6 +49,47 @@ const Events = () => {
   const handleAddEvent = async () => {
     fetchEvents();
     setIsAddEventOpen(false);
+  };
+
+  const showDeleteConfirmation = (eventId, eventTitle) => {
+    setDeleteConfirm({
+      show: true,
+      eventId,
+      eventTitle,
+    });
+  };
+
+  const hideDeleteConfirmation = () => {
+    setDeleteConfirm({
+      show: false,
+      eventId: null,
+      eventTitle: null,
+    });
+  };
+
+  const handleDeleteEvent = async (eventId) => {
+    try {
+      const response = await axiosInstance.delete(
+        `/user-admin/event/delete/${eventId}/`
+      );
+
+      if (response.status === 200) {
+        fetchEvents();
+        hideDeleteConfirmation();
+        setSuccessMessage(true);
+
+        setTimeout(() => {
+          setSuccessMessage(false);
+        }, 3000);
+      }
+    } catch (error) {
+      console.error("Error deleting event:", error);
+      hideDeleteConfirmation();
+      setErrorMessage(true);
+      setTimeout(() => {
+        setErrorMessage(false);
+      }, 3000);
+    }
   };
 
   return (
@@ -84,7 +132,11 @@ const Events = () => {
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-1">
             {events.map((event) => (
-              <EventCard key={event.id} event={event} />
+              <EventCard
+                key={event.id}
+                event={event}
+                onDelete={() => showDeleteConfirmation(event.id, event.title)}
+              />
             ))}
           </div>
         )}
@@ -95,6 +147,49 @@ const Events = () => {
         onClose={() => setIsAddEventOpen(false)}
         onSave={handleAddEvent}
       />
+
+      {deleteConfirm.show && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+            <div className="text-center">
+              <p className="text-gray-500 mb-6">
+                Are you sure you want to delete "{deleteConfirm.eventTitle}"?
+                This action cannot be undone.
+              </p>
+              <div className="flex justify-center gap-3">
+                <button
+                  onClick={() => handleDeleteEvent(deleteConfirm.eventId)}
+                  className="px-4 py-2 bg-red-500 text-white font-medium rounded-lg hover:bg-red-600 transition"
+                >
+                  Yes
+                </button>
+                <button
+                  onClick={hideDeleteConfirmation}
+                  className="px-4 py-2 text-gray-500 hover:text-gray-700 font-medium rounded-lg"
+                >
+                  No
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {successMessage && (
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">
+          <div className="px-6 py-4 bg-green-50 border border-green-400 rounded-lg text-green-500">
+            Event deletion complete.
+          </div>
+        </div>
+      )}
+
+      {errorMessage && (
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">
+          <div className="px-6 py-4 bg-red-50 border border-red-400 rounded-lg text-red-500">
+            Event deletion failed.
+          </div>
+        </div>
+      )}
       <HideScrollbar />
     </div>
   );
