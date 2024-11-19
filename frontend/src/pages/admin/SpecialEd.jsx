@@ -211,6 +211,12 @@ const SpecialEd = () => {
         return;
       }
 
+      console.log('Creating assessment with payload:', {
+        student: selectedStudent.id,
+        category: selectedCategory.id,
+        completed: true
+      });
+
       // Create a new assessment
       const assessmentResponse = await axiosInstance.post('/special-education/assessments/', {
         student: selectedStudent.id,
@@ -218,53 +224,69 @@ const SpecialEd = () => {
         completed: true
       });
 
-      if (!assessmentResponse.data) {
+      console.log('Assessment response:', assessmentResponse.data);
+
+      // Get the assessment data from the new response format
+      const assessmentData = assessmentResponse.data.assessment || assessmentResponse.data;
+
+      if (!assessmentData?.id) {
         throw new Error('Failed to create assessment');
       }
-
-      const assessmentId = assessmentResponse.data.id;
 
       // Format the responses for submission
       const formattedResponses = dailyQuestions.map(question => ({
         question: question.id,
         response: answers[question.id],
-        assessment: assessmentId
+        assessment: assessmentData.id
       }));
 
+      console.log('Submitting responses:', formattedResponses);
+
       // Submit the assessment responses
-      await axiosInstance.post('/special-education/responses/bulk_create/', {
+      const responseResult = await axiosInstance.post('/special-education/responses/bulk_create/', {
         responses: formattedResponses
       });
 
-      // Fetch the complete assessment with responses
-      const completedAssessment = await axiosInstance.get(`/special-education/assessments/${assessmentId}/`);
-      
-      if (!completedAssessment.data) {
-        throw new Error('Failed to fetch completed assessment');
+      console.log('Responses submitted:', responseResult.data);
+
+      if (!responseResult.data) {
+        throw new Error('Failed to submit responses');
       }
 
-      // Update assessment history
+      // Update assessment status - only send the completed field
+      await axiosInstance.patch(`/special-education/assessments/${assessmentData.id}/`, {
+        completed: true
+      });
+
+      // Fetch updated assessment history
       const historyResponse = await axiosInstance.get(`/special-education/assessments/list/?student=${selectedStudent.id}`);
+      
       if (historyResponse.data) {
-        setAssessmentHistory(historyResponse.data);
-      }
-
-      // Set states for results view
-      setShowResults(true);
-      setActiveStep(5);
-      setAssessmentStarted(false);
-      
-      toast.success('Assessment submitted successfully!');
-      
-      // Offer to print after a short delay
-      setTimeout(() => {
-        if (window.confirm('Would you like to print the assessment report?')) {
-          handlePrintAssessment(completedAssessment.data);
+        const currentAssessment = historyResponse.data.find(a => a.id === assessmentData.id);
+        
+        if (!currentAssessment) {
+          throw new Error('Could not find submitted assessment');
         }
-      }, 500);
 
+        // Update states in the correct order
+        setAssessmentHistory(historyResponse.data);
+        setShowResults(true);
+        setAssessmentStarted(false);
+        setActiveStep(5);
+        
+        // Show success message
+        toast.success(assessmentResponse.data.message || 'Assessment submitted successfully!');
+        
+        // Offer to print after a short delay
+        setTimeout(() => {
+          if (window.confirm('Would you like to print the assessment report?')) {
+            handlePrintAssessment(currentAssessment);
+          }
+        }, 500);
+      }
     } catch (error) {
       console.error('Error submitting assessment:', error);
+      console.error('Error details:', error.response?.data);
       toast.error(error.response?.data?.message || 'Failed to submit assessment. Please try again.');
     } finally {
       setIsSubmitting(false);
@@ -337,9 +359,8 @@ const SpecialEd = () => {
   };
 
   useEffect(() => {
-    if (activeStep === 5) {
+    if (activeStep === 5 && !showResults) {
       setShowResults(true);
-      setAssessmentStarted(false);
     }
   }, [activeStep]);
 
@@ -352,6 +373,25 @@ const SpecialEd = () => {
       setActiveStep(0);
     };
   }, []);
+
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (assessmentStarted && Object.keys(answers).length > 0 && activeStep === 4) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [assessmentStarted, answers, activeStep]);
+
+  useEffect(() => {
+    if (activeStep === 5) {
+      setShowResults(true);
+      setAssessmentStarted(false);
+    }
+  }, [activeStep]);
 
   useEffect(() => {
     const handleBeforeUnload = (e) => {
