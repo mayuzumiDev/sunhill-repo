@@ -8,7 +8,7 @@ import Teacher from "./manage_accounts/Teacher";
 import Parent from "./manage_accounts/Parent";
 import Public from "./manage_accounts/Public";
 import Branches from "./Branches";
-import SchoolEventsCalendar from "./Events_Initial";
+import Events from "./Events";
 import AdminSettings from "./AdminSettings";
 import Logout from "../../components/Logout";
 import SpecialED from "./SpecialEd";
@@ -165,7 +165,7 @@ function AdminInterface() {
           {currentTab === "Parents" && <Parent />}
           {currentTab === "Public" && <Public />}
           {currentTab === "Branches" && <Branches />}
-          {currentTab === "Events" && <SchoolEventsCalendar />}
+          {currentTab === "Events" && <Events />}
           {currentTab === "Settings" && (
             <AdminSettings
               previousTab={previousTab}
