@@ -1,453 +1,836 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Container, Typography, Box, Grid, Paper, Button, TextField, Tab, Tabs,
-  CircularProgress, Alert, Select, MenuItem, FormControl, InputLabel
-} from '@mui/material';
-import { FaGraduationCap, FaChartLine, FaBrain, FaHistory, FaFilePdf, FaPrint } from 'react-icons/fa';
-import { PDFDownloadLink, Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
+import { FaGraduationCap, FaFilePdf, FaPrint, FaArrowRight, FaChild, FaBrain, FaBookReader, FaSearch, FaPlus, FaCalendar, FaHistory } from 'react-icons/fa';
 import axios from 'axios';
-// import Chart from 'react-chartjs-2';
+// import html2pdf from 'html2pdf.js';
 
-// PDF styles 
-const styles = StyleSheet.create({
-  page: { padding: 30 },
-  header: { fontSize: 24, marginBottom: 20, textAlign: 'center' },
-  section: { margin: 10, padding: 10 },
-  title: { fontSize: 18, marginBottom: 10 },
-  text: { fontSize: 12, marginBottom: 5 },
-  table: { display: 'table', width: '100%', borderStyle: 'solid', borderWidth: 1 },
-  tableRow: { flexDirection: 'row' },
-  tableCell: { padding: 5, borderWidth: 1 }
-});
-
-// PDF Document Component
-const AssessmentPDF = ({ assessment, results }) => (
-  <Document>
-    <Page size="A4" style={styles.page}>
-      <Text style={styles.header}>Special Education Assessment Report</Text>
-      
-      <View style={styles.section}>
-        <Text style={styles.title}>Student Information</Text>
-        <Text style={styles.text}>Name: {assessment.studentInfo.name}</Text>
-        <Text style={styles.text}>Age: {assessment.studentInfo.age}</Text>
-        <Text style={styles.text}>Assessment Date: {new Date().toLocaleDateString()}</Text>
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.title}>Assessment Results</Text>
-        <Text style={styles.text}>Category: {assessment.category}</Text>
-        <Text style={styles.text}>Confidence Score: {results.confidence_score}%</Text>
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.title}>Primary Indicators</Text>
-        {results.primary_indicators.map((indicator, index) => (
-          <Text key={index} style={styles.text}>• {indicator}</Text>
-        ))}
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.title}>Recommendations</Text>
-        {results.recommendations.map((rec, index) => (
-          <Text key={index} style={styles.text}>• {rec}</Text>
-        ))}
-      </View>
-    </Page>
-  </Document>
-);
+// Assessment categories and questions
+const assessmentCategories = {
+  adhd: {
+    title: 'ADHD Assessment',
+    description: 'Attention Deficit Hyperactivity Disorder evaluation',
+    questions: [
+      {
+        id: 'adhd_attention_1',
+        text: 'Does the student have difficulty maintaining attention during tasks or play?',
+        category: 'Attention'
+      },
+      {
+        id: 'adhd_attention_2',
+        text: 'Is the student easily distracted by external stimuli?',
+        category: 'Attention'
+      },
+      {
+        id: 'adhd_attention_3',
+        text: 'Does the student avoid tasks that require sustained mental effort?',
+        category: 'Attention'
+      },
+      {
+        id: 'adhd_attention_4',
+        text: 'Does the student seem to not listen when spoken to directly?',
+        category: 'Attention'
+      },
+      {
+        id: 'adhd_organization_1',
+        text: 'Does the student often lose things necessary for tasks or activities?',
+        category: 'Organization'
+      },
+      {
+        id: 'adhd_organization_2',
+        text: 'Is the student\'s work often messy or disorganized?',
+        category: 'Organization'
+      },
+      {
+        id: 'adhd_organization_3',
+        text: 'Does the student have difficulty following multi-step instructions?',
+        category: 'Organization'
+      },
+      {
+        id: 'adhd_hyperactivity_1',
+        text: 'Is the student often "on the go" or acts as if "driven by a motor"?',
+        category: 'Hyperactivity'
+      },
+      {
+        id: 'adhd_hyperactivity_2',
+        text: 'Does the student have difficulty remaining seated when expected to?',
+        category: 'Hyperactivity'
+      },
+      {
+        id: 'adhd_hyperactivity_3',
+        text: 'Does the student often fidget or squirm when seated?',
+        category: 'Hyperactivity'
+      },
+      {
+        id: 'adhd_impulsivity_1',
+        text: 'Does the student often blurt out answers before questions are completed?',
+        category: 'Impulsivity'
+      },
+      {
+        id: 'adhd_impulsivity_2',
+        text: 'Does the student have difficulty waiting their turn?',
+        category: 'Impulsivity'
+      },
+      {
+        id: 'adhd_impulsivity_3',
+        text: 'Does the student often interrupt or intrude on others?',
+        category: 'Impulsivity'
+      }
+    ]
+  },
+  asd: {
+    title: 'ASD Assessment',
+    description: 'Autism Spectrum Disorder evaluation',
+    questions: [
+      {
+        id: 'asd_social_1',
+        text: 'Does the student have difficulty with social interaction or communication?',
+        category: 'Social Communication'
+      },
+      {
+        id: 'asd_social_2',
+        text: 'Does the student struggle to maintain eye contact during conversations?',
+        category: 'Social Communication'
+      },
+      {
+        id: 'asd_social_3',
+        text: 'Does the student have difficulty understanding facial expressions or body language?',
+        category: 'Social Communication'
+      },
+      {
+        id: 'asd_social_4',
+        text: 'Does the student struggle to develop or maintain peer relationships?',
+        category: 'Social Communication'
+      },
+      {
+        id: 'asd_behavior_1',
+        text: 'Does the student show repetitive behaviors or restricted interests?',
+        category: 'Behavior Patterns'
+      },
+      {
+        id: 'asd_behavior_2',
+        text: 'Does the student insist on following specific routines or rituals?',
+        category: 'Behavior Patterns'
+      },
+      {
+        id: 'asd_behavior_3',
+        text: 'Does the student show unusual sensory interests or sensitivities?',
+        category: 'Behavior Patterns'
+      },
+      {
+        id: 'asd_behavior_4',
+        text: 'Does the student have intense, focused interests in specific topics?',
+        category: 'Behavior Patterns'
+      },
+      {
+        id: 'asd_communication_1',
+        text: 'Does the student have difficulty understanding nonverbal communication?',
+        category: 'Social Understanding'
+      },
+      {
+        id: 'asd_communication_2',
+        text: 'Does the student take things literally or struggle with idioms?',
+        category: 'Social Understanding'
+      },
+      {
+        id: 'asd_communication_3',
+        text: 'Does the student have unusual speech patterns or tone of voice?',
+        category: 'Social Understanding'
+      },
+      {
+        id: 'asd_emotional_1',
+        text: 'Does the student have difficulty expressing or understanding emotions?',
+        category: 'Emotional Understanding'
+      },
+      {
+        id: 'asd_emotional_2',
+        text: 'Does the student show appropriate emotional responses to situations?',
+        category: 'Emotional Understanding'
+      }
+    ]
+  },
+  intellectual: {
+    title: 'Intellectual Disability Assessment',
+    description: 'Evaluation of intellectual functioning and adaptive behavior',
+    questions: [
+      {
+        id: 'id_academic_1',
+        text: 'Does the student show significant delays in academic learning?',
+        category: 'Academic Performance'
+      },
+      {
+        id: 'id_academic_2',
+        text: 'Does the student have difficulty understanding basic concepts?',
+        category: 'Academic Performance'
+      },
+      {
+        id: 'id_academic_3',
+        text: 'Does the student struggle with reading comprehension?',
+        category: 'Academic Performance'
+      },
+      {
+        id: 'id_academic_4',
+        text: 'Does the student have difficulty with mathematical concepts?',
+        category: 'Academic Performance'
+      },
+      {
+        id: 'id_adaptive_1',
+        text: 'Does the student have difficulty with daily living skills?',
+        category: 'Adaptive Functioning'
+      },
+      {
+        id: 'id_adaptive_2',
+        text: 'Does the student show age-appropriate self-care skills?',
+        category: 'Adaptive Functioning'
+      },
+      {
+        id: 'id_adaptive_3',
+        text: 'Can the student follow safety rules and understand dangers?',
+        category: 'Adaptive Functioning'
+      },
+      {
+        id: 'id_adaptive_4',
+        text: 'Does the student show appropriate social judgment?',
+        category: 'Adaptive Functioning'
+      },
+      {
+        id: 'id_cognitive_1',
+        text: 'Does the student have trouble understanding abstract concepts?',
+        category: 'Cognitive Skills'
+      },
+      {
+        id: 'id_cognitive_2',
+        text: 'Does the student have difficulty with problem-solving?',
+        category: 'Cognitive Skills'
+      },
+      {
+        id: 'id_cognitive_3',
+        text: 'Does the student struggle with memory tasks?',
+        category: 'Cognitive Skills'
+      },
+      {
+        id: 'id_language_1',
+        text: 'Does the student have delayed language development?',
+        category: 'Language Development'
+      },
+      {
+        id: 'id_language_2',
+        text: 'Does the student have difficulty expressing thoughts clearly?',
+        category: 'Language Development'
+      }
+    ]
+  }
+};
 
 const SpecialEd = () => {
-  const [isOpen, setIsOpen] = React.useState(false);
-  const [studentName, setStudentName] = React.useState('');
-  const [studentEmail, setStudentEmail] = React.useState('');
-  const [studentAge, setStudentAge] = React.useState('');
-  const [studentGradeLevel, setStudentGradeLevel] = React.useState('');
-  const [studentDisability, setStudentDisability] = React.useState('');
-  const [studentSchool, setStudentSchool] = React.useState('');
-  const [studentAddress, setStudentAddress] = React.useState('');
-  const [userRole, setUserRole] = useState('');
-  const [error, setError] = useState(null);
-  const [successMessage, setSuccessMessage] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [activeStep, setActiveStep] = useState(0);
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [answers, setAnswers] = useState({});
+  const [studentInfo, setStudentInfo] = useState({
+    name: '',
+    age: '',
+    grade: '',
+    school: ''
+  });
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [assessmentStarted, setAssessmentStarted] = useState(false);
+  const [dailyQuestions, setDailyQuestions] = useState([]);
   const [assessmentHistory, setAssessmentHistory] = useState([]);
-  const [selectedTimeRange, setSelectedTimeRange] = useState('all');
-  const [chartData, setChartData] = useState(null);
+  const [currentDate] = useState(new Date().toLocaleDateString());
+  const [showHistory, setShowHistory] = useState(false);
+
+  // Mock student data (replace with API call)
+  const [students] = useState([
+    { id: 1, name: 'John Doe', grade: '3rd', age: 8 },
+    { id: 2, name: 'Jane Smith', grade: '4th', age: 9 },
+    // Add more mock students...
+  ]);
 
   useEffect(() => {
-    // Fetch user role and validate access
-    const checkAccess = async () => {
-      try {
-        const response = await axios.get('/api/user/role/');
-        const role = response.data.role;
-        if (!['teacher', 'admin', 'public'].includes(role)) {
-          setError('You do not have permission to access this tool');
-          return;
-        }
-        setUserRole(role);
-      } catch (error) {
-        setError('Error checking user permissions');
-      }
-    };
-    checkAccess();
+    // Simulate loading
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 2000);
+    return () => clearTimeout(timer);
   }, []);
 
-  // Function to generate chart data
-  const generateChartData = (history) => {
-    const labels = history.map(item => new Date(item.date).toLocaleDateString());
-    const scores = history.map(item => item.confidence_score);
-
-    return {
-      labels,
-      datasets: [{
-        label: 'Assessment Scores',
-        data: scores,
-        fill: false,
-        borderColor: 'rgb(75, 192, 192)',
-        tension: 0.1
-      }]
-    };
+  const handleCategorySelect = (category) => {
+    setSelectedCategory(category);
+    setActiveStep(2); // Move to student selection
   };
 
-  // Filter history based on time range
-  const filterHistory = (range) => {
-    const now = new Date();
-    let filteredHistory = [...assessmentHistory];
+  const handleStudentSelect = (student) => {
+    setSelectedStudent(student);
+    setActiveStep(3); // Go to assessment intro
+  };
 
-    switch(range) {
-      case 'week':
-        const weekAgo = new Date(now.setDate(now.getDate() - 7));
-        filteredHistory = assessmentHistory.filter(item => 
-          new Date(item.date) >= weekAgo
-        );
-        break;
-      case 'month':
-        const monthAgo = new Date(now.setMonth(now.getMonth() - 1));
-        filteredHistory = assessmentHistory.filter(item => 
-          new Date(item.date) >= monthAgo
-        );
-        break;
-      case 'year':
-        const yearAgo = new Date(now.setFullYear(now.getFullYear() - 1));
-        filteredHistory = assessmentHistory.filter(item => 
-          new Date(item.date) >= yearAgo
-        );
-        break;
+  const handleStartAssessment = () => {
+    // Select 10 random questions from the category for today
+    const allQuestions = assessmentCategories[selectedCategory].questions;
+    const shuffled = [...allQuestions].sort(() => 0.5 - Math.random());
+    setDailyQuestions(shuffled.slice(0, 10));
+    setAssessmentStarted(true);
+    setActiveStep(4); // Go to daily assessment
+  };
+
+  const handleAnswerChange = (questionId, value) => {
+    setAnswers(prev => ({
+      ...prev,
+      [questionId]: value
+    }));
+  };
+
+  const handleSubmit = async () => {
+    try {
+      // Mock API call to save assessment results
+      const result = {
+        student: selectedStudent,
+        category: selectedCategory,
+        date: currentDate,
+        answers,
+        questions: dailyQuestions
+      };
+      setAssessmentHistory(prev => [...prev, result]);
+      setActiveStep(5); // Go to results
+    } catch (error) {
+      setError('Error submitting assessment');
     }
-
-    setChartData(generateChartData(filteredHistory));
   };
 
-  const handleOpen = () => {
-    setIsOpen(true);
+  const handlePrint = () => {
+    window.print();
   };
 
-  const handleClose = () => {
-    setIsOpen(false);
+  const generatePDF = () => {
+    const content = document.getElementById('assessment-content');
+    html2pdf()
+      .from(content)
+      .save('assessment-report.pdf');
   };
 
-  const handleSave = () => {
-    // Save to database
-    console.log('saved');
-  };
-
-  const renderHistory = () => (
-    <Paper className="p-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <Typography variant="h6">Assessment History</Typography>
-        <FormControl size="small" style={{ minWidth: 120 }}>
-          <InputLabel>Time Range</InputLabel>
-          <Select
-            value={selectedTimeRange}
-            onChange={(e) => {
-              setSelectedTimeRange(e.target.value);
-              filterHistory(e.target.value);
-            }}
-          >
-            <MenuItem value="all">All Time</MenuItem>
-            <MenuItem value="week">Last Week</MenuItem>
-            <MenuItem value="month">Last Month</MenuItem>
-            <MenuItem value="year">Last Year</MenuItem>
-          </Select>
-        </FormControl>
-      </div>
-
-      {chartData && (
-        <div className="h-64">
-          <Chart type="line" data={chartData} options={{ maintainAspectRatio: false }} />
+  const renderWelcome = () => (
+    <div className="max-w-4xl mx-auto px-4 py-16 text-center">
+      <div className="mb-12">
+        <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+          <FaGraduationCap className="w-12 h-12 text-blue-600" />
         </div>
-      )}
-
-      <div className="space-y-4">
-        {assessmentHistory.map((assessment, index) => (
-          <Paper key={index} className="p-4 border hover:shadow-md transition-shadow">
-            <Grid container spacing={2} alignItems="center">
-              <Grid item xs={12} md={3}>
-                <Typography variant="subtitle1" className="font-semibold">
-                  {assessment.student_name}
-                </Typography>
-                <Typography variant="body2" color="textSecondary">
-                  {new Date(assessment.date).toLocaleDateString()}
-                </Typography>
-              </Grid>
-              <Grid item xs={12} md={3}>
-                <Typography variant="subtitle2">
-                  Category: {assessment.category}
-                </Typography>
-                <Typography variant="body2" color="textSecondary">
-                  Score: {assessment.confidence_score}%
-                </Typography>
-              </Grid>
-              <Grid item xs={12} md={6} className="flex justify-end space-x-2">
-                <PDFDownloadLink
-                  document={<AssessmentPDF assessment={assessment} results={assessment.results} />}
-                  fileName={`assessment-${assessment.student_name}-${new Date(assessment.date).toLocaleDateString()}.pdf`}
-                >
-                  {({ blob, url, loading, error }) => (
-                    <Button
-                      variant="outlined"
-                      startIcon={<FaFilePdf />}
-                      disabled={loading}
-                    >
-                      Download PDF
-                    </Button>
-                  )}
-                </PDFDownloadLink>
-                <Button
-                  variant="outlined"
-                  startIcon={<FaPrint />}
-                  onClick={() => window.print()}
-                >
-                  Print
-                </Button>
-              </Grid>
-            </Grid>
-          </Paper>
-        ))}
+        <h1 className="text-5xl font-bold text-gray-900 mb-6">Special Education Assessment Tool</h1>
+        <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          Welcome to our comprehensive assessment platform designed to support educators in evaluating and tracking students with diverse learning needs.
+        </p>
       </div>
-    </Paper>
+
+      <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-8 text-left rounded-lg">
+        <p className="text-yellow-700">
+          <strong>Important Notice:</strong> This tool is designed for initial screening purposes only and does not provide a diagnosis. 
+          Always consult with qualified healthcare professionals for proper evaluation and diagnosis.
+        </p>
+      </div>
+
+      <div className="bg-white rounded-2xl shadow-lg p-8 mb-8">
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">What You Can Do</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="p-4">
+            <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
+              <FaBrain className="w-6 h-6 text-blue-600" />
+            </div>
+            <h3 className="text-lg font-semibold mb-2">Conduct Assessments</h3>
+            <p className="text-gray-600">Evaluate students across multiple categories including ADHD, ASD, and more.</p>
+          </div>
+          <div className="p-4">
+            <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
+              <FaCalendar className="w-6 h-6 text-blue-600" />
+            </div>
+            <h3 className="text-lg font-semibold mb-2">Track Progress</h3>
+            <p className="text-gray-600">Monitor student development with daily assessments and detailed history.</p>
+          </div>
+          <div className="p-4">
+            <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
+              <FaHistory className="w-6 h-6 text-blue-600" />
+            </div>
+            <h3 className="text-lg font-semibold mb-2">View History</h3>
+            <p className="text-gray-600">Access comprehensive assessment history and generate detailed reports.</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex justify-center space-x-4">
+        <button
+          onClick={() => setActiveStep(1)}
+          className="inline-flex items-center px-8 py-4 text-lg font-medium text-white bg-blue-600 rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 group"
+        >
+          Start Assessment
+          <FaArrowRight className="ml-3 group-hover:translate-x-1 transition-transform duration-200" />
+        </button>
+        <button
+          onClick={() => setShowHistory(true)}
+          className="inline-flex items-center px-8 py-4 text-lg font-medium text-blue-700 bg-blue-100 rounded-xl hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        >
+          View History
+          <FaHistory className="ml-3" />
+        </button>
+      </div>
+    </div>
   );
 
-  if (error) {
+  const renderCategorySelection = () => (
+    <div className="max-w-4xl mx-auto px-4 py-16">
+      <h2 className="text-4xl font-bold text-gray-900 mb-4 text-center">
+        Select Assessment Category
+      </h2>
+      <p className="text-xl text-gray-600 mb-12 text-center max-w-3xl mx-auto">
+        Choose an assessment category to begin
+      </p>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        {Object.keys(assessmentCategories).map(category => (
+          <div
+            key={category}
+            onClick={() => handleCategorySelect(category)}
+            className="bg-white rounded-xl shadow-lg p-6 cursor-pointer hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 hover:bg-blue-50 group"
+          >
+            <div className="flex items-center">
+              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center group-hover:bg-blue-200 transition-colors duration-300">
+                <FaBrain className="w-6 h-6 text-blue-600" />
+              </div>
+              <div className="ml-4">
+                <h3 className="text-xl font-semibold text-gray-900">{assessmentCategories[category].title}</h3>
+                <p className="text-gray-600">{assessmentCategories[category].description}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  const renderStudentSelection = () => {
+    if (!selectedCategory) {
+      setActiveStep(0);
+      return null;
+    }
+    
     return (
-      <Container maxWidth="md" className="mt-8">
-        <Alert severity="error">{error}</Alert>
-      </Container>
+      <div className="max-w-4xl mx-auto px-4 py-16">
+        <h2 className="text-4xl font-bold text-gray-900 mb-4 text-center">
+          Select Student for {assessmentCategories[selectedCategory].title}
+        </h2>
+        <p className="text-xl text-gray-600 mb-12 text-center max-w-3xl mx-auto">
+          Choose a student or add a new one to begin the assessment process
+        </p>
+
+        <div className="mb-8">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Search students..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full px-4 py-3 pl-12 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+            <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          {students
+            .filter(student => 
+              student.name.toLowerCase().includes(searchQuery.toLowerCase())
+            )
+            .map(student => (
+              <div
+                key={student.id}
+                onClick={() => handleStudentSelect(student)}
+                className="bg-white rounded-xl shadow-lg p-6 cursor-pointer hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+              >
+                <div className="flex items-center">
+                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                    <FaChild className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <div className="ml-4">
+                    <h3 className="text-xl font-semibold text-gray-900">{student.name}</h3>
+                    <p className="text-gray-600">Grade: {student.grade} | Age: {student.age}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+        </div>
+
+        <button
+          className="mx-auto flex items-center px-6 py-3 text-lg font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100"
+        >
+          <FaPlus className="mr-2" /> Add New Student
+        </button>
+      </div>
+    );
+  };
+
+  const renderAssessmentIntro = () => (
+    <div className="max-w-4xl mx-auto px-4 py-16 text-center">
+      <div className="mb-8">
+        <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+          <FaCalendar className="w-10 h-10 text-blue-600" />
+        </div>
+        <h2 className="text-4xl font-bold text-gray-900 mb-4">
+          Daily Assessment for {selectedStudent.name}
+        </h2>
+        <p className="text-xl text-gray-600 mb-8">
+          Today's assessment consists of 10 questions. You can track progress and print results after completion.
+        </p>
+      </div>
+
+      <div className="bg-white rounded-2xl shadow-lg p-8 mb-8">
+        <div className="grid grid-cols-2 gap-8 text-left mb-8">
+          <div>
+            <h3 className="text-lg font-semibold text-gray-700 mb-2">Student Information</h3>
+            <p className="text-gray-600">Name: {selectedStudent.name}</p>
+            <p className="text-gray-600">Grade: {selectedStudent.grade}</p>
+            <p className="text-gray-600">Age: {selectedStudent.age}</p>
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold text-gray-700 mb-2">Assessment Details</h3>
+            <p className="text-gray-600">Category: {assessmentCategories[selectedCategory].title}</p>
+            <p className="text-gray-600">Date: {currentDate}</p>
+            <p className="text-gray-600">Questions: 10</p>
+          </div>
+        </div>
+
+        <button
+          onClick={handleStartAssessment}
+          className="inline-flex items-center px-8 py-4 text-lg font-semibold text-white bg-blue-600 rounded-full hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50 transform hover:scale-105 transition-all duration-200"
+        >
+          Start Today's Assessment
+          <FaArrowRight className="ml-3" />
+        </button>
+      </div>
+
+      <div className="bg-white rounded-2xl shadow-lg p-8">
+        <h3 className="text-2xl font-bold text-gray-900 mb-6 text-left">Assessment History</h3>
+        <div className="space-y-4">
+          {assessmentHistory
+            .filter(history => history.student.id === selectedStudent.id)
+            .map((history, index) => (
+              <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+                <div className="flex items-center">
+                  <FaHistory className="w-5 h-5 text-gray-400 mr-3" />
+                  <div>
+                    <p className="font-medium text-gray-900">{history.date}</p>
+                    <p className="text-sm text-gray-600">{assessmentCategories[history.category].title}</p>
+                  </div>
+                </div>
+                <div className="flex space-x-3">
+                  <button className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg">
+                    <FaFilePdf className="w-5 h-5" />
+                  </button>
+                  <button className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg">
+                    <FaPrint className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+            ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderDailyAssessment = () => (
+    <div className="max-w-4xl mx-auto px-4 py-16">
+      <h2 className="text-4xl font-bold text-gray-900 mb-4 text-center">
+        Daily Assessment - {currentDate}
+      </h2>
+      <p className="text-xl text-gray-600 mb-12 text-center max-w-3xl mx-auto">
+        Complete today's 10 questions for {selectedStudent.name}
+      </p>
+
+      <div className="bg-white rounded-2xl shadow-xl p-8">
+        <div className="space-y-8">
+          {dailyQuestions.map((question, index) => (
+            <div key={question.id} className="bg-gray-50 p-8 rounded-2xl transform transition-all duration-200 hover:shadow-md">
+              <div className="flex items-start mb-6">
+                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 font-semibold mr-4">
+                  {index + 1}
+                </span>
+                <p className="text-lg text-gray-900 font-medium">{question.text}</p>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {['Never', 'Sometimes', 'Often', 'Very Often'].map((option) => (
+                  <label key={option} className="relative">
+                    <input
+                      type="radio"
+                      name={question.id}
+                      value={option.toLowerCase()}
+                      checked={answers[question.id] === option.toLowerCase()}
+                      onChange={(e) => handleAnswerChange(question.id, e.target.value)}
+                      className="absolute opacity-0"
+                    />
+                    <div className={`w-full p-4 text-center rounded-xl cursor-pointer transition-all duration-200
+                      ${answers[question.id] === option.toLowerCase()
+                        ? 'bg-blue-600 text-white shadow-lg'
+                        : 'bg-white text-gray-700 hover:bg-blue-50'}`}>
+                      {option}
+                    </div>
+                  </label>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="flex justify-between mt-12">
+          <button
+            onClick={() => setActiveStep(3)}
+            className="inline-flex items-center px-6 py-3 text-lg font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
+          >
+            Back
+          </button>
+          <button
+            onClick={handleSubmit}
+            className="inline-flex items-center px-8 py-3 text-lg font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
+          >
+            Submit Assessment
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderResults = () => (
+    <div className="max-w-4xl mx-auto px-4 py-16">
+      <div className="flex justify-between items-center mb-8">
+        <h2 className="text-3xl font-bold text-gray-900">Assessment Results</h2>
+        <div className="flex space-x-4">
+          <button
+            onClick={() => setShowHistory(true)}
+            className="inline-flex items-center px-6 py-3 text-lg font-medium text-blue-700 bg-blue-100 rounded-lg hover:bg-blue-200"
+          >
+            <FaHistory className="mr-2" /> View History
+          </button>
+          <button
+            onClick={handlePrint}
+            className="inline-flex items-center px-6 py-3 text-lg font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
+          >
+            <FaPrint className="mr-2" /> Print
+          </button>
+        </div>
+      </div>
+
+      <div className="bg-green-50 border-2 border-green-200 rounded-2xl p-6 mb-8">
+        <div className="flex items-center">
+          <div className="flex-shrink-0">
+            <svg className="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <p className="ml-3 text-lg font-medium text-green-800">Assessment completed successfully!</p>
+        </div>
+      </div>
+
+      <div id="assessment-content" className="bg-white rounded-2xl shadow-xl p-8">
+        <div className="mb-8 p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded-lg">
+          <p className="text-yellow-700">
+            <strong>Important Notice:</strong> This assessment is for initial screening purposes only. 
+            It does not provide a diagnosis and should not be used as a substitute for professional medical evaluation.
+          </p>
+        </div>
+
+        <div className="mb-8">
+          <h3 className="text-2xl font-bold text-gray-900 mb-4">Assessment Details</h3>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="p-4 bg-gray-50 rounded-lg">
+              <p className="text-sm text-gray-600">Category</p>
+              <p className="text-lg font-medium text-gray-900">{assessmentCategories[selectedCategory].title}</p>
+            </div>
+            <div className="p-4 bg-gray-50 rounded-lg">
+              <p className="text-sm text-gray-600">Date</p>
+              <p className="text-lg font-medium text-gray-900">{currentDate}</p>
+            </div>
+            {selectedStudent && (
+              <>
+                <div className="p-4 bg-gray-50 rounded-lg">
+                  <p className="text-sm text-gray-600">Student</p>
+                  <p className="text-lg font-medium text-gray-900">{selectedStudent.name}</p>
+                </div>
+                <div className="p-4 bg-gray-50 rounded-lg">
+                  <p className="text-sm text-gray-600">Grade</p>
+                  <p className="text-lg font-medium text-gray-900">{selectedStudent.grade}</p>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          {dailyQuestions.map((question, index) => (
+            <div key={index} className="p-4 bg-gray-50 rounded-lg">
+              <p className="font-medium text-gray-900 mb-2">Question {index + 1}: {question.text}</p>
+              <p className="text-blue-600">Response: {answers[question.id]}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-8 flex justify-end space-x-4">
+          <button
+            onClick={() => {
+              setActiveStep(0);
+              setSelectedCategory('');
+              setSelectedStudent(null);
+              setAnswers({});
+              setDailyQuestions([]);
+            }}
+            className="inline-flex items-center px-6 py-3 text-lg font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
+          >
+            Start New Assessment
+          </button>
+          <button
+            onClick={() => setShowHistory(true)}
+            className="inline-flex items-center px-6 py-3 text-lg font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700"
+          >
+            Save & View History
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderHistory = () => (
+    <div className="max-w-4xl mx-auto px-4 py-16">
+      <div className="flex justify-between items-center mb-8">
+        <h2 className="text-3xl font-bold text-gray-900">Assessment History</h2>
+        <div className="flex space-x-4">
+          <button
+            onClick={handlePrint}
+            className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
+          >
+            <FaPrint className="mr-2" /> Print
+          </button>
+          <button
+            onClick={generatePDF}
+            className="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-700 bg-blue-100 rounded-lg hover:bg-blue-200"
+          >
+            <FaFilePdf className="mr-2" /> Download PDF
+          </button>
+        </div>
+      </div>
+
+      <div id="assessment-content" className="bg-white rounded-2xl shadow-lg p-8">
+        <div className="mb-8 p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded-lg">
+          <p className="text-yellow-700">
+            <strong>Important Notice:</strong> This assessment tool is designed for initial screening purposes only. 
+            It does not provide a diagnosis and should not be used as a substitute for professional medical evaluation. 
+            Please consult with qualified healthcare professionals for proper diagnosis and treatment planning.
+          </p>
+        </div>
+
+        {assessmentHistory.map((assessment, index) => (
+          <div key={index} className="mb-8 p-6 bg-gray-50 rounded-xl">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-semibold text-gray-900">
+                Assessment on {assessment.date}
+              </h3>
+              <span className="px-3 py-1 text-sm font-medium text-blue-700 bg-blue-100 rounded-full">
+                {assessmentCategories[selectedCategory].title}
+              </span>
+            </div>
+            <div className="space-y-4">
+              {assessment.questions.map((question, qIndex) => (
+                <div key={qIndex} className="flex justify-between items-start border-b border-gray-200 pb-4">
+                  <div className="flex-1">
+                    <p className="text-gray-900 font-medium">{question.text}</p>
+                    <p className="text-gray-600 mt-1">Response: {assessment.answers[question.id]}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-8 flex justify-end">
+        <button
+          onClick={() => setShowHistory(false)}
+          className="inline-flex items-center px-6 py-3 text-lg font-medium text-white bg-blue-600 rounded-xl hover:bg-blue-700"
+        >
+          Back to Assessment
+        </button>
+      </div>
+    </div>
+  );
+
+  const steps = [
+    {
+      label: 'Welcome',
+      content: renderWelcome
+    },
+    {
+      label: 'Select Assessment Category',
+      content: renderCategorySelection
+    },
+    {
+      label: 'Select Student',
+      content: renderStudentSelection
+    },
+    {
+      label: 'Assessment Introduction',
+      content: renderAssessmentIntro
+    },
+    {
+      label: 'Daily Assessment',
+      content: renderDailyAssessment
+    },
+    {
+      label: 'Results',
+      content: renderResults
+    }
+  ];
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-600 mx-auto"></div>
+          <p className="mt-6 text-lg text-gray-600 font-medium">Preparing your assessment tool...</p>
+        </div>
+      </div>
     );
   }
 
+  if (showHistory) {
+    return renderHistory();
+  }
+
   return (
-    <Container maxWidth="lg" className="py-8">
-      <Typography variant="h4" className="text-center mb-2">
-        Special Education Assessment Tool
-      </Typography>
-      <Typography variant="body1" color="textSecondary" className="text-center mb-6">
-        Professional assessment tool for educators and administrators
-      </Typography>
-
-      {successMessage && (
-        <Alert severity="success" className="mb-4" onClose={() => setSuccessMessage('')}>
-          {successMessage}
-        </Alert>
-      )}
-
-      <Box mt={3}>
-        <Grid container spacing={2}>
-          <Grid item xs={12} sm={6}>
-            <Paper className="p-3">
-              <Typography variant="h6" gutterBottom>
-                Student Information
-              </Typography>
-              <TextField
-                label="Student Name"
-                variant="outlined"
-                fullWidth
-                value={studentName}
-                onChange={(e) => setStudentName(e.target.value)}
-              />
-              <TextField
-                label="Student Email"
-                variant="outlined"
-                fullWidth
-                value={studentEmail}
-                onChange={(e) => setStudentEmail(e.target.value)}
-              />
-              <TextField
-                label="Student Age"
-                variant="outlined"
-                fullWidth
-                value={studentAge}
-                onChange={(e) => setStudentAge(e.target.value)}
-              />
-              <TextField
-                label="Student Grade Level"
-                variant="outlined"
-                fullWidth
-                value={studentGradeLevel}
-                onChange={(e) => setStudentGradeLevel(e.target.value)}
-              />
-            </Paper>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <Paper className="p-3">
-              <Typography variant="h6" gutterBottom>
-                Student Disability
-              </Typography>
-              <TextField
-                label="Student Disability"
-                variant="outlined"
-                fullWidth
-                value={studentDisability}
-                onChange={(e) => setStudentDisability(e.target.value)}
-              />
-              <Typography variant="h6" gutterBottom>
-                Student School
-              </Typography>
-              <TextField
-                label="Student School"
-                variant="outlined"
-                fullWidth
-                value={studentSchool}
-                onChange={(e) => setStudentSchool(e.target.value)}
-              />
-              <Typography variant="h6" gutterBottom>
-                Student Address
-              </Typography>
-              <TextField
-                label="Student Address"
-                variant="outlined"
-                fullWidth
-                value={studentAddress}
-                onChange={(e) => setStudentAddress(e.target.value)}
-              />
-            </Paper>
-          </Grid>
-        </Grid>
-      </Box>
-      <Box mt={3} display="flex" justifyContent="center">
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<FaGraduationCap />}
-          onClick={handleOpen}
-        >
-          Add Student
-        </Button>
-      </Box>
-      {isOpen && (
-        <SpecialEdModal
-          isOpen={isOpen}
-          onClose={handleClose}
-          studentName={studentName}
-          studentEmail={studentEmail}
-          studentAge={studentAge}
-          studentGradeLevel={studentGradeLevel}
-          studentDisability={studentDisability}
-          studentSchool={studentSchool}
-          studentAddress={studentAddress}
-          handleSave={handleSave}
-        />
-      )}
-      {renderHistory()}
-    </Container>
-  );
-};
-
-const SpecialEdModal = ({
-  isOpen,
-  onClose,
-  studentName,
-  studentEmail,
-  studentAge,
-  studentGradeLevel,
-  studentDisability,
-  studentSchool,
-  studentAddress,
-  handleSave,
-}) => {
-  return (
-    <Box
-      display="flex"
-      justifyContent="center"
-      alignItems="center"
-      position="fixed"
-      top={0}
-      left={0}
-      right={0}
-      bottom={0}
-      bgcolor="rgba(0,0,0,0.5)"
-      zIndex={10}
-    >
-      <Paper className="p-3">
-        <Typography variant="h6" gutterBottom>
-          Add Student
-        </Typography>
-        <TextField
-          label="Student Name"
-          variant="outlined"
-          fullWidth
-          value={studentName}
-          onChange={(e) => setStudentName(e.target.value)}
-        />
-        <TextField
-          label="Student Email"
-          variant="outlined"
-          fullWidth
-          value={studentEmail}
-          onChange={(e) => setStudentEmail(e.target.value)}
-        />
-        <TextField
-          label="Student Age"
-          variant="outlined"
-          fullWidth
-          value={studentAge}
-          onChange={(e) => setStudentAge(e.target.value)}
-        />
-        <TextField
-          label="Student Grade Level"
-          variant="outlined"
-          fullWidth
-          value={studentGradeLevel}
-          onChange={(e) => setStudentGradeLevel(e.target.value)}
-        />
-        <TextField
-          label="Student Disability"
-          variant="outlined"
-          fullWidth
-          value={studentDisability}
-          onChange={(e) => setStudentDisability(e.target.value)}
-        />
-        <TextField
-          label="Student School"
-          variant="outlined"
-          fullWidth
-          value={studentSchool}
-          onChange={(e) => setStudentSchool(e.target.value)}
-        />
-        <TextField
-          label="Student Address"
-          variant="outlined"
-          fullWidth
-          value={studentAddress}
-          onChange={(e) => setStudentAddress(e.target.value)}
-        />
-        <Box mt={2} display="flex" justifyContent="space-between">
-          <Button
-            variant="contained"
-            color="primary"
-            startIcon={<FaSchool />}
-            onClick={handleSave}
-          >
-            Save
-          </Button>
-          <Button
-            variant="contained"
-            color="error"
-            onClick={onClose}
-          >
-            Cancel
-          </Button>
-        </Box>
-      </Paper>
-    </Box>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        {activeStep > 0 && (
+          <div className="mb-12">
+            <div className="flex justify-center">
+              <nav className="flex items-center space-x-4">
+                {steps.map((step, index) => (
+                  <div key={index} className="flex items-center">
+                    <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300
+                      ${index <= activeStep 
+                        ? 'border-blue-600 bg-blue-600 text-white shadow-lg' 
+                        : 'border-gray-300 text-gray-300'}`}>
+                      {index + 1}
+                    </div>
+                    {index < steps.length - 1 && (
+                      <div className={`w-24 h-1 mx-2 rounded-full transition-all duration-300
+                        ${index < activeStep ? 'bg-blue-600' : 'bg-gray-300'}`} />
+                    )}
+                  </div>
+                ))}
+              </nav>
+            </div>
+            <div className="mt-4 text-center">
+              <p className="text-lg font-medium text-gray-600">
+                {steps[activeStep].label}
+              </p>
+            </div>
+          </div>
+        )}
+        {steps[activeStep].content()}
+      </div>
+    </div>
   );
 };
 

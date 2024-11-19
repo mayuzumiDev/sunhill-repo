@@ -384,8 +384,7 @@ const Home = () => {
           <Programs />
 
           {/* Testimonials Section */}
-                
-
+              
           {/* Statistics Section */}
           <Element name="stats" className="section-transition py-16 bg-gradient-to-r from-orange-500 to-yellow-500 dark:from-orange-600 dark:to-yellow-600">
             <div className="container mx-auto px-4">

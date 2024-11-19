@@ -8,7 +8,7 @@ import Teacher from "./manage_accounts/Teacher";
 import Parent from "./manage_accounts/Parent";
 import Public from "./manage_accounts/Public";
 import Branches from "./Branches";
-import SchoolEventsCalendar from "./Events";
+import SchoolEventsCalendar from "./Events_Initial";
 import AdminSettings from "./AdminSettings";
 import Logout from "../../components/Logout";
 import SpecialED from "./SpecialEd";
