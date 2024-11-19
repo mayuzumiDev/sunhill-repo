@@ -13,12 +13,12 @@ class EventCreateView(generics.CreateAPIView):
     def create(self, request, *args, **kwargs):
         try:
             response = super().create(request, *args, **kwargs)
-            return Response({
+            return JsonResponse({
                 'message': 'Event created successfully',
                 'event_data': response.data
             }, status=status.HTTP_201_CREATED)
         except ValidationError as e:
-            return Response({
+            return JsonResponse({
                 'message': 'Failed to create event',
                 'errors': e.detail
             }, status=status.HTTP_400_BAD_REQUEST)
@@ -35,15 +35,15 @@ class EventDeleteView(generics.DestroyAPIView):
         try:
             instance = self.get_object()
             self.perform_destroy(instance)
-            return Response({
+            return JsonResponse({
                 'message': 'Event deleted successfully'
             }, status=status.HTTP_200_OK)
         except Event.DoesNotExist:
-            return Response({
+            return JsonResponse({
                 'message': 'Event not found'
             }, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
-            return Response({
+            return JsonResponse({
                 'message': str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -68,7 +68,7 @@ class EventListView(generics.ListAPIView):
     def list(self, request, *args, **kwargs):
         try:
             response = super().list(request, *args, **kwargs)
-            return Response({
+            return JsonResponse({
                 'message': 'Events retrieved successfully',
                 'events_list': response.data
             }, status=status.HTTP_200_OK)

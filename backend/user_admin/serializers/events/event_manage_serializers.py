@@ -18,7 +18,7 @@ class EventListSerializer(serializers.ModelSerializer):
     formatted_created_at = serializers.SerializerMethodField()
 
     def get_formatted_date(self, obj):
-        return obj.date.strftime('%d-%m-%Y')
+        return  obj.date.strftime('%B %d, %Y %I:%M %p')
 
     def get_formatted_created_at(self, obj):
         return obj.created_at.strftime('%d-%m-%Y %H:%M')
