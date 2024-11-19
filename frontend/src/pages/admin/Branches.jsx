@@ -2,12 +2,23 @@ import React, { useState, useEffect } from "react";
 import { axiosInstance } from "../../utils/axiosInstance";
 import HideScrollbar from "../../components/misc/HideScrollBar";
 import BranchCard from "../../components/admin/branches/BranchCard";
+import BranchTabContent from "../../components/admin/branches/BranchTabContent";
 import batangasSunhillImg from "../../assets/img/home/sunhill-bats.jpg";
 import rosarioSunhillImg from "../../assets/img/home/rosario.jpg";
 import bauanSunhillImg from "../../assets/img/home/bauan.jpg";
 
 const Branches = () => {
   const [branchCounts, setBranchCounts] = useState({});
+
+  const [selectedBranch, setSelectedBranch] = useState(null);
+  const [activeTab, setActiveTab] = useState("overview");
+
+  const handleBranchSelect = (branchName) => {
+    setSelectedBranch({
+      name: branchName,
+      data: branchCounts[branchName],
+    });
+  };
 
   useEffect(() => {
     const fetchUserCount = async () => {
@@ -49,30 +60,60 @@ const Branches = () => {
             imageUrl={batangasSunhillImg}
             branchAddress={"123 Main Street, Batangas City"}
             branchCounts={{ data: branchCounts["Batangas"] }}
-            onClick={() => {
-              console.log("clicked");
-            }}
+            onClick={() => handleBranchSelect("Batangas")}
           />
           <BranchCard
             branchName={"Rosario"}
             imageUrl={rosarioSunhillImg}
             branchAddress={"456 School Avenue, Rosario"}
-            branchCounts={{ data: branchCounts["Bauan"] }}
-            onClick={() => {
-              console.log("clicked");
-            }}
+            branchCounts={{ data: branchCounts["Rosario"] }}
+            onClick={() => handleBranchSelect("Rosario")}
           />
           <BranchCard
             branchName={"Bauan"}
             imageUrl={bauanSunhillImg}
             branchAddress={"789 Education Road, Bauan"}
             branchCounts={{ data: branchCounts["Rosario"] }}
-            onClick={() => {
-              console.log("clicked");
-            }}
+            onClick={() => handleBranchSelect("Bauan")}
           />
         </div>
       </div>
+
+      {selectedBranch && (
+        <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-4 md:mb-0">
+              {selectedBranch.name} Branch
+            </h2>
+          </div>
+
+          {/* Tab Section */}
+          <div className="mb-6">
+            <div className="flex space-x-4 border-b">
+              {["overview", "facilities", "programs", "achievements"].map(
+                (tab) => (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveTab(tab)}
+                    className={`px-4 py-2 font-medium transition-colors ${
+                      activeTab === tab
+                        ? "text-blue-600 border-b-2 border-blue-600"
+                        : "text-gray-600 hover:text-blue-600"
+                    }`}
+                  >
+                    {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                  </button>
+                )
+              )}
+            </div>
+          </div>
+
+          <BranchTabContent
+            selectedBranch={selectedBranch}
+            activeTab={activeTab}
+          />
+        </div>
+      )}
       <HideScrollbar />
     </div>
   );

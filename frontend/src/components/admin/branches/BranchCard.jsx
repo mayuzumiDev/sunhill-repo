@@ -14,7 +14,7 @@ const BranchCard = ({
   return (
     <div
       className="relative group cursor-pointer rounded-xl shadow-xl overflow-hidden transform transition-all duration-300 hover:scale-105"
-      //   onClick={() => onClick(branch)}
+      onClick={() => onClick()}
     >
       <div
         className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
