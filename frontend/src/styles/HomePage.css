@@ -799,7 +799,7 @@ Note: Beware of modifying this element as it can break the animations - you shou
   background: #373a47;
   padding: 2.5em 1.5em 0;
   font-size: 1.15em;
-  height: 1200% !important;
+  height: 5000% !important;
   overflow: hidden !important;
 }
 
@@ -886,10 +886,10 @@ Note: Beware of modifying this element as it can break the animations - you shou
 }
 .bm-menu .dark-container {
   background-color: #050505;
-  width: 61px;
+  width: 65px;
   margin-top: 10px;
-  height: 10px;
-  border-radius: 10px;
+  height: 35px;
+  border-radius: 20px;
 }
 
 /* General Contact Section Styles */
@@ -1356,17 +1356,17 @@ Note: Beware of modifying this element as it can break the animations - you shou
     display: none;
   }
   
-  .bm-menu .dark-mode-toggle {
+  /* .bm-menu .dark-mode-toggle {
     margin-left: 0.5rem;
     margin-top: -0.75rem;
   }
   
   .bm-menu .dark-container {
     width: 50px;
-    margin-top: 0.5rem;
-    height: 8px;
+    margin-top: 1rem;
+    height: 10px;
     border-radius: 10px;
-  }
+  } */
 }
 
 /* Banner content responsiveness */
@@ -1489,24 +1489,6 @@ Note: Beware of modifying this element as it can break the animations - you shou
   }
 }
 
-/* Scroll to Top Button */
-.scroll-to-top {
-  animation: bounce-subtle 2s ease-in-out infinite;
-  background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
-}
-
-.dark .scroll-to-top {
-  background: linear-gradient(135deg, #F59E0B 0%, #EA580C 100%);
-}
-
-@keyframes bounce-subtle {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-5px);
-  }
-}
 
 /* Section Transitions */
 .section-transition {
