@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTimes } from "@fortawesome/free-solid-svg-icons";
+import { axiosInstance } from "../../../utils/axiosInstance";
+import SchawnnahJLoader from "../../../components/loaders/SchawnnahJLoader";
 
 const AddEventForm = ({ isOpen, onClose, onSave }) => {
   const [formData, setFormData] = useState({
@@ -11,6 +11,8 @@ const AddEventForm = ({ isOpen, onClose, onSave }) => {
     location: "",
   });
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -19,23 +21,42 @@ const AddEventForm = ({ isOpen, onClose, onSave }) => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onSave(formData);
-    setFormData({
-      title: "",
-      description: "",
-      date: "",
-      target_audience: "all",
-      location: "",
-    });
+
+    try {
+      setIsLoading(true);
+
+      const response = await axiosInstance.post(
+        "/user-admin/event/create/",
+        formData
+      );
+
+      if (response.status === 201) {
+        setFormData({
+          title: "",
+          description: "",
+          date: "",
+          target_audience: "all",
+          location: "",
+        });
+
+        onClose();
+        onSave();
+      }
+    } catch (error) {
+      console.error("Error saving event:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (!isOpen) return null;
 
   return (
     <div className="font-montserrat fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg w-full max-w-lg mx-4">
+      <div className="bg-white rounded-lg w-full max-w-lg mx-4 relative">
+        {isLoading && <SchawnnahJLoader />}
         {/* Header */}
         <div className="flex justify-between items-center p-6 border-b">
           <h2 className="text-2xl font-bold text-gray-800">
@@ -57,7 +78,7 @@ const AddEventForm = ({ isOpen, onClose, onSave }) => {
                 value={formData.title}
                 onChange={handleChange}
                 maxLength={50}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
             </div>
