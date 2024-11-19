@@ -22,11 +22,6 @@ const EventCard = ({ event }) => {
     }
   };
 
-  const formatEventDate = (dateString) => {
-    const date = new Date(dateString);
-    return format(date, "MMMM d, yyyy h:mm a");
-  };
-
   return (
     <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.02] h-full">
       <div className="p-6 flex gap-6">

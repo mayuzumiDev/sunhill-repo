@@ -40,7 +40,7 @@ const Events = () => {
   };
 
   const handleAddEvent = async () => {
-    console.log("Add Event");
+    fetchEvents();
     setIsAddEventOpen(false);
   };
 
