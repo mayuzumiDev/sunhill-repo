@@ -40,7 +40,7 @@ function EditPublicModal({ isOpen, onClose, onSave, userData, userRole }) {
 
     // Check if the contact number is a valid Philippine number (11 digits, starts with 09)
     const contactNoPattern = /^09\d{9}$/; // Must start with "09" and be 11 digits total
-    if (formData.contact_no && !contactNoPattern.test(formData.contact_no)) {
+    if (!contactNoPattern.test(formData.contact_no)) {
       setErrorMessage("Please enter a valid contact number.");
       return;
     }

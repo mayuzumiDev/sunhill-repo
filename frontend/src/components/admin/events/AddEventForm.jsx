@@ -58,7 +58,7 @@ const AddEventForm = ({ isOpen, onClose, onSave }) => {
       <div className="bg-white rounded-lg w-full max-w-lg mx-4 relative">
         {isLoading && <SchawnnahJLoader />}
         {/* Header */}
-        <div className="flex justify-between items-center p-6 border-b">
+        <div className="flex justify-center items-center p-6 border-b">
           <h2 className="text-2xl font-bold text-gray-800">
             Add New Event & Announcements
           </h2>
