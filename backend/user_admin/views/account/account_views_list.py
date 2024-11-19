@@ -3,6 +3,8 @@ from django.http.response import JsonResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import generics, status, filters
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.response import Response
+from rest_framework.views import APIView
 from ...models.account_models import UserInfo
 from ...serializers.accounts.list_account_serializers import *
 
@@ -96,12 +98,12 @@ class TeacherListView(generics.ListAPIView):
 
 
 class StudentListView(generics.ListAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     serializer_class = StudentListSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['id', 'first_name', 'last_name']
     ordering_fields = ['date_joined', 'first_name']
-    filterset_fields = ['branch_name','user_info__student_info__grade_level']
+    filterset_fields = ['branch_name']
 
     def get_queryset(self):
         queryset = CustomUser.objects.filter(role='student')
@@ -113,11 +115,6 @@ class StudentListView(generics.ListAPIView):
         }
 
         queryset = filter_queryset(queryset, params)
-
-        grade_level = self.request.query_params.get("grade_level")
-        if grade_level:
-            queryset = queryset.filter(user_info__student_info__grade_level__icontains=grade_level)
-
         return queryset
     
     def list(self, request):
@@ -125,8 +122,10 @@ class StudentListView(generics.ListAPIView):
         serializer = self.get_serializer(queryset, many=True)
         student_list = serializer.data
 
-        return JsonResponse({'message': 'Student list retrieved successfully',
-                             'student_list': student_list}, status=status.HTTP_200_OK)
+        return JsonResponse({
+            'message': 'Student list retrieved successfully',
+            'student_list': student_list
+        }, status=status.HTTP_200_OK)
 
 class ParentListView(generics.ListAPIView):
     permission_classes = [AllowAny]
@@ -182,3 +181,24 @@ class PublicUserListView(generics.ListAPIView):
         return JsonResponse({'message': 'Public user list retrieved successfully', 
                              'public_user_list': public_user_list}, status=status.HTTP_200_OK)
 
+
+class CurrentTeacherView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            teacher = request.user
+            if not teacher.role == 'teacher':
+                return Response({'error': 'User is not a teacher'}, status=status.HTTP_403_FORBIDDEN)
+            
+            teacher_data = {
+                'id': teacher.id,
+                'username': teacher.username,
+                'first_name': teacher.first_name,
+                'last_name': teacher.last_name,
+                'email': teacher.email,
+                'role': teacher.role,
+            }
+            return Response(teacher_data)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)

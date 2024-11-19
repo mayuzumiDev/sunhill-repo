@@ -7,6 +7,7 @@ from .views.account.pdf_accounts import *
 from .views.branches.user_count_views import *
 from .views.profile.admin_profile_views import *
 from .views.events.event_manage_views import *
+from .views.account.account_views_list import CurrentTeacherView
 
 urlpatterns = [
     path('current-admin/', CurrentAdminView.as_view(), name="current_admin" ),
@@ -29,4 +30,5 @@ urlpatterns = [
     path('event/create/', EventCreateView.as_view(), name='event_create'),
     path('event/delete/<int:pk>/', EventDeleteView.as_view(), name='event_delete'),
     path('event/list/', EventListView.as_view(), name='event_list'),
+    path('current-teacher/', CurrentTeacherView.as_view(), name='current-teacher'),
 ]

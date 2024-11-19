@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     'api',
     'user_admin',
     'user_teacher',
+    'special_education',
     'rest_framework',
     'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
@@ -167,14 +168,18 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 ALLOWED_HOSTS = ["localhost", '127.0.0.1',]
 
-# CORS_ALLOW_ALL_ORIGINS = True
-
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:5173',
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:5173",
 ]
 
-CORS_ORIGIN_WHITELIST = [
-    'http://localhost:5173',
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_EXPOSE_HEADERS = [
+    'Content-Type',
+    'X-CSRFToken',
 ]
 
 CORS_ALLOW_METHODS = [
@@ -196,12 +201,7 @@ CORS_ALLOW_HEADERS = [
     'user-agent',
     'x-csrftoken',
     'x-requested-with',
-    'access-control-allow-origin',
 ]
-
-CORS_ALLOWED_HEADERS = ["*"]
-
-CORS_ALLOW_CREDENTIALS = True
 
 CSRF_COOKIE_SECURE = True
 
