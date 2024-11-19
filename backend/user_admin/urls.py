@@ -3,9 +3,10 @@ from .views.current_admin_views import *
 from .views.account.account_views_create import *
 from .views.account.account_views_list import *
 from .views.account.account_views_edit import *
-from .views.branches.user_count_views import *
 from .views.account.pdf_accounts import *
-from .views.profile.admin_profile_views import AdminProfileImageView
+from .views.branches.user_count_views import *
+from .views.profile.admin_profile_views import *
+from .views.events.event_manage_views import *
 
 urlpatterns = [
     path('current-admin/', CurrentAdminView.as_view(), name="current_admin" ),
@@ -25,4 +26,7 @@ urlpatterns = [
     path('parent-list/', ParentListView.as_view(), name='parent_list'),
     path('public-user-list/', PublicUserListView.as_view(), name='public_user_list'),
     path('branch/user-list/', BranchUserCountView.as_view(), name='branch_user_list'),
+    path('event/create/', EventCreateView.as_view(), name='event_create'),
+    path('event/delete/<int:pk>/', EventDeleteView.as_view(), name='event_delete'),
+    path('event/list/', EventListView.as_view(), name='event_list'),
 ]
