@@ -6,8 +6,6 @@ import {
   faExclamationTriangle,
   faCalendarAlt,
   faSearch,
-  faFilter,
-  faSortAmountDown,
 } from "@fortawesome/free-solid-svg-icons";
 import { axiosInstance } from "../../utils/axiosInstance";
 import EventCard from "../../components/admin/events/EventCard";
@@ -15,11 +13,16 @@ import AddEventForm from "../../components/admin/events/AddEventForm";
 import SatyamLoader from "../../components/loaders/SatyamLoader";
 import HideScrollbar from "../../components/misc/HideScrollBar";
 import { motion, AnimatePresence } from "framer-motion";
+import EditEventForm from "../../components/admin/events/EditEventForm";
 
 const Events = () => {
   const [successMessage, setSuccessMessage] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
   const [isAddEventOpen, setIsAddEventOpen] = useState(false);
+  const [isEditEvent, setIsEditEvent] = useState({
+    show: false,
+    eventData: null,
+  });
   const [isEmpty, setIsEmpty] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState({
     show: false,
@@ -27,8 +30,6 @@ const Events = () => {
     eventTitle: "",
   });
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterOpen, setFilterOpen] = useState(false);
-  const [sortBy, setSortBy] = useState("date"); // date, title, priority
   const [viewMode, setViewMode] = useState("grid"); // grid, list
 
   const [events, setEvents] = useState([]);
@@ -59,14 +60,31 @@ const Events = () => {
     }
   };
 
-  const filteredEvents = events.filter(event => 
-    event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    event.description.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredEvents = events.filter(
+    (event) =>
+      event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      event.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleAddEvent = async () => {
     await fetchEvents();
     setIsAddEventOpen(false);
+  };
+
+  const handleEditEvent = async (event) => {
+    setIsEditEvent({
+      show: true,
+      eventData: event,
+    });
+  };
+
+  const handleEditSuccess = async () => {
+    setIsEditEvent({
+      show: false,
+      eventData: null,
+    });
+
+    await fetchEvents();
   };
 
   const showDeleteConfirmation = (eventId, eventTitle) => {
@@ -112,32 +130,32 @@ const Events = () => {
 
   const containerVariants = {
     hidden: { opacity: 0 },
-    visible: { 
+    visible: {
       opacity: 1,
       transition: {
         when: "beforeChildren",
-        staggerChildren: 0.1
-      }
-    }
+        staggerChildren: 0.1,
+      },
+    },
   };
 
   const itemVariants = {
     hidden: { y: 20, opacity: 0 },
     visible: {
       y: 0,
-      opacity: 1
-    }
+      opacity: 1,
+    },
   };
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       className="sm:p-2 p-0 min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header Section */}
-        <motion.div 
+        <motion.div
           className="bg-white rounded-2xl shadow-lg p-4 sm:p-6 mb-6 sm:mb-8"
           initial={{ y: -20 }}
           animate={{ y: 0 }}
@@ -173,8 +191,8 @@ const Events = () => {
           {/* Search and Filter Bar */}
           <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row gap-3 sm:gap-4">
             <div className="flex-1 relative">
-              <FontAwesomeIcon 
-                icon={faSearch} 
+              <FontAwesomeIcon
+                icon={faSearch}
                 className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
               />
               <input
@@ -185,32 +203,12 @@ const Events = () => {
                 className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-300"
               />
             </div>
-            <div className="flex gap-2 w-full sm:w-auto">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setFilterOpen(!filterOpen)}
-                className="flex-1 sm:flex-none px-4 py-2.5 rounded-lg border border-gray-200 hover:border-blue-500 text-gray-600 hover:text-blue-500 transition-all duration-300 flex items-center justify-center gap-2"
-              >
-                <FontAwesomeIcon icon={faFilter} />
-                <span className="sm:inline">Filter</span>
-              </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setSortBy(sortBy === "date" ? "title" : "date")}
-                className="flex-1 sm:flex-none px-4 py-2.5 rounded-lg border border-gray-200 hover:border-blue-500 text-gray-600 hover:text-blue-500 transition-all duration-300 flex items-center justify-center gap-2"
-              >
-                <FontAwesomeIcon icon={faSortAmountDown} />
-                <span className="sm:inline">Sort</span>
-              </motion.button>
-            </div>
           </div>
         </motion.div>
 
         <AnimatePresence>
           {isLoading ? (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -219,20 +217,20 @@ const Events = () => {
               <SatyamLoader />
             </motion.div>
           ) : isEmpty ? (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               className="text-center py-8 sm:py-12 flex flex-col items-center justify-center min-h-[300px] sm:min-h-[400px] bg-white rounded-2xl shadow-lg px-4 sm:px-6"
             >
               <motion.div
-                animate={{ 
+                animate={{
                   scale: [1, 1.2, 1],
-                  rotate: [0, 10, -10, 0]
+                  rotate: [0, 10, -10, 0],
                 }}
-                transition={{ 
+                transition={{
                   duration: 2,
                   repeat: Infinity,
-                  repeatType: "reverse"
+                  repeatType: "reverse",
                 }}
               >
                 <FontAwesomeIcon
@@ -240,8 +238,12 @@ const Events = () => {
                   className="text-gray-400 mb-4 text-4xl sm:text-5xl"
                 />
               </motion.div>
-              <p className="text-gray-500 text-lg sm:text-xl font-medium">No events available</p>
-              <p className="text-gray-400 mt-2 text-sm sm:text-base">Create your first event by clicking the Create Event button</p>
+              <p className="text-gray-500 text-lg sm:text-xl font-medium">
+                No events available
+              </p>
+              <p className="text-gray-400 mt-2 text-sm sm:text-base">
+                Create your first event by clicking the Create Event button
+              </p>
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -252,7 +254,7 @@ const Events = () => {
               </motion.button>
             </motion.div>
           ) : (
-            <motion.div 
+            <motion.div
               layout
               variants={containerVariants}
               initial="hidden"
@@ -266,16 +268,19 @@ const Events = () => {
                   variants={itemVariants}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ 
+                  transition={{
                     duration: 0.3,
                     delay: index * 0.1,
-                    layout: { duration: 0.3 }
+                    layout: { duration: 0.3 },
                   }}
                   className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300"
                 >
                   <EventCard
                     event={event}
-                    onDelete={() => showDeleteConfirmation(event.id, event.title)}
+                    onEdit={() => handleEditEvent(event)}
+                    onDelete={() =>
+                      showDeleteConfirmation(event.id, event.title)
+                    }
                   />
                 </motion.div>
               ))}
@@ -283,6 +288,18 @@ const Events = () => {
           )}
         </AnimatePresence>
       </div>
+
+      <AddEventForm
+        isOpen={isAddEventOpen}
+        onClose={() => setIsAddEventOpen(false)}
+        onSave={handleAddEvent}
+      />
+      <EditEventForm
+        isOpen={isEditEvent.show}
+        onClose={() => setIsEditEvent(false, null)}
+        onSuccess={handleEditSuccess}
+        editData={isEditEvent.eventData}
+      />
 
       <AnimatePresence>
         {deleteConfirm.show && (
@@ -300,9 +317,9 @@ const Events = () => {
             >
               <div className="text-center">
                 <motion.div
-                  animate={{ 
+                  animate={{
                     rotate: [0, 10, -10, 0],
-                    scale: [1, 1.1, 1]
+                    scale: [1, 1.1, 1],
                   }}
                   transition={{ duration: 0.5 }}
                 >
@@ -311,7 +328,9 @@ const Events = () => {
                     className="text-red-500 text-3xl sm:text-4xl mb-4"
                   />
                 </motion.div>
-                <h3 className="text-xl sm:text-2xl font-semibold text-gray-800 mb-2">Confirm Deletion</h3>
+                <h3 className="text-xl sm:text-2xl font-semibold text-gray-800 mb-2">
+                  Confirm Deletion
+                </h3>
                 <p className="text-gray-600 mb-6 text-sm sm:text-base">
                   Are you sure you want to delete "{deleteConfirm.eventTitle}"?
                   This action cannot be undone.
@@ -348,29 +367,29 @@ const Events = () => {
             exit={{ opacity: 0, y: 50 }}
             className="fixed bottom-4 sm:bottom-8 left-1/2 transform -translate-x-1/2 z-50 w-[90%] sm:w-auto"
           >
-            <div className={`px-6 sm:px-8 py-3 sm:py-4 rounded-xl shadow-lg ${
-              successMessage 
-                ? 'bg-gradient-to-r from-green-500 to-green-600 text-white' 
-                : 'bg-gradient-to-r from-red-500 to-red-600 text-white'
-            }`}>
+            <div
+              className={`px-6 sm:px-8 py-3 sm:py-4 rounded-xl shadow-lg ${
+                successMessage
+                  ? "bg-gradient-to-r from-green-500 to-green-600 text-white"
+                  : "bg-gradient-to-r from-red-500 to-red-600 text-white"
+              }`}
+            >
               <div className="flex items-center justify-center sm:justify-start gap-3">
-                <FontAwesomeIcon 
+                <FontAwesomeIcon
                   icon={successMessage ? faCalendarAlt : faExclamationTriangle}
                   className="text-lg sm:text-xl"
                 />
                 <span className="font-medium text-sm sm:text-base">
-                  {successMessage ? 'Event deleted successfully' : 'Failed to delete event'}
+                  {successMessage
+                    ? "Event deleted successfully"
+                    : "Failed to delete event"}
                 </span>
               </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
-      <AddEventForm
-        isOpen={isAddEventOpen}
-        onClose={() => setIsAddEventOpen(false)}
-        onSave={handleAddEvent}
-      />
+
       <HideScrollbar />
     </motion.div>
   );

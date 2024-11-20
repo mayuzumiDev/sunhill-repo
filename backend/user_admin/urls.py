@@ -28,6 +28,7 @@ urlpatterns = [
     path('public-user-list/', PublicUserListView.as_view(), name='public_user_list'),
     path('branch/user-list/', BranchUserCountView.as_view(), name='branch_user_list'),
     path('event/create/', EventCreateView.as_view(), name='event_create'),
+    path('event/edit/<int:pk>/', EventUpdateView.as_view(), name='event_edit'),
     path('event/delete/<int:pk>/', EventDeleteView.as_view(), name='event_delete'),
     path('event/list/', EventListView.as_view(), name='event_list'),
     path('current-teacher/', CurrentTeacherView.as_view(), name='current-teacher'),

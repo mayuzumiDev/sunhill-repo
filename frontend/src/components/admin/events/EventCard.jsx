@@ -15,7 +15,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { motion, AnimatePresence } from "framer-motion";
 
-const EventCard = ({ event, onDelete }) => {
+const EventCard = ({ event, onDelete, onEdit }) => {
   const [showDetails, setShowDetails] = useState(false);
 
   const getAudienceBadgeColor = (audience) => {
@@ -36,32 +36,32 @@ const EventCard = ({ event, onDelete }) => {
       y: -5,
       transition: {
         duration: 0.2,
-        ease: "easeOut"
-      }
-    }
+        ease: "easeOut",
+      },
+    },
   };
 
   const modalVariants = {
-    hidden: { 
+    hidden: {
       opacity: 0,
-      scale: 0.8
+      scale: 0.8,
     },
-    visible: { 
+    visible: {
       opacity: 1,
       scale: 1,
       transition: {
         duration: 0.3,
-        ease: "easeOut"
-      }
+        ease: "easeOut",
+      },
     },
     exit: {
       opacity: 0,
       scale: 0.8,
       transition: {
         duration: 0.2,
-        ease: "easeIn"
-      }
-    }
+        ease: "easeIn",
+      },
+    },
   };
 
   const formatEventDate = (date) => {
@@ -93,10 +93,15 @@ const EventCard = ({ event, onDelete }) => {
               >
                 <FontAwesomeIcon icon={faTimes} className="w-6 h-6" />
               </motion.button>
-              <span className={`px-3 py-1 rounded-full text-xs font-medium bg-white bg-opacity-20 text-white mb-4 inline-block`}>
-                {event.target_audience?.charAt(0).toUpperCase() + event.target_audience?.slice(1) || 'All'}
+              <span
+                className={`px-3 py-1 rounded-full text-xs font-medium bg-white bg-opacity-20 text-white mb-4 inline-block`}
+              >
+                {event.target_audience?.charAt(0).toUpperCase() +
+                  event.target_audience?.slice(1) || "All"}
               </span>
-              <h2 className="text-2xl font-bold text-white mt-2">{event.title}</h2>
+              <h2 className="text-2xl font-bold text-white mt-2">
+                {event.title}
+              </h2>
             </div>
 
             {/* Modal Body */}
@@ -104,16 +109,24 @@ const EventCard = ({ event, onDelete }) => {
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-4">
                   <div className="flex items-center text-gray-700">
-                    <FontAwesomeIcon icon={faCalendarAlt} className="w-5 h-5 mr-3 text-blue-500" />
+                    <FontAwesomeIcon
+                      icon={faCalendarAlt}
+                      className="w-5 h-5 mr-3 text-blue-500"
+                    />
                     <div>
                       <p className="text-sm font-medium">Date</p>
-                      <p className="text-gray-600">{formatEventDate(event.date)}</p>
+                      <p className="text-gray-600">
+                        {formatEventDate(event.date)}
+                      </p>
                     </div>
                   </div>
 
                   {event.time && (
                     <div className="flex items-center text-gray-700">
-                      <FontAwesomeIcon icon={faClock} className="w-5 h-5 mr-3 text-purple-500" />
+                      <FontAwesomeIcon
+                        icon={faClock}
+                        className="w-5 h-5 mr-3 text-purple-500"
+                      />
                       <div>
                         <p className="text-sm font-medium">Time</p>
                         <p className="text-gray-600">{event.time}</p>
@@ -123,7 +136,10 @@ const EventCard = ({ event, onDelete }) => {
 
                   {event.location && (
                     <div className="flex items-center text-gray-700">
-                      <FontAwesomeIcon icon={faMapMarkerAlt} className="w-5 h-5 mr-3 text-red-500" />
+                      <FontAwesomeIcon
+                        icon={faMapMarkerAlt}
+                        className="w-5 h-5 mr-3 text-red-500"
+                      />
                       <div>
                         <p className="text-sm font-medium">Location</p>
                         <p className="text-gray-600">{event.location}</p>
@@ -134,16 +150,24 @@ const EventCard = ({ event, onDelete }) => {
 
                 <div className="space-y-4">
                   <div className="flex items-center text-gray-700">
-                    <FontAwesomeIcon icon={faUserGroup} className="w-5 h-5 mr-3 text-green-500" />
+                    <FontAwesomeIcon
+                      icon={faUserGroup}
+                      className="w-5 h-5 mr-3 text-green-500"
+                    />
                     <div>
                       <p className="text-sm font-medium">Organizer</p>
-                      <p className="text-gray-600">{event.organizer || 'School Administration'}</p>
+                      <p className="text-gray-600">
+                        {event.organizer || "School Administration"}
+                      </p>
                     </div>
                   </div>
 
                   {event.contact && (
                     <div className="flex items-center text-gray-700">
-                      <FontAwesomeIcon icon={faEnvelope} className="w-5 h-5 mr-3 text-yellow-500" />
+                      <FontAwesomeIcon
+                        icon={faEnvelope}
+                        className="w-5 h-5 mr-3 text-yellow-500"
+                      />
                       <div>
                         <p className="text-sm font-medium">Contact</p>
                         <p className="text-gray-600">{event.contact}</p>
@@ -154,14 +178,22 @@ const EventCard = ({ event, onDelete }) => {
               </div>
 
               <div className="mt-6">
-                <h3 className="text-lg font-semibold text-gray-800 mb-2">Description</h3>
-                <p className="text-gray-600 whitespace-pre-wrap">{event.description}</p>
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                  Description
+                </h3>
+                <p className="text-gray-600 whitespace-pre-wrap">
+                  {event.description}
+                </p>
               </div>
 
               {event.additional_info && (
                 <div className="mt-6">
-                  <h3 className="text-lg font-semibold text-gray-800 mb-2">Additional Information</h3>
-                  <p className="text-gray-600 whitespace-pre-wrap">{event.additional_info}</p>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                    Additional Information
+                  </h3>
+                  <p className="text-gray-600 whitespace-pre-wrap">
+                    {event.additional_info}
+                  </p>
                 </div>
               )}
             </div>
@@ -205,13 +237,19 @@ const EventCard = ({ event, onDelete }) => {
         {/* Card Header */}
         <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 border-b border-gray-100">
           <div className="flex justify-between items-start mb-3">
-            <span className={`px-3 py-1 rounded-full text-xs font-medium ${getAudienceBadgeColor(event.target_audience)}`}>
-              {event.target_audience?.charAt(0).toUpperCase() + event.target_audience?.slice(1) || 'All'}
+            <span
+              className={`px-3 py-1 rounded-full text-xs font-medium ${getAudienceBadgeColor(
+                event.target_audience
+              )}`}
+            >
+              {event.target_audience?.charAt(0).toUpperCase() +
+                event.target_audience?.slice(1) || "All"}
             </span>
             <div className="flex gap-2">
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
+                onClick={() => onEdit(event)}
                 className="text-blue-600 hover:text-blue-800 p-2 rounded-full hover:bg-blue-50 transition-colors"
               >
                 <FontAwesomeIcon icon={faPencilAlt} className="w-3.5 h-3.5" />
@@ -235,18 +273,27 @@ const EventCard = ({ event, onDelete }) => {
         <div className="p-4 flex-1">
           <div className="space-y-3 mb-4">
             <div className="flex items-center text-gray-600">
-              <FontAwesomeIcon icon={faCalendarAlt} className="w-4 h-4 mr-3 text-blue-500" />
+              <FontAwesomeIcon
+                icon={faCalendarAlt}
+                className="w-4 h-4 mr-3 text-blue-500"
+              />
               <span className="text-sm">{formatEventDate(event.date)}</span>
             </div>
             {event.time && (
               <div className="flex items-center text-gray-600">
-                <FontAwesomeIcon icon={faClock} className="w-4 h-4 mr-3 text-purple-500" />
+                <FontAwesomeIcon
+                  icon={faClock}
+                  className="w-4 h-4 mr-3 text-purple-500"
+                />
                 <span className="text-sm">{event.time}</span>
               </div>
             )}
             {event.location && (
               <div className="flex items-center text-gray-600">
-                <FontAwesomeIcon icon={faMapMarkerAlt} className="w-4 h-4 mr-3 text-red-500" />
+                <FontAwesomeIcon
+                  icon={faMapMarkerAlt}
+                  className="w-4 h-4 mr-3 text-red-500"
+                />
                 <span className="text-sm">{event.location}</span>
               </div>
             )}
@@ -267,9 +314,9 @@ const EventCard = ({ event, onDelete }) => {
             className="w-full flex items-center justify-between text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors duration-200 group"
           >
             <span>View Details</span>
-            <FontAwesomeIcon 
-              icon={faChevronRight} 
-              className="w-3 h-3 transform transition-transform duration-200 group-hover:translate-x-1" 
+            <FontAwesomeIcon
+              icon={faChevronRight}
+              className="w-3 h-3 transform transition-transform duration-200 group-hover:translate-x-1"
             />
           </button>
         </div>

@@ -17,15 +17,33 @@ class EventCreateView(generics.CreateAPIView):
                 'message': 'Event created successfully',
                 'event_data': response.data
             }, status=status.HTTP_201_CREATED)
+
         except ValidationError as e:
             return JsonResponse({
                 'message': 'Failed to create event',
                 'errors': e.detail
             }, status=status.HTTP_400_BAD_REQUEST)
+
         except Exception as e:
             return Response({
                 'message': str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class EventUpdateView(generics.UpdateAPIView):
+    permission_classes = [AllowAny]
+    queryset = Event.objects.all()
+    serializer_class = EventEditSerializer
+    http_method_names = ['patch']  # Restrict to PATCH only
+
+    def partial_update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+
+        self.perform_update(serializer)
+
+        return Response(serializer.data)
 
 class EventDeleteView(generics.DestroyAPIView):
     permission_classes = [AllowAny]
@@ -38,10 +56,12 @@ class EventDeleteView(generics.DestroyAPIView):
             return JsonResponse({
                 'message': 'Event deleted successfully'
             }, status=status.HTTP_200_OK)
+
         except Event.DoesNotExist:
             return JsonResponse({
                 'message': 'Event not found'
             }, status=status.HTTP_404_NOT_FOUND)
+        
         except Exception as e:
             return JsonResponse({
                 'message': str(e)
@@ -72,6 +92,7 @@ class EventListView(generics.ListAPIView):
                 'message': 'Events retrieved successfully',
                 'events_list': response.data
             }, status=status.HTTP_200_OK)
+
         except Exception as e:
             return Response({
                 'message': str(e)
