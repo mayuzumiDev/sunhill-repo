@@ -13,6 +13,7 @@ const AddEventForm = ({ isOpen, onClose, onSave }) => {
   });
 
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -24,13 +25,22 @@ const AddEventForm = ({ isOpen, onClose, onSave }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
 
     try {
       setIsLoading(true);
 
+      // Format the date to ISO string format
+      const submissionData = {
+        ...formData,
+        date: formData.date ? new Date(formData.date).toISOString() : null,
+        attachment: null,  // Set optional fields to null
+        expiry_date: null
+      };
+
       const response = await axiosInstance.post(
         "/user-admin/event/create/",
-        formData
+        submissionData
       );
 
       if (response.status === 201) {
@@ -48,6 +58,10 @@ const AddEventForm = ({ isOpen, onClose, onSave }) => {
       }
     } catch (error) {
       console.error("Error saving event:", error);
+      const errorMessage = error.response?.data?.errors?.date || 
+                          error.response?.data?.message || 
+                          "Failed to create event. Please try again.";
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -66,6 +80,11 @@ const AddEventForm = ({ isOpen, onClose, onSave }) => {
           </h2>
         </div>
 
+        {error && (
+          <div className="mx-6 mt-4 p-3 bg-red-100 text-red-700 rounded-md">
+            {error}
+          </div>
+        )}
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6">
           <div className="space-y-4">

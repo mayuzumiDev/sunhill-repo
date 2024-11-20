@@ -5,7 +5,12 @@ from user_admin.models.event_models import Event
 class EventCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
-        fields = ['title', 'description', 'date', 'target_audience', 'location', 'attachment', 'expiry_date']
+        fields = ['title', 'description', 'date', 'target_audience', 'branch', 'location', 'attachment', 'expiry_date']
+        extra_kwargs = {
+            'attachment': {'required': False},
+            'expiry_date': {'required': False},
+            'location': {'required': False},
+        }
         
     #  Check that the event date is not in the past
     def validate_date(self, value):
@@ -16,12 +21,13 @@ class EventCreateSerializer(serializers.ModelSerializer):
 class EventEditSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
-        fields = ['title', 'description', 'date', 'target_audience', 'location']
+        fields = ['title', 'description', 'date', 'target_audience', 'branch', 'location']
         extra_kwargs = {
             'title': {'required': False, 'allow_blank': True},
             'description': {'required': False, 'allow_blank': True},
-            'date': {'required': False, },
-            'target_audience': {'required': False,},
+            'date': {'required': False},
+            'target_audience': {'required': False},
+            'branch': {'required': False},
             'location': {'required': False, 'allow_blank': True},
         }
 
@@ -34,12 +40,12 @@ class EventListSerializer(serializers.ModelSerializer):
     formatted_date = serializers.SerializerMethodField()
     formatted_created_at = serializers.SerializerMethodField()
 
-    def get_formatted_date(self, obj):
-        return  obj.date.strftime('%B %d, %Y %I:%M %p')
-
-    def get_formatted_created_at(self, obj):
-        return obj.created_at.strftime('%d-%m-%Y %H:%M')
-
     class Meta:
         model = Event
         fields = ['id', 'title', 'description', 'date', 'target_audience', 'location', 'attachment', 'expiry_date', 'created_at', 'formatted_date', 'formatted_created_at']
+
+    def get_formatted_date(self, obj):
+        return obj.date.strftime('%B %d, %Y %I:%M %p')
+
+    def get_formatted_created_at(self, obj):
+        return obj.created_at.strftime('%d-%m-%Y %H:%M')

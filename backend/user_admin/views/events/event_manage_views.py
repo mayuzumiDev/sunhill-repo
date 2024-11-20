@@ -12,10 +12,13 @@ class EventCreateView(generics.CreateAPIView):
 
     def create(self, request, *args, **kwargs):
         try:
-            response = super().create(request, *args, **kwargs)
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            
             return JsonResponse({
                 'message': 'Event created successfully',
-                'event_data': response.data
+                'event_data': serializer.data
             }, status=status.HTTP_201_CREATED)
 
         except ValidationError as e:
@@ -25,7 +28,7 @@ class EventCreateView(generics.CreateAPIView):
             }, status=status.HTTP_400_BAD_REQUEST)
 
         except Exception as e:
-            return Response({
+            return JsonResponse({
                 'message': str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -36,14 +39,32 @@ class EventUpdateView(generics.UpdateAPIView):
     http_method_names = ['patch']  # Restrict to PATCH only
 
     def partial_update(self, request, *args, **kwargs):
-        instance = self.get_object()
-        
-        serializer = self.get_serializer(instance, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
+        try:
+            instance = self.get_object()
+            serializer = self.get_serializer(instance, data=request.data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            self.perform_update(serializer)
 
-        self.perform_update(serializer)
+            return JsonResponse({
+                'message': 'Event updated successfully',
+                'event_data': serializer.data
+            }, status=status.HTTP_200_OK)
 
-        return Response(serializer.data)
+        except ValidationError as e:
+            return JsonResponse({
+                'message': 'Failed to update event',
+                'errors': e.detail
+            }, status=status.HTTP_400_BAD_REQUEST)
+            
+        except Event.DoesNotExist:
+            return JsonResponse({
+                'message': 'Event not found'
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        except Exception as e:
+            return JsonResponse({
+                'message': str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class EventDeleteView(generics.DestroyAPIView):
     permission_classes = [AllowAny]
@@ -69,31 +90,37 @@ class EventDeleteView(generics.DestroyAPIView):
 
 class EventListView(generics.ListAPIView):
     permission_classes = [AllowAny]
-    queryset = Event.objects.all().order_by('-date') 
     serializer_class = EventListSerializer
     
     def get_queryset(self):
         from django.utils import timezone
-        from django.db.models import Case, When, Value, IntegerField
+        from django.db.models import Q
         
         now = timezone.now()
-        return Event.objects.annotate(
-            event_order=Case(
-                When(date__gte=now, then=Value(1)),  # Upcoming events
-                When(date__lt=now, then=Value(2)),   # Past events
-                output_field=IntegerField(),
-            )
-        ).order_by('event_order', 'date')  
+        queryset = Event.objects.all()
+
+        # Filter by event type (upcoming/past)
+        event_type = self.request.query_params.get('event_type')
+        if event_type == 'upcoming':
+            queryset = queryset.filter(date__gte=now)
+        elif event_type == 'past':
+            queryset = queryset.filter(date__lt=now)
+
+        # Order by date
+        return queryset.order_by('-date')
 
     def list(self, request, *args, **kwargs):
         try:
-            response = super().list(request, *args, **kwargs)
+            queryset = self.get_queryset()
+            serializer = self.get_serializer(queryset, many=True)
+            
             return JsonResponse({
                 'message': 'Events retrieved successfully',
-                'events_list': response.data
+                'events_list': serializer.data
             }, status=status.HTTP_200_OK)
 
         except Exception as e:
-            return Response({
-                'message': str(e)
+            return JsonResponse({
+                'message': str(e),
+                'error': True
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

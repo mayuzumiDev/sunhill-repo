@@ -13,6 +13,7 @@ const EditEventForm = ({ isOpen, onClose, onSuccess, editData }) => {
   });
 
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (editData) {
@@ -44,28 +45,46 @@ const EditEventForm = ({ isOpen, onClose, onSuccess, editData }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
 
     try {
       setIsLoading(true);
+      console.log("Submitting data:", formData); // Debug log
 
+      // Format the date to ISO string format
       const submissionData = {
         ...formData,
-        date: formData.date ? formData.date + ":00" : formData.date,
+        date: formData.date ? new Date(formData.date).toISOString() : null,
       };
+      console.log("Formatted data:", submissionData); // Debug log
 
       const response = await axiosInstance.patch(
         `/user-admin/event/edit/${editData.id}/`,
         submissionData
       );
+      console.log("Response:", response); // Debug log
 
       if (response.status === 200) {
-        onSuccess();
+        if (onSuccess) onSuccess();
+        if (onClose) onClose();
       }
     } catch (error) {
-      console.error(
-        "An error occurred updating the event:",
-        error.response?.data || error
-      );
+      console.error("Error updating event:", error);
+      console.error("Error response:", error.response); // Debug log
+      
+      // Handle different types of error responses
+      let errorMessage;
+      if (error.response?.data?.errors?.date) {
+        errorMessage = error.response.data.errors.date[0];
+      } else if (error.response?.data?.errors) {
+        errorMessage = Object.values(error.response.data.errors)[0][0];
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else {
+        errorMessage = "Failed to update event. Please try again.";
+      }
+      
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -86,6 +105,11 @@ const EditEventForm = ({ isOpen, onClose, onSuccess, editData }) => {
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6">
+          {error && (
+            <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md">
+              {error}
+            </div>
+          )}
           <div className="space-y-4">
             {/* Title */}
             <div>
