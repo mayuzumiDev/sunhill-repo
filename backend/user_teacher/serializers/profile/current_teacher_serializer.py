@@ -1,16 +1,25 @@
 from rest_framework import serializers
-from user_admin.models.account_models import CustomUser, UserInfo
+from user_admin.models.account_models import *
 import logging
 
 logger = logging.getLogger(__name__)
 
 class GetCurrentTeacherSerializer(serializers.ModelSerializer):
     user_info = serializers.SerializerMethodField()
+    teacher_info = serializers.SerializerMethodField()
 
     class Meta:
         model = CustomUser
-        fields = ['id', 'username', 'first_name', 'last_name', 'email', 'branch_name', 'role', 'user_info']
+        fields = ['id', 'username', 'first_name', 'last_name', 'email', 'branch_name', 'role', 'user_info', 'teacher_info']
         read_only_fields = ['role', 'user_info']
+
+    def get_teacher_info(self, instance):
+        user_info = instance.user_info
+        teacher_info = user_info.teacher_info
+        return {
+            'id': teacher_info.id,
+            'staff_position': teacher_info.staff_position
+        }
 
     def get_user_info(self, instance):
         try:
