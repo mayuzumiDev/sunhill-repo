@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { FaMapMarkerAlt, FaUsers, FaChalkboardTeacher } from "react-icons/fa";
 
 const BranchCard = ({
@@ -8,9 +8,20 @@ const BranchCard = ({
   branchCounts,
   onClick,
 }) => {
-  const isLoading = !branchCounts || !branchCounts.data;
-  const studentCount = branchCounts?.data?.student_count || 0;
-  const teacherCount = branchCounts?.data?.teacher_count || 0;
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Show loading first
+    setLoading(true);
+    
+    // Then instantly show the result
+    setTimeout(() => {
+      setLoading(false);
+    }, 5000);
+  }, []);
+
+  const studentCount = branchCounts?.data?.student_count ?? 0;
+  const teacherCount = branchCounts?.data?.teacher_count ?? 0;
 
   const LoadingPlaceholder = () => (
     <div className="inline-block h-4 w-16 bg-gray-400/30 animate-pulse rounded"></div>
@@ -36,7 +47,7 @@ const BranchCard = ({
         <div className="text-white text-sm space-y-1">
           <p>
             <FaUsers className="inline mr-1" />
-            {isLoading ? (
+            {loading ? (
               <LoadingPlaceholder />
             ) : (
               <span>{studentCount} Students</span>
@@ -44,7 +55,7 @@ const BranchCard = ({
           </p>
           <p>
             <FaChalkboardTeacher className="inline mr-1" />
-            {isLoading ? (
+            {loading ? (
               <LoadingPlaceholder />
             ) : (
               <span>{teacherCount} Teachers</span>
