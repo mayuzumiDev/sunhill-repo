@@ -8,7 +8,7 @@ import ManageAssignments from "./ManageAssignments";
 import SpecialEducationTool from "./SpeEdTool";
 import Messages from "./Messages";
 import TeacherSettings from "./TeacherSettings";
-import AccountSettings from "./AccountSettings"
+import AccountSettings from "./AccountSettings";
 import Breadcrumb from "../../components/Breadcrumbs";
 import Logout from "../../components/Logout";
 
@@ -39,7 +39,7 @@ function TeacherInterface() {
 
   return (
     <div
-      className={`flex h-screen overflow-hidden ${
+      className={`font-montserrat flex h-screen overflow-hidden ${
         darkMode ? "bg-gray-800" : "bg-opacity-50"
       }`}
     >
@@ -61,7 +61,11 @@ function TeacherInterface() {
       {/* Main content area */}
       <div
         className={`flex-1 flex flex-col transition-all duration-300 overflow-hidden ${
-          window.innerWidth < 1024 && !isSidebarOpen ? "ml-0" : isSidebarOpen ? "ml-64" : "ml-20"
+          window.innerWidth < 1024 && !isSidebarOpen
+            ? "ml-0"
+            : isSidebarOpen
+            ? "ml-64"
+            : "ml-20"
         }`}
       >
         {/* Fixed Top Navbar */}
@@ -73,22 +77,34 @@ function TeacherInterface() {
             darkMode={darkMode} // Pass dark mode state to TopNavbar
             toggleDarkMode={toggleDarkMode} // Pass toggle function to TopNavbar
           />
-          {showLogoutDialog && <Logout onClose={() => setShowLogoutDialog(false)} />}
+          {showLogoutDialog && (
+            <Logout onClose={() => setShowLogoutDialog(false)} />
+          )}
         </div>
 
         {/* Main content section */}
         <div
-          className={`flex-1 p-6 ${darkMode ? "bg-gray-700 text-white" : "bg-green-100 text-black"} bg-opacity-60 mt-0 overflow-y-auto`}
+          className={`flex-1 p-6 ${
+            darkMode ? "bg-gray-700 text-white" : "bg-green-100 text-black"
+          } bg-opacity-60 mt-0 overflow-y-auto`}
         >
           <Breadcrumb pageName={currentTab} />
-          {currentTab === "Dashboard" && <TeacherDashboard darkMode={darkMode} />}
+          {currentTab === "Dashboard" && (
+            <TeacherDashboard darkMode={darkMode} />
+          )}
           {currentTab === "Students" && <ManageStudents darkMode={darkMode} />}
           {currentTab === "Classes" && <ManageLessons darkMode={darkMode} />}
-          {currentTab === "Assignments" && <ManageAssignments darkMode={darkMode} />}
-          {currentTab === "SpecialED" && <SpecialEducationTool darkMode={darkMode} />}
+          {currentTab === "Assignments" && (
+            <ManageAssignments darkMode={darkMode} />
+          )}
+          {currentTab === "SpecialED" && (
+            <SpecialEducationTool darkMode={darkMode} />
+          )}
           {currentTab === "Messages" && <Messages darkMode={darkMode} />}
           {currentTab === "Settings" && <TeacherSettings darkMode={darkMode} />}
-          {currentTab === "Account Settings" && <AccountSettings darkMode={darkMode} />}
+          {currentTab === "Account Settings" && (
+            <AccountSettings darkMode={darkMode} />
+          )}
         </div>
       </div>
     </div>

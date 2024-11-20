@@ -20,19 +20,25 @@ class ClassroomCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         request = self.context.get('request')
 
-        if request and hasattr(request.user, 'teacher_info'):
-            validated_data['class_instructor'] = request.user.teacher_info
-        else:
-            raise serializers.ValidationError("Only teachers can create classrooms")
+        if not request or not request.user:
+            raise serializers.ValidationError("Authentication required")
+            
+        if not hasattr(request.user, 'user_info'):
+            raise serializers.ValidationError("User has no user_info")
+            
+        user_info = request.user.user_info
+        if not hasattr(user_info, 'teacher_info'):
+            raise serializers.ValidationError("User is not a teacher")
+            
+        teacher_info = user_info.teacher_info
+        if not teacher_info:
+            raise serializers.ValidationError("Teacher info not found")
         
+        validated_data['class_instructor'] = teacher_info
         return super().create(validated_data)
 
 class ClassroomListSerializer(serializers.ModelSerializer):
     class_instructor = ClassroomTeacherInfoSerializer(read_only=True)
-    student_count = serializers.SerializerMethodField()
-
-    def get_student_count(self, obj):
-        return obj.enrolled_students.filter(is_active=True).count()
 
     class Meta:
         model = Classroom
