@@ -7,6 +7,14 @@ TARGET_AUDIENCE_CHOICES = [
     ('all', 'All'),
 ]
 
+BRANCH_CHOICES = [
+    ('all', 'All'),
+    ('batangas', 'Batangas'),
+    ('rosario', 'Rosario'),
+    ('bauan', 'Bauan'),
+    ('metrotagaytay', 'Metro Tagaytay'),
+]
+
 class Event(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()

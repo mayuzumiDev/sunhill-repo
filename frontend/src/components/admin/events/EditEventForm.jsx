@@ -8,6 +8,7 @@ const EditEventForm = ({ isOpen, onClose, onSuccess, editData }) => {
     description: "",
     date: "",
     target_audience: "all",
+    branch: "all",
     location: "",
   });
 
@@ -20,6 +21,7 @@ const EditEventForm = ({ isOpen, onClose, onSuccess, editData }) => {
         description: editData.description || "",
         date: formatDateForInput(editData.date),
         target_audience: editData.target_audience || "all",
+        branch: editData.branch || "all",
         location: editData.location || "",
       });
     }
@@ -93,6 +95,7 @@ const EditEventForm = ({ isOpen, onClose, onSuccess, editData }) => {
               <input
                 type="text"
                 name="title"
+                placeholder="Title"
                 value={formData.title}
                 onChange={handleChange}
                 maxLength={50}
@@ -111,6 +114,7 @@ const EditEventForm = ({ isOpen, onClose, onSuccess, editData }) => {
                 value={formData.description}
                 onChange={handleChange}
                 maxLength={200}
+                placeholder="Description"
                 rows="4"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
                 required
@@ -153,6 +157,25 @@ const EditEventForm = ({ isOpen, onClose, onSuccess, editData }) => {
               </div>
             </div>
 
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-1">
+                Branch
+              </label>
+              <select
+                name="branch"
+                value={formData.branch}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                required
+              >
+                <option value="all">All</option>
+                <option value="batangas">Batangas</option>
+                <option value="rosario">Rosario</option>
+                <option value="bauan">Bauan</option>
+                <option value="metrotagaytay">Metro Tagaytay</option>
+              </select>
+            </div>
+
             {/* Location */}
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-1">
@@ -161,6 +184,7 @@ const EditEventForm = ({ isOpen, onClose, onSuccess, editData }) => {
               <input
                 type="text"
                 name="location"
+                placeholder="Location"
                 value={formData.location}
                 onChange={handleChange}
                 maxLength={70}
