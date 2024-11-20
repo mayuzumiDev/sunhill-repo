@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { axiosInstance } from "../../../utils/axiosInstance";
 import SchawnnahJLoader from "../../loaders/SchawnnahJLoader";
-import axios from "axios";
 
 const EditEventForm = ({ isOpen, onClose, onSuccess, editData }) => {
   const [formData, setFormData] = useState({

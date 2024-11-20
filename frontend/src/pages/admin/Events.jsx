@@ -16,6 +16,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import EditEventForm from "../../components/admin/events/EditEventForm";
 
 const Events = () => {
+  const [isLoading, setIsLoading] = useState(true);
   const [successMessage, setSuccessMessage] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
   const [isAddEventOpen, setIsAddEventOpen] = useState(false);
@@ -33,7 +34,6 @@ const Events = () => {
   const [viewMode, setViewMode] = useState("grid"); // grid, list
 
   const [events, setEvents] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     fetchEvents();
@@ -64,6 +64,14 @@ const Events = () => {
     (event) =>
       event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       event.description.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const currentDate = new Date();
+  const upcomingEvents = filteredEvents.filter(
+    (event) => new Date(event.date) >= currentDate
+  );
+  const finishedEvents = filteredEvents.filter(
+    (event) => new Date(event.date) <= currentDate
   );
 
   const handleAddEvent = async () => {
@@ -259,31 +267,85 @@ const Events = () => {
               variants={containerVariants}
               initial="hidden"
               animate="visible"
-              className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+              className="space-y-8"
             >
-              {filteredEvents.map((event, index) => (
-                <motion.div
-                  layout
-                  key={event.id}
-                  variants={itemVariants}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{
-                    duration: 0.3,
-                    delay: index * 0.1,
-                    layout: { duration: 0.3 },
-                  }}
-                  className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300"
-                >
-                  <EventCard
-                    event={event}
-                    onEdit={() => handleEditEvent(event)}
-                    onDelete={() =>
-                      showDeleteConfirmation(event.id, event.title)
-                    }
-                  />
-                </motion.div>
-              ))}
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-300"></div>
+                </div>
+                <div className="relative flex justify-center">
+                  <span className="bg-green-500 rounded-full px-4 py-2 text-lg font-medium text-white">
+                    Upcoming Events
+                  </span>
+                </div>
+              </div>
+
+              <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                {upcomingEvents.map((event, index) => (
+                  <motion.div
+                    layout
+                    key={event.id}
+                    variants={itemVariants}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{
+                      duration: 0.3,
+                      delay: index * 0.1,
+                      layout: { duration: 0.3 },
+                    }}
+                    className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300"
+                  >
+                    <EventCard
+                      event={event}
+                      onEdit={() => handleEditEvent(event)}
+                      onDelete={() =>
+                        showDeleteConfirmation(event.id, event.title)
+                      }
+                    />
+                  </motion.div>
+                ))}
+              </div>
+
+              {finishedEvents.length > 0 && (
+                <>
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-gray-300"></div>
+                    </div>
+                    <div className="relative flex justify-center">
+                      <span className="bg-red-500 rounded-full px-4 py-2 text-lg font-medium text-white">
+                        Finished Events
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                    {finishedEvents.map((event, index) => (
+                      <motion.div
+                        layout
+                        key={event.id}
+                        variants={itemVariants}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{
+                          duration: 0.3,
+                          delay: index * 0.1,
+                          layout: { duration: 0.3 },
+                        }}
+                        className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300"
+                      >
+                        <EventCard
+                          event={event}
+                          onEdit={() => handleEditEvent(event)}
+                          onDelete={() =>
+                            showDeleteConfirmation(event.id, event.title)
+                          }
+                        />
+                      </motion.div>
+                    ))}
+                  </div>
+                </>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
