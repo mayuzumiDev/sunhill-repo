@@ -1,35 +1,50 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useEffect } from "react";
+import { axiosInstance } from "../../utils/axiosInstance";
 import Modal from "./manageclass/Modal"; // Assuming you have a Modal component
-import {
-  AiOutlineEdit,
-  AiOutlineUsergroupAdd,
-  AiOutlineDelete,
-  AiOutlineDownload,
-  AiOutlineQrcode,
-} from "react-icons/ai";
-import { QRCodeSVG } from "qrcode.react";
+// import { QRCodeSVG } from "qrcode.react";
 import AddClassroomModal from "../../components/teacher/classroom/AddClassroomModal";
+import ClassroomCard from "../../components/teacher/classroom/ClassroomCard";
 
 const ManageLessons = () => {
+  const [isLoading, setIsLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
-  const [showManageStudentsModal, setShowManageStudentsModal] = useState(false);
-  const [showQRCodeModal, setShowQRCodeModal] = useState(false);
-  const [classrooms, setClassrooms] = useState([]);
-  const [newClass, setNewClass] = useState({
-    grade: "",
-    section: "",
-    courseCode: "",
-    subject: "",
-    students: [],
-  });
-  const [editingClassIndex, setEditingClassIndex] = useState(null);
-  const [qrClassroom, setQrClassroom] = useState(null);
-  const [studentName, setStudentName] = useState("");
 
-  const handleAddClassroom = () => {
-    setShowModal(true);
+  const [classrooms, setClassrooms] = useState([]);
+
+  useEffect(() => {
+    fetchClassroom();
+  }, []);
+
+  const fetchClassroom = async () => {
+    try {
+      setIsLoading(true);
+
+      const response = await axiosInstance.get("/user-teacher/classroom/list/");
+
+      if (response.status === 200) {
+        const classroomList = response.data.classroom_list;
+        setClassrooms(classroomList);
+      }
+    } catch (error) {
+      console.error("An error occured fetching the classroom list.", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
+
+  // const [showManageStudentsModal, setShowManageStudentsModal] = useState(false);
+  // const [showQRCodeModal, setShowQRCodeModal] = useState(false);
+  // // const [newClass, setNewClass] = useState({
+  // //   grade: "",
+  // //   section: "",
+  // //   courseCode: "",
+  // //   subject: "",
+  // //   students: [],
+  // // });
+  // const [editingClassIndex, setEditingClassIndex] = useState(null);
+  // // const [qrClassroom, setQrClassroom] = useState(null);
+  // const [studentName, setStudentName] = useState("");
 
   // // Ref for the QR Code canvas
   // const qrCodeRef = useRef(null);
@@ -132,65 +147,23 @@ const ManageLessons = () => {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">Classes</h1>
+      <h1 className="text-2xl font-bold mb-6">Classroom</h1>
 
-      {classrooms.length === 0 ? (
+      {isLoading ? (
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-purple-500"></div>
+        </div>
+      ) : classrooms.length === 0 ? (
         <p className="text-gray-600">
-          No classes available. Please create a classroom.
+          No classroom available. Please create a classroom.
         </p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {classrooms.map((classroom, index) => (
-            <div
-              key={index}
-              className="bg-gradient-to-r from-green-400 to-blue-500 rounded-lg p-6 mb-6 shadow-md flex justify-between items-center transition-transform transform hover:scale-100"
-            >
-              <div className="mb-14">
-                <h3 className="font-semibold text-xl">
-                  Grade: {classroom.grade} {classroom.section}
-                </h3>
-                <p className="text-gray-700">
-                  Course Code:{" "}
-                  <span className="font-bold">{classroom.courseCode}</span>
-                </p>
-                <p className="text-gray-700">Subject: {classroom.subject}</p>
-                <p className="text-gray-700">
-                  Students: {classroom.students.length}/20
-                </p>
-              </div>
-              <div className="flex space-x-3 absolute bottom-4 right-4">
-                <button
-                  className="bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600 transition"
-                  onClick={() => handleEditClass(index)}
-                >
-                  <AiOutlineEdit />
-                </button>
-                <button
-                  className="bg-green-500 text-white p-2 rounded-full hover:bg-green-600 transition"
-                  onClick={() => handleManageStudents(index)}
-                >
-                  <AiOutlineUsergroupAdd />
-                </button>
-                <button
-                  className="bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition"
-                  onClick={() => handleDeleteClass(index)}
-                >
-                  <AiOutlineDelete />
-                </button>
-                <button
-                  className="bg-indigo-500 text-white p-2 rounded-full hover:bg-indigo-600 transition"
-                  onClick={() => handleDownloadClass(classroom)}
-                >
-                  <AiOutlineDownload />
-                </button>
-                <button
-                  className="bg-yellow-500 text-white p-2 rounded-full hover:bg-yellow-600 transition"
-                  onClick={() => handleShowQRCode(classroom)}
-                >
-                  <AiOutlineQrcode />
-                </button>
-              </div>
-            </div>
+            <ClassroomCard
+              key={classroom.id || index}
+              classroomData={classroom}
+            />
           ))}
         </div>
       )}
@@ -271,7 +244,7 @@ const ManageLessons = () => {
         </Modal>
       )}
 
-      {/* Modal for Managing Students */}
+      {/* Modal for Managing Students
       {showManageStudentsModal && (
         <Modal onClose={() => setShowManageStudentsModal(false)}>
           <div className="p-6">
@@ -298,9 +271,9 @@ const ManageLessons = () => {
             </button>
           </div>
         </Modal>
-      )}
+      )} */}
 
-      {/* Modal for QR Code */}
+      {/* Modal for QR Code
       {showQRCodeModal && (
         <Modal onClose={() => setShowQRCodeModal(false)}>
           <div className="p-6">
@@ -318,7 +291,7 @@ const ManageLessons = () => {
             </button>
           </div>
         </Modal>
-      )}
+      )} */}
     </div>
   );
 };
