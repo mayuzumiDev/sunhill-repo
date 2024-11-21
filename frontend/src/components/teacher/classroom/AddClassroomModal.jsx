@@ -1,14 +1,14 @@
 import React, { useState } from "react";
-// import { useTeacher } from "../../../context/TeacherContext";
 import { axiosInstance } from "../../../utils/axiosInstance";
 
-const AddClassroomModal = ({ isOpen, isClose }) => {
-  //   const { teacherData } = useTeacher();
-  const [formData, setFormData] = useState({
+const AddClassroomModal = ({ isOpen, isClose, onSuccess }) => {
+  const initialFormState = {
     grade_level: "",
     class_section: "",
     subject_name: "",
-  });
+  };
+
+  const [formData, setFormData] = useState(initialFormState);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -27,11 +27,9 @@ const AddClassroomModal = ({ isOpen, isClose }) => {
       );
 
       if (response.status === 201) {
-        console.log(
-          "Classroom created succesfully.",
-          response.data.classroom_created
-        );
+        setFormData(initialFormState);
         isClose();
+        await onSuccess();
       }
     } catch (error) {
       console.error("Error Response Data:", error.response?.data);

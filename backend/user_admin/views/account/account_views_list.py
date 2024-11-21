@@ -28,7 +28,7 @@ def filter_queryset(queryset, params):
     return queryset
 
 class TeacherListView(generics.ListAPIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     serializer_class = TeacherListSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['id', 'first_name', 'last_name']
@@ -57,7 +57,7 @@ class TeacherListView(generics.ListAPIView):
 
 
 class StudentListView(generics.ListAPIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     serializer_class = StudentListSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['id', 'first_name', 'last_name']
@@ -87,7 +87,7 @@ class StudentListView(generics.ListAPIView):
         }, status=status.HTTP_200_OK)
 
 class ParentListView(generics.ListAPIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     serializer_class = ParentListSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['id', 'first_name', 'last_name']
@@ -139,25 +139,3 @@ class PublicUserListView(generics.ListAPIView):
 
         return JsonResponse({'message': 'Public user list retrieved successfully', 
                              'public_user_list': public_user_list}, status=status.HTTP_200_OK)
-
-
-class CurrentTeacherView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        try:
-            teacher = request.user
-            if not teacher.role == 'teacher':
-                return Response({'error': 'User is not a teacher'}, status=status.HTTP_403_FORBIDDEN)
-            
-            teacher_data = {
-                'id': teacher.id,
-                'username': teacher.username,
-                'first_name': teacher.first_name,
-                'last_name': teacher.last_name,
-                'email': teacher.email,
-                'role': teacher.role,
-            }
-            return Response(teacher_data)
-        except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
