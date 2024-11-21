@@ -1,5 +1,10 @@
 import React, { useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+} from "react-router-dom";
 import ProtectedRoute from "../src/components/ProtectedRoute";
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
@@ -9,8 +14,8 @@ import ParentLogin from "./pages/ParentLogin";
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminInterface from "./pages/admin/AdminInterface";
 import TeacherInterface from "./pages/teacher/TeacherInterface";
-import StudentDashboard from "./pages/student/StudentInterface"; 
-import ParentInterfaceTemp from "./pages/parent/ParentInterfaceTemp"; 
+import StudentDashboard from "./pages/student/StudentInterface";
+import ParentInterfaceTemp from "./pages/parent/ParentInterfaceTemp";
 import ForgotPassword from "./components/login/ForgotPassword";
 import OTPVerification from "./components/login/OTPVerifications";
 import CreateNewPassword from "./components/login/CreateNewPass";
@@ -20,6 +25,7 @@ import TermsOfService from "./components/TermofService";
 import FAQ from "../src/pages/admin/Faqs";
 import NotFound from "./components/404NotFound";
 
+import { TeacherProvider } from "./context/TeacherContext";
 
 const App = () => {
   const location = useLocation();
@@ -50,58 +56,59 @@ const App = () => {
     };
 
     document.title = titleMap[path] || "Sunhill LMS"; // Default title if not found
-
   }, [location]);
 
   return (
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/login/" element={<LoginPage />} />
-        <Route path="/login/teacher/" element={<TeacherLogin />} />
-        <Route path="/login/student/" element={<StudentLogin />} />
-        <Route path="/login/parent/" element={<ParentLogin />} />
-        <Route
-          path="/teacher/interface/"
-          element={
-            <ProtectedRoute userRole="teacher">
+    <Routes>
+      <Route path="/" element={<HomePage />} />
+      <Route path="/login/" element={<LoginPage />} />
+      <Route path="/login/teacher/" element={<TeacherLogin />} />
+      <Route path="/login/student/" element={<StudentLogin />} />
+      <Route path="/login/parent/" element={<ParentLogin />} />
+      <Route
+        path="/teacher/interface/"
+        element={
+          <ProtectedRoute userRole="teacher">
+            <TeacherProvider>
               <TeacherInterface />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/student/interface/"
-          element={
-            <ProtectedRoute userRole="student">
-              <StudentDashboard/>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/parent/interface/"
-          element={
-            <ProtectedRoute userRole="parent">
-              <ParentInterfaceTemp />
-            </ProtectedRoute>
-          }
-        />
-        <Route path="/admin/login/" element={<AdminLogin />} />
-        <Route
-          path="/admin/interface/"
-          element={
-            <ProtectedRoute userRole="admin">
-              <AdminInterface />
-            </ProtectedRoute>
-          }
-        />
-        <Route path="/forgot-password/" element={<ForgotPassword />} />
-        <Route path="/otp-verification/" element={<OTPVerification />} />
-        <Route path="/create-new-password/" element={<CreateNewPassword />} />
-        <Route path="/password-changed/" element={<PasswordChanged />} />
-        <Route path="/terms-of-service/" element={<TermsOfService />} />
-        <Route path="/privacy-policy/" element={<PrivacyPolicy />} />
-        <Route path="/faq/" element={<FAQ />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+            </TeacherProvider>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/student/interface/"
+        element={
+          <ProtectedRoute userRole="student">
+            <StudentDashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/parent/interface/"
+        element={
+          <ProtectedRoute userRole="parent">
+            <ParentInterfaceTemp />
+          </ProtectedRoute>
+        }
+      />
+      <Route path="/admin/login/" element={<AdminLogin />} />
+      <Route
+        path="/admin/interface/"
+        element={
+          <ProtectedRoute userRole="admin">
+            <AdminInterface />
+          </ProtectedRoute>
+        }
+      />
+      <Route path="/forgot-password/" element={<ForgotPassword />} />
+      <Route path="/otp-verification/" element={<OTPVerification />} />
+      <Route path="/create-new-password/" element={<CreateNewPassword />} />
+      <Route path="/password-changed/" element={<PasswordChanged />} />
+      <Route path="/terms-of-service/" element={<TermsOfService />} />
+      <Route path="/privacy-policy/" element={<PrivacyPolicy />} />
+      <Route path="/faq/" element={<FAQ />} />
+      <Route path="*" element={<NotFound />} />
+    </Routes>
   );
 };
 

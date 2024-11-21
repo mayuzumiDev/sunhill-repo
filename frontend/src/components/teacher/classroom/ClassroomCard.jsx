@@ -5,7 +5,7 @@ import {
   AiOutlineDelete,
 } from "react-icons/ai";
 
-const ClassroomCard = ({ classroomData }) => {
+const ClassroomCard = ({ classroomData, onDelete }) => {
   return (
     <div className="bg-gradient-to-r from-green-400 to-blue-500 rounded-lg p-6 mb-6 shadow-md flex justify-between items-center transition-transform transform hover:scale-100">
       <div className="mb-14">
@@ -30,7 +30,10 @@ const ClassroomCard = ({ classroomData }) => {
         <button className="bg-green-500 text-white p-2 rounded-full hover:bg-green-600 transition">
           <AiOutlineUsergroupAdd />
         </button>
-        <button className="bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition">
+        <button
+          onClick={onDelete}
+          className="bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition"
+        >
           <AiOutlineDelete />
         </button>
       </div>

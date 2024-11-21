@@ -1,16 +1,19 @@
 import React, { useState, useEffect } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { axiosInstance } from "../../utils/axiosInstance";
-import Modal from "./manageclass/Modal"; // Assuming you have a Modal component
-// import { QRCodeSVG } from "qrcode.react";
 import AddClassroomModal from "../../components/teacher/classroom/AddClassroomModal";
 import ClassroomCard from "../../components/teacher/classroom/ClassroomCard";
+import ConfirmDeleteModal from "../../components/modal/teacher/ConfirmDeleteModal";
 
 const ManageLessons = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
 
   const [classrooms, setClassrooms] = useState([]);
+  const [selectedClassroom, setSelectedClassroom] = useState(null);
 
   useEffect(() => {
     fetchClassroom();
@@ -30,6 +33,21 @@ const ManageLessons = () => {
       console.error("An error occured fetching the classroom list.", error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleDeleteClassroom = async (classroomID) => {
+    try {
+      const response = await axiosInstance.delete(
+        `/user-teacher/classroom/delete/${classroomID}/`
+      );
+
+      if (response.status === 200) {
+        setSelectedClassroom(null);
+        await fetchClassroom();
+      }
+    } catch (error) {
+      console.error("An error occured deleting the classroom.", error);
     }
   };
 
@@ -149,6 +167,7 @@ const ManageLessons = () => {
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-6">Classroom</h1>
 
+      {/* Grid List for classroom */}
       {isLoading ? (
         <div className="flex justify-center items-center h-64">
           <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-purple-500"></div>
@@ -163,22 +182,36 @@ const ManageLessons = () => {
             <ClassroomCard
               key={classroom.id || index}
               classroomData={classroom}
+              onDelete={() => {
+                setShowDeleteModal(true);
+                setSelectedClassroom(classroom.id);
+              }}
             />
           ))}
         </div>
       )}
 
+      {/* Button for creating classroom */}
       <button
         onClick={() => setShowModal(true)}
         className="mt-6 bg-white border-2 border-purple-500 text-purple-500 px-4 py-2 rounded-lg font-semibold"
       >
-        + Create Classroom
+        <FontAwesomeIcon icon={faPlus} className="text-sm mr-2" />
+        Create Classroom
       </button>
 
       {/* Modal for Adding Class */}
       <AddClassroomModal
         isOpen={showModal}
         isClose={() => setShowModal(false)}
+      />
+
+      {/* Modal for confirm delete */}
+      <ConfirmDeleteModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={() => handleDeleteClassroom(selectedClassroom)}
+        message={"Are you sure to delete this classroom?"}
       />
 
       {/* Modal for Editing Class */}
@@ -243,55 +276,6 @@ const ManageLessons = () => {
           </div>
         </Modal>
       )}
-
-      {/* Modal for Managing Students
-      {showManageStudentsModal && (
-        <Modal onClose={() => setShowManageStudentsModal(false)}>
-          <div className="p-6">
-            <h2 className="text-2xl font-bold mb-4">Manage Students</h2>
-            <ul className="mb-4">
-              {classrooms[editingClassIndex]?.students.map((student, idx) => (
-                <li key={idx} className="py-1 border-b border-gray-300">
-                  {student}
-                </li>
-              ))}
-            </ul>
-            <input
-              type="text"
-              value={studentName}
-              onChange={(e) => setStudentName(e.target.value)}
-              className="border border-gray-300 rounded w-full py-2 px-4 mb-4"
-              placeholder="Add Student Name"
-            />
-            <button
-              onClick={handleAddStudent}
-              className="bg-green-500 text-white font-bold py-2 px-4 rounded hover:bg-green-600"
-            >
-              Add Student
-            </button>
-          </div>
-        </Modal>
-      )} */}
-
-      {/* Modal for QR Code
-      {showQRCodeModal && (
-        <Modal onClose={() => setShowQRCodeModal(false)}>
-          <div className="p-6">
-            <h2 className="text-2xl font-bold mb-4">
-              QR Code for {qrClassroom?.courseCode}
-            </h2>
-            <div ref={qrCodeRef}>
-              <QRCodeSVG value={qrClassroom?.courseCode} size={256} />
-            </div>
-            <button
-              onClick={handleDownloadQRCode}
-              className="mt-4 bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-600"
-            >
-              Download QR Code
-            </button>
-          </div>
-        </Modal>
-      )} */}
     </div>
   );
 };
