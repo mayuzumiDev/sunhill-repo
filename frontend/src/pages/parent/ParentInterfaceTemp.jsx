@@ -5,7 +5,7 @@ import ParentDashboard from "./ParentDashboard";
 import ViewStudents from "./ViewStudents";
 import ViewAssignments from "./ViewAssignments";
 import Messages from "./Messages";
-import ParentSettings from "./ParentSettings";
+import ParentSettings from "./ParentAccSettings";
 import Logout from "../../components/Logout";
 import Breadcrumb from "../../components/Breadcrumbs";
 

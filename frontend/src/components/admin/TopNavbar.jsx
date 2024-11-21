@@ -186,9 +186,9 @@ const TopNavbar = ({
 
           <div className="flex flex-col ml-4">
             <span className="text-gray-700 text-sm font-semibold hidden md:block">
-              Welcome, {adminInfo?.first_name || 'Admin'}
+              Welcome, {adminInfo?.first_name} {adminInfo?.last_name || 'Admin'}
             </span>
-            <span className="text-gray-500 text-xs hidden md:block">
+            <span className="text-gray-500 text-xs hidden md:block">  
               {currentDateTime}
             </span>
           </div>

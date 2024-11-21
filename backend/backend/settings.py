@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     'user_admin',
     'user_teacher',
     'user_student',
+    'user_parent',
     'special_education',
     'rest_framework',
     'rest_framework_simplejwt.token_blacklist',
