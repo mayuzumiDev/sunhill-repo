@@ -39,6 +39,25 @@ const Events = () => {
     fetchEvents();
   }, []);
 
+  const filteredEvents = events.filter(
+    (event) =>
+      event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      event.description.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const currentDate = new Date();
+  const upcomingEvents = filteredEvents
+    .filter((event) => new Date(event.date) >= currentDate)
+    .sort((a, b) => new Date(a.date) - new Date(b.date));
+  const finishedEvents = filteredEvents
+    .filter((event) => new Date(event.date) <= currentDate)
+    .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  const handleAddEvent = async () => {
+    await fetchEvents();
+    setIsAddEventOpen(false);
+  };
+
   const fetchEvents = async () => {
     try {
       setIsLoading(true);
@@ -47,6 +66,7 @@ const Events = () => {
       const response = await axiosInstance.get("/user-admin/event/list/");
       if (response.status === 200) {
         const eventData = response.data.events_list;
+        console.log("Event List: ", eventData);
         if (eventData.length === 0) {
           setIsEmpty(true);
         }
@@ -58,25 +78,6 @@ const Events = () => {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const filteredEvents = events.filter(
-    (event) =>
-      event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      event.description.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const currentDate = new Date();
-  const upcomingEvents = filteredEvents.filter(
-    (event) => new Date(event.date) >= currentDate
-  );
-  const finishedEvents = filteredEvents.filter(
-    (event) => new Date(event.date) <= currentDate
-  );
-
-  const handleAddEvent = async () => {
-    await fetchEvents();
-    setIsAddEventOpen(false);
   };
 
   const handleEditEvent = async (event) => {
@@ -128,6 +129,7 @@ const Events = () => {
       }
     } catch (error) {
       console.error("Error deleting event:", error);
+      console.error("Error response:", error.response);
       hideDeleteConfirmation();
       setErrorMessage(true);
       setTimeout(() => {
@@ -269,6 +271,7 @@ const Events = () => {
               animate="visible"
               className="space-y-8"
             >
+              {/* Upcoming Event Section */}
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-gray-300"></div>
@@ -279,7 +282,6 @@ const Events = () => {
                   </span>
                 </div>
               </div>
-
               <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                 {upcomingEvents.map((event, index) => (
                   <motion.div
@@ -306,6 +308,7 @@ const Events = () => {
                 ))}
               </div>
 
+              {/* Finished Event Section */}
               {finishedEvents.length > 0 && (
                 <>
                   <div className="relative">
