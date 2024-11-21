@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { axiosInstance } from "../../utils/axiosInstance";
 import userThree from '../../assets/img/home/unknown.jpg';
 import { FaCamera, FaStar, FaBook, FaUser, FaEnvelope, FaPhone, FaTree, FaTrash } from 'react-icons/fa';
@@ -11,6 +11,8 @@ const StudentSettings = ({ onProfileUpdate }) => {
   const [error, setError] = useState('');
   const [profileImage, setProfileImage] = useState(userThree);
   const fileInputRef = useRef(null);
+  const messageTimerRef = useRef(null);
+  const errorTimerRef = useRef(null);
   const [formData, setFormData] = useState({
     fullName: '',
     phoneNumber: '',
@@ -19,6 +21,34 @@ const StudentSettings = ({ onProfileUpdate }) => {
     grade_level: '',
     branch_name: ''
   });
+
+  // Clear timers on unmount
+  useEffect(() => {
+    return () => {
+      if (messageTimerRef.current) clearTimeout(messageTimerRef.current);
+      if (errorTimerRef.current) clearTimeout(errorTimerRef.current);
+    };
+  }, []);
+
+  // Handle success message timer
+  useEffect(() => {
+    if (message) {
+      if (messageTimerRef.current) clearTimeout(messageTimerRef.current);
+      messageTimerRef.current = setTimeout(() => {
+        setMessage('');
+      }, 3000);
+    }
+  }, [message]);
+
+  // Handle error message timer
+  useEffect(() => {
+    if (error) {
+      if (errorTimerRef.current) clearTimeout(errorTimerRef.current);
+      errorTimerRef.current = setTimeout(() => {
+        setError('');
+      }, 3000);
+    }
+  }, [error]);
 
   const fetchStudentData = async () => {
     try {
@@ -169,8 +199,8 @@ const StudentSettings = ({ onProfileUpdate }) => {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center p-2 xs:p-3 sm:p-4 md:p-8 bg-gradient-to-r from-purple-100 to-pink-100 min-h-screen">
-        <div className="text-2xl font-bold text-purple-600 animate-bounce">
+      <div className="flex justify-center items-center p-2 xs:p-3 sm:p-4 md:p-8 bg-[#F5F5F5] min-h-screen">
+        <div className="text-2xl font-bold text-[#2B3A67] animate-bounce">
           Loading your awesome profile... 🌟
         </div>
       </div>
@@ -178,225 +208,323 @@ const StudentSettings = ({ onProfileUpdate }) => {
   }
 
   return (
-    <div className="min-h-50 sm:min-h-50 bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 p-2 xs:p-3 sm:p-4 md:p-8">
-      <div className="max-w-5xl  sm:max-w-2xl mx-auto">
+    <div className="min-h-screen bg-[#F5F5F5] p-2 xs:p-3 sm:p-4 md:p-8 relative overflow-hidden">
+      {/* Educational Background Decorations */}
+      <div className="absolute top-0 left-0 w-8 h-8 md:w-12 md:h-12 text-[#2B3A67] opacity-20">📚</div>
+      <div className="absolute top-0 right-0 w-8 h-8 md:w-12 md:h-12 text-[#2B3A67] opacity-20">🎨</div>
+      <div className="absolute bottom-0 left-0 w-8 h-8 md:w-12 md:h-12 text-[#2B3A67] opacity-20">✏️</div>
+      <div className="absolute bottom-0 right-0 w-8 h-8 md:w-12 md:h-12 text-[#2B3A67] opacity-20">📝</div>
+
+      <div className="max-w-5xl sm:max-w-2xl mx-auto">
         <motion.div 
-          className="bg-white backdrop-blur-lg bg-opacity-90 rounded-xl xs:rounded-[1.5rem] sm:rounded-[2.5rem] shadow-2xl p-3 xs:p-4 sm:p-6 md:p-8 border-2 border-purple-200"
+          className="bg-white rounded-xl xs:rounded-2xl sm:rounded-3xl shadow-2xl relative overflow-hidden"
+          style={{
+            backgroundImage: `
+              repeating-linear-gradient(#F5F5F5 0px, #F5F5F5 1px, transparent 1px, transparent 27px),
+              repeating-linear-gradient(90deg, #F5F5F5 0px, #F5F5F5 1px, transparent 1px, transparent 27px)
+            `,
+            backgroundSize: '27px 27px'
+          }}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <motion.h1 
-            initial={{ scale: 0.5 }}
-            animate={{ scale: 1 }}
-            className="text-xl xs:text-2xl sm:text-3xl md:text-4xl font-bold text-center bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-4 xs:mb-6 md:mb-8"
-          >
-            ✨ My Profile ✨
-          </motion.h1>
+          {/* Red Margin Line */}
+          <div className="absolute left-[30px] top-0 bottom-0 w-[2px] bg-[#FF6B6B] opacity-50"></div>
 
-          {error && (
-            <motion.div 
-              initial={{ x: -50, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              className="bg-red-50 border-l-4 border-red-400 p-2 xs:p-3 sm:p-4 rounded-lg xs:rounded-xl mb-3 xs:mb-4 sm:mb-6"
-            >
-              <div className="flex items-center">
-                <div className="flex-shrink-0 text-xs xs:text-sm sm:text-base">❌</div>
-                <div className="ml-2 xs:ml-3">
-                  <p className="text-red-700 text-xs xs:text-sm sm:text-base">{error}</p>
-                </div>
-              </div>
-            </motion.div>
-          )}
-          
-          {message && (
-            <motion.div 
-              initial={{ x: -50, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              className="bg-green-50 border-l-4 border-green-400 p-2 xs:p-3 sm:p-4 rounded-lg xs:rounded-xl mb-3 xs:mb-4 sm:mb-6"
-            >
-              <div className="flex items-center">
-                <div className="flex-shrink-0 text-xs xs:text-sm sm:text-base">✅</div>
-                <div className="ml-2 xs:ml-3">
-                  <p className="text-green-700 text-xs xs:text-sm sm:text-base">{message}</p>
-                </div>
-              </div>
-            </motion.div>
-          )}
-          
-          <form onSubmit={handleSubmit} className="space-y-4 xs:space-y-6 sm:space-y-8">
-            {/* Profile Image Section */}
-            <div className="flex justify-center mb-6 xs:mb-8 sm:mb-12">
-              <motion.div 
-                className="relative group"
-                whileHover={{ scale: 1.05 }}
-                transition={{ type: "spring", stiffness: 300 }}
+          {/* Notebook Holes */}
+          <div className="absolute left-2 top-0 bottom-0 w-6 flex flex-col justify-evenly">
+            {[...Array(20)].map((_, i) => (
+              <div key={i} className="w-4 h-4 rounded-full bg-[#2B3A67] opacity-10"></div>
+            ))}
+          </div>
+
+          <div className="p-6 xs:p-8 sm:p-10 pl-12">
+            {/* Header with School Theme */}
+            <div className="relative mb-8">
+              <motion.h1 
+                initial={{ scale: 0.5 }}
+                animate={{ scale: 1 }}
+                className="text-xl xs:text-2xl sm:text-3xl md:text-4xl font-bold text-center text-[#2B3A67] relative z-10"
               >
-                <div className="relative">
-                  <img
-                    src={profileImage}
-                    alt="Profile"
-                    className="w-24 h-24 xs:w-32 xs:h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 rounded-full object-cover border-4 border-purple-300 group-hover:border-pink-400 transition-all duration-300 shadow-xl"
-                    onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.src = userThree;
-                    }}
-                  />
-                  <div className="absolute -bottom-2 -right-2 xs:-bottom-3 xs:-right-3 sm:-bottom-4 sm:-right-4 flex gap-1 xs:gap-2 sm:gap-3">
-                    <motion.button
-                      type="button"
-                      onClick={handleImageClick}
-                      className="bg-gradient-to-br from-indigo-500 to-purple-500 text-white p-2 xs:p-3 sm:p-4 rounded-full hover:shadow-lg transition-all duration-200"
-                      whileHover={{ scale: 1.1, rotate: 5 }}
-                    >
-                      <FaCamera className="text-base xs:text-lg sm:text-xl md:text-2xl" />
-                    </motion.button>
-                    {profileImage !== userThree && (
+                <span className="inline-block mr-3">📓</span>
+                My School Profile
+                <span className="inline-block ml-3">📓</span>
+              </motion.h1>
+              <div className="absolute -bottom-2 left-0 right-0 h-3 bg-[#FFD700] opacity-20 transform -skew-x-12"></div>
+            </div>
+
+            {/* Notifications with School Theme */}
+            <AnimatePresence mode="wait">
+              {error && (
+                <motion.div 
+                  key="error"
+                  initial={{ y: -20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ y: 20, opacity: 0 }}
+                  transition={{ 
+                    duration: 0.3,
+                    type: "spring",
+                    stiffness: 300,
+                    damping: 20
+                  }}
+                  className="bg-white rounded-lg border-2 border-[#FF6B6B] p-4 mb-6 relative overflow-hidden"
+                  style={{
+                    backgroundImage: `repeating-linear-gradient(45deg, #FFF1F1 0px, #FFF1F1 1px, transparent 1px, transparent 10px)`
+                  }}
+                >
+                  {/* Decorative Elements */}
+                  <div className="absolute top-0 left-0 w-full h-1 bg-[#FF6B6B]"></div>
+                  <div className="absolute top-1 left-0 w-full h-[2px] bg-[#FF6B6B] opacity-30"></div>
+                  
+                  <div className="flex items-start gap-4">
+                    <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-full bg-[#FFF1F1] border-2 border-[#FF6B6B]">
+                      <span className="text-2xl">📝</span>
+                    </div>
+                    <div className="flex-grow">
+                      <div className="flex items-center gap-2 mb-1">
+                        <p className="text-[#FF6B6B] font-bold text-sm xs:text-base">
+                          Let's Review This
+                        </p>
+                      </div>
+                      <p className="text-[#2B3A67] text-sm leading-relaxed">
+                        {error}
+                      </p>
+                      <div className="flex items-center gap-2 mt-2">
+                        <span className="text-sm">✏️</span>
+                        <p className="text-[#FF6B6B] text-xs italic">
+                          Time to make some corrections!
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+              
+              {message && (
+                <motion.div 
+                  key="message"
+                  initial={{ y: -20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ y: 20, opacity: 0 }}
+                  transition={{ 
+                    duration: 0.3,
+                    type: "spring",
+                    stiffness: 300,
+                    damping: 20
+                  }}
+                  className="bg-white rounded-lg border-2 border-[#4CAF50] p-4 mb-6 relative overflow-hidden"
+                  style={{
+                    backgroundImage: `repeating-linear-gradient(-45deg, #F1FFF2 0px, #F1FFF2 1px, transparent 1px, transparent 10px)`
+                  }}
+                >
+                  {/* Decorative Elements */}
+                  <div className="absolute top-0 left-0 w-full h-1 bg-[#4CAF50]"></div>
+                  <div className="absolute top-1 left-0 w-full h-[2px] bg-[#4CAF50] opacity-30"></div>
+
+                  <div className="flex items-start gap-4">
+                    <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-full bg-[#F1FFF2] border-2 border-[#4CAF50]">
+                      <span className="text-2xl">🎓</span>
+                    </div>
+                    <div className="flex-grow">
+                      <div className="flex items-center gap-2 mb-1">
+                        <p className="text-[#4CAF50] font-bold text-sm xs:text-base">
+                          Great Progress!
+                        </p>
+                        <span className="text-lg">⭐</span>
+                      </div>
+                      <p className="text-[#2B3A67] text-sm leading-relaxed">
+                        {message}
+                      </p>
+                      <div className="flex items-center gap-2 mt-2">
+                        <span className="text-sm">📚</span>
+                        <p className="text-[#4CAF50] text-xs italic">
+                          You're doing amazing!
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Form with School Theme */}
+            <form onSubmit={handleSubmit} className="space-y-6 relative">
+              {/* Profile Image Section with School Theme */}
+              <div className="flex justify-center mb-8 relative">
+                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 w-24 h-2 bg-[#FFD700] opacity-20"></div>
+                <motion.div 
+                  className="relative group"
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                >
+                  <div className="relative">
+                    <img
+                      src={profileImage}
+                      alt="Profile"
+                      className="w-32 h-32 xs:w-40 xs:h-40 rounded-full object-cover border-4 border-[#2B3A67] group-hover:border-[#4CAF50] transition-all duration-300 shadow-xl"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = userThree;
+                      }}
+                    />
+                    <div className="absolute -bottom-3 -right-3 flex gap-2">
                       <motion.button
                         type="button"
-                        onClick={handleDeleteImage}
-                        className="bg-gradient-to-br from-red-500 to-pink-500 text-white p-2 xs:p-3 sm:p-4 rounded-full hover:shadow-lg transition-all duration-200"
-                        whileHover={{ scale: 1.1, rotate: -5 }}
+                        onClick={handleImageClick}
+                        className="bg-[#2B3A67] text-white p-3 rounded-full shadow-lg hover:bg-[#4CAF50] transition-all duration-200"
+                        whileHover={{ scale: 1.1, rotate: 5 }}
                       >
-                        <FaTrash className="text-base xs:text-lg sm:text-xl md:text-2xl" />
+                        <FaCamera className="text-xl" />
                       </motion.button>
-                    )}
+                      {profileImage !== userThree && (
+                        <motion.button
+                          type="button"
+                          onClick={handleDeleteImage}
+                          className="bg-[#FF6B6B] text-white p-3 rounded-full shadow-lg hover:bg-[#FF4444] transition-all duration-200"
+                          whileHover={{ scale: 1.1, rotate: -5 }}
+                        >
+                          <FaTrash className="text-xl" />
+                        </motion.button>
+                      )}
+                    </div>
                   </div>
-                </div>
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  onChange={handleImageChange}
-                  className="hidden"
-                  accept="image/*"
-                />
-              </motion.div>
-            </div>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleImageChange}
+                    className="hidden"
+                    accept="image/*"
+                  />
+                </motion.div>
+              </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 xs:gap-4 sm:gap-6 md:gap-8">
-              {/* Full Name Field */}
-              <motion.div 
-                className="bg-gradient-to-br from-yellow-50 to-orange-50 p-3 xs:p-4 sm:p-6 rounded-lg xs:rounded-xl shadow-lg border border-yellow-100"
-                whileHover={{ scale: 1.02, y: -5 }}
-                transition={{ type: "spring", stiffness: 300 }}
-              >
-                <label className="flex items-center text-base xs:text-lg font-semibold text-yellow-800 mb-2 xs:mb-3">
-                  <FaUser className="mr-2 xs:mr-3 text-yellow-600" /> My Name
-                </label>
-                <input
-                  type="text"
-                  name="fullName"
-                  value={formData.fullName}
-                  onChange={handleInputChange}
-                  className="w-full px-3 xs:px-4 py-2 xs:py-3 rounded-lg xs:rounded-xl border-2 border-yellow-200 focus:border-yellow-400 focus:ring focus:ring-yellow-100 text-base xs:text-lg bg-white bg-opacity-70"
-                  placeholder="What's your name? 😊"
-                />
-              </motion.div>
+              {/* Form Fields with School Theme */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Full Name Field */}
+                <motion.div 
+                  className="bg-[#F7DC6F] p-4 xs:p-5 sm:p-6 rounded-lg xs:rounded-xl shadow-lg border border-[#F7DC6F]"
+                  whileHover={{ scale: 1.02, y: -5 }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                >
+                  <label className="flex items-center text-base xs:text-lg font-semibold text-[#2B3A67] mb-2 xs:mb-3">
+                    <FaUser className="mr-2 xs:mr-3 text-[#2B3A67]" /> My Name
+                  </label>
+                  <input
+                    type="text"
+                    name="fullName"
+                    value={formData.fullName}
+                    onChange={handleInputChange}
+                    className="w-full px-3 xs:px-4 py-2 xs:py-3 rounded-lg xs:rounded-xl border-2 border-[#F7DC6F] focus:border-[#F2C464] focus:ring focus:ring-[#F7DC6F] text-base xs:text-lg bg-white bg-opacity-70"
+                    placeholder="What's your name? 😊"
+                  />
+                </motion.div>
 
-              {/* Phone Number Field */}
-              <motion.div 
-                className="bg-gradient-to-br from-emerald-50 to-teal-50 p-3 xs:p-4 sm:p-6 rounded-lg xs:rounded-xl shadow-lg border border-emerald-100"
-                whileHover={{ scale: 1.02, y: -5 }}
-                transition={{ type: "spring", stiffness: 300 }}
-              >
-                <label className="flex items-center text-base xs:text-lg font-semibold text-emerald-800 mb-2 xs:mb-3">
-                  <FaPhone className="mr-2 xs:mr-3 text-emerald-600" /> Phone Number
-                </label>
-                <input
-                  type="text"
-                  name="phoneNumber"
-                  value={formData.phoneNumber}
-                  onChange={handleInputChange}
-                  className="w-full px-3 xs:px-4 py-2 xs:py-3 rounded-lg xs:rounded-xl border-2 border-emerald-200 focus:border-emerald-400 focus:ring focus:ring-emerald-100 text-base xs:text-lg bg-white bg-opacity-70"
-                  placeholder="Your phone number 📱"
-                />
-              </motion.div>
+                {/* Phone Number Field */}
+                <motion.div 
+                  className="bg-[#8BC34A] p-4 xs:p-5 sm:p-6 rounded-lg xs:rounded-xl shadow-lg border border-[#8BC34A]"
+                  whileHover={{ scale: 1.02, y: -5 }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                >
+                  <label className="flex items-center text-base xs:text-lg font-semibold text-[#2B3A67] mb-2 xs:mb-3">
+                    <FaPhone className="mr-2 xs:mr-3 text-[#2B3A67]" /> Phone Number
+                  </label>
+                  <input
+                    type="text"
+                    name="phoneNumber"
+                    value={formData.phoneNumber}
+                    onChange={handleInputChange}
+                    className="w-full px-3 xs:px-4 py-2 xs:py-3 rounded-lg xs:rounded-xl border-2 border-[#8BC34A] focus:border-[#3E8E41] focus:ring focus:ring-[#8BC34A] text-base xs:text-lg bg-white bg-opacity-70"
+                    placeholder="Your phone number 📱"
+                  />
+                </motion.div>
 
-              {/* Email Address Field */}
-              <motion.div 
-                className="bg-gradient-to-br from-sky-50 to-blue-50 p-3 xs:p-4 sm:p-6 rounded-lg xs:rounded-xl shadow-lg border border-sky-100"
-                whileHover={{ scale: 1.02, y: -5 }}
-                transition={{ type: "spring", stiffness: 300 }}
-              >
-                <label className="flex items-center text-base xs:text-lg font-semibold text-sky-800 mb-2 xs:mb-3">
-                  <FaEnvelope className="mr-2 xs:mr-3 text-sky-600" /> Email Address
-                </label>
-                <input
-                  type="email"
-                  name="emailAddress"
-                  value={formData.emailAddress}
-                  onChange={handleInputChange}
-                  className="w-full px-3 xs:px-4 py-2 xs:py-3 rounded-lg xs:rounded-xl border-2 border-sky-200 focus:border-sky-400 focus:ring focus:ring-sky-100 text-base xs:text-lg bg-white bg-opacity-70"
-                  placeholder="Your email 📧"
-                />
-              </motion.div>
+                {/* Email Address Field */}
+                <motion.div 
+                  className="bg-[#87CEEB] p-4 xs:p-5 sm:p-6 rounded-lg xs:rounded-xl shadow-lg border border-[#87CEEB]"
+                  whileHover={{ scale: 1.02, y: -5 }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                >
+                  <label className="flex items-center text-base xs:text-lg font-semibold text-[#2B3A67] mb-2 xs:mb-3">
+                    <FaEnvelope className="mr-2 xs:mr-3 text-[#2B3A67]" /> Email Address
+                  </label>
+                  <input
+                    type="email"
+                    name="emailAddress"
+                    value={formData.emailAddress}
+                    onChange={handleInputChange}
+                    className="w-full px-3 xs:px-4 py-2 xs:py-3 rounded-lg xs:rounded-xl border-2 border-[#87CEEB] focus:border-[#4682B4] focus:ring focus:ring-[#87CEEB] text-base xs:text-lg bg-white bg-opacity-70"
+                    placeholder="Your email 📧"
+                  />
+                </motion.div>
 
-              {/* Username Field */}
-              <motion.div 
-                className="bg-gradient-to-br from-violet-50 to-purple-50 p-3 xs:p-4 sm:p-6 rounded-lg xs:rounded-xl shadow-lg border border-violet-100"
-                whileHover={{ scale: 1.02, y: -5 }}
-                transition={{ type: "spring", stiffness: 300 }}
-              >
-                <label className="flex items-center text-base xs:text-lg font-semibold text-violet-800 mb-2 xs:mb-3">
-                  <FaStar className="mr-2 xs:mr-3 text-violet-600" /> Username
-                </label>
-                <input
-                  type="text"
-                  name="username"
-                  value={formData.username}
-                  onChange={handleInputChange}
-                  className="w-full px-3 xs:px-4 py-2 xs:py-3 rounded-lg xs:rounded-xl border-2 border-violet-200 focus:border-violet-400 focus:ring focus:ring-violet-100 text-base xs:text-lg bg-white bg-opacity-70"
-                  placeholder="Your username 🌟"
-                />
-              </motion.div>
+                {/* Username Field */}
+                <motion.div 
+                  className="bg-[#6495ED] p-4 xs:p-5 sm:p-6 rounded-lg xs:rounded-xl shadow-lg border border-[#6495ED]"
+                  whileHover={{ scale: 1.02, y: -5 }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                >
+                  <label className="flex items-center text-base xs:text-lg font-semibold text-[#2B3A67] mb-2 xs:mb-3">
+                    <FaStar className="mr-2 xs:mr-3 text-[#2B3A67]" /> Username
+                  </label>
+                  <input
+                    type="text"
+                    name="username"
+                    value={formData.username}
+                    onChange={handleInputChange}
+                    className="w-full px-3 xs:px-4 py-2 xs:py-3 rounded-lg xs:rounded-xl border-2 border-[#6495ED] focus:border-[#4682B4] focus:ring focus:ring-[#6495ED] text-base xs:text-lg bg-white bg-opacity-70"
+                    placeholder="Your username 🌟"
+                  />
+                </motion.div>
 
-              {/* Grade Level Field */}
-              <motion.div 
-                className="bg-gradient-to-br from-rose-50 to-pink-50 p-3 xs:p-4 sm:p-6 rounded-lg xs:rounded-xl shadow-lg border border-rose-100"
-                whileHover={{ scale: 1.02, y: -5 }}
-                transition={{ type: "spring", stiffness: 300 }}
-              >
-                <label className="flex items-center text-base xs:text-lg font-semibold text-rose-800 mb-2 xs:mb-3">
-                  <FaBook className="mr-2 xs:mr-3 text-rose-600" /> Grade Level
-                </label>
-                <div className="w-full px-3 xs:px-4 py-2 xs:py-3 rounded-lg xs:rounded-xl border-2 border-rose-200 bg-white bg-opacity-70 text-base xs:text-lg">
-                  {formData.grade_level || 'Not Set Yet 📚'}
-                </div>
-              </motion.div>
+                {/* Grade Level Field */}
+                <motion.div 
+                  className="bg-[#FFC080] p-4 xs:p-5 sm:p-6 rounded-lg xs:rounded-xl shadow-lg border border-[#FFC080]"
+                  whileHover={{ scale: 1.02, y: -5 }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                >
+                  <label className="flex items-center text-base xs:text-lg font-semibold text-[#2B3A67] mb-2 xs:mb-3">
+                    <FaBook className="mr-2 xs:mr-3 text-[#2B3A67]" /> Grade Level
+                  </label>
+                  <div className="w-full px-3 xs:px-4 py-2 xs:py-3 rounded-lg xs:rounded-xl border-2 border-[#FFC080] bg-white bg-opacity-70 text-base xs:text-lg">
+                    {formData.grade_level || 'Not Set Yet 📚'}
+                  </div>
+                </motion.div>
 
-              {/* Branch Field */}
-              <motion.div 
-                className="bg-gradient-to-br from-amber-50 to-yellow-50 p-3 xs:p-4 sm:p-6 rounded-lg xs:rounded-xl shadow-lg border border-amber-100"
-                whileHover={{ scale: 1.02, y: -5 }}
-                transition={{ type: "spring", stiffness: 300 }}
-              >
-                <label className="flex items-center text-base xs:text-lg font-semibold text-amber-800 mb-2 xs:mb-3">
-                  <FaTree className="mr-2 xs:mr-3 text-amber-600" /> Branch
-                </label>
-                <input
-                  type="text"
-                  name="branch_name"
-                  value={formData.branch_name}
-                  onChange={handleInputChange}
-                  className="w-full px-3 xs:px-4 py-2 xs:py-3 rounded-lg xs:rounded-xl border-2 border-amber-200 focus:border-amber-400 focus:ring focus:ring-amber-100 text-base xs:text-lg bg-white bg-opacity-70"
-                  placeholder="Your branch 🌳"
-                />
-              </motion.div>
-            </div>
+                {/* Branch Field */}
+                <motion.div 
+                  className="bg-[#F7DC6F] p-4 xs:p-5 sm:p-6 rounded-lg xs:rounded-xl shadow-lg border border-[#F7DC6F]"
+                  whileHover={{ scale: 1.02, y: -5 }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                >
+                  <label className="flex items-center text-base xs:text-lg font-semibold text-[#2B3A67] mb-2 xs:mb-3">
+                    <FaTree className="mr-2 xs:mr-3 text-[#2B3A67]" /> Branch
+                  </label>
+                  <input
+                    type="text"
+                    name="branch_name"
+                    value={formData.branch_name}
+                    onChange={handleInputChange}
+                    className="w-full px-3 xs:px-4 py-2 xs:py-3 rounded-lg xs:rounded-xl border-2 border-[#F7DC6F] focus:border-[#F2C464] focus:ring focus:ring-[#F7DC6F] text-base xs:text-lg bg-white bg-opacity-70"
+                    placeholder="Your branch 🌳"
+                  />
+                </motion.div>
+              </div>
 
-            {/* Save Button */}
-            <div className="flex justify-center mt-6 xs:mt-8 sm:mt-10 md:mt-12">
-              <motion.button
-                type="submit"
-                disabled={isLoading}
-                className="px-6 xs:px-8 sm:px-10 md:px-12 py-2 xs:py-3 sm:py-4 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white text-base xs:text-lg sm:text-xl font-bold rounded-full shadow-xl disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-2xl transition-all duration-300"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                {isLoading ? '🔄 Saving...' : '✨ Save Profile ✨'}
-              </motion.button>
-            </div>
-          </form>
+              {/* Save Button */}
+              <div className="flex justify-center mt-6 xs:mt-8 sm:mt-10 md:mt-12">
+                <motion.button
+                  type="submit"
+                  disabled={isLoading}
+                  className="px-6 xs:px-8 sm:px-10 md:px-12 py-2 xs:py-3 sm:py-4 bg-[#2B3A67] text-white text-base xs:text-lg sm:text-xl font-bold rounded-full shadow-xl disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-2xl transition-all duration-300"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  {isLoading ? '🔄 Saving...' : '✨ Save Profile ✨'}
+                </motion.button>
+              </div>
+            </form>
+          </div>
         </motion.div>
       </div>
     </div>
