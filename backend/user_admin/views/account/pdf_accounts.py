@@ -112,7 +112,7 @@ class GeneratePdf(APIView):
         return response
     
 class GeneratePdfWithParent(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     def post(self, request):
         account_data = request.data.get('accounts', [])
 

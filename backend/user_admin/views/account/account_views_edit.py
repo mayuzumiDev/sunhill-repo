@@ -51,7 +51,7 @@ class StudentInfoEditView(generics.UpdateAPIView):
         return JsonResponse ({'message': 'Student Info updated successfully.'}, status=status.HTTP_200_OK)
     
 class ParentInfoEditView(generics.UpdateAPIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     serializer_class = ParentInfoEditSerializer
     queryset = ParentInfo.objects.all()
     http_method_names = ['patch']

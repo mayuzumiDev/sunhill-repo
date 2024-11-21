@@ -7,6 +7,7 @@ urlpatterns = [
     path('current-teacher/', GetCurrentTeacherView.as_view(), name="get_current_teacher"),
     path('profile/update/', TeacherProfileUpdateView.as_view(), name='teacher-profile-update'),
     path('profile/image/', TeacherProfileImageView.as_view(), name='teacher-profile-image'),
+    
     path('classroom/create/', ClassroomCreateView.as_view(), name='classroom_create'),
     path('classroom/delete/<int:pk>/', ClassroomDeleteView.as_view(), name='classroom_delete'),
     path('classroom/list/', ClassroomListView.as_view(), name='classroom_list')

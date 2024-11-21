@@ -36,10 +36,3 @@ class ClassroomCreateSerializer(serializers.ModelSerializer):
         
         validated_data['class_instructor'] = teacher_info
         return super().create(validated_data)
-
-class ClassroomListSerializer(serializers.ModelSerializer):
-    class_instructor = ClassroomTeacherInfoSerializer(read_only=True)
-
-    class Meta:
-        model = Classroom
-        fields = ['id', 'class_instructor', 'grade_level', 'subject_name', 'class_section']
