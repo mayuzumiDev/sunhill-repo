@@ -3,34 +3,20 @@ import { Menu, Transition } from '@headlessui/react';
 import { FaChevronDown, FaUser, FaSignOutAlt,FaGraduationCap, FaBars, FaBell, FaEdit, FaSave, FaCamera } from 'react-icons/fa';
 import SunhillLogo from '../../assets/img/home/sunhill.jpg';
 import './student.css';
-import StudentProfile from './StudentProfile';
+import StudentSettings from '../../pages/student/StudentSettings';
 import Logout from './Logout';
 import { AnimatePresence } from 'framer-motion';
 
 const TopNav = ({ student, onLogout, onOpenProfile, onOpenSettings, onOpenHelp, onOpenNotifications, onStartTutorial, onUpdateProfile }) => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isLogoutOpen, setIsLogoutOpen] = useState(false);
 
-  const handleEdit = () => {
-    setIsEditing(true);
-    setIsProfileOpen(true);
+  const handleToggleSettings = () => {
+    setIsSettingsOpen(!isSettingsOpen);
   };
 
-  const handleSave = (updatedStudent) => {
-    onUpdateProfile(updatedStudent);
-    setIsEditing(false);
-    setIsProfileOpen(false);
-  };
-
-  const handleToggleProfile = () => {
-    setIsProfileOpen(!isProfileOpen);
-    setIsEditing(false);
-  };
-
-  const handleCloseProfile = () => {
-    setIsProfileOpen(false);
-    setIsEditing(false);
+  const handleCloseSettings = () => {
+    setIsSettingsOpen(false);
   };
 
   const handleLogout = () => {
@@ -104,7 +90,7 @@ const TopNav = ({ student, onLogout, onOpenProfile, onOpenSettings, onOpenHelp, 
                     <Menu.Item>
                       {({ active }) => (
                         <button
-                          onClick={handleToggleProfile}
+                          onClick={handleToggleSettings}
                           className={`${
                             active ? 'bg-blue-100' : ''
                           } flex items-center w-full px-3 py-2 text-blue-700 text-left text-sm`}
@@ -133,15 +119,21 @@ const TopNav = ({ student, onLogout, onOpenProfile, onOpenSettings, onOpenHelp, 
         </div>
       </div>
       <AnimatePresence>
-        {isProfileOpen && (
-          <StudentProfile 
-            student={student} 
-            onUpdateProfile={handleSave} 
-            isEditing={isEditing} 
-            setIsEditing={setIsEditing} 
-            onLogout={handleLogout}
-            onClose={handleCloseProfile} 
-          />
+        {isSettingsOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center">
+            <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+              <div className="flex justify-between items-center p-4 border-b">
+                <h2 className="text-2xl font-bold text-blue-600">Profile Settings</h2>
+                <button 
+                  onClick={handleCloseSettings}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  ✕
+                </button>
+              </div>
+              <StudentSettings />
+            </div>
+          </div>
         )}
       </AnimatePresence>
       <AnimatePresence>
