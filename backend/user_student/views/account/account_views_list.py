@@ -4,7 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import ValidationError
 from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser
-from user_admin.models.account_models import CustomUser, UserInfo
+from user_admin.models.account_models import CustomUser, UserInfo, StudentInfo
 from ...serializers.profile.current_student_serializer import GetCurrentStudentSerializer
 import os
 import re
@@ -16,33 +16,50 @@ class GetCurrentStudentView(generics.RetrieveAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = GetCurrentStudentSerializer
 
+    def get_object(self):
+        user = self.request.user
+        logger.info(f"Getting student profile for user: {user.id}, username: {user.username}")
+        return user
+
     def retrieve(self, request, *args, **kwargs):
         try:
-            user_id = request.user.id
-            logger.info(f"Retrieving student profile for user_id: {user_id}")
+            user = request.user
+            logger.info(f"Starting to retrieve student profile for user_id: {user.id}, username: {user.username}")
             
-            student_info = CustomUser.objects.get(id=user_id)
-            logger.info(f"Found student: {student_info.username}")
-
-            if student_info.role != 'student':
-                logger.warning(f"User {user_id} is not a student. Role: {student_info.role}")
-                return JsonResponse({"error": "Student not found"}, status=status.HTTP_404_NOT_FOUND)
-
-            serializer = self.serializer_class(student_info, context={'request': request})
-            return JsonResponse({"student_profile": serializer.data}, status=status.HTTP_200_OK)
-        
-        except CustomUser.DoesNotExist:
-            logger.error(f"Student with user_id {user_id} not found")
-            return JsonResponse({"error": "student not found"}, status=status.HTTP_404_NOT_FOUND)
-        
-        except ValidationError as e:
-            logger.error(f"Validation error for user_id {user_id}: {str(e)}")
-            return JsonResponse({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        
+            if not user.is_authenticated:
+                logger.error(f"User is not authenticated")
+                return JsonResponse({"error": "Authentication required"}, status=status.HTTP_401_UNAUTHORIZED)
+            
+            if user.role != 'student':
+                logger.warning(f"User {user.id} is not a student. Role: {user.role}")
+                return JsonResponse({"error": "Not authorized - user is not a student"}, status=status.HTTP_403_FORBIDDEN)
+            
+            try:
+                # Get or create UserInfo
+                user_info, created_user = UserInfo.objects.get_or_create(user=user)
+                logger.info(f"UserInfo {'created' if created_user else 'retrieved'} for user {user.id}")
+                
+                # Get or create StudentInfo
+                student_info, created_student = StudentInfo.objects.get_or_create(student_info=user_info)
+                logger.info(f"StudentInfo {'created' if created_student else 'retrieved'} for user {user.id}")
+                
+                serializer = self.serializer_class(user, context={'request': request})
+                response_data = {"student_profile": serializer.data}
+                logger.info(f"Successfully serialized student profile for user {user.id}")
+                return JsonResponse(response_data, status=status.HTTP_200_OK)
+                
+            except Exception as e:
+                logger.error(f"Error processing student profile for user {user.id}: {str(e)}")
+                return JsonResponse(
+                    {"error": "Error processing student profile", "details": str(e)}, 
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
+                
         except Exception as e:
-            logger.error(f"Unexpected error retrieving student profile for user_id {user_id}: {str(e)}")
+            logger.error(f"Unexpected error retrieving student profile: {str(e)}")
+            logger.exception("Full traceback:")
             return JsonResponse(
-                {"error": "Error retrieving the current student profile", "details": str(e)}, 
+                {"error": "Error retrieving student profile", "details": str(e)}, 
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
@@ -56,7 +73,7 @@ class StudentProfileUpdateView(APIView):
     def patch(self, request):
         try:
             user = request.user
-            if user.role != 'teacher':
+            if user.role != 'student':
                 return JsonResponse({"error": "Not authorized"}, status=status.HTTP_403_FORBIDDEN)
 
             # Get or create user_info
@@ -76,6 +93,7 @@ class StudentProfileUpdateView(APIView):
                     user_info.contact_no = phone_number
 
             if 'email' in request.data:
+                user.email = request.data['email']
                 user_info.email = request.data['email']
 
             user_info.save()
@@ -92,19 +110,17 @@ class StudentProfileUpdateView(APIView):
                         status=status.HTTP_400_BAD_REQUEST
                     )
                 user.username = request.data['username']
-            if 'email' in request.data:
-                user.email = request.data['email']
-            if 'grade_level' in request.data:
-                user.grade_level = request.data['grade_level']
-            if 'branch_name' in request.data:
-                user.branch_name = request.data['branch_name']
             
             user.save()
+            logger.info(f"Profile updated successfully for user {user.id}")
 
-            return JsonResponse({"message": "Profile updated successfully"})
+            return JsonResponse({
+                "message": "Profile updated successfully",
+                "student_profile": GetCurrentStudentSerializer(user, context={'request': request}).data
+            })
             
         except Exception as e:
-            logger.error(f"Unexpected error updating teacher profile: {str(e)}")
+            logger.error(f"Unexpected error updating student profile: {str(e)}")
             return JsonResponse({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class StudentProfileImageView(APIView):
@@ -113,7 +129,7 @@ class StudentProfileImageView(APIView):
 
     def post(self, request):
         try:
-            user = request.user
+            user = request.user 
             if user.role != 'student':
                 return JsonResponse({"error": "Not authorized"}, status=status.HTTP_403_FORBIDDEN)
 
@@ -133,13 +149,12 @@ class StudentProfileImageView(APIView):
             user_info.profile_image = request.FILES['profile_image']
             user_info.save()
 
-            # Build absolute URL for the image
-            image_url = request.build_absolute_uri(user_info.profile_image.url)
-            logger.info(f"Profile image uploaded successfully. URL: {image_url}")
-
+            # Get updated profile data
+            serializer = GetCurrentStudentSerializer(user, context={'request': request})
+            
             return JsonResponse({
                 "message": "Image uploaded successfully",
-                "image_url": image_url
+                "student_profile": serializer.data
             })
                 
         except Exception as e:
@@ -167,15 +182,14 @@ class StudentProfileImageView(APIView):
                 user_info.save()
                 
                 logger.info(f"Profile image deleted successfully for user {user.id}")
-                return JsonResponse({
-                    "message": "Profile image deleted successfully",
-                    "status": "success"
-                })
-            else:
-                return JsonResponse({
-                    "message": "No profile image to delete",
-                    "status": "success"
-                })
+            
+                # Get updated profile data
+                serializer = GetCurrentStudentSerializer(user, context={'request': request})
+            
+            return JsonResponse({
+                "message": "Profile image deleted successfully",
+                "student_profile": serializer.data
+            })
                 
         except Exception as e:
             logger.error(f"Error deleting profile image: {str(e)}")

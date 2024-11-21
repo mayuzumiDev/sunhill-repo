@@ -19,7 +19,7 @@ import PrivacyPolicy from "./components/PrivacyPolicy";
 import TermsOfService from "./components/TermofService";
 import FAQ from "../src/pages/admin/Faqs";
 import NotFound from "./components/404NotFound";
-import { TeacherProvider } from './context/TeacherContext';
+
 
 const App = () => {
   const location = useLocation();
@@ -54,7 +54,6 @@ const App = () => {
   }, [location]);
 
   return (
-    <TeacherProvider>
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/login/" element={<LoginPage />} />
@@ -103,7 +102,6 @@ const App = () => {
         <Route path="/faq/" element={<FAQ />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
-    </TeacherProvider>
   );
 };
 

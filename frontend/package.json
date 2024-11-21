@@ -54,6 +54,7 @@
     "react-scroll": "^1.9.0",
     "react-select": "^5.8.0",
     "react-spring": "^9.7.4",
+    "react-toastify": "^10.0.6",
     "secure-ls": "^2.0.0",
     "styled-components": "^6.1.13",
     "swiper": "^11.1.14",

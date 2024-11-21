@@ -1,15 +1,51 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Menu, Transition } from '@headlessui/react';
-import { FaChevronDown, FaUser, FaSignOutAlt,FaGraduationCap, FaBars, FaBell, FaEdit, FaSave, FaCamera } from 'react-icons/fa';
+import { FaChevronDown, FaUser, FaSignOutAlt, FaGraduationCap, FaBars, FaBell, FaEdit } from 'react-icons/fa';
 import SunhillLogo from '../../assets/img/home/sunhill.jpg';
+import userThree from '../../assets/img/home/unknown.jpg';
 import './student.css';
 import StudentSettings from '../../pages/student/StudentSettings';
 import Logout from './Logout';
 import { AnimatePresence } from 'framer-motion';
+import { axiosInstance } from '../../utils/axiosInstance';
 
-const TopNav = ({ student, onLogout, onOpenProfile, onOpenSettings, onOpenHelp, onOpenNotifications, onStartTutorial, onUpdateProfile }) => {
+const TopNav = ({ onLogout, onOpenNotifications }) => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isLogoutOpen, setIsLogoutOpen] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [studentData, setStudentData] = useState({
+    name: 'Loading...',
+    profilePicture: userThree,
+    role: 'student'
+  });
+  const [error, setError] = useState('');
+
+  const handleProfileUpdate = () => {
+    setRefreshKey(prevKey => prevKey + 1);
+  };
+
+  useEffect(() => {
+    const fetchStudentData = async () => {
+      try {
+        const response = await axiosInstance.get('/api/user-student/profile/');
+        const data = response.data.student_profile;
+        
+        setStudentData({
+          name: `${data.first_name} ${data.last_name}`.trim() || 'Student',
+          profilePicture: data.user_info?.profile_image || userThree,
+          role: data.role || 'student',
+          email: data.email,
+          branch: data.branch_name,
+          gradeLevel: data.grade_level || 'N/A'
+        });
+      } catch (err) {
+        console.error('Error fetching student data:', err);
+        setError('Failed to load student data');
+      }
+    };
+
+    fetchStudentData();
+  }, [refreshKey]);
 
   const handleToggleSettings = () => {
     setIsSettingsOpen(!isSettingsOpen);
@@ -51,20 +87,33 @@ const TopNav = ({ student, onLogout, onOpenProfile, onOpenSettings, onOpenHelp, 
           >
             <FaBell className="w-5 h-5" />
           </button>
+          
+          {/* Student Info */}
           <div className="hidden sm:block text-white text-right mr-2 lg:mr-3">
-            <p className="text-sm lg:text-base font-semibold">{student.name}</p>
-            <p className="text-xs flex items-center justify-end">
-              <FaGraduationCap className="mr-1" /> Student
-            </p>
+            <p className="text-sm lg:text-base font-semibold">{studentData.name}</p>
+            <div className="text-xs flex items-center justify-end space-x-2">
+              <p className="flex items-center">
+                <FaGraduationCap className="mr-1" /> 
+                {studentData.role.charAt(0).toUpperCase() + studentData.role.slice(1)}
+              </p>
+              <span>•</span>
+              <p>{studentData.gradeLevel}</p>
+            </div>
           </div>
+
+          {/* Profile Menu */}
           <Menu as="div" className="relative">
             {({ open }) => (
               <>
                 <Menu.Button className="flex items-center space-x-1 lg:space-x-2 bg-white rounded-full p-1 hover:bg-yellow-300 transition-all duration-200">
                   <img
-                    src={student.profilePicture}
-                    alt={`${student.name}'s profile`}
+                    src={studentData.profilePicture}
+                    alt={`${studentData.name}'s profile`}
                     className="w-6 h-6 sm:w-8 sm:h-8 lg:w-9 lg:h-9 rounded-full object-cover border-2 border-purple-300"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = userThree;
+                    }}
                   />
                   <FaChevronDown className="text-purple-600 hidden sm:block" />
                   <FaBars className="text-purple-600 sm:hidden" />
@@ -82,10 +131,15 @@ const TopNav = ({ student, onLogout, onOpenProfile, onOpenSettings, onOpenHelp, 
                 >
                   <Menu.Items static className="absolute right-0 mt-2 w-44 sm:w-48 bg-white rounded-lg shadow-lg overflow-hidden z-50">
                     <div className="px-3 py-2 bg-gray-100 border-b border-gray-200 sm:hidden">
-                      <p className="text-sm font-medium text-gray-800">{student.name}</p>
-                      <p className="text-xs text-gray-500 mt-1 flex items-center">
-                        <FaGraduationCap className="mr-1" /> Student
-                      </p>
+                      <p className="text-sm font-medium text-gray-800">{studentData.name}</p>
+                      <div className="text-xs text-gray-500 mt-1 flex items-center space-x-2">
+                        <p className="flex items-center">
+                          <FaGraduationCap className="mr-1" />
+                          {studentData.role.charAt(0).toUpperCase() + studentData.role.slice(1)}
+                        </p>
+                        <span>•</span>
+                        <p>{studentData.gradeLevel}</p>
+                      </div>
                     </div>
                     <Menu.Item>
                       {({ active }) => (
@@ -118,6 +172,8 @@ const TopNav = ({ student, onLogout, onOpenProfile, onOpenSettings, onOpenHelp, 
           </Menu>
         </div>
       </div>
+
+      {/* Settings Modal */}
       <AnimatePresence>
         {isSettingsOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center">
@@ -131,17 +187,22 @@ const TopNav = ({ student, onLogout, onOpenProfile, onOpenSettings, onOpenHelp, 
                   ✕
                 </button>
               </div>
-              <StudentSettings />
+              <StudentSettings 
+                onProfileUpdate={handleProfileUpdate}
+                onClose={handleCloseSettings} 
+              />
             </div>
           </div>
         )}
       </AnimatePresence>
+
+      {/* Logout Modal */}
       <AnimatePresence>
         {isLogoutOpen && (
           <Logout 
             onLogout={onLogout} 
             onCancel={handleCancelLogout}
-            student={student}
+            student={studentData}
           />
         )}
       </AnimatePresence>

@@ -9,6 +9,7 @@ urlpatterns = [
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/', include('api.urls')),
+    path('api/user-student/', include('user_student.urls')),
     path('user-admin/', include('user_admin.urls')),
     path('user-teacher/', include('user_teacher.urls')),
     path('special-education/', include('special_education.urls'))

@@ -59,9 +59,16 @@ const TutorialModal = ({ step, onNext, onClose, isLastStep }) => {
   const Icon = getIcon(step.title);
 
   return (
-    <AnimatePresence>
-      <motion.div className="fixed inset-0 bg-black bg-opacity-50 z-40" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} />
+    <AnimatePresence mode="wait">
       <motion.div
+        key={`tutorial-step-${step.title}`}
+        className="fixed inset-0 bg-black bg-opacity-50 z-40"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+      />
+      <motion.div
+        key={`tutorial-modal-${step.title}`}
         className="fixed z-50 bg-white p-4 md:p-5 rounded-lg shadow-lg w-[90%] md:w-auto md:max-w-[320px] mx-auto md:mx-0"
         style={{ top: position.top, left: position.left }}
         initial={{ opacity: 0, scale: 0.8, y: -20 }}
