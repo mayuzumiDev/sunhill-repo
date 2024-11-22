@@ -35,7 +35,6 @@ urlpatterns = [
     path('teacher-list/', TeacherListView.as_view(), name='teacher_list'),
     path('student-list/', StudentListView.as_view(), name='student_list'),
     path('parent-list/', ParentListView.as_view(), name='parent_list'),
-    path('public-user-list/', PublicUserListView.as_view(), name='public_user_list'),
 
     path('branch/user-list/', BranchUserCountView.as_view(), name='branch_user_list'),
 
@@ -43,6 +42,11 @@ urlpatterns = [
     path('event/edit/<int:pk>/', EventUpdateView.as_view(), name='event_edit'),
     path('event/delete/<int:pk>/', EventDeleteView.as_view(), name='event_delete'),
     path('event/list/', EventListView.as_view(), name='event_list'),
-
+    path('public-user-list/', PublicUserListView.as_view(), name='public_user_list'),
     path('dashboard/metrics/', DashboardMetricsView.as_view(), name='dashboard_metrics'),
+
+    # Public user endpoints
+    # path('auth/public/register/', PublicUserRegistrationView.as_view(), name='public_register'),
+    # path('auth/public/login/', PublicUserLoginView.as_view(), name='public_login'),
+    # path('public/users/', PublicUserListView.as_view(), name='public_user_list'),
 ] + router.urls

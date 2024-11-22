@@ -247,7 +247,7 @@ const LoginModal = ({ isVisible, onClose }) => {
             }}
             onClick={() => googleLogin()}
           >
-            <GoogleIcon sx={{ mr: 1 }} />
+          <GoogleIcon sx={{ mr: 1 }} />
             Login with Google
           </Button>
         </Box>

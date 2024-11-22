@@ -16,7 +16,7 @@ class UserRole(Enum):
 
 # Create custom user model
 class CustomUser(AbstractUser):
-    email = models.EmailField(blank=True, null=True)
+    email = models.EmailField(blank=True, null=True) 
     role = models.CharField(max_length=10, choices=[(role.value, role.name) for role in UserRole],) # Add user role field
     branch_name = models.CharField(max_length=50, blank=True, null=True) # Add school branch name field
 
@@ -28,7 +28,7 @@ class CustomUser(AbstractUser):
         for field, value in kwargs.items():
             setattr(self, field, value)
         self.save()
-
+        
 class PasswordResetCode(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='password_reset_codes', null=True, blank=True)
     user_email = models.EmailField(blank=True)
@@ -54,4 +54,3 @@ class PasswordResetCode(models.Model):
 
     def __str__(self):
         return f"{self.user.email} - {self.code}"
-    
