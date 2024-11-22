@@ -25,7 +25,7 @@ import TermsOfService from "./components/TermofService";
 import FAQ from "../src/pages/admin/Faqs";
 import NotFound from "./components/404NotFound";
 
-import { TeacherProvider } from "./context/TeacherContext";
+// import { TeacherProvider } from "./context/TeacherContext";
 
 const App = () => {
   const location = useLocation();
@@ -69,9 +69,9 @@ const App = () => {
         path="/teacher/interface/"
         element={
           <ProtectedRoute userRole="teacher">
-            <TeacherProvider>
-              <TeacherInterface />
-            </TeacherProvider>
+            {/* <TeacherProvider> */}
+            <TeacherInterface />
+            {/* </TeacherProvider> */}
           </ProtectedRoute>
         }
       />
