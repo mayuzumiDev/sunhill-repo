@@ -3,7 +3,11 @@ import { axiosInstance } from "../../../utils/axiosInstance";
 import ConfirmDeleteModal from "../../modal/teacher/ConfirmDeleteModal";
 import { motion, AnimatePresence } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrash, faSpinner, faUserGraduate } from "@fortawesome/free-solid-svg-icons";
+import {
+  faTrash,
+  faSpinner,
+  faUserGraduate,
+} from "@fortawesome/free-solid-svg-icons";
 
 const ClassroomDetailsModal = ({ isOpen, onClose, classroom }) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -87,7 +91,9 @@ const ClassroomDetailsModal = ({ isOpen, onClose, classroom }) => {
               </h2>
               <div className="bg-white/10 rounded-lg p-3">
                 <h3 className="text-white text-sm font-medium mb-1">Subject</h3>
-                <p className="text-white/90 text-sm">{classroom.subject_name_display}</p>
+                <p className="text-white/90 text-sm">
+                  {classroom.subject_name_display}
+                </p>
               </div>
             </div>
           </div>
@@ -98,9 +104,22 @@ const ClassroomDetailsModal = ({ isOpen, onClose, classroom }) => {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-4 md:px-6 py-3 text-left text-xs md:text-sm font-medium text-gray-500 uppercase tracking-wider">
-                      Student Name
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider w-32"
+                    >
+                      Student ID
                     </th>
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-full"
+                    >
+                      Name
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-20"
+                    ></th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -108,8 +127,13 @@ const ClassroomDetailsModal = ({ isOpen, onClose, classroom }) => {
                     <tr>
                       <td colSpan="1" className="px-4 md:px-6 py-8 text-center">
                         <div className="flex justify-center items-center space-x-3">
-                          <FontAwesomeIcon icon={faSpinner} className="animate-spin text-blue-500 text-xl" />
-                          <span className="text-gray-500">Loading students...</span>
+                          <FontAwesomeIcon
+                            icon={faSpinner}
+                            className="animate-spin text-blue-500 text-xl"
+                          />
+                          <span className="text-gray-500">
+                            Loading students...
+                          </span>
                         </div>
                       </td>
                     </tr>
@@ -117,7 +141,10 @@ const ClassroomDetailsModal = ({ isOpen, onClose, classroom }) => {
                     <tr>
                       <td colSpan="1" className="px-4 md:px-6 py-8 text-center">
                         <div className="flex flex-col items-center text-gray-500">
-                          <FontAwesomeIcon icon={faUserGraduate} className="text-3xl mb-2 text-gray-400" />
+                          <FontAwesomeIcon
+                            icon={faUserGraduate}
+                            className="text-3xl mb-2 text-gray-400"
+                          />
                           <p>No students found in this classroom</p>
                         </div>
                       </td>
@@ -128,11 +155,14 @@ const ClassroomDetailsModal = ({ isOpen, onClose, classroom }) => {
                         key={student.id}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        whileHover={{ backgroundColor: "rgba(243, 244, 246, 0.5)" }}
+                        whileHover={{
+                          backgroundColor: "rgba(243, 244, 246, 0.5)",
+                        }}
                       >
                         <td className="px-4 md:px-6 py-4 whitespace-nowrap">
                           <div className="text-sm md:text-base font-medium text-gray-900">
-                            {student.student.last_name}, {student.student.first_name}
+                            {student.student.last_name},{" "}
+                            {student.student.first_name}
                           </div>
                         </td>
                         <td className="px-4 md:px-6 py-4 whitespace-nowrap text-right">
