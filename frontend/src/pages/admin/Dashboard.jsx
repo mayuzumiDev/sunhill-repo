@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Line, Pie } from "react-chartjs-2";
+import { axiosInstance } from "../../utils/axiosInstance";
 import {
   Chart as ChartJS,
   LineElement,
@@ -31,24 +32,51 @@ ChartJS.register(
 );
 
 const Dashboard = () => {
+  const [dashboardData, setDashboardData] = useState({
+    studentCount: 0,
+    teacherCount: 0,
+    parentCount: 0,
+    publicUserCount: 0,
+    totalUsers: 0,
+    classCount: 0,
+    monthlyRegistrations: [],
+  });
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const response = await axiosInstance.get('/user-admin/dashboard/metrics/');
+        if (response.status === 200) {
+          console.log('Dashboard Data:', response.data);
+          setDashboardData({
+            studentCount: response.data.student_count,
+            teacherCount: response.data.teacher_count,
+            parentCount: response.data.parent_count,
+            publicUserCount: response.data.public_user_count,
+            totalUsers: response.data.total_users,
+            classCount: response.data.class_count,
+            monthlyRegistrations: response.data.monthly_registrations || [],
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
   // Data for the line chart
   const lineData = {
-    labels: ["January", "February", "March", "April", "May", "June", "July"],
+    labels: dashboardData.monthlyRegistrations.map(item => item.month),
     datasets: [
       {
-        label: "Students",
-        data: [65, 59, 80, 81, 56, 55, 40],
+        label: "New Users",
+        data: dashboardData.monthlyRegistrations.map(item => item.count),
         fill: false,
         borderColor: "rgba(75,192,192,1)",
         tension: 0.1,
-      },
-      {
-        label: "Teachers",
-        data: [35, 49, 60, 71, 66, 75, 70],
-        fill: false,
-        borderColor: "rgba(192,75,192,1)",
-        tension: 0.1,
-      },
+      }
     ],
   };
 
@@ -61,9 +89,17 @@ const Dashboard = () => {
       },
       title: {
         display: true,
-        text: "School Metrics Overview",
+        text: "Monthly User Registrations",
       },
     },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: {
+          precision: 0
+        }
+      }
+    }
   };
 
   // Data for the pie chart
@@ -71,7 +107,12 @@ const Dashboard = () => {
     labels: ["Students", "Teachers", "Parents", "Public"],
     datasets: [
       {
-        data: [200, 30, 150, 50],
+        data: [
+          dashboardData.studentCount,
+          dashboardData.teacherCount,
+          dashboardData.parentCount,
+          dashboardData.publicUserCount
+        ],
         backgroundColor: ["#36A2EB", "#FF6384", "#FFCE56", "#4BC0C0"],
         hoverBackgroundColor: ["#36A2EB", "#FF6384", "#FFCE56", "#4BC0C0"],
       },
@@ -93,25 +134,25 @@ const Dashboard = () => {
     {
       id: 1,
       label: "Students",
-      value: 200,
+      value: dashboardData.studentCount,
       icon: <FaUserGraduate size={30} className="text-blue-500" />,
     },
     {
       id: 2,
       label: "Teachers",
-      value: 30,
+      value: dashboardData.teacherCount,
       icon: <FaChalkboardTeacher size={30} className="text-green-500" />,
     },
     {
       id: 3,
       label: "Parents",
-      value: 150,
+      value: dashboardData.parentCount,
       icon: <FaUsers size={30} className="text-yellow-500" />,
     },
     {
       id: 4,
       label: "Classes",
-      value: 20,
+      value: dashboardData.classCount,
       icon: <FaSchool size={30} className="text-red-500" />,
     },
   ];
@@ -144,7 +185,7 @@ const Dashboard = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Line Chart */}
         <div className="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
-          <h2 className="text-lg font-semibold mb-4">School Data Over Time</h2>
+          <h2 className="text-lg font-semibold mb-4">Monthly User Registrations</h2>
           <div style={{ height: "300px" }}>
             <Line data={lineData} options={lineOptions} />
           </div>
@@ -152,7 +193,7 @@ const Dashboard = () => {
 
         {/* Pie Chart - Responsive */}
         <div className="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
-          <h2 className="text-lg font-semibold mb-4">School Demographics</h2>
+          <h2 className="text-lg font-semibold mb-4">User Distribution</h2>
           <div className="w-full h-full lg:h-96 lg:w-96 mx-auto">
             <Pie data={pieData} options={pieOptions} />
           </div>

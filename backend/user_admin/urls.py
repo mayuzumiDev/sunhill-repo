@@ -11,6 +11,7 @@ from .views.profile.admin_profile_views import *
 from .views.events.event_manage_views import *
 from .views.events.event_list_views import *
 from .views.notifications.notification_views import EventNotificationViewSet
+from .views.dashboard.dashboard_views import DashboardMetricsView
 
 router = DefaultRouter()
 router.register(r'notifications', EventNotificationViewSet, basename='notifications')
@@ -42,4 +43,6 @@ urlpatterns = [
     path('event/edit/<int:pk>/', EventUpdateView.as_view(), name='event_edit'),
     path('event/delete/<int:pk>/', EventDeleteView.as_view(), name='event_delete'),
     path('event/list/', EventListView.as_view(), name='event_list'),
+
+    path('dashboard/metrics/', DashboardMetricsView.as_view(), name='dashboard_metrics'),
 ] + router.urls
