@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { axiosInstance } from "../../utils/axiosInstance";
 import AddClassroomModal from "../../components/teacher/classroom/AddClassroomModal";
+import EditClassroomModal from "../../components/modal/teacher/classroom/EditClassroomModal";
 import ClassroomCard from "../../components/teacher/classroom/ClassroomCard";
 import ConfirmDeleteModal from "../../components/modal/teacher/ConfirmDeleteModal";
 
@@ -36,6 +37,21 @@ const ManageLessons = () => {
     }
   };
 
+  const handleEditClassroom = async (classroom, formData) => {
+    try {
+      const response = await axiosInstance.patch(
+        `/user-teacher/classroom/edit/${classroom.id}/`,
+        formData
+      );
+
+      if (response.status === 200) {
+        await fetchClassroom();
+      }
+    } catch (error) {
+      console.error("An error occured editing the classroom.", error);
+    }
+  };
+
   const handleDeleteClassroom = async (classroomID) => {
     try {
       const response = await axiosInstance.delete(
@@ -50,118 +66,6 @@ const ManageLessons = () => {
       console.error("An error occured deleting the classroom.", error);
     }
   };
-
-  // const [showManageStudentsModal, setShowManageStudentsModal] = useState(false);
-  // const [showQRCodeModal, setShowQRCodeModal] = useState(false);
-  // // const [newClass, setNewClass] = useState({
-  // //   grade: "",
-  // //   section: "",
-  // //   courseCode: "",
-  // //   subject: "",
-  // //   students: [],
-  // // });
-  // const [editingClassIndex, setEditingClassIndex] = useState(null);
-  // // const [qrClassroom, setQrClassroom] = useState(null);
-  // const [studentName, setStudentName] = useState("");
-
-  // // Ref for the QR Code canvas
-  // const qrCodeRef = useRef(null);
-
-  // const handleInputChange = (e) => {
-  //   const { name, value } = e.target;
-  //   setNewClass((prev) => ({ ...prev, [name]: value }));
-  // };
-
-  // const generateUniqueCourseCode = () => {
-  //   const prefix = "sunhill-";
-  //   const uniqueId = Math.floor(100000 + Math.random() * 900000);
-  //   return `${prefix}${uniqueId}`;
-  // };
-
-  // const handleAddClass = () => {
-  //   const uniqueCourseCode = generateUniqueCourseCode();
-  //   const classToAdd = {
-  //     ...newClass,
-  //     courseCode: uniqueCourseCode,
-  //     students: [],
-  //   }; // Add students array
-  //   setClassrooms((prev) => [...prev, classToAdd]);
-  //   setShowModal(false);
-  //   resetNewClass();
-  // };
-
-  // const handleEditClass = (index) => {
-  //   const classToEdit = classrooms[index];
-  //   setNewClass(classToEdit);
-  //   setEditingClassIndex(index);
-  //   setShowEditModal(true);
-  // };
-
-  // const handleUpdateClass = () => {
-  //   setClassrooms((prev) => {
-  //     const updatedClassrooms = [...prev];
-  //     updatedClassrooms[editingClassIndex] = newClass;
-  //     return updatedClassrooms;
-  //   });
-  //   setShowEditModal(false);
-  //   resetNewClass();
-  //   setEditingClassIndex(null);
-  // };
-
-  // const handleDeleteClass = (index) => {
-  //   setClassrooms((prev) => prev.filter((_, i) => i !== index));
-  // };
-
-  // const handleDownloadClass = (classroom) => {
-  //   const data = JSON.stringify(classroom);
-  //   const blob = new Blob([data], { type: "application/json" });
-  //   const url = URL.createObjectURL(blob);
-  //   const a = document.createElement("a");
-  //   a.href = url;
-  //   a.download = `${classroom.courseCode}.json`; // Change to .csv if needed
-  //   a.click();
-  //   URL.revokeObjectURL(url);
-  // };
-
-  // const handleShowQRCode = (classroom) => {
-  //   setQrClassroom(classroom);
-  //   setShowQRCodeModal(true);
-  // };
-
-  // const handleDownloadQRCode = () => {
-  //   const canvas = qrCodeRef.current.querySelector("canvas");
-  //   if (canvas) {
-  //     const pngUrl = canvas.toDataURL("image/png");
-  //     const a = document.createElement("a");
-  //     a.href = pngUrl;
-  //     a.download = `${qrClassroom?.courseCode}_qrcode.png`;
-  //     a.click();
-  //   }
-  // };
-
-  // const handleManageStudents = (index) => {
-  //   setEditingClassIndex(index);
-  //   setShowManageStudentsModal(true);
-  // };
-
-  // const handleAddStudent = () => {
-  //   setClassrooms((prev) => {
-  //     const updatedClassrooms = [...prev];
-  //     updatedClassrooms[editingClassIndex].students.push(studentName);
-  //     return updatedClassrooms;
-  //   });
-  //   setStudentName("");
-  // };
-
-  // const resetNewClass = () => {
-  //   setNewClass({
-  //     grade: "",
-  //     section: "",
-  //     courseCode: "",
-  //     subject: "",
-  //     students: [],
-  //   });
-  // };
 
   return (
     <div className="p-6">
@@ -182,6 +86,10 @@ const ManageLessons = () => {
             <ClassroomCard
               key={classroom.id || index}
               classroomData={classroom}
+              onEdit={() => {
+                setShowEditModal(true);
+                setSelectedClassroom(classroom);
+              }}
               onDelete={() => {
                 setShowDeleteModal(true);
                 setSelectedClassroom(classroom.id);
@@ -200,10 +108,18 @@ const ManageLessons = () => {
         Create Classroom
       </button>
 
-      {/* Modal for Adding Class */}
+      {/* Modal for Adding Classroom */}
       <AddClassroomModal
         isOpen={showModal}
         isClose={() => setShowModal(false)}
+      />
+
+      {/* Modal for Editing CLassroom */}
+      <EditClassroomModal
+        isOpen={showEditModal}
+        onClose={() => setShowEditModal(false)}
+        onSave={(formData) => handleEditClassroom(selectedClassroom, formData)}
+        classroomData={selectedClassroom}
       />
 
       {/* Modal for confirm delete */}
@@ -213,69 +129,6 @@ const ManageLessons = () => {
         onConfirm={() => handleDeleteClassroom(selectedClassroom)}
         message={"Are you sure to delete this classroom?"}
       />
-
-      {/* Modal for Editing Class */}
-      {showEditModal && (
-        <Modal onClose={() => setShowEditModal(false)}>
-          <div className="p-6">
-            <h2 className="text-2xl font-bold mb-4">Edit Classroom</h2>
-            <select
-              name="grade"
-              value={newClass.grade}
-              onChange={handleInputChange}
-              className="border border-gray-300 rounded w-full py-2 px-4 mb-4"
-            >
-              <option value="" disabled>
-                Select Level
-              </option>
-              {[
-                "K1",
-                "K2",
-                "Grade 1",
-                "Grade 2",
-                "Grade 3",
-                "Grade 4",
-                "Grade 5",
-                "Grade 6",
-              ].map((grade) => (
-                <option key={grade} value={grade}>
-                  {grade}
-                </option>
-              ))}
-            </select>
-            <input
-              type="text"
-              name="section"
-              value={newClass.section}
-              onChange={handleInputChange}
-              className="border border-gray-300 rounded w-full py-2 px-4 mb-4"
-              placeholder="Section (e.g. A, B, C)"
-            />
-            <input
-              type="text"
-              name="subject"
-              value={newClass.subject}
-              onChange={handleInputChange}
-              className="border border-gray-300 rounded w-full py-2 px-4 mb-4"
-              placeholder="Subject"
-            />
-            <div className="flex justify-end space-x-2">
-              <button
-                onClick={handleUpdateClass}
-                className="bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-600"
-              >
-                Update Class
-              </button>
-              <button
-                onClick={() => setShowEditModal(false)}
-                className="bg-red-500 text-white font-bold py-2 px-4 rounded hover:bg-red-600"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </Modal>
-      )}
     </div>
   );
 };

@@ -36,3 +36,8 @@ class ClassroomCreateSerializer(serializers.ModelSerializer):
         
         validated_data['class_instructor'] = teacher_info
         return super().create(validated_data)
+
+class ClassroomEditSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Classroom
+        fields = ['grade_level', 'subject_name', 'class_section']
