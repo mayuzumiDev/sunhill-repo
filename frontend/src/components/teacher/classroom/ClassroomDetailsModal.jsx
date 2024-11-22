@@ -84,27 +84,41 @@ const ClassroomDetailsModal = ({ isOpen, onClose, classroom }) => {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider w-32"
+                  >
+                    Student ID
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-full"
+                  >
                     Name
                   </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"></th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-20"
+                  ></th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {isLoading ? (
-                  <tr>
-                    <td
-                      colSpan="2"
-                      className="px-6 py-4 whitespace-nowrap text-center"
-                    >
-                      <div className="flex justify-center items-center space-x-2">
-                        <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-green-400"></div>
-                        <span className="text-gray-500">
-                          Loading students...
-                        </span>
-                      </div>
-                    </td>
-                  </tr>
+                  <>
+                    {[1, 2, 3, 4, 5].map((index) => (
+                      <tr key={index}>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="inline-block h-4 w-24 bg-gray-400/30 animate-pulse rounded"></div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="inline-block h-4 w-64 bg-gray-400/30 animate-pulse rounded"></div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="inline-block h-4 w-8 bg-gray-400/30 animate-pulse rounded"></div>
+                        </td>
+                      </tr>
+                    ))}
+                  </>
                 ) : classroomStudents.length === 0 ? (
                   <tr>
                     <td
@@ -117,11 +131,15 @@ const ClassroomDetailsModal = ({ isOpen, onClose, classroom }) => {
                 ) : (
                   classroomStudents.map((student) => (
                     <tr key={student.id}>
+                      <td className="px-6 py-4 whitespace-nowrap text-center">
+                        <div className="text-sm font-medium text-gray-900">
+                          {student.student.id}
+                        </div>
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-medium text-gray-900">
+                          {student.student.first_name}{" "}
                           {student.student.last_name}
-                          {", "}
-                          {student.student.first_name}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right">

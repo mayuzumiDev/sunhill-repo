@@ -3,9 +3,14 @@ import { axiosInstance } from "../../../../utils/axiosInstance";
 
 const AddStudentModal = ({ isOpen, onClose, onAdd }) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [gradeFilter, setGradeFilter] = useState("");
+  const [branchFilter, setBranchFilter] = useState("");
+
   const [students, setStudents] = useState([]);
   const [selectedStudents, setSelectedStudents] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     if (isOpen) {
@@ -22,7 +27,6 @@ const AddStudentModal = ({ isOpen, onClose, onAdd }) => {
 
       if (response.status === 200) {
         const studentList = response.data.student_list;
-        console.log(studentList);
         setStudents(studentList);
       }
     } catch (error) {
@@ -36,9 +40,18 @@ const AddStudentModal = ({ isOpen, onClose, onAdd }) => {
     return `${student.first_name} ${student.last_name}`.trim();
   };
 
-  const filteredStudents = students.filter((student) =>
-    getFullName(student).toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredStudents = students.filter((student) => {
+    const nameMatch = getFullName(student)
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase());
+
+    const gradeMatch =
+      !gradeFilter || student.student_info.grade_level === gradeFilter;
+
+    const branchMatch = !branchFilter || student.branch_name === branchFilter;
+
+    return nameMatch && gradeMatch && branchMatch;
+  });
 
   const handleStudentSelect = (student) => {
     setSelectedStudents((prev) => {
@@ -51,15 +64,27 @@ const AddStudentModal = ({ isOpen, onClose, onAdd }) => {
     });
   };
 
-  const handleAddStudents = () => {
+  const handleAddStudents = async () => {
     if (selectedStudents.length > 0) {
-      onAdd({
+      setError("");
+
+      const result = await onAdd({
         students: selectedStudents.map((student) => ({
           student: student.student_info.id,
         })),
       });
-      onClose();
+
+      if (result) {
+        setError(result);
+      } else {
+        onClose();
+      }
     }
+  };
+
+  const handleClose = () => {
+    setError("");
+    onClose();
   };
 
   if (!isOpen) return null;
@@ -75,14 +100,50 @@ const AddStudentModal = ({ isOpen, onClose, onAdd }) => {
         </div>
 
         <div className="p-4">
-          {/* Search Input */}
-          <input
-            type="text"
-            placeholder="Search students..."
-            className="w-full p-2 border rounded mb-4"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            {/* Search Input */}
+            <input
+              type="text"
+              placeholder="Search"
+              className="w-full p-2 border rounded"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+
+            {/* Filter Dropdown for Grade Level */}
+            <select
+              className="w-full p-2 border rounded"
+              value={gradeFilter}
+              onChange={(e) => setGradeFilter(e.target.value)}
+            >
+              <option value="">All Grade Levels</option>
+              {Array.from(
+                new Set(students.map((s) => s.student_info.grade_level))
+              )
+                .sort()
+                .map((grade) => (
+                  <option key={grade} value={grade}>
+                    {grade}
+                  </option>
+                ))}
+            </select>
+
+            {/* Filter Dropdown for Branch */}
+            <select
+              className="w-full p-2 border rounded"
+              value={branchFilter}
+              onChange={(e) => setBranchFilter(e.target.value)}
+            >
+              <option value="">All Branches</option>
+              {Array.from(new Set(students.map((s) => s.branch_name)))
+                .sort()
+                .map((branch) => (
+                  <option key={branch} value={branch}>
+                    {branch}
+                  </option>
+                ))}
+            </select>
+          </div>
 
           {/* Students Table */}
           <div className="max-h-96 overflow-y-auto">
@@ -90,29 +151,46 @@ const AddStudentModal = ({ isOpen, onClose, onAdd }) => {
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"></th>
-                  <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
+                  >
                     Name
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
+                  >
                     Grade Level
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
+                  >
+                    Branch
                   </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {isLoading ? (
-                  <tr>
-                    <td
-                      colSpan="3"
-                      className="px-6 py-4 whitespace-nowrap text-center"
-                    >
-                      <div className="flex justify-center items-center space-x-2">
-                        <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-green-400"></div>
-                        <span className="text-gray-500">
-                          Loading students...
-                        </span>
-                      </div>
-                    </td>
-                  </tr>
+                  <>
+                    {[1, 2, 3, 4, 5].map((index) => (
+                      <tr key={index}>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="inline-block h-4 w-4 bg-gray-400/30 animate-pulse rounded"></div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="inline-block h-4 w-32 bg-gray-400/30 animate-pulse rounded"></div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="inline-block h-4 w-16 bg-gray-400/30 animate-pulse rounded"></div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="inline-block h-4 w-16 bg-gray-400/30 animate-pulse rounded"></div>
+                        </td>
+                      </tr>
+                    ))}
+                  </>
                 ) : filteredStudents.length === 0 ? (
                   <tr>
                     <td
@@ -147,6 +225,7 @@ const AddStudentModal = ({ isOpen, onClose, onAdd }) => {
                       <td className="px-6 py-4">
                         {student.student_info.grade_level}
                       </td>
+                      <td className="px-6 py-4">{student.branch_name}</td>
                     </tr>
                   ))
                 )}
@@ -155,13 +234,13 @@ const AddStudentModal = ({ isOpen, onClose, onAdd }) => {
           </div>
         </div>
 
-        <div className="p-4 border-t flex justify-end space-x-2">
-          <button
-            className="px-4 py-2 text-gray-600 hover:text-gray-800"
-            onClick={onClose}
-          >
-            Cancel
-          </button>
+        {error && (
+          <div className="mx-32 mb-4 p-3 bg-red-100 border text-center border-red-400 text-red-700 rounded">
+            {error}
+          </div>
+        )}
+
+        <div className="p-4 border-t flex justify-center space-x-2">
           <button
             className={`px-4 py-2 rounded ${
               selectedStudents.length > 0
@@ -172,6 +251,12 @@ const AddStudentModal = ({ isOpen, onClose, onAdd }) => {
             disabled={selectedStudents.length === 0}
           >
             Add {selectedStudents.length} Student(s)
+          </button>
+          <button
+            className="px-4 py-2 text-gray-600 hover:text-gray-800"
+            onClick={handleClose}
+          >
+            Cancel
           </button>
         </div>
       </div>

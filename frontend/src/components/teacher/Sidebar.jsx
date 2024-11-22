@@ -67,16 +67,18 @@ const Sidebar = ({
 
   const mainTabs = [
     { name: "Dashboard", icon: <FaHome /> },
-    { name: "Classes", icon: <FaChalkboardTeacher /> },
+    { name: "Classroom", icon: <FaChalkboardTeacher /> },
     { name: "Students", icon: <FaUserGraduate /> },
     { name: "Assignments", icon: <FaClipboardList /> },
     {
       name: "SpecialED",
-      icon: <img
-        src={SpecialEducationTool}
-        alt="Special Education Tool"
-        className="w-5 h-5"
-      />,
+      icon: (
+        <img
+          src={SpecialEducationTool}
+          alt="Special Education Tool"
+          className="w-5 h-5"
+        />
+      ),
     },
   ];
 
@@ -113,7 +115,9 @@ const Sidebar = ({
       </style>
 
       <div
-        className={`fixed top-0 left-0 h-full ${darkMode ? "bg-gray-900 text-white" : "bg-white text-black"} shadow-lg transition-all duration-300 ease-in-out ${
+        className={`fixed top-0 left-0 h-full ${
+          darkMode ? "bg-gray-900 text-white" : "bg-white text-black"
+        } shadow-lg transition-all duration-300 ease-in-out ${
           isSidebarOpen ? "w-64" : "w-20"
         } ${window.innerWidth < 1024 && !isSidebarOpen ? "hidden" : ""}`}
       >
@@ -137,7 +141,9 @@ const Sidebar = ({
                   <span className="text-orange-500">l</span>
                   <span className="text-green-800"> LMS</span>
                 </h1>
-                <p className="text-xs italic">Educating the Leaders of the Future...Today!</p>
+                <p className="text-xs italic">
+                  Educating the Leaders of the Future...Today!
+                </p>
               </div>
             )}
           </div>
@@ -225,7 +231,11 @@ const Sidebar = ({
           </nav>
         </div>
         {/* Tooltip */}
-        <Tooltip name={tooltip} position={tooltipPosition} isVisible={!!tooltip} />
+        <Tooltip
+          name={tooltip}
+          position={tooltipPosition}
+          isVisible={!!tooltip}
+        />
       </div>
     </div>
   );

@@ -8,6 +8,17 @@ class AddStudentToClassroomSerializer(serializers.ModelSerializer):
         model = ClassRoomStudent
         fields = ['classroom', 'student']
 
+    def validate(self, data):
+        # Check if student already exists in the classroom
+        if ClassRoomStudent.objects.filter(
+            classroom=data['classroom'],
+            student=data['student']
+        ).exists():
+            raise serializers.ValidationError(
+                {"error": "Student is already enrolled in this classroom"}
+            )
+        return data
+
 class ClassroomStudentListSerializer(serializers.ModelSerializer):
     student = StudentInfoSerializer(read_only=True)
 
