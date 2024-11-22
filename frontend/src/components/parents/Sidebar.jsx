@@ -44,7 +44,7 @@ const SideNavbar = ({
 
   useEffect(() => {
     const handleResize = () => {
-      setIsSmallScreen(window.innerWidth < 768);
+      setIsSmallScreen(window.innerWidth < 1024);
     };
 
     handleResize();
@@ -74,22 +74,23 @@ const SideNavbar = ({
   ];
 
   const handleTabClick = useCallback(
-    (tabName) => {
-      if (tabName !== currentTab) {
-        setCurrentTab(tabName);
-        if (isSmallScreen) {
+    (tab) => {
+      if (tab !== currentTab) {
+        setCurrentTab(tab);
+        // Hide sidebar if on small screen
+        if (window.innerWidth < 1024) {
           toggleSidebar();
         }
       }
     },
-    [setCurrentTab, currentTab, toggleSidebar, isSmallScreen]
+    [setCurrentTab, currentTab, toggleSidebar]
   );
 
   return (
     <div
       className={`h-full flex flex-col transition-all duration-300 ${
         isSidebarOpen ? "w-64" : "w-20"
-      } ${darkMode ? "bg-gray-900 text-white" : "bg-gradient-to-r from-orange-500 to-orange-700 text-white"} ${window.innerWidth < 768 && !isSidebarOpen ? "hidden" : ""}`}
+      } ${darkMode ? "bg-gray-900 text-white" : "bg-gradient-to-r from-orange-500 to-orange-700 text-white"} ${window.innerWidth < 1024 && !isSidebarOpen ? "hidden" : ""}`}
     >
       <div className="flex items-center justify-between p-6 border-b">
         <div className="flex items-center p4">

@@ -2,59 +2,70 @@ from django.http import JsonResponse
 from rest_framework import status, generics
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
+from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError, PermissionDenied
 from api.models import CustomUser
-from ...models import UserInfo, ParentInfo, StudentInfo
+from user_admin.models.account_models import UserInfo, ParentInfo, StudentInfo
 from ...serializers.current_parent_serializers import CurrentParentSerializer
 import logging
 
 logger = logging.getLogger(__name__)
 
-class CurrentParentView(generics.RetrieveAPIView):
-    permission_classes = [IsAuthenticated]
+class CurrentParentView(generics.RetrieveUpdateAPIView):
     serializer_class = CurrentParentSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_object(self):
-        try:
-            user = self.request.user
-            if not user.is_authenticated:
-                raise PermissionDenied("User is not authenticated")
-            if not hasattr(user, 'user_info'):
-                raise ValidationError("User info not found")
-            if not hasattr(user.user_info, 'parent_info'):
-                raise ValidationError("Parent info not found")
-            if user.role != 'parent':
-                raise PermissionDenied("User is not a parent")
-            return user
-        except Exception as e:
-            logger.error(f"Error in get_object: {str(e)}")
-            raise
+        return self.request.user
 
-    def retrieve(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         try:
             user = self.get_object()
-            serializer = self.get_serializer(user, context={'request': request})
-            return JsonResponse({
-                'status': 'success',
-                'message': 'Current parent retrieved successfully',
-                'current_parent': serializer.data
-            }, status=status.HTTP_200_OK)
-        except PermissionDenied as e:
-            return JsonResponse({
-                'status': 'error',
-                'error': str(e)
-            }, status=status.HTTP_403_FORBIDDEN)
-        except ValidationError as e:
-            return JsonResponse({
-                'status': 'error',
-                'error': str(e)
-            }, status=status.HTTP_400_BAD_REQUEST)
+            if not hasattr(user, 'user_info') or not hasattr(user.user_info, 'parent_info'):
+                logger.warning(f"User {user.id} does not have parent info")
+                return Response(
+                    {"error": "Parent information not found"},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+
+            serializer = self.get_serializer(user)
+            return Response({
+                "status": "success",
+                "data": serializer.data
+            })
         except Exception as e:
-            logger.error(f"Error retrieving parent data: {str(e)}")
-            return JsonResponse({
-                'status': 'error',
-                'error': 'Failed to retrieve parent data'
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            logger.error(f"Error retrieving parent info: {str(e)}")
+            return Response(
+                {"error": "Failed to retrieve parent information"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+    def update(self, request, *args, **kwargs):
+        try:
+            partial = kwargs.pop('partial', False)
+            instance = self.get_object()
+            
+            if not hasattr(instance, 'user_info') or not hasattr(instance.user_info, 'parent_info'):
+                logger.warning(f"User {instance.id} does not have parent info")
+                return Response(
+                    {"error": "Parent information not found"},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+
+            serializer = self.get_serializer(instance, data=request.data, partial=partial)
+            serializer.is_valid(raise_exception=True)
+            self.perform_update(serializer)
+
+            return Response({
+                "status": "success",
+                "data": serializer.data
+            })
+        except Exception as e:
+            logger.error(f"Error updating parent info: {str(e)}")
+            return Response(
+                {"error": "Failed to update parent information"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 class ParentCustomUserEditView(APIView):
     permission_classes = [IsAuthenticated]
@@ -63,7 +74,10 @@ class ParentCustomUserEditView(APIView):
         try:
             user = CustomUser.objects.get(id=id)
             if request.user.role != 'parent':
-                return JsonResponse({'error': 'Only parents can update their information'}, status=status.HTTP_403_FORBIDDEN)
+                return Response(
+                    {'error': 'Only parents can update their information'}, 
+                    status=status.HTTP_403_FORBIDDEN
+                )
             
             data = request.data
             user.username = data.get('username', user.username)
@@ -72,11 +86,20 @@ class ParentCustomUserEditView(APIView):
             user.last_name = data.get('last_name', user.last_name)
             user.save()
             
-            return JsonResponse({'message': 'User information updated successfully'}, status=status.HTTP_200_OK)
+            return Response(
+                {'message': 'User information updated successfully'}, 
+                status=status.HTTP_200_OK
+            )
         except CustomUser.DoesNotExist:
-            return JsonResponse({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {'error': 'User not found'}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
         except Exception as e:
-            return JsonResponse({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {'error': str(e)}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
 class ParentUserInfoEditView(APIView):
     permission_classes = [IsAuthenticated]
@@ -85,14 +108,26 @@ class ParentUserInfoEditView(APIView):
         try:
             user_info = UserInfo.objects.get(id=user_info_id)
             if request.user.role != 'parent':
-                return JsonResponse({'error': 'Only parents can update their information'}, status=status.HTTP_403_FORBIDDEN)
+                return Response(
+                    {'error': 'Only parents can update their information'}, 
+                    status=status.HTTP_403_FORBIDDEN
+                )
             
             data = request.data
             user_info.contact_no = data.get('contact_no', user_info.contact_no)
             user_info.save()
             
-            return JsonResponse({'message': 'Contact information updated successfully'}, status=status.HTTP_200_OK)
+            return Response(
+                {'message': 'Contact information updated successfully'}, 
+                status=status.HTTP_200_OK
+            )
         except UserInfo.DoesNotExist:
-            return JsonResponse({'error': 'User info not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {'error': 'User info not found'}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
         except Exception as e:
-            return JsonResponse({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {'error': str(e)}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )

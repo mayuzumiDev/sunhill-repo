@@ -12,7 +12,8 @@ urlpatterns = [
     path('api/user-student/', include('user_student.urls')),
     path('user-admin/', include('user_admin.urls')),
     path('user-teacher/', include('user_teacher.urls')),
-    path('special-education/', include('special_education.urls'))
+    path('special-education/', include('special_education.urls')),
+    path('api/user-parent/', include('user_parent.urls')),  # Added user_parent URLs
 ]
 
 # Serve media files in development

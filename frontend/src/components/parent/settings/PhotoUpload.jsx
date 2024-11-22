@@ -15,157 +15,110 @@ const dispatchProfileImageUpdate = (imageUrl) => {
   window.dispatchEvent(event);
 };
 
-const PhotoUpload = ({ parentData, refreshParentData }) => {
-  const [profileImage, setProfileImage] = useState(userThree);
+const PhotoUpload = ({ parentData, refreshParentData, onImageUpdate }) => {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(null);
   const [message, setMessage] = useState("");
-  const [imageError, setImageError] = useState(false);
+  const [profileImage, setProfileImage] = useState(
+    parentData?.user_info?.profile_image || userThree
+  );
 
-  const fetchProfileImage = async () => {
-    try {
-      const response = await axiosInstance.get('/user-parent/user-info/profile-image/');
-      console.log('Profile image response:', response.data);
-      
-      if (response.data.profile_image) {
-        setProfileImage(response.data.profile_image);
-        setImageError(false);
-      } else {
-        console.log('No profile image found, using default');
-        setProfileImage(userThree);
-      }
-    } catch (err) {
-      console.error('Error fetching profile image:', err);
-      setImageError(true);
-      setProfileImage(userThree);
-    }
-  };
-
-  useEffect(() => {
-    fetchProfileImage();
-  }, []);
-
+  // Update profile image when parentData changes
   useEffect(() => {
     if (parentData?.user_info?.profile_image) {
       setProfileImage(parentData.user_info.profile_image);
-      setImageError(false);
-    } else {
-      setProfileImage(userThree);
     }
   }, [parentData]);
 
-  // Clear messages after 5 seconds
-  useEffect(() => {
-    let timer;
-    if (message || error) {
-      timer = setTimeout(() => {
-        setMessage("");
-        setError("");
-      }, 5000);
+  const handleImageUpload = async (file) => {
+    if (!file) return;
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setError("File size should not exceed 5MB");
+      return;
     }
-    return () => clearTimeout(timer);
-  }, [message, error]);
 
-  const handleImageUpload = async (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      try {
-        console.log('Starting image upload...');
-        setLoading(true);
-        setError('');
-        setMessage('');
+    // Validate file type
+    const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
+    if (!validTypes.includes(file.type)) {
+      setError("Please upload a valid image file (JPEG, PNG, or GIF)");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+      setMessage("");
+
+      const formData = new FormData();
+      formData.append('profile_image', file);
+
+      const response = await axiosInstance.patch(
+        '/api/user-parent/user-info/profile-image/',
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+
+      console.log('Profile image update response:', response);
+
+      if (response.data && response.data.profile_image) {
+        const imageUrl = response.data.profile_image;
+        setProfileImage(imageUrl);
+        setMessage(response.data.message || 'Profile image updated successfully!');
         
-        // Validate file size (max 5MB)
-        if (file.size > 5 * 1024 * 1024) {
-          console.error('File size exceeds 5MB limit');
-          setError("File size should not exceed 5MB");
-          setLoading(false);
-          return;
+        // Update parent component
+        if (onImageUpdate) {
+          onImageUpdate(imageUrl);
         }
-
-        // Validate file type
-        const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
-        if (!validTypes.includes(file.type)) {
-          console.error('Invalid file type:', file.type);
-          setError("Please upload a valid image file (JPEG, PNG, or GIF)");
-          setLoading(false);
-          return;
+        
+        // Refresh parent data
+        if (refreshParentData) {
+          await refreshParentData();
         }
-
-        const formData = new FormData();
-        formData.append('profile_image', file);
-
-        console.log('Sending image upload request...');
-        const response = await axiosInstance.patch(
-          '/user-parent/user-info/profile-image/',
-          formData,
-          {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-            },
-          }
-        );
-
-        console.log('Upload response:', response.data);
-
-        if (response.data.profile_image) {
-          console.log('Profile image updated successfully:', response.data.profile_image);
-          setMessage('Profile image updated successfully!');
-          setProfileImage(response.data.profile_image);
-          
-          // Dispatch event for profile image update
-          console.log('Dispatching profile image update event...');
-          dispatchProfileImageUpdate(response.data.profile_image);
-          
-          // Refresh parent data
-          try {
-            console.log('Refreshing parent data...');
-            const parentResponse = await axiosInstance.get('/user-parent/current-parent/');
-            if (refreshParentData) {
-              refreshParentData(parentResponse.data);
-            }
-          } catch (err) {
-            console.error('Error refreshing parent data:', err);
-          }
-        }
-      } catch (err) {
-        console.error('Error uploading image:', err);
-        setError(err.response?.data?.error || 'Failed to upload image');
-        setProfileImage(userThree);
-      } finally {
-        setLoading(false);
+      } else {
+        throw new Error(response.data.error || 'Failed to upload image');
       }
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      setError(error.response?.data?.error || error.message || 'Failed to upload image');
+      setProfileImage(userThree);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleImageDelete = async () => {
     try {
       setLoading(true);
-      setError('');
-      setMessage('');
-      
-      const response = await axiosInstance.delete('/user-parent/user-info/profile-image/');
+      setError(null);
+      setMessage("");
 
-      if (response.status === 200) {
+      const response = await axiosInstance.delete('/api/user-parent/user-info/profile-image/');
+
+      if (response.data.message) {
         setProfileImage(userThree);
-        setMessage('Profile image deleted successfully!');
+        setMessage(response.data.message);
         
-        // Dispatch event for profile image deletion
-        dispatchProfileImageUpdate(null);
+        // Update parent component
+        if (onImageUpdate) {
+          onImageUpdate(null);
+        }
         
         // Refresh parent data
-        try {
-          const parentResponse = await axiosInstance.get('/user-parent/current-parent/');
-          if (refreshParentData) {
-            refreshParentData(parentResponse.data);
-          }
-        } catch (err) {
-          console.error('Error refreshing parent data:', err);
+        if (refreshParentData) {
+          await refreshParentData();
         }
+      } else {
+        throw new Error(response.data.error || 'Failed to delete image');
       }
-    } catch (err) {
-      console.error('Error deleting image:', err);
-      setError(err.response?.data?.error || 'Failed to delete image');
+    } catch (error) {
+      console.error('Error deleting image:', error);
+      setError(error.response?.data?.error || error.message || 'Failed to delete image');
     } finally {
       setLoading(false);
     }
@@ -186,12 +139,12 @@ const PhotoUpload = ({ parentData, refreshParentData }) => {
                 <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-blue-500"></div>
               ) : (
                 <img
-                  src={imageError ? userThree : profileImage}
+                  src={profileImage}
                   alt="User"
                   className="h-full w-full object-cover"
                   onError={(e) => {
                     console.error('Image failed to load:', e);
-                    setImageError(true);
+                    setProfileImage(userThree);
                     e.target.src = userThree;
                   }}
                 />
@@ -221,7 +174,7 @@ const PhotoUpload = ({ parentData, refreshParentData }) => {
                   type="file"
                   accept="image/*"
                   className="hidden"
-                  onChange={handleImageUpload}
+                  onChange={(e) => handleImageUpload(e.target.files[0])}
                   disabled={loading}
                 />
               </span>
@@ -236,7 +189,7 @@ const PhotoUpload = ({ parentData, refreshParentData }) => {
               type="file"
               accept="image/*"
               className="absolute inset-0 z-50 m-0 h-full w-full cursor-pointer p-0 opacity-0 outline-none"
-              onChange={handleImageUpload}
+              onChange={(e) => handleImageUpload(e.target.files[0])}
               disabled={loading}
             />
             <div className="flex flex-col text-gray-400 items-center justify-center space-y-3">
