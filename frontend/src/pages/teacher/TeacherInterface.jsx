@@ -9,7 +9,6 @@ import SpecialEducationTool from "./SpeEdTool";
 import Messages from "./Messages";
 import TeacherSettings from "./TeacherSettings";
 import AccountSettings from "./AccountSettings";
-import Breadcrumb from "../../components/Breadcrumbs";
 import Logout from "../../components/Logout";
 
 function TeacherInterface() {
@@ -88,7 +87,6 @@ function TeacherInterface() {
             darkMode ? "bg-gray-700 text-white" : "bg-green-100 text-black"
           } bg-opacity-60 mt-0 overflow-y-auto`}
         >
-          <Breadcrumb pageName={currentTab} />
           {currentTab === "Dashboard" && (
             <TeacherDashboard darkMode={darkMode} />
           )}

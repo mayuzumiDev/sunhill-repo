@@ -25,6 +25,20 @@ class ClassroomCreateView(generics.CreateAPIView):
             'errors': serializer.errors
         }, status=status.HTTP_400_BAD_REQUEST)
 
+class ClassroomEditView(generics.UpdateAPIView):
+    permission_classes = [IsAuthenticated]
+    queryset = Classroom.objects.all()
+    serializer_class = ClassroomEditSerializer
+    http_method_names = ['patch'] 
+
+    def partial_update(self, request, pk=None, *args, **kwargs):
+        response = super().partial_update(request, pk, *args, **kwargs)
+        
+        return JsonResponse({
+            'message': 'Classroom updated successfully',
+            'data': response.data
+        }, status=status.HTTP_200_OK)
+
 class ClassroomDeleteView(generics.DestroyAPIView):
     permission_classes = [IsAuthenticated]
     queryset = Classroom.objects.all()
