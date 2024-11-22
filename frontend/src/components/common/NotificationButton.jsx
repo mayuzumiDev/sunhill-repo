@@ -157,7 +157,7 @@ const NotificationButton = ({ userRole, userBranch }) => {
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={handleNotificationClick}
-        className="relative p-2 text-gray-900 hover:text-blue-600 transition-colors duration-200 focus:outline-none"
+        className="relative p-2 text-orange-500 hover:text-blue-600 transition-colors duration-200 focus:outline-none"
         aria-label="Notifications"
       >
         <FontAwesomeIcon icon={faBell} className="text-xl md:text-2xl" />
