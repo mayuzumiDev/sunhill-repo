@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { axiosInstance } from "../../utils/axiosInstance";
 import { PROFILE_IMAGE_UPDATED } from "../admin/settings/PhotoUpload";
 import userThree from '../../assets/img/home/unknown.jpg';
+import NotificationButton from "../common/NotificationButton";
 
 const TopNavbar = ({
   setShowLogoutDialog,
@@ -78,7 +79,9 @@ const TopNavbar = ({
             email: adminData.email,
             contact_no: adminData.user_info?.contact_no,
             first_name: adminData.first_name,
-            last_name: adminData.last_name
+            last_name: adminData.last_name,
+            role: adminData.role,
+            branch: adminData.branch
           });
         }
       } catch (error) {
@@ -208,57 +211,7 @@ const TopNavbar = ({
           </div>
 
           {/* Notification Bell */}
-          <div className="relative">
-            <button 
-              onClick={toggleNotifDropdown}
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              title="Notifications (Alt+N)"
-              aria-label={`${notificationCount} notifications`}
-            >
-              <div className="relative">
-                <FaBell className="text-gray-700 text-xl" />
-                {notificationCount > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center animate-pulse">
-                    {notificationCount}
-                  </span>
-                )}
-              </div>
-            </button>
-
-            {isNotifDropdownOpen && (
-              <div
-                ref={notifDropdownRef}
-                className="absolute -right-10 top-16 bg-white rounded-lg shadow-xl border border-gray-200 z-10 w-56 sm:w-80 py-2 transform opacity-0 scale-95 animate-dropdown"
-              >
-                <div className="sticky top-0 bg-white p-2 sm:p-3 border-b border-gray-200">
-                  <h5 className="text-xs sm:text-sm font-bold text-gray-800">Notifications</h5>
-                </div>
-                <div className="divide-y divide-gray-100">
-                  {notifications.map((notif, idx) => (
-                    <div 
-                      key={idx} 
-                      className="p-2 sm:p-3 hover:bg-gray-50 transition-colors duration-200"
-                    >
-                      <p className="text-xs sm:text-sm text-gray-800">{notif.message}</p>
-                      <div className="flex items-center justify-between mt-1.5 sm:mt-2">
-                        <span className="text-[10px] sm:text-xs text-gray-500">{notif.date}</span>
-                        {notif.category && (
-                          <span className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 bg-blue-100 text-blue-800 rounded-full">
-                            {notif.category}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                  {notifications.length === 0 && (
-                    <div className="p-3 sm:p-4 text-center text-xs sm:text-sm text-gray-500">
-                      No new notifications
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
+          <NotificationButton userRole={adminInfo?.role} userBranch={adminInfo?.branch} />
 
           {/* User Profile */}
           <div className="relative" ref={dropdownRef}>

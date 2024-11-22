@@ -8,6 +8,7 @@ from .views.branches.user_count_views import *
 from .views.profile.admin_profile_views import *
 from .views.events.event_manage_views import *
 from .views.events.event_list_views import *
+from .views.events.event_create_views import EventCreateView
 
 urlpatterns = [
     path('current-admin/', CurrentAdminView.as_view(), name="current_admin" ),
@@ -27,8 +28,9 @@ urlpatterns = [
     path('parent-list/', ParentListView.as_view(), name='parent_list'),
     path('public-user-list/', PublicUserListView.as_view(), name='public_user_list'),
     path('branch/user-list/', BranchUserCountView.as_view(), name='branch_user_list'),
-    path('event/create/', EventCreateView.as_view(), name='event_create'),
+    # Event URLs
+    path('event/list/', EventListView.as_view(), name='event-list'),
+    path('event/create/', EventCreateView.as_view(), name='event-create'),
     path('event/edit/<int:pk>/', EventUpdateView.as_view(), name='event_edit'),
     path('event/delete/<int:pk>/', EventDeleteView.as_view(), name='event_delete'),
-    path('event/list/', EventListView.as_view(), name='event_list'),
 ]

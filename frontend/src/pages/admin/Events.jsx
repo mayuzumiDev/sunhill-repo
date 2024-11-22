@@ -63,18 +63,40 @@ const Events = () => {
       setIsLoading(true);
       setIsEmpty(false);
 
-      const response = await axiosInstance.get("/user-admin/event/list/");
+      // Get user role and branch from localStorage
+      const userRole = localStorage.getItem('userRole');
+      const userBranch = localStorage.getItem('userBranch');
+
+      console.log('Fetching events with:', {
+        role: userRole || 'admin',  // Default to admin for this component
+        branch: userBranch || 'all' // Default to all branches for admin
+      });
+
+      const response = await axiosInstance.get("/user-admin/event/list/", {
+        params: {
+          role: 'admin',  // Always fetch all events in admin view
+          branch: 'all'   // Always fetch from all branches in admin view
+        }
+      });
+      
       if (response.status === 200) {
-        const eventData = response.data.events_list;
-        console.log("Event List: ", eventData);
+        const eventData = response.data.events_list || [];
+        console.log('Received events:', eventData.length);
+        
         if (eventData.length === 0) {
           setIsEmpty(true);
         }
 
-        setEvents(Array.isArray(eventData) ? eventData : []);
+        // Sort events by date
+        const sortedEvents = eventData.sort((a, b) => new Date(b.date) - new Date(a.date));
+        setEvents(sortedEvents);
+        console.log('Set events:', eventData.length);
       }
     } catch (error) {
       console.error("Error fetching events:", error);
+      setErrorMessage("Failed to fetch events. Please try again.");
+      setEvents([]);
+      setIsEmpty(true);
     } finally {
       setIsLoading(false);
     }

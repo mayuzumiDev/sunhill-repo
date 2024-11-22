@@ -2,10 +2,10 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaCaretDown } from "react-icons/fa";
 import Button from "../LogoutButton";
-import Notif from "../NotifButton";
 import Switch from "../Switch";
 import unknown from "../../assets/img/home/unknown.jpg";
 import { axiosInstance } from "../../utils/axiosInstance";
+import NotificationButton from "../common/NotificationButton";
 
 const TopNavbar = ({
   setShowLogoutDialog,
@@ -28,7 +28,12 @@ const TopNavbar = ({
     try {
       const response = await axiosInstance.get("/user-teacher/current-teacher/");
       if (response.data?.teacher_profile) {
-        setTeacherData(response.data.teacher_profile);
+        const profile = response.data.teacher_profile;
+        setTeacherData(profile);
+        
+        // Store role and branch in localStorage
+        localStorage.setItem('userRole', profile.user_info?.role || 'teacher');
+        localStorage.setItem('userBranch', profile.user_info?.branch_name || '');
       }
     } catch (error) {
       console.error('Error fetching teacher data:', error);
@@ -116,167 +121,121 @@ const TopNavbar = ({
         </button>
 
         {/* Notification Button */}
-        <div className="relative">
+        <NotificationButton 
+          userRole={localStorage.getItem('userRole')}
+          userBranch={localStorage.getItem('userBranch')}
+          notifications={notifications} 
+        />
+
+        {/* Profile Dropdown */}
+        <div className="relative" ref={profileDropdownRef}>
           <button
-            onClick={toggleNotifDropdown}
-            className={`flex items-center ${
-              darkMode ? "text-white" : "text-green-700"
-            } focus:outline-none relative`}
+            onClick={toggleProfileDropdown}
+            className="flex items-center text-green-700 focus:outline-none"
           >
-            <Notif />
-            <span className="absolute -top-2 -right-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 bg-red-600 rounded-full">
-              {notifications.length > 0 ? notifications.length : 0}
-            </span>
+            <img
+              src={profileImage}
+              alt="Profile"
+              className={`w-10 h-10 rounded-full border-2 object-cover ${
+                darkMode ? "border-gray-700" : "border-green-500"
+              }`}
+              onError={(e) => {
+                console.error('Image failed to load:', e);
+                setProfileImage(unknown);
+                e.target.src = unknown;
+              }}
+            />
+
+            {/* Profile Details (Shown only on medium screens and up) */}
+            <div className="hidden sm:flex flex-col ml-2 items-start">
+              <span
+                className={`font-semibold text-sm overflow-hidden whitespace-nowrap text-ellipsis ${
+                  darkMode ? "text-white" : "text-green-700"
+                }`}
+                style={{ maxWidth: "150px" }}
+              >
+                {teacherData?.first_name || ''} {teacherData?.last_name || ''}
+              </span>
+              <span className="text-gray-400 text-xs">
+                {teacherData?.role || 'Teacher'}
+              </span>
+              <span className="text-green-500 font-bold text-xs">
+                {teacherData?.branch_name || ''}
+              </span>
+            </div>
+
+            <FaCaretDown className="ml-1" />
           </button>
 
-          {/* Notification Dropdown */}
-          {isNotifDropdownOpen && (
+          {/* Profile Dropdown */}
+          {isProfileDropdownOpen && (
             <div
-              ref={notifDropdownRef}
-              className={`absolute right-0 top-15 mt-1 rounded-md shadow-xl border border-gray-300 z-20 p-4 w-56 ${
-                darkMode ? "bg-gray-800" : "bg-white"
+              ref={profileDropdownRef}
+              className={`absolute right-0 top-12 mt-3 rounded-md shadow-xl z-10 p-4 w-56 ${
+                darkMode
+                  ? "bg-gray-900 border-gray-700"
+                  : "bg-white border-gray-300"
               }`}
             >
-              <h5
-                className={`text-sm font-bold ${
-                  darkMode ? "text-white" : "text-gray-800"
-                }`}
-              >
-                Notifications
-              </h5>
+              {/* Account Information (Visible on small screens only) */}
+              <div className="sm:hidden mb-2">
+                <h5
+                  className={`text-md font-bold mb-2 ${
+                    darkMode ? "text-white" : "text-gray-800"
+                  }`}
+                >
+                  Account
+                </h5>
+                <span
+                  className={`font-semibold text-sm px-2 py-1 ${
+                    darkMode ? "text-white" : "text-green-700"
+                  }`}
+                >
+                  {teacherData?.first_name || ''} {teacherData?.last_name || ''}
+                </span>
+                <p className="text-gray-400 text-xs px-2 ">
+                  {teacherData?.role || 'Teacher'}
+                </p>
+                <p className="text-green-500 font-bold text-xs px-2 ">
+                  {teacherData?.branch_name || ''}
+                </p>
+              </div>
               <ul className="mt-2">
-                {notifications.length > 0 ? (
-                  notifications.map((notif, idx) => (
-                    <li
-                      key={idx}
-                      className={`border-b border-gray-200 py-2 ${
-                        darkMode ? "text-white" : "text-black"
-                      }`}
-                    >
-                      <p className="text-sm">{notif.message}</p>
-                      <p className="text-xs text-gray-500">{notif.date}</p>
-                    </li>
-                  ))
-                ) : (
-                  <li className="py-2 text-gray-500 text-sm">
-                    No notifications
-                  </li>
-                )}
+                <h5
+                  className={`text-sm font-bold mb-2 hidden lg:block ${
+                    darkMode ? "text-white" : "text-gray-800"
+                  }`}
+                >
+                  Account
+                </h5>
+                <li>
+                  <button
+                    onClick={() => {
+                      handleTabClick("Account Settings");
+                      setIsProfileDropdownOpen(false);
+                    }}
+                    className={`text-sm px-2 py-1 w-full text-left rounded ${
+                      darkMode
+                        ? "text-white hover:text-green-700 hover:bg-gray-800"
+                        : "text-gray-700 hover:text-green-700 hover:bg-gray-200"
+                    }`}
+                  >
+                    Account Settings
+                  </button>
+                </li>
+                <li className="py-2 ml-2">
+                  <Button
+                    onClick={() => {
+                      setShowLogoutDialog(true);
+                      setIsProfileDropdownOpen(false);
+                    }}
+                    className="text-sm text-gray-700 hover:text-red-600 hover:bg-gray-200 w-full text-left px-2 py-1 rounded"
+                  />
+                </li>
               </ul>
             </div>
           )}
         </div>
-
-        {teacherData && (
-          <div className="relative">
-            <button
-              onClick={toggleProfileDropdown}
-              className="flex items-center text-green-700 focus:outline-none"
-            >
-              <img
-                src={profileImage}
-                alt="Profile"
-                className={`w-10 h-10 rounded-full border-2 object-cover ${
-                  darkMode ? "border-gray-700" : "border-green-500"
-                }`}
-                onError={(e) => {
-                  console.error('Image failed to load:', e);
-                  setProfileImage(unknown);
-                  e.target.src = unknown;
-                }}
-              />
-
-              {/* Profile Details (Shown only on medium screens and up) */}
-              <div className="hidden sm:flex flex-col ml-2 items-start">
-                <span
-                  className={`font-semibold text-sm overflow-hidden whitespace-nowrap text-ellipsis ${
-                    darkMode ? "text-white" : "text-green-700"
-                  }`}
-                  style={{ maxWidth: "150px" }}
-                >
-                  {teacherData.first_name} {teacherData.last_name}
-                </span>
-                <span className="text-gray-400 text-xs">
-                  {teacherData.role}
-                </span>
-                <span className="text-green-500 font-bold text-xs">
-                  {teacherData.branch_name}
-                </span>
-              </div>
-
-              <FaCaretDown className="ml-1" />
-            </button>
-
-            {/* Profile Dropdown */}
-            {isProfileDropdownOpen && (
-              <div
-                ref={profileDropdownRef}
-                className={`absolute right-0 top-12 mt-3 rounded-md shadow-xl z-10 p-4 w-56 ${
-                  darkMode
-                    ? "bg-gray-900 border-gray-700"
-                    : "bg-white border-gray-300"
-                }`}
-              >
-                {/* Account Information (Visible on small screens only) */}
-                <div className="sm:hidden mb-2">
-                  <h5
-                    className={`text-md font-bold mb-2 ${
-                      darkMode ? "text-white" : "text-gray-800"
-                    }`}
-                  >
-                    Account
-                  </h5>
-                  <span
-                    className={`font-semibold text-sm px-2 py-1 ${
-                      darkMode ? "text-white" : "text-green-700"
-                    }`}
-                  >
-                    {teacherData.first_name} {teacherData.last_name}
-                  </span>
-                  <p className="text-gray-400 text-xs px-2 ">
-                    {teacherData.role}
-                  </p>
-                  <p className="text-green-500 font-bold text-xs px-2 ">
-                    {teacherData.branch_name}
-                  </p>
-                </div>
-                <ul className="mt-2">
-                  <h5
-                    className={`text-sm font-bold mb-2 hidden lg:block ${
-                      darkMode ? "text-white" : "text-gray-800"
-                    }`}
-                  >
-                    Account
-                  </h5>
-                  <li>
-                    <button
-                      onClick={() => {
-                        handleTabClick("Account Settings");
-                        setIsProfileDropdownOpen(false);
-                      }}
-                      className={`text-sm px-2 py-1 w-full text-left rounded ${
-                        darkMode
-                          ? "text-white hover:text-green-700 hover:bg-gray-800"
-                          : "text-gray-700 hover:text-green-700 hover:bg-gray-200"
-                      }`}
-                    >
-                      Account Settings
-                    </button>
-                  </li>
-                  <li className="py-2 ml-2">
-                    <Button
-                      onClick={() => {
-                        setShowLogoutDialog(true);
-                        setIsProfileDropdownOpen(false);
-                      }}
-                      className="text-sm text-gray-700 hover:text-red-600 hover:bg-gray-200 w-full text-left px-2 py-1 rounded"
-                    />
-                  </li>
-                </ul>
-              </div>
-            )}
-          </div>
-        )}
       </div>
     </div>
   );

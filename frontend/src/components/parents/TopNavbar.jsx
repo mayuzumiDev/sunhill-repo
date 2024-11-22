@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { FaBars, FaMoon, FaSun, FaUser, FaChevronDown } from "react-icons/fa";
 import userThree from '../../assets/img/home/unknown.jpg';
 import { axiosInstance } from '../../utils/axiosInstance';
 import Parent from '../../assets/img/home/mom.jpg'
+import NotificationButton from "../common/NotificationButton";
 
 const TopNavbar = ({
   setCurrentTab,
@@ -100,15 +101,10 @@ const TopNavbar = ({
           </div>
 
           {/* Right side: Dark mode toggle and profile */}
-          <div className="flex items-center">
-            <button
-              onClick={toggleDarkMode}
-              className={`p-1 rounded-full ${
-                darkMode ? 'text-yellow-400 hover:text-yellow-300' : 'text-orange-400 hover:text-orange-600'
-              } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white mr-4`}
-            >
-              {darkMode ? <FaSun className="h-6 w-6" /> : <FaMoon className="h-6 w-6" />}
-            </button>
+          <div className="flex items-center space-x-4">
+            <NotificationButton />
+            
+            {/* Profile Dropdown */}
             <div className="relative">
               <button
                 onClick={toggleDropdown}
@@ -156,6 +152,14 @@ const TopNavbar = ({
                 </div>
               )}
             </div>
+            <button
+              onClick={toggleDarkMode}
+              className={`p-1 rounded-full ${
+                darkMode ? 'text-yellow-400 hover:text-yellow-300' : 'text-orange-400 hover:text-orange-600'
+              } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white mr-4`}
+            >
+              {darkMode ? <FaSun className="h-6 w-6" /> : <FaMoon className="h-6 w-6" />}
+            </button>
           </div>
         </div>
       </div>

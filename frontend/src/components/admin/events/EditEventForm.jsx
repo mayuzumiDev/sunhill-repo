@@ -8,31 +8,38 @@ const EditEventForm = ({ isOpen, onClose, onSuccess, editData }) => {
     description: "",
     date: "",
     target_audience: "all",
-    branch: "all",
+    branch: localStorage.getItem('userBranch') || "all",
     location: "",
   });
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const userRole = localStorage.getItem('userRole');
+  const userBranch = localStorage.getItem('userBranch');
 
   useEffect(() => {
     if (editData) {
+      // If user is not admin, force their branch
+      const effectiveBranch = userRole === 'admin' 
+        ? (editData.branch || "all")
+        : (userBranch || "all");
+
       setFormData({
         title: editData.title || "",
         description: editData.description || "",
         date: formatDateForInput(editData.date),
         target_audience: editData.target_audience || "all",
-        branch: editData.branch || "all",
+        branch: effectiveBranch,
         location: editData.location || "",
       });
     }
-  }, [editData]);
+  }, [editData, userRole, userBranch]);
 
   const formatDateForInput = (dateString) => {
     if (!dateString) return "";
     const date = new Date(dateString);
     if (isNaN(date.getTime())) return "";
-    return date.toISOString().slice(0, 16); // This will format to yyyy-MM-ddThh:mm
+    return date.toISOString().slice(0, 16);
   };
 
   const handleChange = (e) => {
@@ -49,41 +56,29 @@ const EditEventForm = ({ isOpen, onClose, onSuccess, editData }) => {
 
     try {
       setIsLoading(true);
-      console.log("Submitting data:", formData); // Debug log
 
-      // Format the date to ISO string format
       const submissionData = {
         ...formData,
         date: formData.date ? new Date(formData.date).toISOString() : null,
+        // If not admin, force the branch to be the user's branch
+        branch: userRole === 'admin' ? formData.branch : userBranch
       };
-      console.log("Formatted data:", submissionData); // Debug log
 
-      const response = await axiosInstance.patch(
+      console.log('Updating event:', submissionData);
+
+      const response = await axiosInstance.put(
         `/user-admin/event/edit/${editData.id}/`,
         submissionData
       );
-      console.log("Response:", response); // Debug log
 
       if (response.status === 200) {
-        if (onSuccess) onSuccess();
-        if (onClose) onClose();
+        onSuccess();
+        onClose();
       }
     } catch (error) {
       console.error("Error updating event:", error);
-      console.error("Error response:", error.response); // Debug log
-      
-      // Handle different types of error responses
-      let errorMessage;
-      if (error.response?.data?.errors?.date) {
-        errorMessage = error.response.data.errors.date[0];
-      } else if (error.response?.data?.errors) {
-        errorMessage = Object.values(error.response.data.errors)[0][0];
-      } else if (error.response?.data?.message) {
-        errorMessage = error.response.data.message;
-      } else {
-        errorMessage = "Failed to update event. Please try again.";
-      }
-      
+      const errorMessage = error.response?.data?.message || 
+                          "Failed to update event. Please try again.";
       setError(errorMessage);
     } finally {
       setIsLoading(false);
@@ -93,23 +88,29 @@ const EditEventForm = ({ isOpen, onClose, onSuccess, editData }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="font-montserrat fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg w-full max-w-lg mx-4 relative">
-        {isLoading && <SchawnnahJLoader />}
-        {/* Header */}
-        <div className="flex justify-center items-center p-6 border-b">
-          <h2 className="text-2xl font-bold text-gray-800">
-            Edit Event & Announcements
-          </h2>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg w-full max-w-lg mx-4">
+        {isLoading && (
+          <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-80 z-10">
+            <SchawnnahJLoader />
+          </div>
+        )}
+        
+        <div className="flex justify-between items-center p-6 border-b">
+          <h2 className="text-2xl font-bold text-gray-800">Edit Event</h2>
+          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+            <span className="sr-only">Close</span>
+            ×
+          </button>
         </div>
 
-        {/* Form */}
+        {error && (
+          <div className="mx-6 mt-4 p-3 bg-red-100 text-red-700 rounded-md">
+            {error}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="p-6">
-          {error && (
-            <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md">
-              {error}
-            </div>
-          )}
           <div className="space-y-4">
             {/* Title */}
             <div>
@@ -181,24 +182,33 @@ const EditEventForm = ({ isOpen, onClose, onSuccess, editData }) => {
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-1">
-                Branch
-              </label>
-              <select
-                name="branch"
-                value={formData.branch}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-                required
-              >
-                <option value="all">All</option>
-                <option value="batangas">Batangas</option>
-                <option value="rosario">Rosario</option>
-                <option value="bauan">Bauan</option>
-                <option value="metrotagaytay">Metro Tagaytay</option>
-              </select>
-            </div>
+            {/* Branch - Only show to admin users */}
+            {userRole === 'admin' ? (
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-1">
+                  Branch
+                </label>
+                <select
+                  name="branch"
+                  value={formData.branch}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  required
+                >
+                  <option value="all">All Branches</option>
+                  <option value="batangas">Batangas</option>
+                  <option value="rosario">Rosario</option>
+                  <option value="bauan">Bauan</option>
+                  <option value="metrotagaytay">Metro Tagaytay</option>
+                </select>
+              </div>
+            ) : (
+              <input 
+                type="hidden" 
+                name="branch" 
+                value={userBranch || 'all'} 
+              />
+            )}
 
             {/* Location */}
             <div>
