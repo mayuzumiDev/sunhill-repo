@@ -1,95 +1,94 @@
 import React, { useState, useEffect } from 'react';
 import { axiosInstance } from "../../utils/axiosInstance";
-import { useTeacher } from "../../context/TeacherContext";
 import userThree from '../../assets/img/home/unknown.jpg';
+import { useNavigate } from 'react-router-dom';
 
 const AccountSettings = () => {
-  const { teacherData, refreshTeacherData } = useTeacher();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [profileImage, setProfileImage] = useState(userThree);
   const [imageError, setImageError] = useState(false);
 
-  useEffect(() => {
-    const fetchTeacherData = async () => {
-      try {
-        const response = await axiosInstance.get("/user-teacher/current-teacher/");
-        console.log('Full response:', response);
-        console.log('Teacher profile response:', response.data);
-        
-        if (!response.data.teacher_profile) {
-          throw new Error('No teacher profile data received');
-        }
-        
-        const userData = response.data.teacher_profile;
-        setFormData({
-          fullName: `${userData.first_name || ''} ${userData.last_name || ''}`.trim(),
-          phoneNumber: userData.user_info?.contact_no || '',
-          emailAddress: userData.email || '',
-          username: userData.username || '',
-          branch_name: userData.branch_name || ''
-        });
-        
-        setImageError(false); // Reset image error state
-        // Update profile image handling
-        if (userData.user_info?.profile_image) {
-          const imageUrl = userData.user_info.profile_image;
-          console.log('Raw profile image URL:', imageUrl);
-          
-          let fullImageUrl;
-          if (imageUrl.startsWith('http')) {
-            fullImageUrl = imageUrl;
-          } else if (imageUrl.startsWith('/')) {
-            fullImageUrl = `${import.meta.env.VITE_API_URL}${imageUrl}`;
-          } else {
-            fullImageUrl = `${import.meta.env.VITE_API_URL}/${imageUrl}`;
-          }
-          
-          console.log('Full image URL:', fullImageUrl);
-          setProfileImage(fullImageUrl);
-        } else {
-          console.log('No profile image found, using default');
-          setProfileImage(userThree);
-        }
-        setLoading(false);
-      } catch (err) {
-        console.error('Error fetching teacher data:', err);
-        setError(err.response?.data?.error || err.message || 'Failed to load profile data');
-        setLoading(false);
-      }
-    };
+  const [formData, setFormData] = useState({
+    fullName: '',
+    phoneNumber: '',
+    emailAddress: '',
+    username: '',
+    branch_name: ''
+  });
 
+  const fetchTeacherData = async () => {
+    try {
+      setLoading(true);
+      setError('');
+      
+      console.log('Fetching teacher data...');
+      const response = await axiosInstance.get("/user-teacher/current-teacher/");
+      console.log('Teacher API Response:', response.data);
+      
+      if (!response.data || !response.data.teacher_profile) {
+        throw new Error('No teacher profile data received');
+      }
+      
+      const userData = response.data.teacher_profile;
+      console.log('Teacher Profile Data:', userData);
+      
+      // Update form data with user information
+      const updatedFormData = {
+        fullName: `${userData.first_name || ''} ${userData.last_name || ''}`.trim(),
+        phoneNumber: userData.user_info?.contact_no || '',
+        emailAddress: userData.email || '',
+        username: userData.username || '',
+        branch_name: userData.branch_name || ''
+      };
+      
+      console.log('Updated Form Data:', updatedFormData);
+      setFormData(updatedFormData);
+      
+      // Handle profile image
+      if (userData.user_info?.profile_image) {
+        const imageUrl = userData.user_info.profile_image;
+        console.log('Profile Image URL:', imageUrl);
+        
+        let fullImageUrl;
+        if (imageUrl.startsWith('http')) {
+          fullImageUrl = imageUrl;
+        } else {
+          const baseUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+          fullImageUrl = `${baseUrl}${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`;
+        }
+        
+        console.log('Full Image URL:', fullImageUrl);
+        setProfileImage(fullImageUrl);
+        setImageError(false);
+      } else {
+        console.log('No profile image found, using default');
+        setProfileImage(userThree);
+      }
+    } catch (err) {
+      console.error('Error fetching teacher data:', err);
+      const errorMessage = err.response?.data?.error || err.message || 'Failed to load profile data';
+      setError(errorMessage);
+      
+      if (err.response?.status === 401) {
+        navigate('/login');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch teacher data when component mounts
+  useEffect(() => {
+    console.log('Component mounted, fetching teacher data...');
     fetchTeacherData();
   }, []);
 
-  const [formData, setFormData] = useState({
-    fullName: teacherData?.first_name + ' ' + teacherData?.last_name,
-    phoneNumber: teacherData?.user_info?.contact_no || '',
-    emailAddress: teacherData?.email || '',
-    username: teacherData?.username || '',
-    branch_name: teacherData?.branch_name || ''
-  });
-
-  useEffect(() => {
-    if (teacherData) {
-      setFormData({
-        fullName: `${teacherData.first_name || ''} ${teacherData.last_name || ''}`.trim(),
-        phoneNumber: teacherData.user_info?.contact_no || '',
-        emailAddress: teacherData.email || '',
-        username: teacherData.username || '',
-        branch_name: teacherData.branch_name || ''
-      });
-
-      if (teacherData.user_info?.profile_image) {
-        setProfileImage(teacherData.user_info.profile_image);
-      }
-    }
-  }, [teacherData]);
-
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -110,16 +109,20 @@ const AccountSettings = () => {
         branch_name: formData.branch_name
       };
 
+      console.log('Updating profile with data:', updateData);
       await axiosInstance.patch('/user-teacher/profile/update/', updateData);
       setMessage('Profile updated successfully!');
       
-      // Clear success message after 5 seconds
+      // Dispatch event to notify TopNavbar
+      window.dispatchEvent(new Event('profileUpdated'));
+      
       setTimeout(() => {
         setMessage('');
-      }, 5000);
+      }, 3000);
       
-      await refreshTeacherData();
+      await fetchTeacherData();
     } catch (err) {
+      console.error('Error updating profile:', err);
       setError(err.response?.data?.error || 'Failed to update profile');
     }
   };
@@ -142,18 +145,14 @@ const AccountSettings = () => {
           setProfileImage(response.data.image_url);
           setMessage('Profile image updated successfully!');
           
-          // Clear success message after 3 seconds
+          // Dispatch event to notify TopNavbar
+          window.dispatchEvent(new Event('profileUpdated'));
+          
           setTimeout(() => {
             setMessage('');
           }, 3000);
           
-          // Refresh teacher data immediately
-          await refreshTeacherData();
-          
-          // Force a small delay and refresh again to ensure the new image is loaded
-          setTimeout(async () => {
-            await refreshTeacherData();
-          }, 500);
+          await fetchTeacherData();
         }
       } catch (err) {
         console.error('Error uploading image:', err);
@@ -171,18 +170,14 @@ const AccountSettings = () => {
         setProfileImage(userThree);
         setMessage('Profile image deleted successfully!');
         
-        // Clear success message after 3 seconds
+        // Dispatch event to notify TopNavbar
+        window.dispatchEvent(new Event('profileUpdated'));
+        
         setTimeout(() => {
           setMessage('');
         }, 3000);
         
-        // Refresh teacher data immediately
-        await refreshTeacherData();
-        
-        // Force a small delay and refresh again to ensure the update is propagated
-        setTimeout(async () => {
-          await refreshTeacherData();
-        }, 500);
+        await fetchTeacherData();
       }
     } catch (err) {
       console.error('Error deleting image:', err);

@@ -5,7 +5,7 @@ import Button from "../LogoutButton";
 import Notif from "../NotifButton";
 import Switch from "../Switch";
 import unknown from "../../assets/img/home/unknown.jpg";
-import { useTeacher } from "../../context/TeacherContext";
+import { axiosInstance } from "../../utils/axiosInstance";
 
 const TopNavbar = ({
   setShowLogoutDialog,
@@ -16,7 +16,7 @@ const TopNavbar = ({
   darkMode,
   toggleDarkMode,
 }) => {
-  const { teacherData, refreshTeacherData } = useTeacher();
+  const [teacherData, setTeacherData] = useState(null);
   const [profileImage, setProfileImage] = useState(unknown);
   const [isNotifDropdownOpen, setIsNotifDropdownOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
@@ -24,9 +24,20 @@ const TopNavbar = ({
   const profileDropdownRef = useRef(null);
   const navigate = useNavigate();
 
+  const fetchTeacherData = async () => {
+    try {
+      const response = await axiosInstance.get("/user-teacher/current-teacher/");
+      if (response.data?.teacher_profile) {
+        setTeacherData(response.data.teacher_profile);
+      }
+    } catch (error) {
+      console.error('Error fetching teacher data:', error);
+    }
+  };
+
   useEffect(() => {
-    refreshTeacherData();
-  }, [refreshTeacherData]);
+    fetchTeacherData();
+  }, []);
 
   useEffect(() => {
     if (teacherData?.user_info?.profile_image) {
@@ -37,6 +48,16 @@ const TopNavbar = ({
       setProfileImage(unknown);
     }
   }, [teacherData]);
+
+  useEffect(() => {
+    const handleProfileUpdate = () => {
+      console.log('Profile update detected, refreshing data...');
+      fetchTeacherData();
+    };
+
+    window.addEventListener('profileUpdated', handleProfileUpdate);
+    return () => window.removeEventListener('profileUpdated', handleProfileUpdate);
+  }, []);
 
   const toggleNotifDropdown = () => setIsNotifDropdownOpen((prev) => !prev);
   const toggleProfileDropdown = () => setIsProfileDropdownOpen((prev) => !prev);
@@ -71,7 +92,7 @@ const TopNavbar = ({
         setCurrentTab(tab);
       }
     },
-    [setCurrentTab, currentTab, navigate]
+    [setCurrentTab, currentTab]
   );
 
   return (
