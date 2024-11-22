@@ -6,12 +6,14 @@ import AddClassroomModal from "../../components/teacher/classroom/AddClassroomMo
 import EditClassroomModal from "../../components/modal/teacher/classroom/EditClassroomModal";
 import ClassroomCard from "../../components/teacher/classroom/ClassroomCard";
 import ConfirmDeleteModal from "../../components/modal/teacher/ConfirmDeleteModal";
+import AddStudentModal from "../../components/modal/teacher/classroom/AddStudentModal";
 
 const ManageLessons = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showAddStudent, setShowAddStudent] = useState(false);
 
   const [classrooms, setClassrooms] = useState([]);
   const [selectedClassroom, setSelectedClassroom] = useState(null);
@@ -28,6 +30,7 @@ const ManageLessons = () => {
 
       if (response.status === 200) {
         const classroomList = response.data.classroom_list;
+        console.log("Classroom list: ", classroomList);
         setClassrooms(classroomList);
       }
     } catch (error) {
@@ -52,6 +55,25 @@ const ManageLessons = () => {
     }
   };
 
+  const handleAddStudent = async (data) => {
+    try {
+      const addPromises = data.students.map(({ student }) =>
+        axiosInstance.post(`/user-teacher/classroom/add-student/`, {
+          classroom: selectedClassroom,
+          student: student,
+        })
+      );
+
+      await Promise.all(addPromises);
+      setShowAddStudent(false);
+
+      // Optionally refresh the classroom data
+      fetchClassroom();
+    } catch (error) {
+      console.error("Error adding students to classroom:", error);
+    }
+  };
+
   const handleDeleteClassroom = async (classroomID) => {
     try {
       const response = await axiosInstance.delete(
@@ -69,12 +91,21 @@ const ManageLessons = () => {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">Classroom</h1>
+      <h1 className="text-2xl font-bold mb-4">Classroom</h1>
+
+      {/* Button for creating classroom */}
+      <button
+        onClick={() => setShowModal(true)}
+        className="bg-white border-2 border-purple-500 text-purple-500 px-4 py-2 rounded-lg font-semibold mb-6"
+      >
+        <FontAwesomeIcon icon={faPlus} className="text-sm mr-2" />
+        Create Classroom
+      </button>
 
       {/* Grid List for classroom */}
       {isLoading ? (
         <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-purple-500"></div>
+          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-green-400"></div>
         </div>
       ) : classrooms.length === 0 ? (
         <p className="text-gray-600">
@@ -94,19 +125,14 @@ const ManageLessons = () => {
                 setShowDeleteModal(true);
                 setSelectedClassroom(classroom.id);
               }}
+              addStudent={() => {
+                setShowAddStudent(true);
+                setSelectedClassroom(classroom.id);
+              }}
             />
           ))}
         </div>
       )}
-
-      {/* Button for creating classroom */}
-      <button
-        onClick={() => setShowModal(true)}
-        className="mt-6 bg-white border-2 border-purple-500 text-purple-500 px-4 py-2 rounded-lg font-semibold"
-      >
-        <FontAwesomeIcon icon={faPlus} className="text-sm mr-2" />
-        Create Classroom
-      </button>
 
       {/* Modal for Adding Classroom */}
       <AddClassroomModal
@@ -120,6 +146,13 @@ const ManageLessons = () => {
         onClose={() => setShowEditModal(false)}
         onSave={(formData) => handleEditClassroom(selectedClassroom, formData)}
         classroomData={selectedClassroom}
+      />
+
+      {/* Modal for Adding Student to Classroom */}
+      <AddStudentModal
+        isOpen={showAddStudent}
+        onClose={() => setShowAddStudent(false)}
+        onAdd={handleAddStudent}
       />
 
       {/* Modal for confirm delete */}
