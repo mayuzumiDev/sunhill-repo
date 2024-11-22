@@ -2,13 +2,28 @@ import React, { useState, useEffect } from "react";
 import { axiosInstance } from "../../../utils/axiosInstance";
 import SchawnnahJLoader from "../../loaders/SchawnnahJLoader";
 
+const TARGET_AUDIENCE_CHOICES = [
+  { value: 'all', label: 'All' },
+  { value: 'student', label: 'Students' },
+  { value: 'teacher', label: 'Teachers' },
+  { value: 'parent', label: 'Parents' }
+];
+
+const BRANCH_CHOICES = [
+  { value: 'all', label: 'All' },
+  { value: 'batangas', label: 'Batangas' },
+  { value: 'rosario', label: 'Rosario' },
+  { value: 'bauan', label: 'Bauan' },
+  { value: 'metrotagaytay', label: 'Metro Tagaytay' }
+];
+
 const EditEventForm = ({ isOpen, onClose, onSuccess, editData }) => {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     date: "",
     target_audience: "all",
-    branch: localStorage.getItem('userBranch') || "all",
+    branch: "all",
     location: "",
   });
 
@@ -19,21 +34,53 @@ const EditEventForm = ({ isOpen, onClose, onSuccess, editData }) => {
 
   useEffect(() => {
     if (editData) {
-      // If user is not admin, force their branch
-      const effectiveBranch = userRole === 'admin' 
-        ? (editData.branch || "all")
-        : (userBranch || "all");
-
-      setFormData({
+      console.log('Received editData in EditEventForm:', editData);
+      
+      // Convert backend values to match our frontend options
+      let targetAudience = editData.target_audience?.toLowerCase().trim() || "all";
+      let branch = editData.branch?.toLowerCase().trim() || "all";
+      
+      // Log the values we're working with
+      console.log('Processing values:', {
+        originalTargetAudience: editData.target_audience,
+        originalBranch: editData.branch,
+        processedTargetAudience: targetAudience,
+        processedBranch: branch
+      });
+      
+      // Handle plural forms and variations
+      if (targetAudience === "students") targetAudience = "student";
+      if (targetAudience === "teachers") targetAudience = "teacher";
+      if (targetAudience === "parents") targetAudience = "parent";
+      
+      // Ensure values match our options
+      if (!TARGET_AUDIENCE_CHOICES.some(choice => choice.value === targetAudience)) {
+        console.warn(`Invalid target audience value: ${targetAudience}, defaulting to 'all'`);
+        targetAudience = "all";
+      }
+      
+      if (!BRANCH_CHOICES.some(choice => choice.value === branch)) {
+        console.warn(`Invalid branch value: ${branch}, defaulting to 'all'`);
+        branch = "all";
+      }
+      
+      const newFormData = {
         title: editData.title || "",
         description: editData.description || "",
         date: formatDateForInput(editData.date),
-        target_audience: editData.target_audience || "all",
-        branch: effectiveBranch,
+        target_audience: targetAudience,
+        branch: branch,
         location: editData.location || "",
-      });
+      };
+      
+      console.log('Setting form data to:', newFormData);
+      setFormData(newFormData);
     }
-  }, [editData, userRole, userBranch]);
+  }, [editData]);
+
+  useEffect(() => {
+    console.log('Current formData:', formData);
+  }, [formData]);
 
   const formatDateForInput = (dateString) => {
     if (!dateString) return "";
@@ -44,6 +91,19 @@ const EditEventForm = ({ isOpen, onClose, onSuccess, editData }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    console.log(`Updating ${name} to:`, value);
+    
+    // Validate branch and target audience values
+    if (name === 'branch' && !BRANCH_CHOICES.some(choice => choice.value === value)) {
+      console.error('Invalid branch value:', value);
+      return;
+    }
+    
+    if (name === 'target_audience' && !TARGET_AUDIENCE_CHOICES.some(choice => choice.value === value)) {
+      console.error('Invalid target audience value:', value);
+      return;
+    }
+    
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -60,13 +120,11 @@ const EditEventForm = ({ isOpen, onClose, onSuccess, editData }) => {
       const submissionData = {
         ...formData,
         date: formData.date ? new Date(formData.date).toISOString() : null,
-        // If not admin, force the branch to be the user's branch
-        branch: userRole === 'admin' ? formData.branch : userBranch
       };
 
       console.log('Updating event:', submissionData);
 
-      const response = await axiosInstance.put(
+      const response = await axiosInstance.patch(
         `/user-admin/event/edit/${editData.id}/`,
         submissionData
       );
@@ -174,41 +232,32 @@ const EditEventForm = ({ isOpen, onClose, onSuccess, editData }) => {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
                   required
                 >
-                  <option value="all">All</option>
-                  <option value="students">Students</option>
-                  <option value="teachers">Teachers</option>
-                  <option value="parents">Parents</option>
+                  {TARGET_AUDIENCE_CHOICES.map(choice => (
+                    <option key={choice.value} value={choice.value}>
+                      {choice.label}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
 
-            {/* Branch - Only show to admin users */}
-            {userRole === 'admin' ? (
-              <div>
-                <label className="block text-sm font-bold text-gray-700 mb-1">
-                  Branch
-                </label>
-                <select
-                  name="branch"
-                  value={formData.branch}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  required
-                >
-                  <option value="all">All Branches</option>
-                  <option value="batangas">Batangas</option>
-                  <option value="rosario">Rosario</option>
-                  <option value="bauan">Bauan</option>
-                  <option value="metrotagaytay">Metro Tagaytay</option>
-                </select>
-              </div>
-            ) : (
-              <input 
-                type="hidden" 
-                name="branch" 
-                value={userBranch || 'all'} 
-              />
-            )}
+            {/* Branch */}
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-1">Branch</label>
+              <select
+                name="branch"
+                value={formData.branch}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                required
+              >
+                {BRANCH_CHOICES.map(choice => (
+                  <option key={choice.value} value={choice.value}>
+                    {choice.label}
+                  </option>
+                ))}
+              </select>
+            </div>
 
             {/* Location */}
             <div>

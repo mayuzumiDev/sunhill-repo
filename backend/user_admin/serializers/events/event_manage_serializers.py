@@ -5,9 +5,8 @@ from user_admin.models.event_models import Event
 class EventCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
-        fields = ['title', 'description', 'date', 'target_audience', 'branch', 'location', 'attachment', 'expiry_date']
+        fields = ['title', 'description', 'date', 'target_audience', 'branch', 'location', 'expiry_date']
         extra_kwargs = {
-            'attachment': {'required': False},
             'expiry_date': {'required': False},
             'location': {'required': False},
         }
@@ -35,4 +34,3 @@ class EventEditSerializer(serializers.ModelSerializer):
         if value and value < timezone.now():
             raise serializers.ValidationError("Event date cannot be in the past")
         return value
-

@@ -7,7 +7,7 @@ class EventListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Event
-        fields = ['id', 'title', 'description', 'date', 'target_audience', 'location', 'attachment', 'expiry_date', 'created_at', 'formatted_date', 'formatted_created_at']
+        fields = ['id', 'title', 'description', 'date', 'target_audience', 'location', 'expiry_date', 'created_at', 'formatted_date', 'formatted_created_at']
 
     def get_formatted_date(self, obj):
         return obj.date.strftime('%B %d, %Y %I:%M %p')

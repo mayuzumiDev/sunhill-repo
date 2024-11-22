@@ -7,10 +7,9 @@ import { format } from 'date-fns';
 
 const NotificationButton = ({ userRole, userBranch }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [events, setEvents] = useState([]);
+  const [notifications, setNotifications] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
-  const [viewedTimestamp, setViewedTimestamp] = useState(new Date());
   const dropdownRef = useRef(null);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -31,8 +30,8 @@ const NotificationButton = ({ userRole, userBranch }) => {
         storedBranch: localStorage.getItem('userBranch')
       }
     });
-    fetchEvents();
-    const interval = setInterval(fetchEvents, 5 * 60 * 1000);
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 5 * 60 * 1000);
     return () => clearInterval(interval);
   }, [effectiveRole, effectiveBranch]);
 
@@ -47,68 +46,62 @@ const NotificationButton = ({ userRole, userBranch }) => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleNotificationClick = () => {
+  const handleNotificationClick = async () => {
     setIsOpen(!isOpen);
-    if (!isOpen) {
-      setViewedTimestamp(new Date());
-      setUnreadCount(0);
+    if (!isOpen && unreadCount > 0) {
+      // Mark all as read when opening
+      try {
+        await axiosInstance.post('/user-admin/notifications/mark_all_as_read/');
+        setUnreadCount(0);
+        // Update notifications to reflect read status
+        setNotifications(notifications.map(n => ({ ...n, is_read: true })));
+      } catch (error) {
+        console.error('Error marking notifications as read:', error);
+      }
     }
   };
 
-  const fetchEvents = async () => {
+  const fetchNotifications = async () => {
     try {
       setIsLoading(true);
-      console.log('Fetching events with:', { 
+      console.log('Fetching notifications for:', { 
         role: effectiveRole,
-        branch: effectiveBranch,
-        event_type: 'upcoming'
+        branch: effectiveBranch
       });
       
-      const response = await axiosInstance.get('/user-admin/event/list/', {
-        params: { 
-          event_type: 'upcoming',
-          role: effectiveRole,
-          branch: effectiveBranch
-        }
-      });
+      const response = await axiosInstance.get('/user-admin/notifications/');
       
       if (response.status === 200) {
-        const eventData = response.data.events_list || [];
-        console.log('Received events:', eventData.length);
+        const { notifications: notificationData, unread_count } = response.data;
+        console.log('Received notifications:', notificationData?.length);
         
-        // Sort events by date
-        const sortedEvents = eventData
-          .sort((a, b) => new Date(a.date) - new Date(b.date))
-          .filter(event => new Date(event.date) >= new Date()); // Only upcoming events
+        // Sort notifications by date
+        const sortedNotifications = (notificationData || [])
+          .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
         
-        setEvents(sortedEvents);
-        
-        // Calculate unread events
-        const unreadEvents = sortedEvents.filter(
-          event => new Date(event.created_at) > viewedTimestamp
-        );
-        setUnreadCount(unreadEvents.length);
-        console.log('Set unread count:', unreadEvents.length);
+        setNotifications(sortedNotifications);
+        setUnreadCount(unread_count);
+        console.log('Set unread count:', unread_count);
       }
     } catch (error) {
-      console.error('Error fetching events:', error);
-      setEvents([]); // Clear events on error
+      console.error('Error fetching notifications:', error);
+      setNotifications([]); // Clear notifications on error
       setUnreadCount(0);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleEventClick = (event) => {
-    setSelectedEvent(event);
+  const handleEventClick = (notification) => {
+    setSelectedEvent(notification.event);
     setShowModal(true);
     setIsOpen(false);
   };
 
   const handleDeleteEvent = async (eventId) => {
     try {
-      await axiosInstance.delete(`/user-admin/event/${eventId}/`);
-      setEvents(events.filter(event => event.id !== eventId));
+      await axiosInstance.delete(`/user-admin/event/delete/${eventId}/`);
+      setNotifications(notifications.filter(n => n.event.id !== eventId));
       setShowModal(false);
       setUnreadCount(prev => Math.max(0, prev - 1));
     } catch (error) {
@@ -164,7 +157,7 @@ const NotificationButton = ({ userRole, userBranch }) => {
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={handleNotificationClick}
-        className="relative p-2 text-gray-600 hover:text-blue-600 transition-colors duration-200"
+        className="relative p-2 text-gray-900 hover:text-blue-600 transition-colors duration-200"
       >
         <FontAwesomeIcon icon={faBell} className="text-xl" />
         {unreadCount > 0 && (
@@ -181,7 +174,7 @@ const NotificationButton = ({ userRole, userBranch }) => {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-lg z-50 overflow-hidden"
+            className="absolute right-0 ml-10 mt-2 w-80 bg-white rounded-xl shadow-lg z-50 overflow-hidden"
           >
             <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-4 py-3 flex justify-between items-center">
               <h3 className="text-white font-semibold">Notifications</h3>
@@ -198,17 +191,19 @@ const NotificationButton = ({ userRole, userBranch }) => {
             <div className="max-h-96 overflow-y-auto">
               {isLoading ? (
                 <div className="p-4 text-center text-gray-500">Loading...</div>
-              ) : events.length === 0 ? (
+              ) : notifications.length === 0 ? (
                 <div className="p-4 text-center text-gray-500">
                   No new notifications
                 </div>
               ) : (
                 <div className="divide-y divide-gray-100">
-                  {events.map((event) => (
+                  {notifications.map((notification) => (
                     <div
-                      key={event.id}
-                      onClick={() => handleEventClick(event)}
-                      className="p-4 hover:bg-gray-50 transition-colors duration-200 cursor-pointer"
+                      key={notification.id}
+                      onClick={() => handleEventClick(notification)}
+                      className={`p-4 hover:bg-gray-50 transition-colors duration-200 cursor-pointer ${
+                        !notification.is_read ? 'bg-blue-50' : ''
+                      }`}
                     >
                       <div className="flex items-start gap-3">
                         <div className="flex-shrink-0 mt-1">
@@ -220,17 +215,17 @@ const NotificationButton = ({ userRole, userBranch }) => {
                         <div className="flex-1 min-w-0">
                           <div className="flex justify-between items-start">
                             <p className="text-sm font-medium text-gray-900 truncate">
-                              {event.title}
+                              {notification.event.title}
                             </p>
                             <span className="text-xs text-gray-400 ml-2 whitespace-nowrap">
-                              {formatCreatedAt(event.created_at)}
+                              {formatCreatedAt(notification.created_at)}
                             </span>
                           </div>
                           <p className="text-sm text-gray-500 mt-1">
-                            {formatEventDate(event.date)} at {formatEventTime(event.date)}
+                            {formatEventDate(notification.event.date)} at {formatEventTime(notification.event.date)}
                           </p>
                           <p className="text-xs text-gray-400 mt-1">
-                            {event.location || 'No location specified'}
+                            {notification.event.location || 'No location specified'}
                           </p>
                         </div>
                       </div>

@@ -4,6 +4,21 @@ import SchawnnahJLoader from "../../../components/loaders/SchawnnahJLoader";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 
+const TARGET_AUDIENCE_CHOICES = [
+  { value: 'all', label: 'All' },
+  { value: 'student', label: 'Students' },
+  { value: 'teacher', label: 'Teachers' },
+  { value: 'parent', label: 'Parents' }
+];
+
+const BRANCH_CHOICES = [
+  { value: 'all', label: 'All' },
+  { value: 'batangas', label: 'Batangas' },
+  { value: 'rosario', label: 'Rosario' },
+  { value: 'bauan', label: 'Bauan' },
+  { value: 'metrotagaytay', label: 'Metro Tagaytay' }
+];
+
 const AddEventForm = ({ isOpen, onClose, onSave }) => {
   const [formData, setFormData] = useState({
     title: "",
@@ -15,7 +30,7 @@ const AddEventForm = ({ isOpen, onClose, onSave }) => {
   });
 
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [errors, setErrors] = useState({});
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -23,25 +38,20 @@ const AddEventForm = ({ isOpen, onClose, onSave }) => {
       ...prev,
       [name]: value,
     }));
+    // Clear error for this field when user makes a change
+    setErrors(prev => ({
+      ...prev,
+      [name]: undefined
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    setError("");
+    setErrors({});
 
     try {
-      console.log('Submitting event:', {
-        ...formData,
-        target_audience: formData.target_audience.toLowerCase(),
-        branch: formData.branch.toLowerCase()
-      });
-
-      const response = await axiosInstance.post("/user-admin/event/create/", {
-        ...formData,
-        target_audience: formData.target_audience.toLowerCase(),
-        branch: formData.branch.toLowerCase()
-      });
+      const response = await axiosInstance.post("/user-admin/event/create/", formData);
 
       if (response.status === 201) {
         console.log('Event created successfully:', response.data);
@@ -50,10 +60,41 @@ const AddEventForm = ({ isOpen, onClose, onSave }) => {
       }
     } catch (error) {
       console.error("Error creating event:", error);
-      setError(error.response?.data?.message || "Failed to create event. Please try again.");
+      
+      if (error.response?.data?.errors) {
+        // Handle field-specific validation errors
+        setErrors(error.response.data.errors);
+      } else if (error.response?.data?.message) {
+        // Handle general error message
+        setErrors({
+          general: error.response.data.message
+        });
+      } else {
+        // Handle unexpected errors
+        setErrors({
+          general: "Failed to create event. Please try again."
+        });
+      }
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const resetForm = () => {
+    setFormData({
+      title: "",
+      description: "",
+      date: "",
+      target_audience: "all",
+      branch: "all",
+      location: "",
+    });
+    setErrors({});
+  };
+
+  const handleClose = () => {
+    resetForm();
+    onClose();
   };
 
   if (!isOpen) return null;
@@ -68,16 +109,16 @@ const AddEventForm = ({ isOpen, onClose, onSave }) => {
         {/* Form Header */}
         <div className="flex justify-between items-center p-6 border-b">
           <h2 className="text-2xl font-bold text-gray-800">Create Event</h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+          <button onClick={handleClose} className="text-gray-500 hover:text-gray-700">
             <FontAwesomeIcon icon={faTimes} />
           </button>
         </div>
 
         {/* Form Content */}
         <form onSubmit={handleSubmit} className="p-6">
-          {error && (
+          {errors.general && (
             <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md">
-              {error}
+              {errors.general}
             </div>
           )}
 
@@ -90,9 +131,12 @@ const AddEventForm = ({ isOpen, onClose, onSave }) => {
                 name="title"
                 value={formData.title}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={`w-full px-3 py-2 border ${errors.title ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
                 required
               />
+              {errors.title && (
+                <p className="mt-1 text-sm text-red-500">{errors.title}</p>
+              )}
             </div>
 
             {/* Description */}
@@ -103,9 +147,12 @@ const AddEventForm = ({ isOpen, onClose, onSave }) => {
                 value={formData.description}
                 onChange={handleChange}
                 rows="4"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className={`w-full px-3 py-2 border ${errors.description ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500`}
                 required
               />
+              {errors.description && (
+                <p className="mt-1 text-sm text-red-500">{errors.description}</p>
+              )}
             </div>
 
             <div className="flex gap-4">
@@ -117,9 +164,12 @@ const AddEventForm = ({ isOpen, onClose, onSave }) => {
                   name="date"
                   value={formData.date}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className={`w-full px-3 py-2 border ${errors.date ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500`}
                   required
                 />
+                {errors.date && (
+                  <p className="mt-1 text-sm text-red-500">{errors.date}</p>
+                )}
               </div>
 
               {/* Target Audience */}
@@ -129,14 +179,18 @@ const AddEventForm = ({ isOpen, onClose, onSave }) => {
                   name="target_audience"
                   value={formData.target_audience}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className={`w-full px-3 py-2 border ${errors.target_audience ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500`}
                   required
                 >
-                  <option value="all">All</option>
-                  <option value="students">Students</option>
-                  <option value="teachers">Teachers</option>
-                  <option value="parents">Parents</option>
+                  {TARGET_AUDIENCE_CHOICES.map(choice => (
+                    <option key={choice.value} value={choice.value}>
+                      {choice.label}
+                    </option>
+                  ))}
                 </select>
+                {errors.target_audience && (
+                  <p className="mt-1 text-sm text-red-500">{errors.target_audience}</p>
+                )}
               </div>
             </div>
 
@@ -147,15 +201,18 @@ const AddEventForm = ({ isOpen, onClose, onSave }) => {
                 name="branch"
                 value={formData.branch}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className={`w-full px-3 py-2 border ${errors.branch ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500`}
                 required
               >
-                <option value="all">All</option>
-                <option value="batangas">Batangas</option>
-                <option value="rosario">Rosario</option>
-                <option value="bauan">Bauan</option>
-                <option value="metrotagaytay">Metro Tagaytay</option>
+                {BRANCH_CHOICES.map(choice => (
+                  <option key={choice.value} value={choice.value}>
+                    {choice.label}
+                  </option>
+                ))}
               </select>
+              {errors.branch && (
+                <p className="mt-1 text-sm text-red-500">{errors.branch}</p>
+              )}
             </div>
 
             {/* Location */}
@@ -166,8 +223,11 @@ const AddEventForm = ({ isOpen, onClose, onSave }) => {
                 name="location"
                 value={formData.location}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className={`w-full px-3 py-2 border ${errors.location ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500`}
               />
+              {errors.location && (
+                <p className="mt-1 text-sm text-red-500">{errors.location}</p>
+              )}
             </div>
           </div>
 
@@ -175,7 +235,7 @@ const AddEventForm = ({ isOpen, onClose, onSave }) => {
           <div className="mt-6 flex justify-end space-x-3">
             <button
               type="button"
-              onClick={onClose}
+              onClick={handleClose}
               className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-500"
             >
               Cancel
@@ -183,8 +243,9 @@ const AddEventForm = ({ isOpen, onClose, onSave }) => {
             <button
               type="submit"
               className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              disabled={isLoading}
             >
-              Create Event
+              {isLoading ? 'Creating...' : 'Create Event'}
             </button>
           </div>
         </form>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, Transition } from '@headlessui/react';
-import { FaChevronDown, FaUser, FaSignOutAlt, FaGraduationCap, FaBars, FaBell, FaEdit } from 'react-icons/fa';
+import { FaChevronDown, FaUser, FaSignOutAlt, FaGraduationCap, FaBars, FaEdit } from 'react-icons/fa';
 import SunhillLogo from '../../assets/img/home/sunhill.jpg';
 import userThree from '../../assets/img/home/unknown.jpg';
 import './student.css';
@@ -8,8 +8,9 @@ import StudentSettings from '../../pages/student/StudentSettings';
 import Logout from './Logout';
 import { AnimatePresence } from 'framer-motion';
 import { axiosInstance } from '../../utils/axiosInstance';
+import NotificationButton from '../common/NotificationButton';
 
-const TopNav = ({ onLogout, onOpenNotifications }) => {
+const TopNav = ({ onLogout }) => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isLogoutOpen, setIsLogoutOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -81,12 +82,10 @@ const TopNav = ({ onLogout, onOpenNotifications }) => {
         {/* Student Profile and Notifications */}
         <div className="flex items-center">
           {/* Notification Button */}
-          <button
-            onClick={onOpenNotifications}
-            className="text-white mr-4 hover:text-yellow-300 transition-colors duration-200"
-          >
-            <FaBell className="w-5 h-5" />
-          </button>
+          <NotificationButton
+            userRole={studentData.role}
+            userBranch={studentData.branch}
+          />
           
           {/* Student Info */}
           <div className="hidden sm:block text-white text-right mr-2 lg:mr-3">

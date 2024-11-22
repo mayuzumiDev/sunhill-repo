@@ -1,4 +1,6 @@
-from django.urls import path
+from django.urls import path, include
+from rest_framework import routers
+from rest_framework.routers import DefaultRouter
 from .views.current_admin_views import *
 from .views.account.account_views_create import *
 from .views.account.account_views_list import *
@@ -8,7 +10,10 @@ from .views.branches.user_count_views import *
 from .views.profile.admin_profile_views import *
 from .views.events.event_manage_views import *
 from .views.events.event_list_views import *
-from .views.events.event_create_views import EventCreateView
+from .views.notifications.notification_views import EventNotificationViewSet
+
+router = DefaultRouter()
+router.register(r'notifications', EventNotificationViewSet, basename='notifications')
 
 urlpatterns = [
     path('current-admin/', CurrentAdminView.as_view(), name="current_admin" ),
@@ -28,9 +33,8 @@ urlpatterns = [
     path('parent-list/', ParentListView.as_view(), name='parent_list'),
     path('public-user-list/', PublicUserListView.as_view(), name='public_user_list'),
     path('branch/user-list/', BranchUserCountView.as_view(), name='branch_user_list'),
-    # Event URLs
-    path('event/list/', EventListView.as_view(), name='event-list'),
-    path('event/create/', EventCreateView.as_view(), name='event-create'),
+    path('event/create/', EventCreateView.as_view(), name='event_create'),
     path('event/edit/<int:pk>/', EventUpdateView.as_view(), name='event_edit'),
     path('event/delete/<int:pk>/', EventDeleteView.as_view(), name='event_delete'),
-]
+    path('event/list/', EventListView.as_view(), name='event_list'),
+] + router.urls
