@@ -7,6 +7,7 @@ import EditClassroomModal from "../../components/modal/teacher/classroom/EditCla
 import ClassroomCard from "../../components/teacher/classroom/ClassroomCard";
 import ConfirmDeleteModal from "../../components/modal/teacher/ConfirmDeleteModal";
 import AddStudentModal from "../../components/modal/teacher/classroom/AddStudentModal";
+import DotLoaderSpinner from "../../components/loaders/DotLoaderSpinner";
 
 const ManageLessons = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -30,7 +31,6 @@ const ManageLessons = () => {
 
       if (response.status === 200) {
         const classroomList = response.data.classroom_list;
-        console.log("Classroom list: ", classroomList);
         setClassrooms(classroomList);
       }
     } catch (error) {
@@ -66,11 +66,15 @@ const ManageLessons = () => {
 
       await Promise.all(addPromises);
       setShowAddStudent(false);
-
-      // Optionally refresh the classroom data
-      fetchClassroom();
     } catch (error) {
       console.error("Error adding students to classroom:", error);
+
+      const errorMessage =
+        error.response?.data?.errors?.error?.[0] ||
+        "Error adding students to classroom";
+
+      setShowAddStudent(true);
+      return errorMessage;
     }
   };
 
@@ -105,7 +109,7 @@ const ManageLessons = () => {
       {/* Grid List for classroom */}
       {isLoading ? (
         <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-green-400"></div>
+          <DotLoaderSpinner color="#4ade80" />
         </div>
       ) : classrooms.length === 0 ? (
         <p className="text-gray-600">
