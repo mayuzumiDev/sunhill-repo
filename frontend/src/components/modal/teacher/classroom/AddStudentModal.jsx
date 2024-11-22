@@ -22,6 +22,7 @@ const AddStudentModal = ({ isOpen, onClose, onAdd }) => {
 
       if (response.status === 200) {
         const studentList = response.data.student_list;
+        console.log(studentList);
         setStudents(studentList);
       }
     } catch (error) {
