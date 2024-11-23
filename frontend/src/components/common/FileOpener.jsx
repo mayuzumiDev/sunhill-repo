@@ -3,34 +3,64 @@ import { FiEye } from "react-icons/fi";
 
 // Comprehensive list of file types with their handling methods
 const FILE_TYPE_HANDLERS = {
-  // Microsoft Office files (use Office Online Viewer)
-  doc: (url) =>
+  // Microsoft Office files with multiple fallback strategies
+  doc: (url) => [
     `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(
       url
     )}`,
-  docx: (url) =>
+    `https://docs.google.com/viewer?url=${encodeURIComponent(
+      url
+    )}&embedded=true`,
+    url,
+  ],
+  docx: (url) => [
     `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(
       url
     )}`,
-  ppt: (url) =>
+    `https://docs.google.com/viewer?url=${encodeURIComponent(
+      url
+    )}&embedded=true`,
+    url,
+  ],
+  ppt: (url) => [
     `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(
       url
     )}`,
-  pptx: (url) =>
+    `https://docs.google.com/viewer?url=${encodeURIComponent(
+      url
+    )}&embedded=true`,
+    url,
+  ],
+  pptx: (url) => [
     `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(
       url
     )}`,
-  xls: (url) =>
+    `https://docs.google.com/viewer?url=${encodeURIComponent(
+      url
+    )}&embedded=true`,
+    url,
+  ],
+  xls: (url) => [
     `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(
       url
     )}`,
-  xlsx: (url) =>
+    `https://docs.google.com/viewer?url=${encodeURIComponent(
+      url
+    )}&embedded=true`,
+    url,
+  ],
+  xlsx: (url) => [
     `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(
       url
     )}`,
+    `https://docs.google.com/viewer?url=${encodeURIComponent(
+      url
+    )}&embedded=true`,
+    url,
+  ],
 
   // Default handler for other file types
-  default: (url) => url,
+  default: (url) => [url],
 };
 
 /**
@@ -51,11 +81,30 @@ const FileOpener = ({
   const handleOpenFile = () => {
     // Normalize file type to lowercase and use default if not found
     const normalizedType = fileType?.toLowerCase() || "";
-    const handler =
+    const urlOptions =
       FILE_TYPE_HANDLERS[normalizedType] || FILE_TYPE_HANDLERS["default"];
 
-    // Open file using appropriate method
-    window.open(handler(fileUrl), "_blank", "noopener,noreferrer");
+    // Try opening files with multiple strategies
+    const tryOpenFile = (urls) => {
+      if (urls.length === 0) {
+        console.error("Unable to open file");
+        return;
+      }
+
+      const url = urls[0];
+      const newWindow = window.open(url, "_blank", "noopener,noreferrer");
+
+      // If first method fails, try next URL
+      if (
+        !newWindow ||
+        newWindow.closed ||
+        typeof newWindow.closed == "undefined"
+      ) {
+        tryOpenFile(urls.slice(1));
+      }
+    };
+
+    tryOpenFile(urlOptions(fileUrl));
   };
 
   return (

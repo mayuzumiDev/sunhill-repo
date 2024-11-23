@@ -5,13 +5,24 @@ import MaterialCard from "../../components/teacher/materials/MaterialCard";
 import DotLoaderSpinner from "../../components/loaders/DotLoaderSpinner";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft } from "@fortawesome/free-solid-svg-icons";
+import UploadMaterialModal from "../../components/modal/teacher/materials/UploadMaterialModal";
+import CustomAlert from "../../components/alert/teacher/CustomAlert";
+import ConfirmDeleteModal from "../../components/modal/teacher/ConfirmDeleteModal";
+import EditMaterialModal from "../../components/modal/teacher/materials/EditMaterialModal";
 
 const ManageMaterials = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertType, setAlertType] = useState("success");
 
   const [classrooms, setClassrooms] = useState([]);
   const [materials, setMaterials] = useState([]);
   const [selectedClassroom, setSelectedClassroom] = useState(null);
+  const [selectedMaterial, setSelectedMaterial] = useState(null);
 
   useEffect(() => {
     fetchClassroom();
@@ -65,6 +76,42 @@ const ManageMaterials = () => {
     }
   };
 
+  const handleUploadSuccess = async (message) => {
+    setAlertType("success");
+    setAlertMessage(message);
+    setShowAlert(true);
+
+    if (selectedClassroom?.id) {
+      await fetchMaterials(selectedClassroom.id);
+    }
+  };
+
+  const handleUploadError = (message) => {
+    setAlertType("error");
+    setAlertMessage(message);
+    setShowAlert(true);
+  };
+
+  const handleDeleteMaterial = async (classroomId) => {
+    try {
+      const response = await axiosInstance.delete(
+        `/user-teacher/materials/delete/${classroomId}/`
+      );
+
+      if (response.status === 200) {
+        setShowDeleteModal(false);
+        setAlertType("success");
+        setAlertMessage(response.data.message);
+        setShowAlert(true);
+        setSelectedMaterial(null);
+
+        await fetchMaterials();
+      }
+    } catch (error) {
+      console.error("An error occured deleting the material.", error);
+    }
+  };
+
   return (
     <div className="p-6">
       {!selectedClassroom ? (
@@ -97,6 +144,13 @@ const ManageMaterials = () => {
       ) : (
         // Selected classroom view
         <div>
+          <CustomAlert
+            message={alertMessage}
+            type={alertType}
+            isVisible={showAlert}
+            onClose={() => setShowAlert(false)}
+          />
+
           <div className="flex items-center mb-8">
             <button
               onClick={() => setSelectedClassroom(null)}
@@ -120,15 +174,48 @@ const ManageMaterials = () => {
                   </span>
                 </p>
               </div>
-              <button className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 font-bold">
+              {/* Button for Upload Popup */}
+              <button
+                onClick={() => setShowUploadModal(true)}
+                className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 font-bold"
+              >
                 Upload Material
               </button>
             </div>
 
-            {/* Add your material management content here */}
+            {/* Modal for Uploading Material */}
+            <UploadMaterialModal
+              isOpen={showUploadModal}
+              onClose={() => setShowUploadModal(false)}
+              classroomId={selectedClassroom?.id}
+              onSuccess={handleUploadSuccess}
+              onError={handleUploadError}
+            />
+
+            <EditMaterialModal
+              isOpen={showEditModal}
+              onClose={() => setShowEditModal(false)}
+              classroomId={selectedClassroom?.id}
+              initialData={selectedMaterial}
+              onSuccess={handleUploadSuccess}
+              onError={handleUploadError}
+            />
+
+            {/* Modal for Confirm Delete */}
+            <ConfirmDeleteModal
+              isOpen={showDeleteModal}
+              onClose={() => setShowDeleteModal(false)}
+              onConfirm={() => {
+                if (selectedMaterial) {
+                  handleDeleteMaterial(selectedMaterial);
+                }
+              }}
+              message={"Are you sure to delete this material?"}
+            />
+
+            {/* Materials Grid List */}
             <div className="mt-6">
               <h2 className="text-lg font-semibold mb-4">Materials</h2>
-              {/* Materials Grid List */}
               {isLoading ? (
                 <div className="flex justify-center items-center h-40">
                   <DotLoaderSpinner color="#4ade80" />
@@ -140,7 +227,18 @@ const ManageMaterials = () => {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {materials.map((material) => (
-                    <MaterialCard key={material.id} material={material} />
+                    <MaterialCard
+                      key={material.id}
+                      material={material}
+                      onDelete={() => {
+                        setShowDeleteModal(true);
+                        setSelectedMaterial(material.id);
+                      }}
+                      onEdit={() => {
+                        setSelectedMaterial(material);
+                        setShowEditModal(true);
+                      }}
+                    />
                   ))}
                 </div>
               )}
