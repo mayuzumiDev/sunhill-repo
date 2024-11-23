@@ -85,7 +85,7 @@ const Sidebar = ({
   ];
 
   const additionalTabs = [
-    { name: "Messages", icon: <FaEnvelope /> },
+    // { name: "Messages", icon: <FaEnvelope /> },
     { name: "Settings", icon: <FaCog /> },
   ];
 
