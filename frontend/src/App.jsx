@@ -13,6 +13,7 @@ import StudentLogin from "./pages/StudentLogin";
 import ParentLogin from "./pages/ParentLogin";
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminInterface from "./pages/admin/AdminInterface";
+import PublicInterface from "./pages/public/PublicInterface";
 import TeacherInterface from "./pages/teacher/TeacherInterface";
 import StudentDashboard from "./pages/student/StudentInterface";
 import ParentInterfaceTemp from "./pages/parent/ParentInterfaceTemp";
@@ -67,7 +68,7 @@ const App = () => {
       <Route path="/login/teacher/" element={<TeacherLogin />} />
       <Route path="/login/student/" element={<StudentLogin />} />
       <Route path="/login/parent/" element={<ParentLogin />} />
-      <Route path="/assessment" element={<SpecialEdPublic />} /> 
+      <Route path="/assessment" element={<SpecialEdPublic />} />
       <Route
         path="/teacher/interface/"
         element={
@@ -91,6 +92,14 @@ const App = () => {
         element={
           <ProtectedRoute userRole="parent">
             <ParentInterfaceTemp />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/public/interface/"
+        element={
+          <ProtectedRoute userRole="public">
+            <PublicInterface />
           </ProtectedRoute>
         }
       />

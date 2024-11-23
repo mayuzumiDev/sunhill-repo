@@ -261,3 +261,30 @@ class OTPCodeResend(generics.GenericAPIView):
 
             return JsonResponse({"success": True, "message": "OTP resend successfully", "verification_code": verification_code}, status=status.HTTP_200_OK)
         return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class PublicSignUpView(generics.CreateAPIView):
+    permission_classes = [AllowAny]
+    serializer_class = PublicSignUpSerializer
+    queryset = CustomUser.objects.all()
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            # refresh = RefreshToken.for_user(user)
+            return JsonResponse({
+                'message': 'User registered successfully',
+                # 'tokens': {
+                #     'refresh': str(refresh),
+                #     'access': str(refresh.access_token),
+                # },
+                'user': {
+                    'username': user.username,
+                    'email': user.email,
+                    'first_name': user.first_name,
+                    'last_name': user.last_name,
+                    'role': user.role
+                }
+            }, status=status.HTTP_201_CREATED)
+        return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

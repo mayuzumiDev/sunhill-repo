@@ -8,6 +8,8 @@ const checkLoginPageUserRole = (role) => {
       return "/login/student/";
     case "parent":
       return "/login/parent/";
+    case "public":
+      return "/";
     default:
       return "/login/";
   }
