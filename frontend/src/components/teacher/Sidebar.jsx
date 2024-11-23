@@ -11,6 +11,7 @@ import {
   FaCog,
   FaEnvelope,
 } from "react-icons/fa";
+import { MdLibraryBooks } from "react-icons/md";
 
 // Tooltip component
 function Tooltip({ name, position, isVisible }) {
@@ -68,6 +69,7 @@ const Sidebar = ({
   const mainTabs = [
     { name: "Dashboard", icon: <FaHome /> },
     { name: "Classroom", icon: <FaChalkboardTeacher /> },
+    { name: "Materials", icon: <MdLibraryBooks /> },
     { name: "Students", icon: <FaUserGraduate /> },
     { name: "Assignments", icon: <FaClipboardList /> },
     {
