@@ -215,7 +215,9 @@ const ManageMaterials = () => {
 
             {/* Materials Grid List */}
             <div className="mt-6">
-              <h2 className="text-lg font-semibold mb-4">Materials</h2>
+              <h2 className="text-lg font-semibold mb-4 text-gray-600">
+                Materials
+              </h2>
               {isLoading ? (
                 <div className="flex justify-center items-center h-40">
                   <DotLoaderSpinner color="#4ade80" />
