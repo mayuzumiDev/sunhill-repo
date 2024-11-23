@@ -5,8 +5,11 @@ from .views import (
     AutoAssessmentView,
     AssessmentCreateView,
     AssessmentListView,
-    ResponseBulkCreateView,
     AssessmentUpdateView,
+    ResponseBulkCreateView,
+    AssessmentDeleteView,
+    AssessmentDetailView,
+    AssessmentAnalysisView
 )
 
 app_name = 'special_education'
@@ -15,8 +18,11 @@ urlpatterns = [
     path('categories/', CategoryListView.as_view(), name='category-list'),
     path('questions/', QuestionListView.as_view(), name='question-list'),
     path('auto-assessment/', AutoAssessmentView.as_view(), name='auto-assessment'),
-    path('assessments/create/', AssessmentCreateView.as_view(), name='assessment-create'),
-    path('assessments/<int:pk>/', AssessmentUpdateView.as_view(), name='assessment-update'),
     path('assessments/', AssessmentListView.as_view(), name='assessment-list'),
-    path('responses/bulk_create/', ResponseBulkCreateView.as_view(), name='response-bulk-create'),
+    path('assessments/create/', AssessmentCreateView.as_view(), name='assessment-create'),
+    path('assessments/<int:pk>/', AssessmentDetailView.as_view(), name='assessment-detail'),
+    path('assessments/<int:pk>/update/', AssessmentUpdateView.as_view(), name='assessment-update'),
+    path('assessments/<int:pk>/delete/', AssessmentDeleteView.as_view(), name='assessment-delete'),
+    path('assessments/analysis/<int:student_id>/', AssessmentAnalysisView.as_view(), name='assessment-analysis'),
+    path('responses/bulk-create/', ResponseBulkCreateView.as_view(), name='response-bulk-create'),
 ]

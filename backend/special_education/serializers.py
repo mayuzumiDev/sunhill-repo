@@ -62,15 +62,28 @@ class ResponseSerializer(serializers.ModelSerializer):
 class AssessmentSerializer(serializers.ModelSerializer):
     student_details = StudentListSerializer(source='student.student_info.user', read_only=True)
     category_details = CategorySerializer(source='category', read_only=True)
+    assessor_name = serializers.CharField(source='assessor.username', read_only=True)
+    student_name = serializers.SerializerMethodField()
+    category_name = serializers.CharField(source='category.title', read_only=True)
     responses = ResponseSerializer(many=True, read_only=True, source='assessmentresponse_set')
     category_scores = serializers.SerializerMethodField()
 
     class Meta:
         model = StudentAssessment
-        fields = ['id', 'student', 'student_details', 'category', 'category_details', 
-                 'assessor', 'date', 'completed', 'responses', 'category_scores',
-                 'results_available_date', 'assessment_number']
-        read_only_fields = ['assessor', 'date', 'category_scores', 'assessment_number']
+        fields = ['id', 'student', 'student_details', 'student_name', 
+                 'category', 'category_details', 'category_name',
+                 'assessor', 'assessor_name', 'date', 'completed', 
+                 'responses', 'category_scores', 'results_available_date', 
+                 'assessment_number']
+        read_only_fields = ['assessor', 'date', 'category_scores', 
+                           'assessment_number', 'student_name', 'category_name', 
+                           'assessor_name']
+
+    def get_student_name(self, obj):
+        if obj.student and obj.student.student_info and obj.student.student_info.user:
+            user = obj.student.student_info.user
+            return f"{user.first_name} {user.last_name}"
+        return "Unknown Student"
 
     def get_category_scores(self, obj):
         if obj.are_results_available and obj.completed:

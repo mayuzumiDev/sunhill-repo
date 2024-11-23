@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { FaChevronDown, FaChevronUp, FaSearch, FaTimes } from 'react-icons/fa';
+import HideScrollbar from "../../components/misc/HideScrollBar";
 
 const Faqs = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -89,6 +90,36 @@ const Faqs = () => {
           id: 12,
           question: "How do I report a bug or request a feature?",
           answer: "To report bugs or request features:\n1. Click the 'Help' button in the dashboard\n2. Select 'Report Issue' or 'Feature Request'\n3. Provide detailed information\n4. Add screenshots if relevant\n5. Submit the report"
+        }
+      ]
+    },
+    {
+      category: "Special Education Tool",
+      questions: [
+        {
+          id: 13,
+          question: "How do I start a new student assessment?",
+          answer: "To start a new assessment:\n1. Navigate to the Special Education section\n2. Use the search bar to find the student or browse the student list\n3. Select the student you want to assess\n4. Choose a category for assessment (e.g., Academic, Behavioral)\n5. Review and confirm the assessment details\n6. Begin answering the assessment questions"
+        },
+        {
+          id: 14,
+          question: "How does the assessment scoring work?",
+          answer: "The assessment uses a comprehensive scoring system:\n• Each question has multiple response options\n• Responses are weighted based on their significance\n• The system automatically calculates scores per category\n• Results are presented with detailed breakdowns\n• Historical data is tracked for progress monitoring"
+        },
+        {
+          id: 15,
+          question: "Can I save an assessment or print a report?",
+          answer: "Yes, assessments can be saved and printed:\n1. The system automatically saves your assessments as you answer questions\n2. You can finish an assessment and print a report\n3. After printing, you can start a new assessment\n4. Select the same student\n5. And start assessing again"
+        },
+        {
+          id: 16,
+          question: "How do I view past assessment results?",
+          answer: "To view assessment history:\n1. Go to the Special Education section\n2. Select the student\n3. Click on the 'History' tab\n4. You'll see all past assessments listed chronologically\n5. Click on any assessment to view detailed results\n6. Use the print option to generate PDF reports"
+        },
+        {
+          id: 17,
+          question: "What should I do if I make a mistake during assessment?",
+          answer: "If you make a mistake:\n1. You can change your answer by simply selecting a different response\n2. All changes are saved automatically\n3. If you've completed the assessment with errors, contact the system administrator\n4. For major corrections, you may need to start a new assessment\n5. Document any significant changes in the notes section"
         }
       ]
     }
@@ -255,6 +286,7 @@ const Faqs = () => {
           </div>
         </div>
       </div>
+      <HideScrollbar/>
     </div>
   );
 };

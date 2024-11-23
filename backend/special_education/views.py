@@ -13,6 +13,9 @@ from .serializers import (
     ResponseSerializer
 )
 import random
+from rest_framework import status
+from django.db.models import Count, Avg
+from collections import defaultdict
 
 class CategoryListView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
@@ -81,11 +84,7 @@ class AssessmentListView(generics.ListAPIView):
         if student_id:
             queryset = queryset.filter(student_id=student_id)
         
-        # Only return assessments where results are available
-        current_time = timezone.now()
-        return queryset.filter(
-            results_available_date__lte=current_time
-        ).order_by('-date')
+        return queryset.order_by('-date')
 
 class AssessmentCreateView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]
@@ -201,6 +200,51 @@ class AssessmentUpdateView(generics.UpdateAPIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
+class AssessmentDetailView(generics.RetrieveAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = AssessmentSerializer
+    queryset = StudentAssessment.objects.all()
+
+    def retrieve(self, request, *args, **kwargs):
+        try:
+            instance = self.get_object()
+            serializer = self.get_serializer(instance)
+            data = serializer.data
+
+            # Get all responses for this assessment
+            responses = AssessmentResponse.objects.filter(assessment=instance)
+            response_data = ResponseSerializer(responses, many=True).data
+
+            # Add responses to the data
+            data['responses'] = response_data
+
+            # Calculate category scores if assessment is completed
+            if instance.completed:
+                data['category_scores'] = instance.calculate_category_scores()
+
+            return Response(data)
+        except Exception as e:
+            return Response(
+                {'error': str(e)}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+class AssessmentDeleteView(generics.DestroyAPIView):
+    permission_classes = [IsAuthenticated]
+    queryset = StudentAssessment.objects.all()
+    serializer_class = AssessmentSerializer
+
+    def destroy(self, request, *args, **kwargs):
+        try:
+            instance = self.get_object()
+            self.perform_destroy(instance)
+            return Response({'message': 'Assessment deleted successfully'}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response(
+                {'error': str(e)}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
 class ResponseBulkCreateView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -257,6 +301,64 @@ class ResponseBulkCreateView(APIView):
             
         except Exception as e:
             print('Unexpected error:', str(e))
+            return Response(
+                {'error': str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+class AssessmentAnalysisView(APIView):
+    def get(self, request, student_id):
+        try:
+            # Get all completed assessments for the student
+            assessments = StudentAssessment.objects.filter(
+                student_id=student_id,
+                completed=True
+            ).order_by('-date')
+
+            total_assessments = assessments.count()
+
+            if total_assessments == 0:
+                return Response({
+                    'total_assessments': 0,
+                    'category_percentages': {},
+                    'latest_assessment': None
+                })
+
+            # Get the latest assessment
+            latest_assessment = assessments.first()
+
+            # Calculate category percentages
+            responses = AssessmentResponse.objects.filter(assessment__in=assessments)
+            category_scores = defaultdict(list)
+
+            for response in responses:
+                category = response.question.category.title
+                # Convert response to numeric value
+                value_map = {
+                    'never': 0,
+                    'sometimes': 1,
+                    'often': 2,
+                    'very_often': 3
+                }
+                category_scores[category].append(value_map.get(response.response.lower(), 0))
+
+            # Calculate percentage for each category
+            category_percentages = {}
+            for category, scores in category_scores.items():
+                if scores:
+                    # Calculate percentage (max score would be 3 * number of questions)
+                    max_possible = 3 * len(scores)
+                    actual_sum = sum(scores)
+                    percentage = (actual_sum / max_possible) * 100
+                    category_percentages[category] = round(percentage, 1)
+
+            return Response({
+                'total_assessments': total_assessments,
+                'category_percentages': category_percentages,
+                'latest_assessment': AssessmentSerializer(latest_assessment).data if latest_assessment else None
+            })
+
+        except Exception as e:
             return Response(
                 {'error': str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
