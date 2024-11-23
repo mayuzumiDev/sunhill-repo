@@ -17,7 +17,6 @@ import PublicInterface from "./pages/public/PublicInterface";
 import TeacherInterface from "./pages/teacher/TeacherInterface";
 import StudentDashboard from "./pages/student/StudentInterface";
 import ParentInterfaceTemp from "./pages/parent/ParentInterfaceTemp";
-import SpecialEdPublic from "./pages/admin/SpecialEdPublic";
 import ForgotPassword from "./components/login/ForgotPassword";
 import OTPVerification from "./components/login/OTPVerifications";
 import CreateNewPassword from "./components/login/CreateNewPass";
@@ -25,6 +24,7 @@ import PasswordChanged from "./components/login/PassChangeConfirm";
 import PrivacyPolicy from "./components/PrivacyPolicy";
 import TermsOfService from "./components/TermofService";
 import FAQ from "../src/pages/admin/Faqs";
+import Enrollment from "./pages/Enrollment";
 import NotFound from "./components/404NotFound";
 
 // import { TeacherProvider } from "./context/TeacherContext";
@@ -46,9 +46,11 @@ const App = () => {
       "/teacher/interface/": "Teacher | Sunhill LMS",
       "/student/interface/": "Student | Sunhill LMS",
       "/parent/interface/": "Parent | Sunhill LMS",
+      "/public/interface/": "Special Education Identification| Sunhill LMS",
       "/admin/login/": "Admin Login | Sunhill LMS",
       "/admin/login": "Admin Login | Sunhill LMS",
       "/admin/interface/": "Admin | Sunhill LMS",
+      "/enrollment/": "Enrollment | Sunhill LMS",
       "/assessment": "Special Education Assessment | Sunhill LMS",
       "/forgot-password": "Forgot Password | Sunhill LMS",
       "/otp-verification": "OTP Verification | Sunhill LMS",
@@ -68,7 +70,7 @@ const App = () => {
       <Route path="/login/teacher/" element={<TeacherLogin />} />
       <Route path="/login/student/" element={<StudentLogin />} />
       <Route path="/login/parent/" element={<ParentLogin />} />
-      <Route path="/assessment" element={<SpecialEdPublic />} />
+      <Route path="/enrollment/" element={<Enrollment />} />
       <Route
         path="/teacher/interface/"
         element={

@@ -306,6 +306,51 @@ class ResponseBulkCreateView(APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
+class RandomQuestionView(APIView):
+    """View to get random questions for public assessment."""
+    permission_classes = []  # Public access
+
+    def get(self, request):
+        try:
+            category_id = request.query_params.get('category')
+            count = int(request.query_params.get('count', 10))
+
+            if not category_id:
+                return Response(
+                    {'error': 'Category ID is required'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            # Get questions for the specified category
+            questions = Question.objects.filter(category_id=category_id)
+            
+            if not questions.exists():
+                return Response(
+                    {'error': 'No questions found for this category'},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+
+            # Randomly select the specified number of questions
+            selected_questions = random.sample(
+                list(questions),
+                min(count, len(questions))
+            )
+
+            # Serialize and return the questions
+            serializer = QuestionSerializer(selected_questions, many=True)
+            return Response(serializer.data)
+
+        except ValueError:
+            return Response(
+                {'error': 'Invalid count parameter'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except Exception as e:
+            return Response(
+                {'error': str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
 class AssessmentAnalysisView(APIView):
     def get(self, request, student_id):
         try:

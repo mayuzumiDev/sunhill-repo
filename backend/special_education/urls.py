@@ -9,7 +9,8 @@ from .views import (
     ResponseBulkCreateView,
     AssessmentDeleteView,
     AssessmentDetailView,
-    AssessmentAnalysisView
+    AssessmentAnalysisView,
+    RandomQuestionView
 )
 
 app_name = 'special_education'
@@ -17,6 +18,7 @@ app_name = 'special_education'
 urlpatterns = [
     path('categories/', CategoryListView.as_view(), name='category-list'),
     path('questions/', QuestionListView.as_view(), name='question-list'),
+    path('questions/random/', RandomQuestionView.as_view(), name='random-questions'),
     path('auto-assessment/', AutoAssessmentView.as_view(), name='auto-assessment'),
     path('assessments/', AssessmentListView.as_view(), name='assessment-list'),
     path('assessments/create/', AssessmentCreateView.as_view(), name='assessment-create'),
