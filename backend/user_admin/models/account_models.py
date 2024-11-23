@@ -31,3 +31,8 @@ class StudentInfo(models.Model):
 class ParentInfo(models.Model):
     parent_info = models.OneToOneField(UserInfo, on_delete=models.CASCADE, related_name='parent_info') 
     student_info = models.ManyToManyField(StudentInfo, related_name='parent_student') 
+
+class PublicInfo(models.Model):
+    user_info = models.OneToOneField(UserInfo, on_delete=models.CASCADE, related_name='public_info')
+    street_address = models.CharField(max_length=255, blank=True, null=True)
+    city = models.CharField(max_length=100, blank=True, null=True)
