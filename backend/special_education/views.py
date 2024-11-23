@@ -3,6 +3,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
+from datetime import datetime, timedelta
 from .models import AssessmentCategory, Question, StudentAssessment, AssessmentResponse
 from .serializers import (
     CategorySerializer,
@@ -28,36 +30,62 @@ class QuestionListView(generics.ListAPIView):
             return Question.objects.filter(category_id=category_id)
         return Question.objects.all()
 
-class RandomQuestionsView(APIView):
+class AutoAssessmentView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         try:
-            category_id = request.query_params.get('category')
-            count = int(request.query_params.get('count', 10))
-            
-            if not category_id:
+            # Get all active categories and randomly select one
+            categories = AssessmentCategory.objects.filter(is_active=True)
+            if not categories:
                 return Response(
-                    {'error': 'Category ID is required'}, 
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-
-            questions = list(Question.objects.filter(category_id=category_id))
-            if not questions:
-                return Response(
-                    {'error': 'No questions found for this category'}, 
+                    {'error': 'No active assessment categories available'}, 
                     status=status.HTTP_404_NOT_FOUND
                 )
-
-            selected_questions = random.sample(questions, min(count, len(questions)))
-            serializer = QuestionSerializer(selected_questions, many=True)
             
-            return Response(serializer.data)
+            selected_category = random.choice(categories)
+            
+            # Get 10 random questions from the selected category
+            questions = list(Question.objects.filter(
+                category=selected_category,
+                is_active=True
+            ))
+            
+            if len(questions) < 10:
+                return Response(
+                    {'error': 'Insufficient questions in selected category'}, 
+                    status=status.HTTP_404_NOT_FOUND
+                )
+            
+            random_questions = random.sample(questions, 10)
+            
+            return Response({
+                'category': CategorySerializer(selected_category).data,
+                'questions': QuestionSerializer(random_questions, many=True).data
+            })
+            
         except Exception as e:
             return Response(
                 {'error': str(e)}, 
-                status=status.HTTP_400_BAD_REQUEST
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+class AssessmentListView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = AssessmentSerializer
+
+    def get_queryset(self):
+        student_id = self.request.query_params.get('student')
+        queryset = StudentAssessment.objects.all()
+        
+        if student_id:
+            queryset = queryset.filter(student_id=student_id)
+        
+        # Only return assessments where results are available
+        current_time = timezone.now()
+        return queryset.filter(
+            results_available_date__lte=current_time
+        ).order_by('-date')
 
 class AssessmentCreateView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]
@@ -77,52 +105,52 @@ class AssessmentCreateView(generics.CreateAPIView):
                 # Update request data with correct student_info ID
                 data = request.data.copy()
                 data['student'] = student_info.id
+                data['assessor'] = request.user.id
                 
                 # Check for existing assessments
                 existing_assessment = StudentAssessment.objects.filter(
                     student=student_info,
                     category_id=data['category']
-                ).order_by('-created_at').first()
+                ).order_by('-date').first()
                 
-                if existing_assessment:
-                    if not existing_assessment.completed:
-                        # Return the existing incomplete assessment
-                        serializer = self.get_serializer(existing_assessment)
-                        return Response(
-                            {
-                                'message': 'Found an incomplete assessment',
-                                'assessment': serializer.data
-                            }, 
-                            status=status.HTTP_200_OK
-                        )
-                    else:
-                        # Previous assessment is completed, allow creating a new one
-                        pass
-                
-                serializer = self.get_serializer(data=data)
-                if not serializer.is_valid():
-                    print('Validation Errors:', serializer.errors)
+                if existing_assessment and not existing_assessment.completed:
+                    # Return the existing incomplete assessment
+                    serializer = self.get_serializer(existing_assessment)
                     return Response(
-                        {'message': 'Invalid data provided', 'errors': serializer.errors},
-                        status=status.HTTP_400_BAD_REQUEST
+                        {
+                            'message': 'Found an incomplete assessment',
+                            'assessment': serializer.data
+                        },
+                        status=status.HTTP_200_OK
                     )
                 
-                assessment = serializer.save(assessor=request.user)
+                # Create new assessment
+                serializer = self.get_serializer(data=data)
+                serializer.is_valid(raise_exception=True)
+                assessment = serializer.save()
+                
+                # Get the assessment count for this student
+                completed_count = StudentAssessment.objects.filter(
+                    student=student_info,
+                    completed=True
+                ).count()
+                
+                headers = self.get_success_headers(serializer.data)
                 return Response(
                     {
-                        'message': 'Assessment created successfully',
+                        'message': f'Assessment created successfully. This will be assessment {completed_count + 1}/30.',
                         'assessment': serializer.data
-                    }, 
-                    status=status.HTTP_201_CREATED
+                    },
+                    status=status.HTTP_201_CREATED,
+                    headers=headers
                 )
                 
             except (UserInfo.DoesNotExist, StudentInfo.DoesNotExist) as e:
-                print('Error finding student:', str(e))
                 return Response(
-                    {'message': 'Student not found', 'error': str(e)},
-                    status=status.HTTP_400_BAD_REQUEST
+                    {'message': 'Student not found'},
+                    status=status.HTTP_404_NOT_FOUND
                 )
-            
+                
         except Exception as e:
             print('Error during assessment creation:', str(e))
             return Response(
@@ -152,7 +180,20 @@ class AssessmentUpdateView(generics.UpdateAPIView):
                 )
             
             self.perform_update(serializer)
-            return Response(serializer.data)
+            
+            # Calculate assessment results and return with completion info
+            assessment_data = serializer.data
+            if instance.completed:
+                category_scores = instance.calculate_category_scores()
+                assessment_data.update({
+                    'category_scores': category_scores,
+                    'assessment_number': instance.assessment_number,
+                    'days_remaining': 30,
+                    'results_available_date': instance.results_available_date.isoformat() if instance.results_available_date else None,
+                    'message': f'Assessment {instance.assessment_number}/30 completed. Continue assessing for more accurate results.'
+                })
+            
+            return Response(assessment_data)
         except Exception as e:
             print('Error during assessment update:', str(e))
             return Response(
@@ -160,45 +201,63 @@ class AssessmentUpdateView(generics.UpdateAPIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-class AssessmentListView(generics.ListAPIView):
-    permission_classes = [IsAuthenticated]
-    serializer_class = AssessmentSerializer
-
-    def get_queryset(self):
-        student_id = self.request.query_params.get('student', None)
-        if student_id:
-            return StudentAssessment.objects.filter(student_id=student_id)
-        return StudentAssessment.objects.all()
-
 class ResponseBulkCreateView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
         try:
+            print('Received response data:', request.data)
             responses_data = request.data.get('responses', [])
+            if not responses_data:
+                return Response(
+                    {'error': 'No responses provided'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
             created_responses = []
+            errors = []
 
             for response_data in responses_data:
+                print('Processing response:', response_data)
                 serializer = ResponseSerializer(data=response_data)
                 if serializer.is_valid():
-                    serializer.save()
-                    created_responses.append(serializer.data)
+                    try:
+                        response = serializer.save()
+                        created_responses.append(ResponseSerializer(response).data)
+                    except Exception as e:
+                        print('Error saving response:', str(e))
+                        errors.append({
+                            'data': response_data,
+                            'error': str(e)
+                        })
                 else:
-                    # Log the validation errors
-                    print('Response validation errors:', serializer.errors)
-                    return Response(
-                        serializer.errors, 
-                        status=status.HTTP_400_BAD_REQUEST
-                    )
+                    print('Validation errors:', serializer.errors)
+                    errors.append({
+                        'data': response_data,
+                        'error': serializer.errors
+                    })
+
+            if errors:
+                print('Errors during bulk create:', errors)
+                return Response(
+                    {
+                        'error': 'Some responses failed to save',
+                        'details': errors
+                    },
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
             return Response(
-                {'message': 'Responses created successfully', 'responses': created_responses},
+                {
+                    'message': 'Responses saved successfully',
+                    'responses': created_responses
+                },
                 status=status.HTTP_201_CREATED
             )
+            
         except Exception as e:
-            # Log the error for debugging
-            print('Error during bulk response creation:', str(e))
+            print('Unexpected error:', str(e))
             return Response(
-                {'error': str(e)}, 
-                status=status.HTTP_400_BAD_REQUEST
+                {'error': str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )

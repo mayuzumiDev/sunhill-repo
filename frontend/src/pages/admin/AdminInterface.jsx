@@ -93,28 +93,12 @@ function AdminInterface() {
 
   return (
     <div
-      className={`font-montserrat flex h-screen overflow-hidden ${
-        darkMode ? "bg-gray-800" : "bg-opacity-50"
-      }`}
+      className={`font-montserrat flex h-screen overflow-hidden ${darkMode ? "bg-gray-800" : "bg-opacity-50"}`}
     >
       {/* Sidebar */}
-      <div
-        className={`fixed inset-y-0 left-0 z-10 ${
-          darkMode ? "bg-gray-900" : "bg-white"
-        } shadow-lg`}
-      >
-        <SideNavbar
-          currentTab={currentTab}
-          setCurrentTab={handleTabChange}
-          toggleSidebar={toggleSidebar}
-          isSidebarOpen={isSidebarOpen}
-          darkMode={darkMode} // Pass dark mode state to Sidebar
-        />
-      </div>
-
-      {isSidebarOpen && (
+      <div className="print:hidden">
         <div
-          className={`fixed inset-y-0 left-0 z-10  ${
+          className={`fixed inset-y-0 left-0 z-10 ${
             darkMode ? "bg-gray-900" : "bg-white"
           } shadow-lg`}
         >
@@ -122,11 +106,11 @@ function AdminInterface() {
             currentTab={currentTab}
             setCurrentTab={handleTabChange}
             toggleSidebar={toggleSidebar}
-            darkMode={darkMode}
             isSidebarOpen={isSidebarOpen}
+            darkMode={darkMode}
           />
         </div>
-      )}
+      </div>
 
       {/* Main content area */}
       <div
@@ -136,10 +120,10 @@ function AdminInterface() {
             : isSidebarOpen
             ? "ml-64"
             : "ml-16"
-        }`}
+        } print:ml-0`}
       >
         {/* Top Navbar */}
-        <div className="flex-none">
+        <div className="flex-none print:hidden">
           <TopNavbar
             setCurrentTab={handleTabChange}
             setShowLogoutDialog={setShowLogoutDialog}
@@ -156,7 +140,7 @@ function AdminInterface() {
         <div
           className={`flex-1 p-6 ${
             darkMode ? "bg-gray-700 text-white" : "bg-blue-50 text-black"
-          } bg-opacity-60 mt-0 overflow-y-auto`}
+          } bg-opacity-60 mt-0 overflow-y-auto print:mt-0 print:p-0 print:bg-white print:text-black`}
         >
           {/* <Breadcrumb pageName={currentTab} /> */}
           {currentTab === "Dashboard" && <Dashboard />}

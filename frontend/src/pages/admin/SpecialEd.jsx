@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FaGraduationCap, FaFilePdf, FaPrint, FaArrowRight, FaChild, FaBrain, FaBookReader, FaSearch, FaPlus, FaCalendar, FaHistory, FaArrowLeft, FaCheck, FaSpinner } from 'react-icons/fa';
 import { axiosInstance } from '../../utils/axiosInstance';
 import { toast } from 'react-toastify';
+import ReactDOM from 'react-dom';
 
 const SpecialEd = () => {
   const [loading, setLoading] = useState(true);
@@ -30,18 +31,24 @@ const SpecialEd = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showResults, setShowResults] = useState(false);
+  const [completionMessage, setCompletionMessage] = useState('');
+  const [categoryScores, setCategoryScores] = useState(null);
+  const [assessmentNumber, setAssessmentNumber] = useState(1);
+  const [currentAssessment, setCurrentAssessment] = useState(null);
+  const [responses, setResponses] = useState({});
+
+  const RESPONSE_CHOICES = {
+    never: 'Never',
+    sometimes: 'Sometimes',
+    often: 'Often',
+    very_often: 'Very Often'
+  };
 
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
         setLoading(true);
         setError(null);
-        
-        // Fetch assessment categories
-        const categoriesResponse = await axiosInstance.get('/special-education/categories/');
-        if (categoriesResponse.data) {
-          setCategories(categoriesResponse.data);
-        }
         
         // Fetch students
         const studentsResponse = await axiosInstance.get('/user-admin/student-list/');
@@ -61,236 +68,308 @@ const SpecialEd = () => {
     fetchInitialData();
   }, []);
 
-  useEffect(() => {
-    const fetchStudentHistory = async () => {
-      if (selectedStudent) {
-        try {
-          const historyResponse = await axiosInstance.get(`/special-education/assessments/list/?student=${selectedStudent.id}`);
-          if (historyResponse.data) {
-            setAssessmentHistory(historyResponse.data);
-          }
-        } catch (error) {
-          console.error('Error fetching student history:', error);
-          toast.error('Failed to load student history');
-        }
-      }
-    };
+  const handleStartAssessment = async () => {
+    if (!selectedStudent) {
+      toast.error('Please select a student first');
+      return;
+    }
 
-    fetchStudentHistory();
-  }, [selectedStudent]);
-
-  const handleCategorySelect = async (category) => {
     try {
-      setSelectedCategory(category);
       setLoading(true);
+      setError(null);
+      console.log('Starting assessment for student:', selectedStudent);
+
+      // Get a random assessment
+      console.log('Fetching random assessment...');
+      const assessmentResponse = await axiosInstance.get('/special-education/auto-assessment/');
+      console.log('Assessment response:', assessmentResponse.data);
+
+      if (!assessmentResponse.data) {
+        throw new Error('No assessment data received');
+      }
+
+      // Create the assessment record
+      console.log('Creating assessment record...');
+      const createResponse = await axiosInstance.post('/special-education/assessments/create/', {
+        student: selectedStudent.id,
+        category: assessmentResponse.data.category.id,
+        completed: false
+      });
+      console.log('Assessment creation response:', createResponse.data);
+
+      if (!createResponse.data) {
+        throw new Error('Failed to create assessment record');
+      }
+
+      // Handle both new and existing assessment cases
+      const assessmentData = createResponse.data?.assessment || createResponse.data;
+      if (!assessmentData?.id) {
+        throw new Error('Invalid assessment data received');
+      }
+
+      // Set the current assessment and questions
+      setCurrentAssessment(assessmentData);
+      setSelectedCategory(assessmentResponse.data.category);
+      setDailyQuestions(assessmentResponse.data.questions);
+      setAssessmentStarted(true);
       
-      // Fetch questions for the selected category
-      const response = await axiosInstance.get(`/special-education/questions/random/`, {
-        params: {
-          category: category.id,
-          count: 10
-        }
+      console.log('Assessment setup complete:', {
+        currentAssessment: assessmentData,
+        category: assessmentResponse.data.category,
+        questions: assessmentResponse.data.questions
       });
       
-      if (response.status === 200 && response.data) {
-        setQuestions(response.data);
-        setActiveStep(1);
-      } else {
-        throw new Error('Failed to load questions');
-      }
+      // Show success message
+      toast.success('Assessment started successfully');
+      setActiveStep(3); // Move to questions step
+
     } catch (error) {
-      console.error('Error fetching questions:', error);
-      setError(error.response?.data?.message || 'Failed to load questions');
-      toast.error('Failed to load questions. Please try again.');
+      console.error('Error starting assessment:', error);
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to start assessment';
+      toast.error(errorMessage);
+      setError(errorMessage);
+      setLoading(false);
+      // Reset state on error
+      setCurrentAssessment(null);
+      setSelectedCategory(null);
+      setDailyQuestions([]);
+      setAssessmentStarted(false);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleStartAssessment = () => {
-    if (questions.length === 0) {
-      toast.error('No questions available. Please try again.');
+  const handleSubmitResponses = async () => {
+    if (Object.keys(responses).length !== dailyQuestions.length) {
+      toast.warning('Please answer all questions before submitting');
       return;
     }
-    setDailyQuestions(questions);
-    setAssessmentStarted(true);
-    setActiveStep(4);
-  };
 
-  const handleStudentSelect = (student) => {
-    setSelectedStudent(student);
-    setActiveStep(3);
-  };
+    if (!currentAssessment?.id) {
+      toast.error('No active assessment found');
+      return;
+    }
 
-  const handleAnswerChange = (questionId, value) => {
-    setAnswers(prev => ({
-      ...prev,
-      [questionId]: value
-    }));
-  };
-
-  const handlePrintAssessment = (assessment) => {
-    const printWindow = window.open('', '_blank');
-    
-    printWindow.document.write(`
-      <html>
-        <head>
-          <title>Assessment Report - ${assessment.category_details?.title}</title>
-          <style>
-            body { font-family: Arial, sans-serif; padding: 20px; }
-            .header { text-align: center; margin-bottom: 30px; }
-            .section { margin-bottom: 20px; }
-            .question { background: #f5f5f5; padding: 15px; margin-bottom: 15px; border-radius: 8px; }
-            .response { display: inline-block; padding: 5px 10px; border-radius: 15px; font-weight: bold; }
-            .response-very_often { background: #fee2e2; color: #991b1b; }
-            .response-often { background: #ffedd5; color: #9a3412; }
-            .response-sometimes { background: #fef9c3; color: #854d0e; }
-            .response-never { background: #dcfce7; color: #166534; }
-            @media print {
-              body { padding: 0; }
-              .question { break-inside: avoid; }
-              .no-print { display: none; }
-            }
-          </style>
-        </head>
-        <body>
-          <div class="header">
-            <h1>Assessment Report</h1>
-            <p>Category: ${assessment.category_details?.title}</p>
-            <p>Student: ${assessment.student_details?.first_name} ${assessment.student_details?.last_name}</p>
-            <p>Date: ${new Date(assessment.date).toLocaleDateString()}</p>
-          </div>
-
-          <div class="section">
-            <h2>Questions and Responses</h2>
-            ${assessment.responses?.map((response, index) => `
-              <div class="question">
-                <p><strong>Question ${index + 1}:</strong> ${response.question_text}</p>
-                <p><strong>Category:</strong> ${response.question_category}</p>
-                <p><strong>Response:</strong> 
-                  <span class="response response-${response.response}">
-                    ${response.response?.charAt(0).toUpperCase() + response.response?.slice(1).replace('_', ' ')}
-                  </span>
-                </p>
-              </div>
-            `).join('')}
-          </div>
-
-          <div class="section">
-            <h2>Summary</h2>
-            <p>Total Questions: ${assessment.responses?.length || 0}</p>
-            <p>Completion Status: ${assessment.completed ? 'Completed' : 'In Progress'}</p>
-          </div>
-
-          <div class="section">
-            <p style="font-style: italic; color: #666;">
-              Note: This assessment is for screening purposes only and should not be used as a substitute for professional medical evaluation.
-            </p>
-          </div>
-        </body>
-      </html>
-    `);
-
-    printWindow.document.close();
-    printWindow.focus();
-    setTimeout(() => {
-      printWindow.print();
-    }, 500);
-  };
-
-  const handleSubmitAssessment = async () => {
-    if (isSubmitting) return;
-    
-    setIsSubmitting(true);
     try {
-      // Validate that all questions have answers
-      const unansweredQuestions = dailyQuestions.filter(q => !answers[q.id]);
-      if (unansweredQuestions.length > 0) {
-        toast.error('Please answer all questions before submitting');
+      setIsSubmitting(true);
+      console.log('Current responses:', responses);
+      console.log('Daily questions:', dailyQuestions);
+      console.log('Current assessment:', currentAssessment);
+
+      // Validate response values
+      const validChoices = ['never', 'sometimes', 'often', 'very_often'];
+      const hasInvalidResponse = Object.values(responses).some(
+        response => !validChoices.includes(response.toLowerCase())
+      );
+
+      if (hasInvalidResponse) {
+        toast.error('Invalid response values detected');
         setIsSubmitting(false);
         return;
       }
 
-      console.log('Creating assessment with payload:', {
-        student: selectedStudent.id,
-        category: selectedCategory.id,
-        completed: true
-      });
-
-      // Create a new assessment
-      const assessmentResponse = await axiosInstance.post('/special-education/assessments/', {
-        student: selectedStudent.id,
-        category: selectedCategory.id,
-        completed: true
-      });
-
-      console.log('Assessment response:', assessmentResponse.data);
-
-      // Get the assessment data from the new response format
-      const assessmentData = assessmentResponse.data.assessment || assessmentResponse.data;
-
-      if (!assessmentData?.id) {
-        throw new Error('Failed to create assessment');
-      }
-
-      // Format the responses for submission
+      // Convert responses to the format expected by the backend
       const formattedResponses = dailyQuestions.map(question => ({
         question: question.id,
-        response: answers[question.id],
-        assessment: assessmentData.id
+        assessment: currentAssessment.id,
+        response: responses[question.id].toLowerCase()
       }));
-
+      
       console.log('Submitting responses:', formattedResponses);
 
-      // Submit the assessment responses
+      // Submit responses
       const responseResult = await axiosInstance.post('/special-education/responses/bulk_create/', {
         responses: formattedResponses
       });
 
-      console.log('Responses submitted:', responseResult.data);
+      console.log('Response submission result:', responseResult.data);
 
-      if (!responseResult.data) {
-        throw new Error('Failed to submit responses');
-      }
+      if (responseResult.data) {
+        // Update assessment as completed
+        const updateResult = await axiosInstance.patch(`/special-education/assessments/${currentAssessment.id}/`, {
+          completed: true
+        });
 
-      // Update assessment status - only send the completed field
-      await axiosInstance.patch(`/special-education/assessments/${assessmentData.id}/`, {
-        completed: true
-      });
+        console.log('Assessment update result:', updateResult.data);
 
-      // Fetch updated assessment history
-      const historyResponse = await axiosInstance.get(`/special-education/assessments/list/?student=${selectedStudent.id}`);
-      
-      if (historyResponse.data) {
-        const currentAssessment = historyResponse.data.find(a => a.id === assessmentData.id);
+        toast.success('Assessment submitted successfully');
         
-        if (!currentAssessment) {
-          throw new Error('Could not find submitted assessment');
+        // If we have category scores, show them
+        if (updateResult.data?.category_scores) {
+          setCategoryScores(updateResult.data.category_scores);
+          setAssessmentNumber(updateResult.data.assessment_number);
+          setCompletionMessage(updateResult.data.message || 'Assessment completed successfully');
+          setActiveStep(5);
+        } else {
+          // Otherwise, go back to student selection
+          setActiveStep(1);
+          resetAssessmentState();
         }
-
-        // Update states in the correct order
-        setAssessmentHistory(historyResponse.data);
-        setShowResults(true);
-        setAssessmentStarted(false);
-        setActiveStep(5);
         
-        // Show success message
-        toast.success(assessmentResponse.data.message || 'Assessment submitted successfully!');
-        
-        // Offer to print after a short delay
-        setTimeout(() => {
-          if (window.confirm('Would you like to print the assessment report?')) {
-            handlePrintAssessment(currentAssessment);
-          }
-        }, 500);
+        // Optionally fetch updated history
+        if (typeof fetchAssessmentHistory === 'function') {
+          await fetchAssessmentHistory();
+        }
       }
     } catch (error) {
       console.error('Error submitting assessment:', error);
-      console.error('Error details:', error.response?.data);
-      toast.error(error.response?.data?.message || 'Failed to submit assessment. Please try again.');
+      const errorMessage = error.response?.data?.error || 
+                          error.response?.data?.message || 
+                          'Failed to submit assessment';
+      toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleAnswerChange = (questionId, value) => {
+    console.log('Setting response for question', questionId, 'to value:', value);
+    // Ensure value is lowercase and valid
+    const normalizedValue = value.toLowerCase();
+    const validChoices = ['never', 'sometimes', 'often', 'very_often'];
+    
+    if (!validChoices.includes(normalizedValue)) {
+      console.error('Invalid response value:', value);
+      return;
+    }
+
+    setResponses(prev => {
+      const newResponses = {
+        ...prev,
+        [questionId]: normalizedValue
+      };
+      console.log('Updated responses:', newResponses);
+      return newResponses;
+    });
+  };
+
+  const renderResponseButtons = (questionId) => {
+    return Object.entries(RESPONSE_CHOICES).map(([value, label]) => (
+      <button
+        key={value}
+        onClick={() => handleAnswerChange(questionId, value)}
+        className={`p-2 rounded-md border-2 transition-all ${
+          responses[questionId] === value
+            ? 'border-blue-500 bg-blue-50 text-blue-700'
+            : 'border-gray-200 hover:border-blue-200'
+        }`}
+      >
+        {label}
+      </button>
+    ));
+  };
+
+  const renderQuestions = () => {
+    if (!dailyQuestions.length) return null;
+
+    return (
+      <div className="space-y-6">
+        {dailyQuestions.map((question, index) => (
+          <div key={question.id} className="bg-gray-50 rounded-md p-4">
+            <div className="flex items-start space-x-3">
+              <span className="flex items-center justify-center w-6 h-6 bg-blue-100 text-blue-600 rounded-full">
+                {index + 1}
+              </span>
+              <div className="flex-1">
+                <div className="flex justify-between items-start mb-2">
+                  <h3 className="text-sm font-medium text-gray-900">{question.question_text}</h3>
+                  <span className="px-1.5 py-0.5 bg-blue-100 text-blue-800 text-xs font-medium rounded-sm">
+                    {question.question_category}
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                  {renderResponseButtons(question.id)}
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  const renderAssessment = () => {
+    if (!currentAssessment || !selectedCategory || !dailyQuestions.length) {
+      return (
+        <div className="max-w-4xl mx-auto px-4 py-12 text-center">
+          <div className="animate-spin rounded-full h-24 w-24 border-t-2 border-b-2 border-blue-500 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading assessment...</p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="max-w-4xl mx-auto px-4 py-8">
+        <div className="bg-white rounded-md shadow-md p-6">
+          <div className="flex justify-between items-center mb-6">
+            <div>
+              <h2 className="text-lg font-bold text-gray-900">{selectedCategory.title}</h2>
+              <p className="text-gray-600">
+                Student: {selectedStudent.first_name} {selectedStudent.last_name}
+              </p>
+              <p className="text-gray-500 text-sm mt-1">
+                Assessment {currentAssessment.assessment_number}/30
+              </p>
+            </div>
+            <button
+              onClick={() => {
+                setActiveStep(2);
+                resetAssessmentState();
+              }}
+              className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+            >
+              <FaArrowLeft className="mr-2" /> Back
+            </button>
+          </div>
+
+          {renderQuestions()}
+
+          <div className="mt-6">
+            <div className="flex flex-col space-y-4">
+              {Object.keys(responses).length !== dailyQuestions.length && (
+                <p className="text-amber-600 text-sm">
+                  Please answer all {dailyQuestions.length} questions before submitting. You have {dailyQuestions.length - Object.keys(responses).length} question(s) remaining.
+                </p>
+              )}
+              <button
+                onClick={handleSubmitResponses}
+                disabled={isSubmitting || Object.keys(responses).length !== dailyQuestions.length}
+                className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 ${
+                  isSubmitting || Object.keys(responses).length !== dailyQuestions.length
+                    ? 'bg-gray-400 cursor-not-allowed'
+                    : ''
+                }`}
+              >
+                {isSubmitting ? (
+                  <>
+                    <FaSpinner className="animate-spin mr-2" />
+                    Submitting...
+                  </>
+                ) : (
+                  <>
+                    Submit Assessment
+                    <FaCheck className="ml-2" />
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const resetAssessmentState = () => {
+    setCurrentAssessment(null);
+    setSelectedCategory(null);
+    setDailyQuestions([]);
+    setResponses({});
+    setSelectedStudent(null);
+  };
+
+  const handleStudentSelect = (student) => {
+    setSelectedStudent(student);
+    setActiveStep(2);  // Move to confirmation step
   };
 
   const handleAddStudent = async (e) => {
@@ -310,7 +389,7 @@ const SpecialEd = () => {
       const accountResponse = await axiosInstance.post('/user-admin/create-account/', {
         accounts: [{
           role: 'student',
-          branch_name: 'Main Branch',
+          branch_name: '',
           username: newStudent.username,
           password: newStudent.password
         }]
@@ -358,94 +437,375 @@ const SpecialEd = () => {
     }
   };
 
-  useEffect(() => {
-    if (activeStep === 5 && !showResults) {
-      setShowResults(true);
+  const fetchAssessmentHistory = async () => {
+    try {
+      const response = await axiosInstance.get(
+        `/special-education/assessments/?student_id=${selectedStudent.id}`
+      );
+      setAssessmentHistory(response.data);
+    } catch (error) {
+      console.error('Error fetching assessment history:', error);
+      toast.error('Failed to fetch assessment history');
     }
-  }, [activeStep]);
+  };
 
   useEffect(() => {
-    return () => {
-      setAnswers({});
-      setDailyQuestions([]);
-      setAssessmentStarted(false);
-      setShowResults(false);
-      setActiveStep(0);
-    };
+    fetchAssessmentHistory();
   }, []);
 
-  useEffect(() => {
-    const handleBeforeUnload = (e) => {
-      if (assessmentStarted && Object.keys(answers).length > 0 && activeStep === 4) {
-        e.preventDefault();
-        e.returnValue = '';
-      }
-    };
+  const PrintableAssessment = () => (
+    <div id="printable-assessment" className="hidden print:block print:mx-auto print:w-[210mm] print:h-[297mm] print:pt-[8mm] print:pb-[12mm] print:px-[12mm] print:text-black print:bg-white relative print:text-[0.92em]">
+      {/* Watermark */}
+      <div className="absolute inset-0 flex items-center justify-center opacity-[0.02] pointer-events-none rotate-[-35deg]">
+        <div className="text-[90px] font-bold text-gray-900 whitespace-nowrap">CONFIDENTIAL</div>
+      </div>
 
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, [assessmentStarted, answers, activeStep]);
+      {/* Logo and Header Section */}
+      <header className="mb-6">
+        <div className="text-center mb-4 relative pb-3">
+          {/* Decorative Corners */}
+          <div className="absolute top-0 left-0 w-14 h-14">
+            <div className="absolute top-0 left-0 w-full h-1 bg-blue-800"></div>
+            <div className="absolute top-0 left-0 w-1 h-full bg-blue-800"></div>
+          </div>
+          <div className="absolute top-0 right-0 w-14 h-14">
+            <div className="absolute top-0 right-0 w-full h-1 bg-blue-800"></div>
+            <div className="absolute top-0 right-0 w-1 h-full bg-blue-800"></div>
+          </div>
+          <div className="absolute bottom-0 left-0 w-14 h-14">
+            <div className="absolute bottom-0 left-0 w-full h-1 bg-blue-800"></div>
+            <div className="absolute bottom-0 left-0 w-1 h-full bg-blue-800"></div>
+          </div>
+          <div className="absolute bottom-0 right-0 w-14 h-14">
+            <div className="absolute bottom-0 right-0 w-full h-1 bg-blue-800"></div>
+            <div className="absolute bottom-0 right-0 w-1 h-full bg-blue-800"></div>
+          </div>
+          
+          {/* Header Content */}
+          <div className="px-14">
+            <h1 className="text-2xl font-bold tracking-tight text-blue-900 mb-1.5">Special Education Assessment Report</h1>
+            <p className="text-[10px] text-gray-600 mb-2">Confidential Student Assessment Document</p>
+            <div className="flex items-center justify-center space-x-2 text-[9px] text-gray-500">
+              <span>Report ID: {currentAssessment?.id || 'N/A'}</span>
+              <span>•</span>
+              <span>Generated: {new Date().toLocaleString()}</span>
+            </div>
+          </div>
+        </div>
+        
+        {/* Information Cards */}
+        <div className="grid grid-cols-2 gap-3">
+          {/* Student Information */}
+          <div className="bg-gradient-to-br from-gray-50 to-white rounded-md border border-gray-200 shadow-sm overflow-hidden">
+            <div className="bg-blue-900 text-white px-3 py-1.5">
+              <h3 className="text-[10px] font-semibold uppercase tracking-wider">Student Information</h3>
+            </div>
+            <div className="p-3">
+              <table className="w-full text-[10px]">
+                <tbody className="space-y-1.5">
+                  <tr>
+                    <td className="pr-2 py-1 text-gray-600 w-1/3">Full Name:</td>
+                    <td className="font-medium">{selectedStudent?.first_name} {selectedStudent?.last_name}</td>
+                  </tr>
+                  <tr>
+                    <td className="pr-2 py-1 text-gray-600">Grade Level:</td>
+                    <td className="font-medium">{selectedStudent?.grade_level || selectedStudent?.student_info?.grade_level || 'N/A'}</td>
+                  </tr>
+                  <tr>
+                    <td className="pr-2 py-1 text-gray-600">Student ID:</td>
+                    <td className="font-medium">{selectedStudent?.id || 'N/A'}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
 
-  useEffect(() => {
-    if (activeStep === 5) {
-      setShowResults(true);
-      setAssessmentStarted(false);
-    }
-  }, [activeStep]);
+          {/* Assessment Information */}
+          <div className="bg-gradient-to-br from-gray-50 to-white rounded-md border border-gray-200 shadow-sm overflow-hidden">
+            <div className="bg-blue-900 text-white px-3 py-1.5">
+              <h3 className="text-[10px] font-semibold uppercase tracking-wider">Assessment Details</h3>
+            </div>
+            <div className="p-3">
+              <table className="w-full text-[10px]">
+                <tbody className="space-y-1.5">
+                  <tr>
+                    <td className="pr-2 py-1 text-gray-600 w-1/3">Assessment #:</td>
+                    <td className="font-medium">{assessmentNumber}/30</td>
+                  </tr>
+                  <tr>
+                    <td className="pr-2 py-1 text-gray-600">Date:</td>
+                    <td className="font-medium">{new Date().toLocaleDateString()}</td>
+                  </tr>
+                  <tr>
+                    <td className="pr-2 py-1 text-gray-600">Category:</td>
+                    <td className="font-medium">{selectedCategory?.title || 'General Assessment'}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </header>
+      
+      {/* Assessment Responses */}
+      <section className="space-y-3 relative">
+        <div className="flex justify-between items-center mb-3 pb-2 border-b-2 border-blue-900">
+          <div>
+            <h2 className="text-lg font-bold text-blue-900">Assessment Responses</h2>
+            <p className="text-[10px] text-gray-600">Evaluation Questions and Student Responses</p>
+          </div>
+          <div className="text-right">
+            <div className="text-xl font-bold text-blue-900">{dailyQuestions.length}</div>
+            <div className="text-[10px] text-gray-600">Total Questions</div>
+          </div>
+        </div>
 
-  useEffect(() => {
-    const handleBeforeUnload = (e) => {
-      if (assessmentStarted && Object.keys(answers).length > 0 && activeStep === 4) {
-        e.preventDefault();
-        e.returnValue = '';
-      }
-    };
+        <div className="space-y-3">
+          {dailyQuestions.map((question, index) => (
+            <div key={question.id} className="relative bg-gradient-to-r from-white to-gray-50 rounded-md border border-gray-200 p-3 print:break-inside-avoid shadow-sm">
+              <div className="absolute top-0 left-0 w-0.5 h-full bg-blue-900 rounded-l-sm"></div>
+              <div className="flex gap-3">
+                <div className="flex-none">
+                  <span className="inline-flex items-center justify-center w-6 h-6 rounded-md bg-blue-100 text-blue-900 font-bold text-xs border border-blue-200">
+                    {index + 1}
+                  </span>
+                </div>
+                <div className="flex-1">
+                  <div className="flex justify-between items-start gap-2 mb-2">
+                    <p className="text-xs font-medium leading-snug text-gray-900">{question.question_text}</p>
+                    <span className="shrink-0 px-1.5 py-0.5 bg-blue-100 text-blue-900 text-[9px] rounded-sm font-medium border border-blue-200 uppercase tracking-wider">
+                      {question.question_category}
+                    </span>
+                  </div>
+                  <div className="bg-white rounded-sm p-2 border border-gray-200">
+                    <p className="text-[10px] text-gray-800">
+                      <span className="font-semibold text-blue-900">Response:</span>{' '}
+                      <span>{responses[question.id]?.charAt(0).toUpperCase() + responses[question.id]?.slice(1)}</span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
 
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, [assessmentStarted, answers, activeStep]);
+      {/* Footer */}
+      <footer className="absolute bottom-[12mm] left-[12mm] right-[12mm]">
+        <div className="border-t-2 border-gray-200 pt-3">
+          {/* Disclaimer */}
+          <div className="bg-blue-50 border border-blue-200 rounded-md p-2 mb-3">
+            <p className="text-[10px] text-blue-900 text-center">
+              This assessment is for screening purposes only and should be interpreted by qualified professionals.
+              All information contained within is confidential and protected under FERPA guidelines.
+              For more information about FERPA, visit: https://studentprivacy.ed.gov/faq/what-ferpa
+            </p>
+          </div>
+
+          {/* Footer Grid */}
+          <div className="grid grid-cols-3 gap-3 text-[9px] text-gray-600 mb-3">
+            <div>
+              <h4 className="font-semibold text-blue-900 mb-1 uppercase tracking-wider">Document Information</h4>
+              <p className="mb-0.5">Generated: {new Date().toLocaleString()}</p>
+              <p className="mb-0.5">Report ID: {currentAssessment?.id || 'N/A'}</p>
+              <p>Assessment #{assessmentNumber} of 30</p>
+            </div>
+            <div className="text-center">
+              <h4 className="font-semibold text-blue-900 mb-1 uppercase tracking-wider">FERPA Notice</h4>
+              <p className="mb-0.5">CONFIDENTIAL DOCUMENT</p>
+              <p className="mb-0.5">Protected by Family Educational</p>
+              <p className="mb-0.5">Rights and Privacy Act (FERPA)</p>
+              <p>20 U.S.C. § 1232g; 34 CFR Part 99</p>
+            </div>
+            <div className="text-right">
+              <h4 className="font-semibold text-blue-900 mb-1 uppercase tracking-wider">Department Contact</h4>
+              <p className="mb-0.5">Special Education Division</p>
+              <p className="mb-0.5">Assessment Department</p>
+              <p>Educational Services</p>
+            </div>
+          </div>
+          
+          {/* Copyright */}
+          <div className="flex justify-between items-center pt-2 border-t border-gray-200 text-[8px] text-gray-500">
+            <span>Special Education Assessment Tool • Confidential Report</span>
+            <span>&#169; {new Date().getFullYear()} All Rights Reserved</span>
+            <div className="flex items-center space-x-1">
+              <span>Page 1 of 1</span>
+              <div className="w-2.5 h-2.5">
+                <svg className="w-full h-full text-blue-900" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+
+  const handlePrint = () => {
+    window.print();
+  };
+
+  const renderResults = () => {
+    if (!categoryScores) return null;
+
+    return (
+      <div className="space-y-4">
+        {/* Print-only content */}
+        <PrintableAssessment />
+        
+        {/* Screen-only content */}
+        <div className="print:hidden">
+          {/* Completion Message */}
+          <div className="bg-green-50 border-l-4 border-green-400 p-3">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <FaCheck className="h-4 w-4 text-green-400" aria-hidden="true" />
+              </div>
+              <div className="ml-2">
+                <p className="text-sm text-green-700">{completionMessage}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Results Card */}
+          <div className="bg-white shadow overflow-hidden sm:rounded-md mt-4">
+            <div className="px-3 py-3 sm:px-4">
+              <h3 className="text-sm font-medium text-gray-900">Assessment Results</h3>
+              <p className="mt-1 max-w-2xl text-sm text-gray-500">
+                Category scores for assessment #{assessmentNumber}
+              </p>
+            </div>
+            <div className="border-t border-gray-200">
+              <dl>
+                {Object.entries(categoryScores).map(([category, score], idx) => (
+                  <div key={category} className={`${idx % 2 === 0 ? 'bg-gray-50' : 'bg-white'} px-3 py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-4`}>
+                    <dt className="text-sm font-medium text-gray-500">{category}</dt>
+                    <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                      {score}% concern level
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          </div>
+
+          {/* Responses Section */}
+          <div className="bg-white shadow overflow-hidden sm:rounded-md mt-4">
+            <div className="px-3 py-3 sm:px-4">
+              <h3 className="text-sm font-medium text-gray-900">Assessment Responses</h3>
+            </div>
+            <div className="border-t border-gray-200">
+              <div className="divide-y divide-gray-200">
+                {dailyQuestions.map((question, index) => (
+                  <div key={question.id} className="px-3 py-3">
+                    <div className="flex items-start space-x-3">
+                      <span className="flex items-center justify-center w-5 h-5 bg-blue-100 text-blue-600 rounded-full">
+                        {index + 1}
+                      </span>
+                      <div className="flex-1">
+                        <div className="flex justify-between items-start">
+                          <h4 className="text-sm font-medium text-gray-900">{question.question_text}</h4>
+                          <span className="px-1.5 py-0.5 bg-blue-100 text-blue-800 text-xs font-medium rounded-sm">
+                            {question.question_category}
+                          </span>
+                        </div>
+                        <p className="mt-2 text-sm text-gray-600">
+                          Response: <span className="font-medium">{responses[question.id]?.charAt(0).toUpperCase() + responses[question.id]?.slice(1)}</span>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Disclaimer */}
+          <div className="text-sm text-gray-500 mt-4">
+            <p className="font-medium mb-2">Important Notice:</p>
+            <ul className="list-disc pl-5 space-y-1">
+              <li>This assessment is for screening purposes only and does not provide a diagnosis.</li>
+              <li>Results should be interpreted by qualified healthcare professionals.</li>
+              <li>Assessment results are valid for 30 days from the date of completion.</li>
+            </ul>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex justify-between mt-4">
+            <button
+              type="button"
+              onClick={() => {
+                setActiveStep(0);
+                setCompletionMessage('');
+                setCategoryScores(null);
+              }}
+              className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+            >
+              Start New Assessment
+            </button>
+            <button
+              type="button"
+              onClick={handlePrint}
+              className="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
+            >
+              <FaPrint className="-ml-1 mr-2 h-4 w-4" aria-hidden="true" />
+              Print Results
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   const renderWelcome = () => (
-    <div className="max-w-4xl mx-auto px-4 py-16 text-center">
-      <div className="mb-12">
-        <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
-          <FaGraduationCap className="w-12 h-12 text-blue-600" />
+    <div className="max-w-4xl mx-auto px-4 py-12 text-center">
+      <div className="mb-8">
+        <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <FaGraduationCap className="w-8 h-8 text-blue-600" />
         </div>
-        <h1 className="text-5xl font-bold text-gray-900 mb-6">Special Education Assessment Tool</h1>
-        <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-          Welcome to our comprehensive assessment platform designed to support educators in evaluating and tracking students with diverse learning needs.
+        <h1 className="text-3xl font-bold text-gray-900 mb-4">Special Education Assessment Tool</h1>
+        <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+          Welcome to our comprehensive assessment platform. Select a student to begin today's assessment.
         </p>
       </div>
 
-      <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-8 text-left rounded-lg">
+      <div className="bg-yellow-50 border-l-4 border-yellow-400 p-3 mb-2 text-left rounded-md">
+        <p className="text-yellow-700">
+          <strong>Important Notice:</strong> Assessment results will be available after 30 days to ensure accurate progress tracking.
+        </p>
+      </div>
+      
+      <div className="bg-yellow-50 border-l-4 border-yellow-400 p-3 mb-6  text-left rounded-md">
         <p className="text-yellow-700">
           <strong>Important Notice:</strong> This tool is designed for initial screening purposes only and does not provide a diagnosis. 
           Always consult with qualified healthcare professionals for proper evaluation and diagnosis.
         </p>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-lg p-8 mb-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">What You Can Do</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="p-4">
-            <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
-              <FaBrain className="w-6 h-6 text-blue-600" />
+      <div className="bg-white rounded-md shadow-md p-6 mb-6">
+        <h2 className="text-lg font-bold text-gray-900">What You Can Do</h2>
+        <div className="grid grid-cols-1 gap-4">
+          <div className="p-3">
+            <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-3">
+              <FaBrain className="w-5 h-5 text-blue-600" />
             </div>
-            <h3 className="text-lg font-semibold mb-2">Conduct Assessments</h3>
+            <h3 className="text-sm font-semibold mb-2">Conduct Assessments</h3>
             <p className="text-gray-600">Evaluate students across multiple categories including ADHD, ASD, and more.</p>
           </div>
-          <div className="p-4">
-            <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
-              <FaCalendar className="w-6 h-6 text-blue-600" />
+          <div className="p-3">
+            <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-3">
+              <FaCalendar className="w-5 h-5 text-blue-600" />
             </div>
-            <h3 className="text-lg font-semibold mb-2">Track Progress</h3>
+            <h3 className="text-sm font-semibold mb-2">Track Progress</h3>
             <p className="text-gray-600">Monitor student development with daily assessments and detailed history.</p>
           </div>
-          <div className="p-4">
-            <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
-              <FaHistory className="w-6 h-6 text-blue-600" />
+          <div className="p-3">
+            <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-3">
+              <FaHistory className="w-5 h-5 text-blue-600" />
             </div>
-            <h3 className="text-lg font-semibold mb-2">View History</h3>
+            <h3 className="text-sm font-semibold mb-2">View History</h3>
             <p className="text-gray-600">Access comprehensive assessment history and generate detailed reports.</p>
           </div>
         </div>
@@ -453,697 +813,282 @@ const SpecialEd = () => {
 
       <div className="flex justify-center space-x-4">
         <button
-          onClick={() => setActiveStep(2)}
-          className="inline-flex items-center px-8 py-4 text-lg font-medium text-white bg-blue-600 rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 group"
+          onClick={() => setActiveStep(1)}
+          className="inline-flex items-center px-6 py-2 text-lg font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 group"
         >
           Start Assessment
-          <FaArrowRight className="ml-3 group-hover:translate-x-1 transition-transform duration-200" />
-        </button>
-        <button
-          onClick={() => setShowHistory(true)}
-          className="inline-flex items-center px-8 py-4 text-lg font-medium text-blue-700 bg-blue-100 rounded-xl hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-        >
-          View History
-          <FaHistory className="ml-3" />
+          <FaArrowRight className="ml-2 group-hover:translate-x-1 transition-transform duration-200" />
         </button>
       </div>
     </div>
   );
 
-  const renderCategorySelection = () => (
-    <div className="max-w-4xl mx-auto px-4 py-16">
-      <h2 className="text-4xl font-bold text-gray-900 mb-4 text-center">
-        Select Assessment Category
-      </h2>
-      <p className="text-xl text-gray-600 mb-12 text-center max-w-3xl mx-auto">
-        Choose an assessment category to begin
-      </p>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        {categories.map(category => (
-          <div
-            key={category.id}
-            onClick={() => handleCategorySelect(category)}
-            className="bg-white rounded-xl shadow-lg p-6 cursor-pointer hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 hover:bg-blue-50 group"
-          >
-            <div className="flex items-center">
-              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center group-hover:bg-blue-200 transition-colors duration-300">
-                <FaBrain className="w-6 h-6 text-blue-600" />
-              </div>
-              <div className="ml-4">
-                <h3 className="text-xl font-semibold text-gray-900">{category.title}</h3>
-                <p className="text-gray-600">{category.description}</p>
-              </div>
+  const renderStudentSelection = () => (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="bg-white shadow overflow-hidden sm:rounded-md">
+        <div className="px-3 py-3 sm:px-4">
+          <h3 className="text-sm font-medium text-gray-900">Select Student</h3>
+          <p className="mt-1 max-w-2xl text-sm text-gray-500">
+            Choose a student to begin the assessment
+          </p>
+        </div>
+        <div className="border-t border-gray-200 px-3 py-3 sm:p-0">
+          <div className="py-3 px-4">
+            <div className="flex items-center mb-3">
+              <input
+                type="text"
+                placeholder="Search students..."
+                className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
             </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-
-  const renderStudentSelection = () => {
-    if (!selectedCategory) {
-      setActiveStep(0);
-      return null;
-    }
-
-    if (!Array.isArray(students)) {
-      return (
-        <div className="max-w-4xl mx-auto px-4 py-16 text-center">
-          <p className="text-red-600">Error loading students. Please try again.</p>
-        </div>
-      );
-    }
-    
-    return (
-      <div className="max-w-4xl mx-auto px-4 py-16">
-        <h2 className="text-4xl font-bold text-gray-900 mb-4 text-center">
-          Select Student for {selectedCategory.title}
-        </h2>
-        <p className="text-xl text-gray-600 mb-12 text-center max-w-3xl mx-auto">
-          Choose a student or add a new one to begin the assessment process
-        </p>
-
-        <div className="mb-8">
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Search students..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-4 py-3 pl-12 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-            <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          {students
-            .filter(student => 
-              (student.first_name + ' ' + student.last_name).toLowerCase().includes(searchQuery.toLowerCase())
-            )
-            .map(student => (
-              <div
-                key={student.id}
-                onClick={() => handleStudentSelect(student)}
-                className="bg-white rounded-xl shadow-lg p-6 cursor-pointer hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
-              >
-                <div className="flex items-center">
-                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                    <FaChild className="w-6 h-6 text-blue-600" />
-                  </div>
-                  <div className="ml-4">
-                    <h3 className="text-xl font-semibold text-gray-900">{student.first_name} {student.last_name}</h3>
-                    <p className="text-gray-600">Grade: {student.student_info?.grade_level} | ID: {student.id}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-        </div>
-
-        <button
-          onClick={() => setShowAddStudentModal(true)}
-          className="mx-auto flex items-center px-6 py-3 text-lg font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100"
-        >
-          <FaPlus className="mr-2" /> Add New Student
-        </button>
-
-        {/* Add Student Modal */}
-        {showAddStudentModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-8 max-w-md w-full">
-              <h3 className="text-2xl font-bold mb-4">Add New Student</h3>
-              <form onSubmit={handleAddStudent}>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">First Name</label>
-                    <input
-                      type="text"
-                      value={newStudent.first_name}
-                      onChange={(e) => setNewStudent({...newStudent, first_name: e.target.value})}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Last Name</label>
-                    <input
-                      type="text"
-                      value={newStudent.last_name}
-                      onChange={(e) => setNewStudent({...newStudent, last_name: e.target.value})}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Username</label>
-                    <input
-                      type="text"
-                      value={newStudent.username}
-                      onChange={(e) => setNewStudent({...newStudent, username: e.target.value})}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Email</label>
-                    <input
-                      type="email"
-                      value={newStudent.email}
-                      onChange={(e) => setNewStudent({...newStudent, email: e.target.value})}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Grade Level</label>
-                    <select
-                      value={newStudent.grade_level}
-                      onChange={(e) => setNewStudent({...newStudent, grade_level: e.target.value})}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                      required
-                    >
-                      <option value="">Select Grade</option>
-                      <option value="Grade 1">Grade 1</option>
-                      <option value="Grade 2">Grade 2</option>
-                      <option value="Grade 3">Grade 3</option>
-                      <option value="Grade 4">Grade 4</option>
-                      <option value="Grade 5">Grade 5</option>
-                      <option value="Grade 6">Grade 6</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Password</label>
-                    <input
-                      type="password"
-                      value={newStudent.password}
-                      onChange={(e) => setNewStudent({...newStudent, password: e.target.value})}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                      required
-                    />
-                  </div>
-                </div>
-                <div className="mt-6 flex justify-end space-x-3">
-                  <button
-                    type="button"
-                    onClick={() => setShowAddStudentModal(false)}
-                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {students
+                .filter(student => 
+                  `${student.first_name} ${student.last_name}`
+                    .toLowerCase()
+                    .includes(searchQuery.toLowerCase())
+                )
+                .map((student) => (
+                  <div
+                    key={student.id}
+                    className={`relative rounded-md border p-3 cursor-pointer hover:border-indigo-500 ${
+                      selectedStudent?.id === student.id ? 'border-indigo-500 bg-indigo-50' : 'border-gray-300'
+                    }`}
+                    onClick={() => setSelectedStudent(student)}
                   >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
-                  >
-                    Add Student
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  };
-
-  const renderAssessmentIntro = () => (
-    <div className="max-w-4xl mx-auto px-4 py-16 text-center">
-      <div className="mb-8">
-        <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
-          <FaCalendar className="w-10 h-10 text-blue-600" />
-        </div>
-        <h2 className="text-4xl font-bold text-gray-900 mb-4">
-          Daily Assessment for {selectedStudent.first_name} {selectedStudent.last_name}
-        </h2>
-        <p className="text-xl text-gray-600 mb-8">
-          Today's assessment consists of 10 questions. You can track progress and print results after completion.
-        </p>
-      </div>
-
-      <div className="bg-white rounded-2xl shadow-lg p-8">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900">{selectedCategory.title}</h2>
-            <p className="text-gray-600">Student: {selectedStudent.first_name} {selectedStudent.last_name}</p>
-          </div>
-          <button
-            onClick={() => setActiveStep(activeStep - 1)}
-            className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
-          >
-            <FaArrowLeft className="mr-2" /> Back
-          </button>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4 mb-8">
-          <div>
-            <h3 className="text-lg font-semibold text-gray-700 mb-2">Student Information</h3>
-            <p className="text-gray-600">Name: {selectedStudent.first_name} {selectedStudent.last_name}</p>
-            <p className="text-gray-600">Grade: {selectedStudent.student_info?.grade_level}</p>
-            <p className="text-gray-600">ID: {selectedStudent.id}</p>
-          </div>
-          <div>
-            <h3 className="text-lg font-semibold text-gray-700 mb-2">Assessment Details</h3>
-            <p className="text-gray-600">Category: {selectedCategory.title}</p>
-            <p className="text-gray-600">Date: {currentDate}</p>
-            <p className="text-gray-600">Questions: 10</p>
-          </div>
-        </div>
-
-        <button
-          onClick={handleStartAssessment}
-          className="inline-flex items-center px-8 py-4 text-lg font-semibold text-white bg-blue-600 rounded-full hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50 transform hover:scale-105 transition-all duration-200"
-        >
-          Start Today's Assessment
-          <FaArrowRight className="ml-3" />
-        </button>
-      </div>
-
-      <div className="bg-white rounded-2xl shadow-lg p-8">
-        <h3 className="text-2xl font-bold text-gray-900 mb-6 text-left">Assessment History</h3>
-        <div className="space-y-4">
-          {assessmentHistory
-            .filter(history => history.student.id === selectedStudent.id)
-            .map((history, index) => (
-              <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
-                <div className="flex items-center">
-                  <FaHistory className="w-5 h-5 text-gray-400 mr-3" />
-                  <div>
-                    <p className="font-medium text-gray-900">{history.date}</p>
-                    <p className="text-sm text-gray-600">{history.category.title}</p>
-                  </div>
-                </div>
-                <div className="flex space-x-3">
-                  <button className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg">
-                    <FaFilePdf className="w-5 h-5" />
-                  </button>
-                  <button className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg">
-                    <FaPrint className="w-5 h-5" />
-                  </button>
-                </div>
-              </div>
-            ))}
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderAssessment = () => {
-    if (!assessmentStarted || !dailyQuestions.length) {
-      return null;
-    }
-
-    return (
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        <div className="bg-white rounded-xl shadow-lg p-8">
-          <div className="flex justify-between items-center mb-8">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900">{selectedCategory.title}</h2>
-              <p className="text-gray-600">Student: {selectedStudent.first_name} {selectedStudent.last_name}</p>
-            </div>
-            <button
-              onClick={() => setActiveStep(activeStep - 1)}
-              className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
-            >
-              <FaArrowLeft className="mr-2" /> Back
-            </button>
-          </div>
-
-          <div className="space-y-8">
-            {dailyQuestions.map((question, index) => (
-              <div key={question.id} className="bg-gray-50 rounded-lg p-6">
-                <div className="flex items-start space-x-4">
-                  <span className="flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-600 rounded-full">
-                    {index + 1}
-                  </span>
-                  <div className="flex-1">
-                    <div className="flex justify-between items-start mb-3">
-                      <h3 className="text-lg font-medium text-gray-900">{question.question_text}</h3>
-                      <span className="px-2 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full">
-                        {question.category || selectedCategory.title}
-                      </span>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-                      {['never', 'sometimes', 'often', 'very_often'].map((option) => (
-                        <button
-                          key={option}
-                          onClick={() => handleAnswerChange(question.id, option)}
-                          className={`p-3 rounded-lg border-2 transition-all ${
-                            answers[question.id] === option
-                              ? 'border-blue-500 bg-blue-50 text-blue-700'
-                              : 'border-gray-200 hover:border-gray-300'
-                          }`}
-                        >
-                          {option.charAt(0).toUpperCase() + option.slice(1).replace('_', ' ')}
-                        </button>
-                      ))}
-                    </div>
-                    <div className="mt-4">
-                      <div className="h-2 bg-gray-200 rounded-full">
-                        <div 
-                          className={`h-2 rounded-full ${
-                            answers[question.id] === 'very_often' ? 'bg-red-500 w-full' :
-                            answers[question.id] === 'often' ? 'bg-orange-500 w-3/4' :
-                            answers[question.id] === 'sometimes' ? 'bg-yellow-500 w-1/2' :
-                            answers[question.id] === 'never' ? 'bg-green-500 w-1/4' : ''
-                          }`}
-                        />
+                    <div className="flex items-center space-x-3">
+                      <div className="flex-shrink-0">
+                        <FaChild className="h-5 w-5 text-gray-400" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-900">
+                          {student.first_name} {student.last_name}
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          Grade Level: {student.student_info?.grade_level || student.grade_level || 'N/A'}
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          ID: {student.id}
+                        </p>
                       </div>
                     </div>
                   </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-8">
-            <div className="bg-white rounded-lg p-4 shadow mb-4">
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Assessment Progress</h3>
-              <div className="h-2 bg-gray-200 rounded-full">
-                <div 
-                  className="h-2 bg-blue-600 rounded-full transition-all"
-                  style={{ width: `${(Object.keys(answers).length / dailyQuestions.length) * 100}%` }}
-                />
-              </div>
-              <p className="text-sm text-gray-600 mt-2">
-                {Object.keys(answers).length} of {dailyQuestions.length} questions answered
-              </p>
-            </div>
-            
-            <div className="flex justify-between items-center">
-              <button
-                onClick={() => setActiveStep(activeStep - 1)}
-                className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
-              >
-                <FaArrowLeft className="mr-2" /> Back
-              </button>
-              
-              <button
-                onClick={handleSubmitAssessment}
-                disabled={isSubmitting || Object.keys(answers).length !== dailyQuestions.length}
-                className={`inline-flex items-center px-6 py-3 text-lg font-medium text-white rounded-md ${
-                  isSubmitting || Object.keys(answers).length !== dailyQuestions.length
-                    ? 'bg-gray-400 cursor-not-allowed'
-                    : 'bg-blue-600 hover:bg-blue-700'
-                }`}
-              >
-                {isSubmitting ? (
-                  <>
-                    <FaSpinner className="animate-spin mr-2" />
-                    Submitting...
-                  </>
-                ) : (
-                  <>
-                    <FaCheck className="mr-2" />
-                    Submit Assessment ({Object.keys(answers).length}/{dailyQuestions.length})
-                  </>
-                )}
-              </button>
+                ))}
             </div>
           </div>
         </div>
-      </div>
-    );
-  };
-
-  const renderResults = () => (
-    <div className="max-w-4xl mx-auto px-4 py-16">
-      <div className="flex justify-between items-center mb-8">
-        <h2 className="text-3xl font-bold text-gray-900">Assessment Results</h2>
-        <div className="flex space-x-4">
+        <div className="px-3 py-3 bg-gray-50 text-right sm:px-4">
           <button
-            onClick={() => setShowHistory(true)}
-            className="inline-flex items-center px-6 py-3 text-lg font-medium text-blue-700 bg-blue-100 rounded-lg hover:bg-blue-200"
+            type="button"
+            className="inline-flex justify-center py-2 px-3 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            onClick={() => {
+              if (selectedStudent) {
+                setActiveStep(2);
+              } else {
+                toast.warning('Please select a student first');
+              }
+            }}
           >
-            <FaHistory className="mr-2" /> View History
-          </button>
-          <button
-            onClick={() => window.print()}
-            className="inline-flex items-center px-6 py-3 text-lg font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
-          >
-            <FaPrint className="mr-2" /> Print Results
+            Continue
+            <FaArrowRight className="ml-2 -mr-1 h-5 w-5" />
           </button>
         </div>
       </div>
+    </div>
+  );
 
-      <div className="bg-green-50 border-2 border-green-200 rounded-2xl p-6 mb-8">
-        <div className="flex items-center">
-          <div className="flex-shrink-0">
-            <svg className="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-            </svg>
-          </div>
-          <p className="ml-3 text-lg font-medium text-green-800">Assessment completed successfully!</p>
+  const renderConfirmation = () => (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="bg-white shadow overflow-hidden sm:rounded-md">
+        <div className="px-3 py-3 sm:px-4">
+          <h3 className="text-sm font-medium text-gray-900">Confirm Assessment</h3>
+          <p className="mt-1 max-w-2xl text-sm text-gray-500">
+            Review the details before starting the assessment
+          </p>
         </div>
-      </div>
-
-      <div id="assessment-content" className="bg-white rounded-2xl shadow-xl p-8">
-        <div className="mb-8">
-          <h3 className="text-2xl font-semibold text-gray-900 mb-4">Assessment Details</h3>
-          <div className="grid grid-cols-2 gap-4">
+        <div className="border-t border-gray-200 px-3 py-3">
+          <div className="grid grid-cols-1 gap-4">
             <div>
-              <p className="text-gray-600"><strong>Student:</strong> {selectedStudent.first_name} {selectedStudent.last_name}</p>
-              <p className="text-gray-600"><strong>Grade:</strong> {selectedStudent.student_info?.grade_level}</p>
-              <p className="text-gray-600"><strong>Date:</strong> {currentDate}</p>
+              <h4 className="font-medium">Selected Student:</h4>
+              <p>{selectedStudent?.first_name} {selectedStudent?.last_name}</p>
             </div>
             <div>
-              <p className="text-gray-600"><strong>Category:</strong> {selectedCategory.title}</p>
-              <p className="text-gray-600"><strong>Questions:</strong> {dailyQuestions.length}</p>
-              <p className="text-gray-600"><strong>Completion:</strong> 100%</p>
+              <h4 className="font-medium">Assessment Date:</h4>
+              <p>{currentDate}</p>
             </div>
           </div>
         </div>
-
-        <div className="mb-8">
-          <h3 className="text-2xl font-semibold text-gray-900 mb-4">Response Summary</h3>
-          <div className="space-y-6">
-            {dailyQuestions.map((question, index) => (
-              <div key={question.id} className="bg-gray-50 rounded-lg p-4">
-                <div className="flex items-start">
-                  <span className="text-sm font-medium text-gray-600">Question {index + 1}</span>
-                  <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
-                    {question.question_category}
-                  </span>
-                </div>
-                <p className="text-gray-900 mb-2">{question.question_text}</p>
-                <div className="flex items-center">
-                  <span className={`px-3 py-1 text-sm font-medium rounded-full ${
-                    answers[question.id] === 'very_often' ? 'bg-red-100 text-red-800' :
-                    answers[question.id] === 'often' ? 'bg-orange-100 text-orange-800' :
-                    answers[question.id] === 'sometimes' ? 'bg-yellow-100 text-yellow-800' :
-                    answers[question.id] === 'never' ? 'bg-green-100 text-green-800' : ''
-                  }`}>
-                    {answers[question.id]?.charAt(0).toUpperCase() + answers[question.id]?.slice(1).replace('_', ' ')}
-                  </span>
-                  <div className="ml-4 flex-1">
-                    <div className="h-2 bg-gray-200 rounded-full">
-                      <div 
-                        className={`h-2 rounded-full ${
-                          answers[question.id] === 'very_often' ? 'bg-red-500 w-full' :
-                          answers[question.id] === 'often' ? 'bg-orange-500 w-3/4' :
-                          answers[question.id] === 'sometimes' ? 'bg-yellow-500 w-1/2' :
-                          'bg-green-500 w-1/4'
-                        }`}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="border-t border-gray-200 pt-8">
-          <h3 className="text-2xl font-semibold text-gray-900 mb-4">Recommendations</h3>
-          <div className="bg-blue-50 rounded-lg p-6">
-            <p className="text-blue-800 mb-4">
-              Based on the assessment responses, consider the following recommendations:
-            </p>
-            <ul className="list-disc list-inside space-y-2 text-blue-800">
-              {Object.values(answers).filter(a => a === 'very_often' || a === 'often').length > 3 && (
-                <li>Schedule a detailed evaluation with a special education specialist</li>
-              )}
-              <li>Continue monitoring progress through regular assessments</li>
-              <li>Maintain open communication with teachers and support staff</li>
-              <li>Consider implementing suggested accommodations in the classroom</li>
-            </ul>
-          </div>
+        <div className="px-3 py-3 bg-gray-50 sm:px-4 flex justify-between">
+          <button
+            type="button"
+            className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+            onClick={() => setActiveStep(1)}
+          >
+            <FaArrowLeft className="mr-2 -ml-1 h-5 w-5" />
+            Back
+          </button>
+          <button
+            type="button"
+            className="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
+            onClick={handleStartAssessment}
+            disabled={loading}
+          >
+            {loading ? (
+              <>
+                <FaSpinner className="animate-spin mr-2 -ml-1 h-5 w-5" />
+                Starting...
+              </>
+            ) : (
+              <>
+                Start Assessment
+                <FaArrowRight className="ml-2 -mr-1 h-5 w-5" />
+              </>
+            )}
+          </button>
         </div>
       </div>
-
-      {showHistory && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-2xl font-bold">Assessment History</h3>
-              <button
-                onClick={() => setShowHistory(false)}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-
-            <div className="space-y-4">
-              {assessmentHistory.map((assessment) => (
-                <div key={assessment.id} className="border rounded-lg p-4">
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <h4 className="text-lg font-semibold">{assessment.category_details.title}</h4>
-                      <p className="text-gray-600">Date: {new Date(assessment.date).toLocaleDateString()}</p>
-                    </div>
-                    <span className={`px-3 py-1 text-sm font-medium rounded-full ${
-                      assessment.completed
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-yellow-100 text-yellow-800'
-                    }`}>
-                      {assessment.completed ? 'Completed' : 'In Progress'}
-                    </span>
-                  </div>
-
-                  {assessment.responses && (
-                    <div className="mt-4 space-y-4">
-                      {assessment.responses.map((response) => (
-                        <div key={response.id} className="bg-gray-50 p-3 rounded">
-                          <p className="text-sm text-gray-900">{response.question_text}</p>
-                          <p className="text-sm text-gray-600">
-                            Response: <span className="font-medium">{response.response}</span>
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-6 flex justify-end">
-              <button
-                onClick={() => setShowHistory(false)}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 
   const renderHistory = () => (
-    <div className="max-w-4xl mx-auto px-4 py-16">
-      <div className="flex justify-between items-center mb-8">
-        <h2 className="text-3xl font-bold text-gray-900">Assessment History</h2>
-        <button
-          onClick={() => setShowHistory(false)}
-          className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
-        >
-          <FaArrowLeft className="mr-2" /> Back to Assessment
-        </button>
-      </div>
-
-      {assessmentHistory.length === 0 ? (
-        <div className="text-center py-8">
-          <FaHistory className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <p className="text-gray-600">No assessment history available</p>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="bg-white shadow overflow-hidden sm:rounded-md">
+        <div className="px-3 py-3 sm:px-4 flex justify-between items-center">
+          <div>
+            <h3 className="text-sm font-medium text-gray-900">Assessment History</h3>
+            <p className="mt-1 max-w-2xl text-sm text-gray-500">
+              Showing all assessments for {selectedStudent?.first_name} {selectedStudent?.last_name}
+            </p>
+          </div>
+          <button
+            onClick={() => setShowHistory(false)}
+            className="inline-flex items-center px-3 py-1.5 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+          >
+            <FaArrowLeft className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
+            Close History
+          </button>
         </div>
-      ) : (
-        <div className="space-y-6">
-          {assessmentHistory.map((assessment) => (
-            <div key={assessment.id} className="bg-white rounded-xl shadow-lg p-6">
-              <div className="flex justify-between items-start mb-4">
-                <div>
-                  <h3 className="text-xl font-semibold text-gray-900">
-                    {assessment.category_details?.title}
-                  </h3>
-                  <p className="text-gray-600">
-                    Date: {new Date(assessment.date).toLocaleDateString()}
-                  </p>
-                  <p className="text-gray-600">
-                    Student: {assessment.student_details?.first_name} {assessment.student_details?.last_name}
-                  </p>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <button
-                    onClick={() => handlePrintAssessment(assessment)}
-                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                    title="Print Assessment"
-                  >
-                    <FaPrint className="w-5 h-5" />
-                  </button>
-                  <span className={`px-3 py-1 text-sm font-medium rounded-full ${
-                    assessment.completed
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-yellow-100 text-yellow-800'
-                  }`}>
-                    {assessment.completed ? 'Completed' : 'In Progress'}
-                  </span>
-                </div>
-              </div>
-
-              {assessment.responses && (
-                <div className="mt-4 space-y-4">
-                  {assessment.responses.map((response, index) => (
-                    <div key={response.id} className="bg-gray-50 rounded-lg p-4">
-                      <div className="flex justify-between items-start mb-2">
-                        <span className="text-sm font-medium text-gray-600">Question {index + 1}</span>
-                        <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
-                          {response.question_category}
-                        </span>
-                      </div>
-                      <p className="text-gray-900 mb-2">{response.question_text}</p>
-                      <div className="flex items-center">
-                        <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                          response.response === 'very_often' ? 'bg-red-100 text-red-800' :
-                          response.response === 'often' ? 'bg-orange-100 text-orange-800' :
-                          response.response === 'sometimes' ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-green-100 text-green-800'
-                        }`}>
-                          {response.response?.charAt(0).toUpperCase() + response.response?.slice(1).replace('_', ' ')}
-                        </span>
-                        <div className="ml-4 flex-1">
-                          <div className="h-2 bg-gray-200 rounded-full">
-                            <div 
-                              className={`h-2 rounded-full ${
-                                response.response === 'very_often' ? 'bg-red-500 w-full' :
-                                response.response === 'often' ? 'bg-orange-500 w-3/4' :
-                                response.response === 'sometimes' ? 'bg-yellow-500 w-1/2' :
-                                'bg-green-500 w-1/4'
-                              }`}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+        <div className="border-t border-gray-200">
+          {assessmentHistory.length === 0 ? (
+            <div className="text-center py-10">
+              <p className="text-gray-500">No assessments completed yet</p>
             </div>
-          ))}
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Assessment #
+                    </th>
+                    <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Date
+                    </th>
+                    <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Category
+                    </th>
+                    <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Results Available Until
+                    </th>
+                    <th className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {assessmentHistory.map((assessment) => {
+                    const resultsAvailable = new Date(assessment.results_available_date) > new Date();
+                    return (
+                      <tr key={assessment.id} className="hover:bg-gray-50">
+                        <td className="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                          {assessment.assessment_number}/30
+                        </td>
+                        <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                          {new Date(assessment.date).toLocaleDateString()}
+                        </td>
+                        <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-900">
+                          {assessment.category.title}
+                        </td>
+                        <td className="px-3 py-2 whitespace-nowrap">
+                          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                            assessment.completed
+                              ? 'bg-green-100 text-green-800'
+                              : 'bg-yellow-100 text-yellow-800'
+                          }`}>
+                            {assessment.completed ? 'Completed' : 'In Progress'}
+                          </span>
+                        </td>
+                        <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                          {resultsAvailable 
+                            ? new Date(assessment.results_available_date).toLocaleDateString()
+                            : 'Expired'}
+                        </td>
+                        <td className="px-3 py-2 whitespace-nowrap text-right text-sm font-medium">
+                          {resultsAvailable && (
+                            <div className="flex justify-end space-x-4">
+                              <button
+                                onClick={() => {
+                                  setCategoryScores(assessment.category_scores);
+                                  setAssessmentNumber(assessment.assessment_number);
+                                  setActiveStep(5);
+                                  setShowHistory(false);
+                                }}
+                                className="text-indigo-600 hover:text-indigo-900"
+                              >
+                                View Results
+                              </button>
+                              <button
+                                onClick={() => window.print()}
+                                className="text-gray-600 hover:text-gray-900"
+                              >
+                                <FaPrint className="h-5 w-5" aria-hidden="true" />
+                              </button>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-100">
       {loading ? (
         <div className="flex items-center justify-center min-h-screen">
-          <FaSpinner className="w-8 h-8 text-blue-600 animate-spin" />
+          <div className="animate-spin rounded-full h-24 w-24 border-t-2 border-b-2 border-blue-500" />
         </div>
+      ) : showHistory ? (
+        renderHistory()
       ) : (
-        <>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-2xl font-bold text-gray-900">Special Education Assessment</h1>
+            <button
+              onClick={() => setShowHistory(true)}
+              className="inline-flex items-center px-3 py-1.5 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
+            >
+              <FaHistory className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
+              View History
+            </button>
+          </div>
           {activeStep === 0 && renderWelcome()}
           {activeStep === 1 && renderStudentSelection()}
-          {activeStep === 2 && renderCategorySelection()}
-          {activeStep === 3 && renderAssessmentIntro()}
-          {activeStep === 4 && renderAssessment()}
+          {activeStep === 2 && renderConfirmation()}
+          {activeStep === 3 && renderAssessment()}
           {activeStep === 5 && renderResults()}
-          {activeStep === 6 && renderHistory()}
-          {showHistory && renderHistory()}
-        </>
+        </div>
       )}
     </div>
   );

@@ -16,6 +16,7 @@ import AdminInterface from "./pages/admin/AdminInterface";
 import TeacherInterface from "./pages/teacher/TeacherInterface";
 import StudentDashboard from "./pages/student/StudentInterface";
 import ParentInterfaceTemp from "./pages/parent/ParentInterfaceTemp";
+import SpecialEdPublic from "./pages/admin/SpecialEdPublic";
 import ForgotPassword from "./components/login/ForgotPassword";
 import OTPVerification from "./components/login/OTPVerifications";
 import CreateNewPassword from "./components/login/CreateNewPass";
@@ -47,6 +48,7 @@ const App = () => {
       "/admin/login/": "Admin Login | Sunhill LMS",
       "/admin/login": "Admin Login | Sunhill LMS",
       "/admin/interface/": "Admin | Sunhill LMS",
+      "/assessment": "Special Education Assessment | Sunhill LMS",
       "/forgot-password": "Forgot Password | Sunhill LMS",
       "/otp-verification": "OTP Verification | Sunhill LMS",
       "/create-new-password/": "Create New Password | Sunhill LMS",
@@ -65,6 +67,7 @@ const App = () => {
       <Route path="/login/teacher/" element={<TeacherLogin />} />
       <Route path="/login/student/" element={<StudentLogin />} />
       <Route path="/login/parent/" element={<ParentLogin />} />
+      <Route path="/assessment" element={<SpecialEdPublic />} /> 
       <Route
         path="/teacher/interface/"
         element={
