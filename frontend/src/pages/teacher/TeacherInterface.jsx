@@ -100,7 +100,7 @@ function TeacherInterface() {
           {currentTab === "SpecialED" && (
             <SpecialEducationTool darkMode={darkMode} />
           )}
-          {currentTab === "Messages" && <Messages darkMode={darkMode} />}
+          {/* {currentTab === "Messages" && <Messages darkMode={darkMode} />} */}
           {currentTab === "Settings" && <TeacherSettings darkMode={darkMode} />}
           {currentTab === "Account Settings" && (
             <AccountSettings darkMode={darkMode} />
