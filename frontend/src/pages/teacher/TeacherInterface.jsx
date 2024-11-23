@@ -4,6 +4,7 @@ import TopNavbar from "../../components/teacher/TopNavbar";
 import TeacherDashboard from "./TeacherDashboard";
 import ManageStudents from "./ManageStudents";
 import ManageLessons from "./Classes";
+import ManageMaterials from "./ManageMaterials";
 import ManageAssignments from "./ManageAssignments";
 import SpecialEducationTool from "./SpeEdTool";
 import Messages from "./Messages";
@@ -92,13 +93,14 @@ function TeacherInterface() {
           )}
           {currentTab === "Students" && <ManageStudents darkMode={darkMode} />}
           {currentTab === "Classroom" && <ManageLessons darkMode={darkMode} />}
+          {currentTab === "Materials" && <ManageMaterials />}
           {currentTab === "Assignments" && (
             <ManageAssignments darkMode={darkMode} />
           )}
           {currentTab === "SpecialED" && (
             <SpecialEducationTool darkMode={darkMode} />
           )}
-          {currentTab === "Messages" && <Messages darkMode={darkMode} />}
+          {/* {currentTab === "Messages" && <Messages darkMode={darkMode} />} */}
           {currentTab === "Settings" && <TeacherSettings darkMode={darkMode} />}
           {currentTab === "Account Settings" && (
             <AccountSettings darkMode={darkMode} />
