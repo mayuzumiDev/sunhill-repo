@@ -11,10 +11,10 @@ import {
   faFileCode,
   faFileAlt,
 } from "@fortawesome/free-solid-svg-icons";
-import { FiTrash2 } from "react-icons/fi";
+import { FiTrash2, FiEdit2 } from "react-icons/fi";
 import FileOpener from "../../../components/common/FileOpener";
 
-const MaterialCard = ({ material, onDelete }) => {
+const MaterialCard = ({ material, onDelete, onEdit }) => {
   const getFileIcon = (type) => {
     switch (type?.toLowerCase()) {
       case "image":
@@ -86,6 +86,13 @@ const MaterialCard = ({ material, onDelete }) => {
               fileUrl={material.file_url}
               fileType={material.material_type}
             />
+            <button
+              className="text-blue-600 hover:text-blue-800 text-xl"
+              onClick={onEdit}
+              title="Edit"
+            >
+              <FiEdit2 />
+            </button>
             <button
               className="text-red-600 hover:text-red-800 text-xl"
               onClick={onDelete}

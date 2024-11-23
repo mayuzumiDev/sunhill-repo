@@ -8,10 +8,12 @@ import { faChevronLeft } from "@fortawesome/free-solid-svg-icons";
 import UploadMaterialModal from "../../components/modal/teacher/materials/UploadMaterialModal";
 import CustomAlert from "../../components/alert/teacher/CustomAlert";
 import ConfirmDeleteModal from "../../components/modal/teacher/ConfirmDeleteModal";
+import EditMaterialModal from "../../components/modal/teacher/materials/EditMaterialModal";
 
 const ManageMaterials = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
@@ -190,11 +192,24 @@ const ManageMaterials = () => {
               onError={handleUploadError}
             />
 
+            <EditMaterialModal
+              isOpen={showEditModal}
+              onClose={() => setShowEditModal(false)}
+              classroomId={selectedClassroom?.id}
+              initialData={selectedMaterial}
+              onSuccess={handleUploadSuccess}
+              onError={handleUploadError}
+            />
+
             {/* Modal for Confirm Delete */}
             <ConfirmDeleteModal
               isOpen={showDeleteModal}
               onClose={() => setShowDeleteModal(false)}
-              onConfirm={handleDeleteMaterial(selectedMaterial)}
+              onConfirm={() => {
+                if (selectedMaterial) {
+                  handleDeleteMaterial(selectedMaterial);
+                }
+              }}
               message={"Are you sure to delete this material?"}
             />
 
@@ -218,6 +233,10 @@ const ManageMaterials = () => {
                       onDelete={() => {
                         setShowDeleteModal(true);
                         setSelectedMaterial(material.id);
+                      }}
+                      onEdit={() => {
+                        setSelectedMaterial(material);
+                        setShowEditModal(true);
                       }}
                     />
                   ))}
