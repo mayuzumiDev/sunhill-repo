@@ -95,7 +95,7 @@ const ManageLessons = () => {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Classroom</h1>
+      <h1 className="text-2xl font-bold mb-4 text-gray-700">Classroom</h1>
 
       {/* Button for creating classroom */}
       <button

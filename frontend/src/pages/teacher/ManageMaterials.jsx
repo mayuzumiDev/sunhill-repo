@@ -116,7 +116,7 @@ const ManageMaterials = () => {
     <div className="p-6">
       {!selectedClassroom ? (
         <>
-          <h1 className="text-2xl font-bold mb-12">
+          <h1 className="text-2xl font-bold mb-12 text-gray-700">
             Manage Learning Materials
           </h1>
 

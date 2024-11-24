@@ -244,7 +244,9 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Main Dashboard Content */}
         <div className="col-span-3">
-          <h1 className="text-2xl font-bold mb-6">Teacher Dashboard</h1>
+          <h1 className="text-2xl font-bold mb-6 text-gray-700">
+            Teacher Dashboard
+          </h1>
 
           {/* Greeting Section */}
 
