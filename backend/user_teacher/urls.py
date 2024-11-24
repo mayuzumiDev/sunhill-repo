@@ -1,5 +1,4 @@
 from django.urls import path, include
-from rest_framework.routers import DefaultRouter
 from .views.profile.teacher_profile_views import *
 from .views.classroom.classroom_manage_views import *
 from .views.classroom.classroom_list_views import *
@@ -8,9 +7,6 @@ from .views.classroom.materials_manage_views import *
 from .views.quizzes.quiz_views import *
 from .views.quizzes.question_views import *
 from .views.quizzes.quiz_response_views import *
-
-router = DefaultRouter()
-router.register(r'quiz-responses', QuizResponseViewSet, basename='quiz-response')
 
 urlpatterns = [
     path('current-teacher/', GetCurrentTeacherView.as_view(), name="get_current_teacher"),
@@ -39,5 +35,6 @@ urlpatterns = [
     path('questions/list/', QuestionListView.as_view(), name='question-list'),
     path('questions/<int:pk>/', QuestionDetailView.as_view(), name='question-detail'),
 
-    path('', include(router.urls)),
+    path('quiz-responses/create/', QuizResponseCreateView.as_view(), name='quiz-response-create'),
+    path('quiz-scores/list/', QuizScoreListView.as_view(), name='quiz-scores-list')
 ]

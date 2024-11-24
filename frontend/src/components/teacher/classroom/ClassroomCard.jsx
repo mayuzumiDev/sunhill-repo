@@ -18,16 +18,18 @@ const ClassroomCard = ({ classroomData, onEdit, onDelete, addStudent }) => {
     <>
       <div
         onClick={handleCardClick}
-        className="bg-gradient-to-r from-green-400 to-blue-500 rounded-lg p-6 mb-6 shadow-md flex justify-between items-center transition-transform transform hover:scale-100"
+        className="bg-gradient-to-r from-green-700 to-green-400 rounded-lg p-6 mb-6 shadow-md flex justify-between items-center transition-transform transform hover:scale-100 hover:shadow-xl"
       >
         <div className="mb-14">
-          <h2 className="font-bold text-xl">{classroomData.grade_level}</h2>
-          <h3 className="font-semibold text-lg">
+          <h2 className="font-bold text-xl text-white">
+            {classroomData.grade_level}
+          </h2>
+          <h3 className="font-semibold text-lg text-white/90">
             {classroomData.class_section}
           </h3>
-          <p className="text-gray-700">
+          <p className="text-white/80">
             Subject:{" "}
-            <span className="font-bold">
+            <span className="font-bold text-white">
               {classroomData.subject_name_display}
             </span>
           </p>
@@ -35,21 +37,27 @@ const ClassroomCard = ({ classroomData, onEdit, onDelete, addStudent }) => {
         <div className="flex space-x-3 absolute bottom-4 right-4">
           <button
             onClick={onEdit}
-            className="bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600 transition"
+            title="Edit Classroom"
+            aria-label="Edit Classroom"
+            className="bg-green-700 text-white p-2 rounded-full hover:bg-green-800 transition-all transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50"
           >
-            <AiOutlineEdit />
+            <AiOutlineEdit size={20} />
           </button>
           <button
             onClick={addStudent}
-            className="bg-green-500 text-white p-2 rounded-full hover:bg-green-600 transition"
+            title="Add Students"
+            aria-label="Add Students"
+            className="bg-green-700 text-white p-2 rounded-full hover:bg-green-800 transition-all transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50"
           >
-            <AiOutlineUsergroupAdd />
+            <AiOutlineUsergroupAdd size={20} />
           </button>
           <button
             onClick={onDelete}
-            className="bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition"
+            title="Delete Classroom"
+            aria-label="Delete Classroom"
+            className="bg-red-600 text-white p-2 rounded-full hover:bg-red-700 transition-all transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
           >
-            <AiOutlineDelete />
+            <AiOutlineDelete size={20} />
           </button>
         </div>
       </div>

@@ -1,6 +1,6 @@
 from django.db import transaction
 from rest_framework import serializers
-from ...models.quizzes_models import StudentResponse, QuizScore, Question
+from ...models.quizzes_models import *
 from user_admin.models.account_models import *
 
 class QuizResponseSerializer(serializers.ModelSerializer):
@@ -106,13 +106,23 @@ class QuizResponseSerializer(serializers.ModelSerializer):
         return False
 
 class QuizScoreSerializer(serializers.ModelSerializer):
+    student_name = serializers.SerializerMethodField()
+    quiz_title = serializers.CharField(source='quiz.title', read_only=True)
+    grade_level = serializers.CharField(source='student.grade_level', read_only=True)
     score_display = serializers.CharField(read_only=True)
     
     class Meta:
         model = QuizScore
         fields = [
-            'id', 'quiz', 'total_score', 'total_possible',
-            'percentage_score', 'status', 'score_display',
-            'created_at'
+            'id', 'student', 'student_name', 'quiz', 'quiz_title', 
+            'total_score', 'total_possible', 'percentage_score', 
+            'status', 'score_display', 'grade_level', 'created_at'
         ]
         read_only_fields = fields
+    
+    def get_student_name(self, obj):
+        try:
+            user = obj.student.student_info.user
+            return f"{user.first_name} {user.last_name}"
+        except AttributeError:
+            return "Unknown Student"

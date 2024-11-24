@@ -8,6 +8,7 @@ import ClassroomCard from "../../components/teacher/classroom/ClassroomCard";
 import ConfirmDeleteModal from "../../components/modal/teacher/ConfirmDeleteModal";
 import AddStudentModal from "../../components/modal/teacher/classroom/AddStudentModal";
 import DotLoaderSpinner from "../../components/loaders/DotLoaderSpinner";
+import HideScrollBar from "../../components/misc/HideScrollBar";
 
 const ManageLessons = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -95,15 +96,19 @@ const ManageLessons = () => {
 
   return (
     <div className="p-6">
+      <HideScrollBar />
       <h1 className="text-2xl font-bold mb-4 text-gray-700">Classroom</h1>
 
       {/* Button for creating classroom */}
       <button
         onClick={() => setShowModal(true)}
-        className="bg-white border-2 border-purple-500 text-purple-500 px-4 py-2 rounded-lg font-semibold mb-6"
+        className="group bg-white border-2 border-green-500 hover:bg-green-500 text-green-500 hover:text-white px-6 py-2.5 rounded-lg font-semibold mb-6 transition-all duration-300 ease-in-out transform hover:scale-105 active:scale-95 shadow-md hover:shadow-lg flex items-center justify-center space-x-2"
       >
-        <FontAwesomeIcon icon={faPlus} className="text-sm mr-2" />
-        Create Classroom
+        <FontAwesomeIcon
+          icon={faPlus}
+          className="text-sm transition-transform duration-300 group-hover:rotate-90"
+        />
+        <span>Create Classroom</span>
       </button>
 
       {/* Grid List for classroom */}
