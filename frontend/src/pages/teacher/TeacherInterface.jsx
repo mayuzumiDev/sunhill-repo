@@ -91,10 +91,10 @@ function TeacherInterface() {
           {currentTab === "Dashboard" && (
             <TeacherDashboard darkMode={darkMode} />
           )}
-          {currentTab === "Students" && <ManageStudents darkMode={darkMode} />}
+          {currentTab === "Scores" && <ManageStudents darkMode={darkMode} />}
           {currentTab === "Classroom" && <ManageLessons darkMode={darkMode} />}
           {currentTab === "Materials" && <ManageMaterials />}
-          {currentTab === "Assignments" && (
+          {currentTab === "Quizzes" && (
             <ManageAssignments darkMode={darkMode} />
           )}
           {currentTab === "SpecialED" && (

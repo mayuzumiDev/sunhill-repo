@@ -70,8 +70,8 @@ const Sidebar = ({
     { name: "Dashboard", icon: <FaHome /> },
     { name: "Classroom", icon: <FaChalkboardTeacher /> },
     { name: "Materials", icon: <MdLibraryBooks /> },
-    { name: "Students", icon: <FaUserGraduate /> },
-    { name: "Assignments", icon: <FaClipboardList /> },
+    { name: "Scores", icon: <FaUserGraduate /> },
+    { name: "Quizzes", icon: <FaClipboardList /> },
     {
       name: "SpecialED",
       icon: (
