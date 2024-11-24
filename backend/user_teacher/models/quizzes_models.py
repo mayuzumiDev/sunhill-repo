@@ -37,3 +37,23 @@ class StudentResponse(models.Model):
     classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE, related_name='responses')
     responses = models.JSONField()  # Store answers
     submitted_at = models.DateTimeField(auto_now_add=True)
+
+
+class QuizScore(models.Model):
+    student = models.ForeignKey(StudentInfo, on_delete=models.CASCADE, related_name='quiz_scores')
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='student_scores')
+    classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE, related_name='quiz_scores')
+    student_response = models.OneToOneField(StudentResponse, on_delete=models.CASCADE, related_name='score')
+
+    STATUS_CHOICES = [
+        ('passed', 'Passed'),
+        ('failed', 'Failed'),
+    ]
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES)
+    total_score = models.IntegerField()  # Number of correct answers
+    total_possible = models.IntegerField()  # Total number of questions
+    percentage_score = models.DecimalField(max_digits=5, decimal_places=2)  # Score in percentage
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    

@@ -46,3 +46,28 @@ class StudentResponseAdmin(admin.ModelAdmin):
     list_filter = ('submitted_at', 'classroom', 'quiz')
     search_fields = ('student__user__username', 'quiz__title', 'classroom__class_section')
     readonly_fields = ('submitted_at',)
+
+@admin.register(QuizScore)
+class QuizScoreAdmin(admin.ModelAdmin):
+    list_display = ('student', 'quiz', 'total_score', 'total_possible', 
+                   'percentage_score', 'status', 'created_at')
+    list_filter = ('status', 'created_at', 'classroom')
+    search_fields = ('student__student_info__user__username', 'quiz__title', 
+                    'classroom__class_section')
+    readonly_fields = ('created_at', 'updated_at', 'total_score', 'total_possible', 
+                      'percentage_score', 'status')
+    
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related(
+            'student__student_info__user',
+            'quiz',
+            'classroom'
+        )
+    
+    def has_add_permission(self, request):
+        # Prevent manual creation as scores are generated automatically
+        return False
+    
+    def has_change_permission(self, request, obj=None):
+        # Scores shouldn't be manually edited
+        return False
