@@ -60,6 +60,57 @@ class QuizCreateView(generics.CreateAPIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+class QuizUpdateView(generics.UpdateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = QuizSerializer
+    queryset = Quiz.objects.all()
+
+    def get_queryset(self):
+        teacher_info = self.request.user.user_info.teacher_info
+        return Quiz.objects.filter(classroom__class_instructor=teacher_info)
+
+    def update(self, request, *args, **kwargs):
+        try:
+            instance = self.get_object()
+            serializer = self.get_serializer(instance, data=request.data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            
+            # Verify classroom permission
+            classroom_id = request.data.get('classroom')
+            if classroom_id:
+                try:
+                    classroom = Classroom.objects.get(
+                        id=classroom_id,
+                        class_instructor=request.user.user_info.teacher_info
+                    )
+                    serializer.save(classroom=classroom)
+                except Classroom.DoesNotExist:
+                    raise serializers.ValidationError(
+                        {"classroom": "You do not have permission to update this quiz's classroom"}
+                    )
+            else:
+                serializer.save()
+            
+            return JsonResponse({
+                'message': 'Quiz updated successfully',
+                'quiz': serializer.data
+            }, status=status.HTTP_200_OK)
+            
+        except Quiz.DoesNotExist:
+            return JsonResponse({
+                'message': 'Quiz not found or you do not have permission to update it'
+            }, status=status.HTTP_404_NOT_FOUND)
+            
+        except serializers.ValidationError as e:
+            raise
+            
+        except Exception as e:
+            return JsonResponse({
+                'message': 'An unexpected error occurred',
+                'error': str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 class QuizDestroyView(generics.DestroyAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = QuizSerializer
