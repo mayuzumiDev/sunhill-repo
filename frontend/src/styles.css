@@ -1,3 +1,35 @@
+@media print {
+  .print-hidden {
+    display: none !important;
+  }
+  
+  body {
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Ensure content takes full width when printing */
+  .print\:ml-0 {
+    margin-left: 0 !important;
+  }
+
+  .print\:mt-0 {
+    margin-top: 0 !important;
+  }
+
+  .print\:p-0 {
+    padding: 0 !important;
+  }
+
+  .print\:bg-white {
+    background-color: white !important;
+  }
+
+  .print\:text-black {
+    color: black !important;
+  }
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

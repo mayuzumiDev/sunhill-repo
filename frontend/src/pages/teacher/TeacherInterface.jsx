@@ -6,8 +6,7 @@ import ManageStudents from "./ManageStudents";
 import ManageLessons from "./Classes";
 import ManageMaterials from "./ManageMaterials";
 import ManageAssignments from "./ManageAssignments";
-import SpecialEducationTool from "./SpeEdTool";
-import Messages from "./Messages";
+import SpecialEd from "../admin/SpecialEd";
 import TeacherSettings from "./TeacherSettings";
 import AccountSettings from "./AccountSettings";
 import Logout from "../../components/Logout";
@@ -44,8 +43,9 @@ function TeacherInterface() {
       }`}
     >
       {/* Sidebar */}
+      <div className="print-hidden">
       <div
-        className={`fixed inset-y-0 left-0 z-10 ${
+        className={`fixed  inset-y-0 left-0 z-10 ${
           darkMode ? "bg-gray-900" : "bg-white"
         } shadow-lg transition-all duration-300 ease-in-ot`}
       >
@@ -57,6 +57,7 @@ function TeacherInterface() {
           darkMode={darkMode} // Pass dark mode state to Sidebar
         />
       </div>
+      </div>
 
       {/* Main content area */}
       <div
@@ -65,11 +66,11 @@ function TeacherInterface() {
             ? "ml-0"
             : isSidebarOpen
             ? "ml-64"
-            : "ml-20"
-        }`}
+            : "ml-16"
+        } print:ml-0`}
       >
         {/* Fixed Top Navbar */}
-        <div className="flex-none">
+        <div className="flex-none print-hidden">
           <TopNavbar
             setCurrentTab={setCurrentTab}
             setShowLogoutDialog={setShowLogoutDialog}
@@ -86,7 +87,7 @@ function TeacherInterface() {
         <div
           className={`flex-1 p-6 ${
             darkMode ? "bg-gray-700 text-white" : "bg-green-100 text-black"
-          } bg-opacity-60 mt-0 overflow-y-auto`}
+          } bg-opacity-60 mt-0 overflow-y-auto  print:mt-0 print:p-0 print:bg-white print:text-black`}
         >
           {currentTab === "Dashboard" && (
             <TeacherDashboard darkMode={darkMode} />
@@ -98,7 +99,7 @@ function TeacherInterface() {
             <ManageAssignments darkMode={darkMode} />
           )}
           {currentTab === "SpecialED" && (
-            <SpecialEducationTool darkMode={darkMode} />
+            <SpecialEd darkMode={darkMode} />
           )}
           {/* {currentTab === "Messages" && <Messages darkMode={darkMode} />} */}
           {currentTab === "Settings" && <TeacherSettings darkMode={darkMode} />}
