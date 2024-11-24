@@ -13,9 +13,6 @@ from .views.events.event_list_views import *
 from .views.notifications.notification_views import EventNotificationViewSet
 from .views.dashboard.dashboard_views import DashboardMetricsView
 
-router = DefaultRouter()
-router.register(r'notifications', EventNotificationViewSet, basename='notifications')
-
 urlpatterns = [
     path('current-admin/', CurrentAdminView.as_view(), name="current_admin" ),
     
@@ -49,4 +46,4 @@ urlpatterns = [
     # path('auth/public/register/', PublicUserRegistrationView.as_view(), name='public_register'),
     # path('auth/public/login/', PublicUserLoginView.as_view(), name='public_login'),
     # path('public/users/', PublicUserListView.as_view(), name='public_user_list'),
-] + router.urls
+] 

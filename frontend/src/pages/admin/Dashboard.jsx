@@ -1,35 +1,26 @@
 import React, { useState, useEffect } from "react";
-import { Line, Pie } from "react-chartjs-2";
+import Highcharts from 'highcharts';
+import HighchartsReact from 'highcharts-react-official';
 import { axiosInstance } from "../../utils/axiosInstance";
-import {
-  Chart as ChartJS,
-  LineElement,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  Title,
-  Tooltip,
-  Legend,
-  ArcElement,
-} from "chart.js";
 import {
   FaUserGraduate,
   FaChalkboardTeacher,
   FaUsers,
   FaSchool,
+  FaDownload,
+  FaTable,
+  FaChartBar
 } from "react-icons/fa";
 
-// Register Chart.js components
-ChartJS.register(
-  LineElement,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  Title,
-  Tooltip,
-  Legend,
-  ArcElement
-);
+// Import Highcharts modules
+import HC_exporting from 'highcharts/modules/exporting';
+import HC_exportData from 'highcharts/modules/export-data';
+import HC_accessibility from 'highcharts/modules/accessibility';
+
+// Initialize Highcharts modules
+HC_exporting(Highcharts);
+HC_exportData(Highcharts);
+HC_accessibility(Highcharts);
 
 const Dashboard = () => {
   const [dashboardData, setDashboardData] = useState({
@@ -41,6 +32,7 @@ const Dashboard = () => {
     classCount: 0,
     monthlyRegistrations: [],
   });
+  const [viewMode, setViewMode] = useState('charts'); // 'charts' or 'table'
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -66,67 +58,148 @@ const Dashboard = () => {
     fetchDashboardData();
   }, []);
 
-  // Data for the line chart
-  const lineData = {
-    labels: dashboardData.monthlyRegistrations.map(item => item.month),
-    datasets: [
-      {
-        label: "New Users",
-        data: dashboardData.monthlyRegistrations.map(item => item.count),
-        fill: false,
-        borderColor: "rgba(75,192,192,1)",
-        tension: 0.1,
-      }
-    ],
-  };
+  
 
-  const lineOptions = {
-    responsive: true,
-    plugins: {
-      legend: {
-        display: true,
-        position: "top",
-      },
-      title: {
-        display: true,
-        text: "Monthly User Registrations",
-      },
+
+  // Line chart options
+  const lineChartOptions = {
+    chart: {
+      type: 'spline',
+      style: {
+        fontFamily: 'Inter, sans-serif'
+      }
     },
-    scales: {
-      y: {
-        beginAtZero: true,
-        ticks: {
-          precision: 0
+    title: {
+      text: 'Monthly User Registrations',
+      style: {
+        fontSize: '18px',
+        fontWeight: 'bold'
+      }
+    },
+    xAxis: {
+      categories: dashboardData.monthlyRegistrations.map(item => item.month),
+      labels: {
+        style: {
+          color: '#64748b'
         }
       }
+    },
+    yAxis: {
+      title: {
+        text: 'Number of Users',
+        style: {
+          color: '#64748b'
+        }
+      },
+      labels: {
+        style: {
+          color: '#64748b'
+        }
+      }
+    },
+    series: [{
+      name: 'New Users',
+      data: dashboardData.monthlyRegistrations.map(item => item.count),
+      color: '#3b82f6'
+    }],
+    plotOptions: {
+      spline: {
+        lineWidth: 3,
+        marker: {
+          enabled: true,
+          radius: 4
+        }
+      }
+    },
+    // Export menu
+    exporting: {
+      buttons: {
+        contextButton: {
+          menuItems: ['viewFullscreen', 'separator', 'downloadPNG', 'downloadPDF', 'downloadCSV', 'downloadXLS', 'viewData']
+        }
+      },
+      enabled: true
+    },
+    // Enable data table
+    navigation: {
+      buttonOptions: {
+        enabled: true
+      }
+    },
+    credits: {
+      enabled: false
     }
   };
 
-  // Data for the pie chart
-  const pieData = {
-    labels: ["Students", "Teachers", "Parents", "Public"],
-    datasets: [
-      {
-        data: [
-          dashboardData.studentCount,
-          dashboardData.teacherCount,
-          dashboardData.parentCount,
-          dashboardData.publicUserCount
-        ],
-        backgroundColor: ["#36A2EB", "#FF6384", "#FFCE56", "#4BC0C0"],
-        hoverBackgroundColor: ["#36A2EB", "#FF6384", "#FFCE56", "#4BC0C0"],
-      },
-    ],
-  };
-
-  const pieOptions = {
-    responsive: true,
-    plugins: {
-      legend: {
-        display: true,
-        position: "top",
-      },
+  // Pie chart options
+  const pieChartOptions = {
+    chart: {
+      type: 'pie',
+      style: {
+        fontFamily: 'Inter, sans-serif'
+      }
     },
+    title: {
+      text: 'User Distribution',
+      style: {
+        fontSize: '18px',
+        fontWeight: 'bold'
+      }
+    },
+    plotOptions: {
+      pie: {
+        allowPointSelect: true,
+        cursor: 'pointer',
+        dataLabels: {
+          enabled: true,
+          format: '<b>{point.name}</b>: {point.percentage:.1f}%'
+        }
+      }
+    },
+    series: [{
+      name: 'Users',
+      colorByPoint: true,
+      data: [
+        {
+          name: 'Students',
+          y: dashboardData.studentCount,
+          color: '#3b82f6'
+        },
+        {
+          name: 'Teachers',
+          y: dashboardData.teacherCount,
+          color: '#22c55e'
+        },
+        {
+          name: 'Parents',
+          y: dashboardData.parentCount,
+          color: '#eab308'
+        },
+        {
+          name: 'Public',
+          y: dashboardData.publicUserCount,
+          color: '#ef4444'
+        }
+      ]
+    }],
+    // Export menu
+    exporting: {
+      buttons: {
+        contextButton: {
+          menuItems: ['viewFullscreen', 'separator', 'downloadPNG', 'downloadPDF', 'downloadCSV', 'downloadXLS', 'viewData']
+        }
+      },
+      enabled: true
+    },
+    // Enable data table
+    navigation: {
+      buttonOptions: {
+        enabled: true
+      }
+    },
+    credits: {
+      enabled: false
+    }
   };
 
   // Metrics data
@@ -158,8 +231,20 @@ const Dashboard = () => {
   ];
 
   return (
-    <div className="p-6 space-y-8 overflow-hidden bg-lightblue-800">
-      <h1 className="text-4xl text-gray-700 font-bold mb-8">Dashboard</h1>
+    <div className="p-6 space-y-8 overflow-hidden bg-lightblue-800" id="dashboard-content">
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-4xl text-gray-700 font-bold">Dashboard</h1>
+        <div className="flex gap-4">
+          <button
+            onClick={() => setViewMode(viewMode === 'charts' ? 'table' : 'charts')}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+          >
+            {viewMode === 'charts' ? <FaTable className="text-lg" /> : <FaChartBar className="text-lg" />}
+            {viewMode === 'charts' ? 'View Table' : 'View Charts'}
+          </button>
+          
+        </div>
+      </div>
 
       {/* Metrics Section with Hover Animation */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-8">
@@ -181,24 +266,53 @@ const Dashboard = () => {
         ))}
       </div>
 
-      {/* Chart Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Line Chart */}
-        <div className="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
-          <h2 className="text-lg font-semibold mb-4">Monthly User Registrations</h2>
-          <div style={{ height: "300px" }}>
-            <Line data={lineData} options={lineOptions} />
+      {viewMode === 'charts' ? (
+        /* Chart Section */
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <HighchartsReact
+              highcharts={Highcharts}
+              options={lineChartOptions}
+            />
+          </div>
+          <div className="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <HighchartsReact
+              highcharts={Highcharts}
+              options={pieChartOptions}
+            />
           </div>
         </div>
-
-        {/* Pie Chart - Responsive */}
-        <div className="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
-          <h2 className="text-lg font-semibold mb-4">User Distribution</h2>
-          <div className="w-full h-full lg:h-96 lg:w-96 mx-auto">
-            <Pie data={pieData} options={pieOptions} />
+      ) : (
+        /* Table Section */
+        <div className="bg-white rounded-lg shadow-lg p-6">
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Month</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">New Users</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Students</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Teachers</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Parents</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Public Users</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {dashboardData.monthlyRegistrations.map((item, index) => (
+                  <tr key={index} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.month}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.count}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{dashboardData.studentCount}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{dashboardData.teacherCount}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{dashboardData.parentCount}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{dashboardData.publicUserCount}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Styles to hide scrollbar */}
       <style>{`

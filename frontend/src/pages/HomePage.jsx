@@ -59,7 +59,7 @@ const branches = [
     address:
       "M. Dimapilis St., Anuling Lejos 2, Metro Tagaytay, Mendez, Cavite",
     phone: "0917 146 8790",
-    email: "branch4@example.com",
+    email: "N/A",
     fbPage: "https://www.facebook.com/profile.php?id=100054311690176",
     fbPageName: "Sunhill Montessori Casa-Metro Tagaytay",
     mapSrc:

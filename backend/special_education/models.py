@@ -8,7 +8,9 @@ User = get_user_model()
 
 class AssessmentCategory(models.Model):
     title = models.CharField(max_length=100)
+    title_tl = models.CharField(max_length=100, verbose_name="Title (Tagalog)", blank=True)
     description = models.TextField()
+    description_tl = models.TextField(verbose_name="Description (Tagalog)", blank=True)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -18,6 +20,12 @@ class AssessmentCategory(models.Model):
 
     def __str__(self):
         return self.title
+
+    def get_title(self, language='en'):
+        return self.title_tl if language == 'tl' and self.title_tl else self.title
+
+    def get_description(self, language='en'):
+        return self.description_tl if language == 'tl' and self.description_tl else self.description
 
 class Question(models.Model):
     CATEGORY_CHOICES = [
@@ -35,7 +43,23 @@ class Question(models.Model):
         ('Social Skills', 'Social Skills'),
     ]
 
+    CATEGORY_TRANSLATIONS = {
+        'Attention': 'Atensyon',
+        'Hyperactivity': 'Sobrang Aktibo',
+        'Impulsivity': 'Pagkamapusok',
+        'Social Communication': 'Pakikipag-ugnayan sa Kapwa',
+        'Behavior Patterns': 'Mga Gawi sa Pag-uugali',
+        'Social Understanding': 'Pag-unawa sa Lipunan',
+        'Emotional Understanding': 'Pag-unawa sa Damdamin',
+        'Academic Performance': 'Pagganap sa Akademiko',
+        'Cognitive Skills': 'Kakayahang Pang-isip',
+        'Language Development': 'Pag-unlad ng Wika',
+        'Speech Production': 'Paggawa ng Pananalita',
+        'Social Skills': 'Kakayahang Panlipunan'
+    }
+
     question_text = models.TextField()
+    question_text_tl = models.TextField(verbose_name="Question Text (Tagalog)", blank=True)
     category = models.ForeignKey(AssessmentCategory, on_delete=models.CASCADE)
     question_category = models.CharField(max_length=50, choices=CATEGORY_CHOICES)
     is_active = models.BooleanField(default=True)
@@ -44,6 +68,14 @@ class Question(models.Model):
 
     def __str__(self):
         return f"{self.category.title} - {self.question_category}: {self.question_text[:50]}..."
+
+    def get_question_text(self, language='en'):
+        return self.question_text_tl if language == 'tl' and self.question_text_tl else self.question_text
+
+    def get_category_translation(self, language='en'):
+        if language == 'tl':
+            return self.CATEGORY_TRANSLATIONS.get(self.question_category, self.question_category)
+        return self.question_category
 
 class StudentAssessment(models.Model):
     student = models.ForeignKey(StudentInfo, on_delete=models.CASCADE)

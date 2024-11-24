@@ -13,7 +13,7 @@ import AdminSettings from "./AdminSettings";
 import Logout from "../../components/Logout";
 import SpecialED from "./SpecialEd";
 import Faq from "./Faqs";
-import Messages from "./Messages";
+// import Messages from "./Messages";
 // import Breadcrumb from "../../components/Breadcrumbs";
 
 function AdminInterface() {
@@ -160,7 +160,7 @@ function AdminInterface() {
           )}
           {currentTab === "SpecialED" && <SpecialED />}
           {currentTab === "FAQ" && <Faq />}
-          {currentTab === "Messages" && <Messages />}
+          {/* {currentTab === "Messages" && <Messages />} */}
         </div>
       </div>
     </div>

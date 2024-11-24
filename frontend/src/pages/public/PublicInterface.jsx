@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaGraduationCap, FaArrowRight, FaBookReader, FaCheck, FaSpinner, FaExclamationTriangle, FaPrint } from 'react-icons/fa';
+import { FaGraduationCap, FaArrowRight, FaBookReader, FaCheck, FaSpinner, FaExclamationTriangle, FaPrint, FaLanguage } from 'react-icons/fa';
 import { axiosInstance } from '../../utils/axiosInstance';
 import { toast } from 'react-toastify';
 
@@ -15,19 +15,92 @@ const SpecialEdPublic = () => {
   const [error, setError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showResults, setShowResults] = useState(false);
+  const [language, setLanguage] = useState('en');
+
+  const translations = {
+    en: {
+      welcome: 'Special Education Assessment',
+      welcomeDesc: 'Welcome to our assessment platform. Please select a category to begin your assessment.',
+      notice: 'Important Notice: This assessment is for screening purposes only and does not provide a diagnosis. Please consult with qualified healthcare professionals for proper evaluation and diagnosis.',
+      never: 'Never',
+      sometimes: 'Sometimes',
+      often: 'Often',
+      veryOften: 'Very Often',
+      submit: 'Submit Assessment',
+      minimal: 'Minimal',
+      moderate: 'Moderate',
+      significant: 'Significant',
+      severe: 'Severe',
+      startNew: 'Start New Assessment',
+      print: 'Print Results',
+      results: 'Assessment Results',
+      category: 'Category',
+      date: 'Date',
+      summary: 'Assessment Summary',
+      evaluation: 'Professional Evaluation',
+      considerSunhill: 'Consider Sunhill Developmental Education',
+      benefits: {
+        individual: '✓ Individualized learning programs',
+        experienced: '✓ Experienced special education teachers',
+        supportive: '✓ Supportive learning environment',
+        monitoring: '✓ Regular progress monitoring'
+      }
+    },
+    tl: {
+      welcome: 'Pagsusuri sa Espesyal na Edukasyon',
+      welcomeDesc: 'Maligayang pagdating sa aming platform ng pagsusuri. Mangyaring pumili ng kategorya upang simulan ang iyong pagsusuri.',
+      notice: 'Mahalagang Paalala: Ang pagsusuring ito ay para lamang sa paunang pagsusuri at hindi nagbibigay ng diagnosis. Mangyaring kumonsulta sa mga kwalipikadong propesyonal sa kalusugan para sa wastong pagsusuri at diagnosis.',
+      never: 'Hindi Kailanman',
+      sometimes: 'Paminsan-minsan',
+      often: 'Madalas',
+      veryOften: 'Napakadalas',
+      submit: 'Isumite ang Pagsusuri',
+      minimal: 'Minimal',
+      moderate: 'Katamtaman',
+      significant: 'Kapansin-pansin',
+      severe: 'Malubha',
+      startNew: 'Magsimula ng Bagong Pagsusuri',
+      print: 'I-print ang mga Resulta',
+      results: 'Mga Resulta ng Pagsusuri',
+      category: 'Kategorya',
+      date: 'Petsa',
+      summary: 'Buod ng Pagsusuri',
+      evaluation: 'Propesyonal na Pagsusuri',
+      considerSunhill: 'Isaalang-alang ang Sunhill Developmental Education',
+      benefits: {
+        individual: '✓ Mga programang pang-indibidwal sa pag-aaral',
+        experienced: '✓ Mga guro na may karanasan sa espesyal na edukasyon',
+        supportive: '✓ Suportadong kapaligiran sa pag-aaral',
+        monitoring: '✓ Regular na pagsubaybay sa pag-unlad'
+      }
+    }
+  };
+
+  const t = (key) => {
+    const keys = key.split('.');
+    let value = translations[language];
+    for (const k of keys) {
+      value = value[k];
+    }
+    return value || key;
+  };
 
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
         setLoading(true);
         setError(null);
-        
+
         // Fetch assessment categories
-        const categoriesResponse = await axiosInstance.get('/special-education/categories/');
+        const categoriesResponse = await axiosInstance.get('/special-education/categories/', {
+          params: {
+            language: language
+          }
+        });
         if (categoriesResponse.data) {
           setCategories(categoriesResponse.data);
         }
-        
+
         setLoading(false);
       } catch (error) {
         console.error('Error fetching initial data:', error);
@@ -45,15 +118,16 @@ const SpecialEdPublic = () => {
       setSelectedCategory(category);
       setLoading(true);
       setAnswers({}); // Reset answers when selecting new category
-      
+
       // Fetch questions for the selected category using the correct endpoint
       const response = await axiosInstance.get('/special-education/questions/random/', {
         params: {
           category: category.id,
-          count: 10
+          count: 10,
+          language: language
         }
       });
-      
+
       if (response.data) {
         setQuestions(response.data);
         setActiveStep(1);
@@ -80,7 +154,7 @@ const SpecialEdPublic = () => {
 
   const handleSubmitAssessment = async () => {
     if (isSubmitting) return;
-    
+
     setIsSubmitting(true);
     try {
       // Validate that all questions have answers
@@ -95,7 +169,6 @@ const SpecialEdPublic = () => {
       setAssessmentStarted(false);
       setActiveStep(2);
       toast.success('Assessment completed successfully!');
-      
     } catch (error) {
       console.error('Error submitting assessment:', error);
       toast.error('Failed to submit assessment. Please try again.');
@@ -230,7 +303,7 @@ const SpecialEdPublic = () => {
             <h1>Special Education Assessment Results</h1>
             <div class="category">Category: ${selectedCategory.title}</div>
             <div class="date">Date: ${currentDate}</div>
-      
+
           </div>
 
           <div class="notice">
@@ -255,8 +328,7 @@ const SpecialEdPublic = () => {
               <div class="question">
                 <strong>${index + 1}. ${question.question_text}</strong>
                 <div class="answer answer-${answers[question.id]?.toLowerCase().replace('_', '-')}">
-                  ${answers[question.id]?.charAt(0).toUpperCase() + answers[question.id]?.slice(1).replace('_', ' ')}
-                </div>
+                  ${answers[question.id]?.charAt(0).toUpperCase() + answers[question.id]?.slice(1).replace('_', ' ')}</div>
               </div>
             `).join('')}
           </div>
@@ -314,7 +386,7 @@ const SpecialEdPublic = () => {
 
     const totalQuestions = questions.length;
     const maxScore = totalQuestions * 3; // 3 is max score per question
-    
+
     // Calculate total score
     const totalScore = Object.values(answers).reduce((sum, answer) => {
       return sum + scoreMap[answer];
@@ -339,15 +411,55 @@ const SpecialEdPublic = () => {
     };
   };
 
+  const handleStartNew = async () => {
+    setLoading(true);
+    setActiveStep(0);
+    setSelectedCategory(null);
+    setAnswers({});
+    setQuestions([]);
+    setAssessmentStarted(false);
+    setError(null);
+    setIsSubmitting(false);
+    setShowResults(false);
+    
+    try {
+      // Refetch assessment categories
+      const categoriesResponse = await axiosInstance.get('/special-education/categories/', {
+        params: {
+          language: language
+        }
+      });
+      if (categoriesResponse.data) {
+        setCategories(categoriesResponse.data);
+      }
+    } catch (error) {
+      console.error('Error fetching initial data:', error);
+      setError(error.response?.data?.message || 'Failed to load initial data');
+      toast.error('Failed to load initial data. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const renderWelcome = () => (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <div className="flex justify-end mb-4">
+        <button
+          onClick={() => setLanguage(language === 'en' ? 'tl' : 'en')}
+          className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+        >
+          <FaLanguage className="w-5 h-5 mr-2" />
+          {language === 'en' ? 'Tagalog' : 'English'}
+        </button>
+      </div>
+
       <div className="mb-12">
         <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
           <FaGraduationCap className="w-12 h-12 text-blue-600" />
         </div>
-        <h1 className="text-5xl font-bold text-gray-900 mb-6">Special Education Assessment</h1>
+        <h1 className="text-5xl font-bold text-gray-900 mb-6">{t('welcome')}</h1>
         <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-          Welcome to our assessment platform. Please select a category to begin your assessment.
+          {t('welcomeDesc')}
         </p>
       </div>
 
@@ -358,8 +470,7 @@ const SpecialEdPublic = () => {
           </div>
           <div className="ml-3">
             <p className="text-sm text-yellow-700">
-              <strong>Important Notice:</strong> This assessment is for screening purposes only and does not provide a diagnosis. 
-              Please consult with qualified healthcare professionals for proper evaluation and diagnosis.
+              {t('notice')}
             </p>
           </div>
         </div>
@@ -377,8 +488,8 @@ const SpecialEdPublic = () => {
                 <FaBookReader className="w-6 h-6 text-blue-600" />
               </div>
               <div className="ml-4">
-                <h3 className="text-xl font-semibold text-gray-900">{category.title}</h3>
-                <p className="text-gray-600">{category.description}</p>
+                <h3 className="text-xl font-semibold text-gray-900">{category.title_translated || category.title}</h3>
+                <p className="text-gray-600">{category.description_translated || category.description}</p>
               </div>
             </div>
           </div>
@@ -390,9 +501,18 @@ const SpecialEdPublic = () => {
   const renderAssessment = () => (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
       <div className="bg-white rounded-2xl shadow-lg p-4 sm:p-6 lg:p-8">
-        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">{selectedCategory.title} Assessment</h2>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">{selectedCategory.title}</h2>
+          <button
+            onClick={() => setLanguage(language === 'en' ? 'tl' : 'en')}
+            className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+          >
+            <FaLanguage className="w-5 h-5 mr-2" />
+            {language === 'en' ? 'Tagalog' : 'English'}
+          </button>
+        </div>
 
-        <div className="space-y-8 sm:space-y-12">
+        <div className="space-y-8">
           {questions.map((question, index) => (
             <div key={question.id} className="bg-gray-50 rounded-lg p-4 sm:p-6">
               <div className="flex items-start space-x-3 sm:space-x-4">
@@ -400,7 +520,9 @@ const SpecialEdPublic = () => {
                   {index + 1}
                 </span>
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">{question.question_text}</h3>
+                  <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">
+                    {language === 'tl' ? question.question_text_tl || question.question_text : question.question_text}
+                  </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
                     {['never', 'sometimes', 'often', 'very_often'].map((option) => (
                       <button
@@ -412,7 +534,7 @@ const SpecialEdPublic = () => {
                             : 'border-gray-200 hover:border-gray-300'
                         }`}
                       >
-                        {option.charAt(0).toUpperCase() + option.slice(1).replace('_', ' ')}
+                        {t(option.replace('_', ''))}
                       </button>
                     ))}
                   </div>
@@ -444,12 +566,12 @@ const SpecialEdPublic = () => {
             {isSubmitting ? (
               <>
                 <FaSpinner className="animate-spin mr-2" />
-                Submitting...
+                {t('submitting')}
               </>
             ) : (
               <>
                 <FaCheck className="mr-2" />
-                Submit Assessment ({Object.keys(answers).length}/{questions.length})
+                {t('submit')} ({Object.keys(answers).length}/{questions.length})
               </>
             )}
           </button>
@@ -465,14 +587,14 @@ const SpecialEdPublic = () => {
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
       <div className="bg-white rounded-2xl shadow-lg p-4 sm:p-6 lg:p-8">
         <div className="mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">Assessment Results</h2>
-          <p className="text-gray-600">Category: {selectedCategory.title}</p>
-          <p className="text-gray-600">Date: {currentDate}</p>
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">{t('results')}</h2>
+          <p className="text-gray-600">{t('category')}: {selectedCategory.title}</p>
+          <p className="text-gray-600">{t('date')}: {currentDate}</p>
         </div>
 
         {/* Assessment Score Summary */}
         <div className="bg-gray-50 rounded-lg p-4 sm:p-6 mb-8">
-          <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">Assessment Summary</h3>
+          <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">{t('summary')}</h3>
           <div className="flex items-center mb-4">
             <div className="w-full bg-gray-200 rounded-full h-4">
               <div 
@@ -489,19 +611,19 @@ const SpecialEdPublic = () => {
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className={`p-4 rounded-lg ${scores.categoryLevels.minimal ? 'bg-green-100 text-green-800' : 'bg-gray-100'}`}>
-              <div className="text-lg font-semibold">Minimal</div>
+              <div className="text-lg font-semibold">{t('minimal')}</div>
               <div className="text-sm">0-25%</div>
             </div>
             <div className={`p-4 rounded-lg ${scores.categoryLevels.moderate ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100'}`}>
-              <div className="text-lg font-semibold">Moderate</div>
+              <div className="text-lg font-semibold">{t('moderate')}</div>
               <div className="text-sm">26-50%</div>
             </div>
             <div className={`p-4 rounded-lg ${scores.categoryLevels.significant ? 'bg-orange-100 text-orange-800' : 'bg-gray-100'}`}>
-              <div className="text-lg font-semibold">Significant</div>
+              <div className="text-lg font-semibold">{t('significant')}</div>
               <div className="text-sm">51-75%</div>
             </div>
             <div className={`p-4 rounded-lg ${scores.categoryLevels.severe ? 'bg-red-100 text-red-800' : 'bg-gray-100'}`}>
-              <div className="text-lg font-semibold">Severe</div>
+              <div className="text-lg font-semibold">{t('severe')}</div>
               <div className="text-sm">76-100%</div>
             </div>
           </div>
@@ -518,8 +640,7 @@ const SpecialEdPublic = () => {
                   answers[question.id] === 'sometimes' ? 'bg-yellow-100 text-yellow-800' :
                   'bg-green-100 text-green-800'
                 }`}>
-                  {answers[question.id]?.charAt(0).toUpperCase() + answers[question.id]?.slice(1).replace('_', ' ')}
-                </span>
+                  {answers[question.id]?.charAt(0).toUpperCase() + answers[question.id]?.slice(1).replace('_', ' ')}</span>
               </div>
             </div>
           ))}
@@ -527,7 +648,7 @@ const SpecialEdPublic = () => {
 
         <div className="mt-8 sm:mt-12">
           <div className="bg-blue-50 rounded-lg p-6 mb-6">
-            <h3 className="text-xl sm:text-2xl font-bold text-blue-900 mb-4">Professional Evaluation</h3>
+            <h3 className="text-xl sm:text-2xl font-bold text-blue-900 mb-4">{t('evaluation')}</h3>
             <p className="text-blue-800 mb-4">
               Based on your responses, the assessment indicates a {
                 scores.percentage <= 25 ? 'minimal' :
@@ -538,45 +659,46 @@ const SpecialEdPublic = () => {
           </div>
 
           <div className="bg-green-50 rounded-lg p-6 mb-6">
-            <h3 className="text-xl sm:text-2xl font-bold text-green-900 mb-4">Consider Sunhill Developmental Education</h3>
+            <h3 className="text-xl sm:text-2xl font-bold text-green-900 mb-4">{t('considerSunhill')}</h3>
             <p className="text-green-800 mb-4">
               Sunhill offers specialized education programs designed to support children with diverse learning needs. Our experienced educators and comprehensive support system can help your child reach their full potential.
             </p>
             <div className="space-y-3 text-green-800">
-              <p>✓ Individualized learning programs</p>
-              <p>✓ Experienced special education teachers</p>
-              <p>✓ Supportive learning environment</p>
-              <p>✓ Regular progress monitoring</p>
+              <p>{t('benefits.individual')}</p>
+              <p>{t('benefits.experienced')}</p>
+              <p>{t('benefits.supportive')}</p>
+              <p>{t('benefits.monitoring')}</p>
             </div>
             <button
               onClick={() => window.location.href = '/enrollment'}
               className="mt-4 inline-flex items-center px-6 py-3 text-lg font-medium text-white bg-green-600 rounded-lg hover:bg-green-700"
             >
               <FaArrowRight className="mr-2" />
-              Learn About Enrollment
+              {t('learnAboutEnrollment')}
             </button>
           </div>
 
           <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
             <button
-              onClick={() => setActiveStep(0)}
+              onClick={handleStartNew}
               className="w-full sm:w-auto inline-flex items-center justify-center px-4 sm:px-6 py-2 sm:py-3 text-base sm:text-lg font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700"
             >
-              Start New Assessment
+              {t('startNew')}
             </button>
             <button
               onClick={handlePrint}
               className="w-full sm:w-auto inline-flex items-center justify-center px-4 sm:px-6 py-2 sm:py-3 text-base sm:text-lg font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
             >
               <FaPrint className="mr-2" />
-              Print Results
+              {t('print')}
             </button>
           </div>
         </div>
       </div>
     </div>
   );
-  }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {loading ? (

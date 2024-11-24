@@ -5,14 +5,39 @@ from django.utils import timezone
 from datetime import timedelta
 
 class CategorySerializer(serializers.ModelSerializer):
+    title_translated = serializers.SerializerMethodField()
+    description_translated = serializers.SerializerMethodField()
+
     class Meta:
         model = AssessmentCategory
-        fields = ['id', 'title', 'description', 'created_at', 'updated_at']
+        fields = ['id', 'title', 'title_tl', 'description', 'description_tl', 
+                 'title_translated', 'description_translated', 'created_at', 'updated_at']
+
+    def get_title_translated(self, obj):
+        language = self.context.get('language', 'en')
+        return obj.get_title(language)
+
+    def get_description_translated(self, obj):
+        language = self.context.get('language', 'en')
+        return obj.get_description(language)
 
 class QuestionSerializer(serializers.ModelSerializer):
+    question_text_translated = serializers.SerializerMethodField()
+    category_translated = serializers.SerializerMethodField()
+
     class Meta:
         model = Question
-        fields = ['id', 'category', 'question_text', 'question_category', 'created_at', 'updated_at']
+        fields = ['id', 'category', 'question_text', 'question_text_tl', 
+                 'question_text_translated', 'question_category', 
+                 'category_translated', 'created_at', 'updated_at']
+
+    def get_question_text_translated(self, obj):
+        language = self.context.get('language', 'en')
+        return obj.get_question_text(language)
+
+    def get_category_translated(self, obj):
+        language = self.context.get('language', 'en')
+        return obj.get_category_translation(language)
 
 class ResponseSerializer(serializers.ModelSerializer):
     question_text = serializers.CharField(source='question.question_text', read_only=True)

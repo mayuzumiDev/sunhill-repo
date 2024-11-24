@@ -64,7 +64,7 @@ const SideNavbar = ({ currentTab, setCurrentTab, toggleSidebar, isSidebarOpen })
   ];
 
   const additionalTabs = [
-    { name: "Messages", icon: <MailOutline className="h-5 w-5" /> },
+    // { name: "Messages", icon: <MailOutline className="h-5 w-5" /> },
     { name: "SpecialED", icon: <SearchOutline className="h-5 w-5" /> },
     { name: "FAQ", icon: <QuestionOutline className="h-5 w-5" /> },
   ];

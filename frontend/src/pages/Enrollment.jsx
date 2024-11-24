@@ -1,9 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import Footer from '../components/home/Footer';
+import Navbar from '../components/home/Navbar';
 
 const Enrollment = () => {
   return (
     <div className="min-h-screen bg-gray-50">
+      <Navbar />
       {/* Hero Banner */}
       <div className="relative bg-indigo-600 text-white py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -121,6 +124,9 @@ const Enrollment = () => {
           </div>
         </div>
       </div>
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 };

@@ -22,6 +22,11 @@ class CategoryListView(generics.ListAPIView):
     queryset = AssessmentCategory.objects.all()
     serializer_class = CategorySerializer
 
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['language'] = self.request.query_params.get('language', 'en')
+        return context
+
 class QuestionListView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     queryset = Question.objects.all()
@@ -33,11 +38,17 @@ class QuestionListView(generics.ListAPIView):
             return Question.objects.filter(category_id=category_id)
         return Question.objects.all()
 
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['language'] = self.request.query_params.get('language', 'en')
+        return context
+
 class AutoAssessmentView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         try:
+            language = request.query_params.get('language', 'en')
             # Get all active categories and randomly select one
             categories = AssessmentCategory.objects.filter(is_active=True)
             if not categories:
@@ -63,7 +74,7 @@ class AutoAssessmentView(APIView):
             random_questions = random.sample(questions, 10)
             
             return Response({
-                'category': CategorySerializer(selected_category).data,
+                'category': CategorySerializer(selected_category, context={'language': language}).data,
                 'questions': QuestionSerializer(random_questions, many=True).data
             })
             
@@ -314,6 +325,7 @@ class RandomQuestionView(APIView):
         try:
             category_id = request.query_params.get('category')
             count = int(request.query_params.get('count', 10))
+            language = request.query_params.get('language', 'en')  # Get language parameter
 
             if not category_id:
                 return Response(
@@ -336,8 +348,12 @@ class RandomQuestionView(APIView):
                 min(count, len(questions))
             )
 
-            # Serialize and return the questions
-            serializer = QuestionSerializer(selected_questions, many=True)
+            # Serialize and return the questions with language context
+            serializer = QuestionSerializer(
+                selected_questions, 
+                many=True,
+                context={'language': language}  # Add language to serializer context
+            )
             return Response(serializer.data)
 
         except ValueError:
