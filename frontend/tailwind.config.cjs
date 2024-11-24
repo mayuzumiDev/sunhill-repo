@@ -13,6 +13,8 @@ export default {
         inter: ["Inter", "sans-serif"],
         roboto: ["Roboto", "sans-serif"],
         montserrat: ["Montserrat", "sans-serif"],
+        quicksand: ["Quicksand", "sans-serif"],
+        comic: ['"Comic Neue"', "cursive"],
       },
     },
   },
