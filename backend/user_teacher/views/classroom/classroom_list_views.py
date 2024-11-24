@@ -24,7 +24,17 @@ class ClassroomListView(generics.ListAPIView):
         serializer = self.get_serializer(queryset, many=True)
         classroom_list = serializer.data
 
+        # Get classroom statistics
+        total_classrooms = queryset.count()
+        total_students = sum(classroom.students.count() for classroom in queryset)
+        active_classrooms = queryset.filter(is_active=True).count()
+
         return JsonResponse({
             'message': 'Classroom list retrieved successfully',
-            'classroom_list': classroom_list
+            'classroom_list': classroom_list,
+            'statistics': {
+                'total_classrooms': total_classrooms,
+                'total_students': total_students,
+                'active_classrooms': active_classrooms
+            }
         }, status=status.HTTP_200_OK)

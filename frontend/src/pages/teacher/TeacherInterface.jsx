@@ -67,7 +67,7 @@ function TeacherInterface() {
             ? "ml-0"
             : isSidebarOpen
             ? "ml-64"
-            : "ml-16"
+            : "ml-20"
         } print:ml-0`}
       >
         {/* Fixed Top Navbar */}
