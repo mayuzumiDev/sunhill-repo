@@ -1,52 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import { Menu, Transition } from '@headlessui/react';
-import { FaChevronDown, FaUser, FaSignOutAlt, FaGraduationCap, FaBars, FaEdit } from 'react-icons/fa';
-import SunhillLogo from '../../assets/img/home/sunhill.jpg';
-import userThree from '../../assets/img/home/unknown.jpg';
-import './student.css';
-import StudentSettings from '../../pages/student/StudentSettings';
-import Logout from './Logout';
-import { AnimatePresence } from 'framer-motion';
-import { axiosInstance } from '../../utils/axiosInstance';
-import NotificationButton from '../common/NotificationButton';
+import React, { useState } from "react";
+import { Menu, Transition } from "@headlessui/react";
+import {
+  FaChevronDown,
+  FaSignOutAlt,
+  FaGraduationCap,
+  FaBars,
+  FaEdit,
+} from "react-icons/fa";
+import SunhillLogo from "../../assets/img/home/sunhill.jpg";
+import userThree from "../../assets/img/home/unknown.jpg";
+import "./student.css";
+import StudentSettings from "../../pages/student/StudentSettings";
+import Logout from "./Logout";
+import { AnimatePresence } from "framer-motion";
+import NotificationButton from "../common/NotificationButton";
 
-const TopNav = ({ onLogout }) => {
+const TopNav = ({ studentData, onLogout, onProfileUpdate }) => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isLogoutOpen, setIsLogoutOpen] = useState(false);
-  const [refreshKey, setRefreshKey] = useState(0);
-  const [studentData, setStudentData] = useState({
-    name: 'Loading...',
-    profilePicture: userThree,
-    role: 'student'
-  });
-  const [error, setError] = useState('');
-
-  const handleProfileUpdate = () => {
-    setRefreshKey(prevKey => prevKey + 1);
-  };
-
-  useEffect(() => {
-    const fetchStudentData = async () => {
-      try {
-        const response = await axiosInstance.get('/api/user-student/profile/');
-        const data = response.data.student_profile;
-        
-        setStudentData({
-          name: `${data.first_name} ${data.last_name}`.trim() || 'Student',
-          profilePicture: data.user_info?.profile_image || userThree,
-          role: data.role || 'student',
-          email: data.email,
-          branch: data.branch_name,
-          gradeLevel: data.grade_level || 'N/A'
-        });
-      } catch (err) {
-        console.error('Error fetching student data:', err);
-        setError('Failed to load student data');
-      }
-    };
-
-    fetchStudentData();
-  }, [refreshKey]);
 
   const handleToggleSettings = () => {
     setIsSettingsOpen(!isSettingsOpen);
@@ -64,15 +35,20 @@ const TopNav = ({ onLogout }) => {
     setIsLogoutOpen(false);
   };
 
+  const handleProfileUpdateAndClose = () => {
+    onProfileUpdate();
+    handleCloseSettings();
+  };
+
   return (
     <header className="bg-gradient-to-r from-blue-500 to-purple-600 shadow-lg fixed top-0 left-0 right-0 z-50">
       <div className="container mx-auto flex justify-between items-center p-2 lg:p-3">
         {/* Sunhill LMS Logo */}
         <div className="flex items-center">
-          <img 
-            src={SunhillLogo} 
-            alt="Sunhill LMS Logo" 
-            className="w-6 h-6 sm:w-8 sm:h-8 lg:w-10 lg:h-10 mr-2 rounded-full shadow-lg hover:scale-110 transition-transform duration-200" 
+          <img
+            src={SunhillLogo}
+            alt="Sunhill LMS Logo"
+            className="w-6 h-6 sm:w-8 sm:h-8 lg:w-10 lg:h-10 mr-2 rounded-full shadow-lg hover:scale-110 transition-transform duration-200"
           />
           <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-white">
             Sunhill LMS
@@ -83,20 +59,23 @@ const TopNav = ({ onLogout }) => {
         <div className="flex items-center">
           {/* Notification Button */}
           <NotificationButton
-            userRole={studentData.role}
-            userBranch={studentData.branch}
+            userRole={studentData?.role}
+            userBranch={studentData?.branch}
           />
-          
+
           {/* Student Info */}
           <div className="hidden sm:block text-white text-right mr-2 lg:mr-3">
-            <p className="text-sm lg:text-base font-semibold">{studentData.name}</p>
+            <p className="text-sm lg:text-base font-semibold">
+              {studentData?.name}
+            </p>
             <div className="text-xs flex items-center justify-end space-x-2">
               <p className="flex items-center">
-                <FaGraduationCap className="mr-1" /> 
-                {studentData.role.charAt(0).toUpperCase() + studentData.role.slice(1)}
+                <FaGraduationCap className="mr-1" />
+                {studentData?.role?.charAt(0).toUpperCase() +
+                  studentData?.role?.slice(1)}
               </p>
               <span>•</span>
-              <p>{studentData.gradeLevel}</p>
+              <p>{studentData?.gradeLevel}</p>
             </div>
           </div>
 
@@ -106,8 +85,8 @@ const TopNav = ({ onLogout }) => {
               <>
                 <Menu.Button className="flex items-center space-x-1 lg:space-x-2 bg-white rounded-full p-1 hover:bg-yellow-300 transition-all duration-200">
                   <img
-                    src={studentData.profilePicture}
-                    alt={`${studentData.name}'s profile`}
+                    src={studentData?.profilePicture}
+                    alt={`${studentData?.name}'s profile`}
                     className="w-6 h-6 sm:w-8 sm:h-8 lg:w-9 lg:h-9 rounded-full object-cover border-2 border-purple-300"
                     onError={(e) => {
                       e.target.onerror = null;
@@ -128,16 +107,22 @@ const TopNav = ({ onLogout }) => {
                   leaveFrom="transform opacity-100 scale-100"
                   leaveTo="transform opacity-0 scale-95"
                 >
-                  <Menu.Items static className="absolute right-0 mt-2 w-44 sm:w-48 bg-white rounded-lg shadow-lg overflow-hidden z-50">
+                  <Menu.Items
+                    static
+                    className="absolute right-0 mt-2 w-44 sm:w-48 bg-white rounded-lg shadow-lg overflow-hidden z-50"
+                  >
                     <div className="px-3 py-2 bg-gray-100 border-b border-gray-200 sm:hidden">
-                      <p className="text-sm font-medium text-gray-800">{studentData.name}</p>
+                      <p className="text-sm font-medium text-gray-800">
+                        {studentData?.name}
+                      </p>
                       <div className="text-xs text-gray-500 mt-1 flex items-center space-x-2">
                         <p className="flex items-center">
                           <FaGraduationCap className="mr-1" />
-                          {studentData.role.charAt(0).toUpperCase() + studentData.role.slice(1)}
+                          {studentData?.role?.charAt(0).toUpperCase() +
+                            studentData?.role?.slice(1)}
                         </p>
                         <span>•</span>
-                        <p>{studentData.gradeLevel}</p>
+                        <p>{studentData?.gradeLevel}</p>
                       </div>
                     </div>
                     <Menu.Item>
@@ -145,7 +130,7 @@ const TopNav = ({ onLogout }) => {
                         <button
                           onClick={handleToggleSettings}
                           className={`${
-                            active ? 'bg-blue-100' : ''
+                            active ? "bg-blue-100" : ""
                           } flex items-center w-full px-3 py-2 text-blue-700 text-left text-sm`}
                         >
                           <FaEdit className="mr-2 text-blue-500" /> Edit Profile
@@ -157,10 +142,11 @@ const TopNav = ({ onLogout }) => {
                         <button
                           onClick={handleLogout}
                           className={`${
-                            active ? 'bg-blue-100' : ''
+                            active ? "bg-blue-100" : ""
                           } flex items-center w-full px-3 py-2 text-blue-700 text-left text-sm`}
                         >
-                          <FaSignOutAlt className="mr-2 text-blue-500" /> Log Out
+                          <FaSignOutAlt className="mr-2 text-blue-500" /> Log
+                          Out
                         </button>
                       )}
                     </Menu.Item>
@@ -178,17 +164,19 @@ const TopNav = ({ onLogout }) => {
           <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center">
             <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
               <div className="flex justify-between items-center p-4 border-b">
-                <h2 className="text-2xl font-bold text-blue-600">Profile Settings</h2>
-                <button 
+                <h2 className="text-2xl font-bold text-blue-600">
+                  Profile Settings
+                </h2>
+                <button
                   onClick={handleCloseSettings}
                   className="text-gray-500 hover:text-gray-700"
                 >
                   ✕
                 </button>
               </div>
-              <StudentSettings 
-                onProfileUpdate={handleProfileUpdate}
-                onClose={handleCloseSettings} 
+              <StudentSettings
+                onProfileUpdate={handleProfileUpdateAndClose}
+                onClose={handleCloseSettings}
               />
             </div>
           </div>
@@ -198,8 +186,8 @@ const TopNav = ({ onLogout }) => {
       {/* Logout Modal */}
       <AnimatePresence>
         {isLogoutOpen && (
-          <Logout 
-            onLogout={onLogout} 
+          <Logout
+            onLogout={onLogout}
             onCancel={handleCancelLogout}
             student={studentData}
           />
