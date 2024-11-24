@@ -152,7 +152,9 @@ const ManageAssignments = () => {
 
       {!selectedClassroom ? (
         <>
-          <h1 className="text-2xl font-bold mb-12">Manage Quizzes</h1>
+          <h1 className="text-2xl font-bold mb-12 text-gray-700">
+            Manage Quizzes
+          </h1>
 
           {/* Grid List for classroom */}
           {isLoading ? (

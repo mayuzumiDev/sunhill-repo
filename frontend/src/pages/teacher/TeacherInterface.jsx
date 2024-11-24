@@ -6,8 +6,9 @@ import ManageStudents from "./ManageStudents";
 import ManageLessons from "./Classes";
 import ManageMaterials from "./ManageMaterials";
 import ManageAssignments from "./ManageAssignments";
-import SpecialEd from "../admin/SpecialEd";
-import TeacherSettings from "./TeacherSettings";
+import SpecialEducationTool from "./SpeEdTool";
+// import Messages from "./Messages";
+// import TeacherSettings from "./TeacherSettings";
 import AccountSettings from "./AccountSettings";
 import Logout from "../../components/Logout";
 
@@ -102,7 +103,7 @@ function TeacherInterface() {
             <SpecialEd darkMode={darkMode} />
           )}
           {/* {currentTab === "Messages" && <Messages darkMode={darkMode} />} */}
-          {currentTab === "Settings" && <TeacherSettings darkMode={darkMode} />}
+          {/* {currentTab === "Settings" && <TeacherSettings darkMode={darkMode} />} */}
           {currentTab === "Account Settings" && (
             <AccountSettings darkMode={darkMode} />
           )}
