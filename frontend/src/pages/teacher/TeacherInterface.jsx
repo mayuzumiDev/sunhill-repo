@@ -6,7 +6,7 @@ import ManageStudents from "./ManageStudents";
 import ManageLessons from "./Classes";
 import ManageMaterials from "./ManageMaterials";
 import ManageAssignments from "./ManageAssignments";
-import SpecialEducationTool from "./SpeEdTool";
+import SpecialEd from "../admin/SpecialEd"
 // import Messages from "./Messages";
 // import TeacherSettings from "./TeacherSettings";
 import AccountSettings from "./AccountSettings";

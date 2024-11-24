@@ -37,7 +37,7 @@ const SpecialEdPublic = () => {
       category: 'Category',
       date: 'Date',
       summary: 'Assessment Summary',
-      evaluation: 'Professional Evaluation',
+      evaluation: 'Evaluation',
       considerSunhill: 'Consider Sunhill Developmental Education',
       benefits: {
         individual: '✓ Individualized learning programs',
@@ -65,7 +65,7 @@ const SpecialEdPublic = () => {
       category: 'Kategorya',
       date: 'Petsa',
       summary: 'Buod ng Pagsusuri',
-      evaluation: 'Propesyonal na Pagsusuri',
+      evaluation: 'Pagsusuri',
       considerSunhill: 'Isaalang-alang ang Sunhill Developmental Education',
       benefits: {
         individual: '✓ Mga programang pang-indibidwal sa pag-aaral',
@@ -178,132 +178,115 @@ const SpecialEdPublic = () => {
   };
 
   const handlePrint = () => {
+    const scores = calculateScores();
     const printContent = `
       <html>
         <head>
-          <title>Assessment Results - ${selectedCategory.title} special education</title>
+          <title>Assessment Results - ${selectedCategory.title}</title>
           <style>
-            @page {
-              size: A4;
-              margin: 1.5cm;
+            @media print {
+              @page { margin: 1.5cm; size: A4; }
+              body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
             }
             body {
               font-family: Arial, sans-serif;
-              line-height: 1.4;
+              font-size: 11pt;
+              line-height: 1.3;
               color: #333;
               max-width: 100%;
               margin: 0;
-              padding: 10px;
-              font-size: 11pt;
+              padding: 15px;
             }
-            h1 { font-size: 16pt; margin: 0 0 5px 0; }
-            h2 { font-size: 13pt; margin: 0 0 5px 0; }
-            p { margin: 0 0 8px 0; }
             .header {
               text-align: center;
               margin-bottom: 15px;
               padding-bottom: 10px;
               border-bottom: 1px solid #ddd;
             }
-            .category, .date {
-              color: #666;
-              font-size: 10pt;
-              margin: 2px 0;
-            }
+            h1 { font-size: 16pt; margin: 0 0 5px 0; }
+            h2 { font-size: 13pt; margin: 10px 0 5px 0; }
+            h3 { font-size: 12pt; margin: 8px 0 4px 0; }
+            p { margin: 0 0 5px 0; }
             .notice {
-              background-color: #fff3cd;
+              background: #fff3cd;
               border-left: 3px solid #ffc107;
               padding: 8px;
+              margin: 8px 0;
+              font-size: 9pt;
+            }
+            .score-section {
+              display: flex;
+              align-items: center;
+              gap: 10px;
               margin: 10px 0;
-              font-size: 10pt;
+            }
+            .score-bar {
+              flex-grow: 1;
+              height: 15px;
+              background: #eee;
+              border-radius: 8px;
+              overflow: hidden;
+            }
+            .score-fill {
+              height: 100%;
+              border-radius: 8px;
+            }
+            .score-grid {
+              display: grid;
+              grid-template-columns: repeat(4, 1fr);
+              gap: 5px;
+              margin: 8px 0;
+              font-size: 9pt;
+            }
+            .score-level {
+              padding: 5px;
+              border-radius: 4px;
+              text-align: center;
+            }
+            .questions-grid {
+              display: grid;
+              grid-template-columns: repeat(2, 1fr);
+              gap: 8px;
+              margin: 10px 0;
             }
             .question {
-              background-color: #f8f9fa;
+              background: #f8f9fa;
               padding: 8px;
-              margin: 5px 0;
               border-radius: 4px;
-            }
-            .question strong {
-              font-size: 10pt;
+              font-size: 9pt;
             }
             .answer {
               display: inline-block;
               padding: 2px 8px;
               border-radius: 10px;
-              font-size: 9pt;
               margin-top: 4px;
-            }
-            .answer-never { background-color: #d4edda; color: #155724; }
-            .answer-sometimes { background-color: #fff3cd; color: #856404; }
-            .answer-often { background-color: #ffe5d0; color: #c66a15; }
-            .answer-very-often { background-color: #f8d7da; color: #721c24; }
-            .recommendations, .sunhill-info {
-              margin-top: 15px;
-              padding: 8px;
-              border-radius: 4px;
-              font-size: 10pt;
+              font-size: 8pt;
             }
             .recommendations {
-              background-color: #e8f4f8;
+              display: grid;
+              grid-template-columns: repeat(2, 1fr);
+              gap: 10px;
+              margin: 10px 0;
             }
-            .sunhill-info {
-              background-color: #e8f8ef;
-            }
-            .benefits {
-              margin: 5px 0;
-              padding-left: 15px;
-              columns: 2;
-            }
-            .benefits li {
-              margin: 2px 0;
+            .rec-box {
+              padding: 8px;
+              border-radius: 4px;
               font-size: 9pt;
-              break-inside: avoid;
             }
             .footer {
-              margin-top: 20px;
-              padding-top: 10px;
+              margin-top: 15px;
+              padding-top: 8px;
               border-top: 1px solid #ddd;
               text-align: center;
-              font-size: 9pt;
+              font-size: 8pt;
               color: #666;
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-            }
-            .verification-seal {
-              display: flex;
-              align-items: center;
-              gap: 5px;
-            }
-            .verification-seal::before {
-              content: "✓";
-              display: inline-block;
-              width: 16px;
-              height: 16px;
-              line-height: 16px;
-              text-align: center;
-              background: #4CAF50;
-              color: white;
-              border-radius: 50%;
-              font-size: 10px;
-              margin-right: 4px;
-            }
-            .ref-number {
-              font-family: monospace;
-              letter-spacing: 1px;
-            }
-            @media print {
-              body { padding: 0; }
-              .no-print { display: none; }
             }
           </style>
         </head>
         <body>
           <div class="header">
             <h1>Special Education Assessment Results</h1>
-            <div class="category">Category: ${selectedCategory.title}</div>
-            <div class="date">Date: ${currentDate}</div>
-
+            <p>Category: ${selectedCategory.title} | Date: ${currentDate}</p>
           </div>
 
           <div class="notice">
@@ -311,69 +294,89 @@ const SpecialEdPublic = () => {
             Please consult with qualified healthcare professionals for proper evaluation and diagnosis.
           </div>
 
-          <div className="mt-8 sm:mt-12">
-          <div className="bg-blue-50 rounded-lg p-6 mb-6">
-            <h3 className="text-xl sm:text-2xl font-bold text-blue-900 mb-4">Professional Evaluation</h3>
-            <p className="text-blue-800 mb-4">
-              Based on your responses, the assessment indicates a {
+          <div class="score-section">
+            <div class="score-bar">
+              <div class="score-fill" style="width: ${scores.percentage}%; background: ${
+                scores.percentage <= 25 ? '#10b981' :
+                scores.percentage <= 50 ? '#fbbf24' :
+                scores.percentage <= 75 ? '#f97316' : '#ef4444'
+              };"></div>
+            </div>
+            <strong>${scores.percentage}%</strong>
+          </div>
+
+          <div class="score-grid">
+            ${['Minimal (0-25%)', 'Moderate (26-50%)', 'Significant (51-75%)', 'Severe (76-100%)'].map((level, index) => {
+              const ranges = [25, 50, 75, 100];
+              const isActive = scores.percentage <= ranges[index] && (index === 0 || scores.percentage > ranges[index - 1]);
+              return `
+                <div class="score-level" style="
+                  background: ${isActive ? '#f0f9ff' : '#f3f4f6'};
+                  color: ${isActive ? '#1e40af' : '#374151'};
+                  border: 1px solid ${isActive ? '#93c5fd' : '#e5e7eb'};
+                ">
+                  ${level}
+                </div>
+              `;
+            }).join('')}
+          </div>
+
+          <div class="recommendations">
+            <div class="rec-box" style="background: #e8f4f8;">
+              <h3>Evaluation</h3>
+              <p>Assessment indicates a ${
                 scores.percentage <= 25 ? 'minimal' :
                 scores.percentage <= 50 ? 'moderate' :
                 scores.percentage <= 75 ? 'significant' : 'severe'
-              } level of {selectedCategory.title.toLowerCase()} traits ({scores.percentage}%). We recommend consulting with healthcare providers or education specialists for a comprehensive evaluation and proper diagnosis.
-            </p>
+              } level of ${selectedCategory.title.toLowerCase()} traits (${scores.percentage}%).</p>
+            </div>
+            <div class="rec-box" style="background: #f0fdf4;">
+              <h3>Sunhill Special Education</h3>
+              <p>✓ Individualized learning</p>
+              <p>✓ Experienced teachers</p>
+              <p>✓ Supportive environment</p>
+            </div>
           </div>
 
-          <div class="questions">
+          <h2>Assessment Questions & Responses</h2>
+          <div class="questions-grid">
             ${questions.map((question, index) => `
               <div class="question">
                 <strong>${index + 1}. ${question.question_text}</strong>
-                <div class="answer answer-${answers[question.id]?.toLowerCase().replace('_', '-')}">
-                  ${answers[question.id]?.charAt(0).toUpperCase() + answers[question.id]?.slice(1).replace('_', ' ')}</div>
+                <div class="answer" style="
+                  background: ${
+                    answers[question.id] === 'never' ? '#dcfce7' :
+                    answers[question.id] === 'sometimes' ? '#fef3c7' :
+                    answers[question.id] === 'often' ? '#ffedd5' : '#fee2e2'
+                  };
+                  color: ${
+                    answers[question.id] === 'never' ? '#166534' :
+                    answers[question.id] === 'sometimes' ? '#92400e' :
+                    answers[question.id] === 'often' ? '#9a3412' : '#991b1b'
+                  };
+                ">
+                  ${answers[question.id]?.charAt(0).toUpperCase() + answers[question.id]?.slice(1).replace('_', ' ')}
+                </div>
               </div>
             `).join('')}
           </div>
 
-          <div style="display: flex; gap: 10px;">
-            <div class="recommendations" style="flex: 1;">
-              <h2>Professional Evaluation</h2>
-              <p>Based on your responses, we recommend consulting with healthcare providers or education specialists for a comprehensive evaluation.</p>
-            </div>
-
-            <div class="sunhill-info" style="flex: 1;">
-              <h2>Consider Sunhill Special Education</h2>
-              <ul class="benefits">
-                <li>✓ Individualized learning programs</li>
-                <li>✓ Experienced special education teachers</li>
-                <li>✓ Supportive learning environment</li>
-                <li>✓ Regular progress monitoring</li>
-              </ul>
-            </div>
+          <div class="footer">
+            <p>Reference: ${new Date().getFullYear()}${String(selectedCategory.id).padStart(2, '0')}${Math.random().toString(36).substr(2, 6).toUpperCase()}</p>
+            <p>Sunhill Special Education Assessment | ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
           </div>
-        </div>
-
-        <div class="footer">
-          <div class="verification-seal">
-            Verified Assessment
-          </div>
-          <div>
-            <span class="ref-number">REF: ${new Date().getFullYear()}${String(selectedCategory.id).padStart(2, '0')}${Math.random().toString(36).substr(2, 6).toUpperCase()}</span>
-          </div>
-          <div>
-            Sunhill Special Education Assessment | ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-          </div>
-        </div>
-      </body>
-    </html>
+        </body>
+      </html>
     `;
 
     const printWindow = window.open('', '_blank');
     printWindow.document.write(printContent);
     printWindow.document.close();
-    printWindow.focus();
+
     setTimeout(() => {
       printWindow.print();
       printWindow.close();
-    }, 250);
+    }, 500);
   };
 
   const calculateScores = () => {
@@ -647,6 +650,19 @@ const SpecialEdPublic = () => {
         </div>
 
         <div className="mt-8 sm:mt-12">
+          <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <FaExclamationTriangle className="h-5 w-5 text-yellow-400" />
+              </div>
+              <div className="ml-3">
+                <p className="text-sm text-yellow-700">
+                  <strong>Important:</strong> Assessment responses cannot be saved in our system. Please make sure to print or save your results before leaving this page.
+                </p>
+              </div>
+            </div>
+          </div>
+
           <div className="bg-blue-50 rounded-lg p-6 mb-6">
             <h3 className="text-xl sm:text-2xl font-bold text-blue-900 mb-4">{t('evaluation')}</h3>
             <p className="text-blue-800 mb-4">
@@ -674,7 +690,7 @@ const SpecialEdPublic = () => {
               className="mt-4 inline-flex items-center px-6 py-3 text-lg font-medium text-white bg-green-600 rounded-lg hover:bg-green-700"
             >
               <FaArrowRight className="mr-2" />
-              {t('learnAboutEnrollment')}
+              {t('Learn more')}
             </button>
           </div>
 
