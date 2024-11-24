@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import SideNavbar from "../../components/teacher/Sidebar";
 import TopNavbar from "../../components/teacher/TopNavbar";
 import TeacherDashboard from "./TeacherDashboard";
-import ManageStudents from "./ManageStudents";
+import StudentScores from "./StudentScores";
 import ManageLessons from "./Classes";
 import ManageMaterials from "./ManageMaterials";
 import ManageAssignments from "./ManageAssignments";
@@ -91,7 +91,7 @@ function TeacherInterface() {
           {currentTab === "Dashboard" && (
             <TeacherDashboard darkMode={darkMode} />
           )}
-          {currentTab === "Scores" && <ManageStudents darkMode={darkMode} />}
+          {currentTab === "Scores" && <StudentScores darkMode={darkMode} />}
           {currentTab === "Classroom" && <ManageLessons darkMode={darkMode} />}
           {currentTab === "Materials" && <ManageMaterials />}
           {currentTab === "Quizzes" && (
