@@ -3,8 +3,17 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 
 const QuizCard = ({ quiz, onEdit, onDelete }) => {
+  const handleClick = (e) => {
+    // Prevent edit when clicking delete button
+    if (e.target.closest(".delete-button")) return;
+    onEdit(quiz.id);
+  };
+
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-200">
+    <div
+      onClick={handleClick}
+      className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-200"
+    >
       <div className="flex justify-between items-start">
         <div>
           <h3 className="text-xl font-semibold text-gray-800 mb-2">
@@ -18,14 +27,8 @@ const QuizCard = ({ quiz, onEdit, onDelete }) => {
           </div>
         </div>
         <div className="flex gap-2">
-          {/* <button
-            className="px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors"
-            onClick={() => onEdit(quiz.id)}
-          >
-            Edit
-          </button> */}
           <button
-            className="px-4 py-2 text-sm font-medium text-red-600 hover:text-red-800 transition-colors"
+            className="delete-button px-4 py-2 text-sm font-medium text-red-600 hover:text-red-800 transition-colors"
             onClick={() => onDelete(quiz.id)}
           >
             <FontAwesomeIcon icon={faTrash} />

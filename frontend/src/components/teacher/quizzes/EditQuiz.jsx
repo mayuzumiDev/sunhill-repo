@@ -1,7 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { axiosInstance } from "../../../utils/axiosInstance";
+import DotLoaderSpinner from "../../loaders/DotLoaderSpinner";
 
-const CreateQuiz = ({ classroomId, onQuizCreated, onError, onCancel }) => {
+const EditQuiz = ({
+  quizId,
+  classroomId,
+  onQuizUpdated,
+  onError,
+  onCancel,
+}) => {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -9,6 +16,7 @@ const CreateQuiz = ({ classroomId, onQuizCreated, onError, onCancel }) => {
   });
 
   const [questions, setQuestions] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const questionTypes = [
@@ -16,6 +24,65 @@ const CreateQuiz = ({ classroomId, onQuizCreated, onError, onCancel }) => {
     { value: "multi", label: "Multiple Choice" },
     { value: "identification", label: "Identification" },
   ];
+
+  // Fetch existing quiz data and its questions
+  useEffect(() => {
+    const fetchQuizData = async () => {
+      try {
+        // Fetch quiz data from list endpoint
+        const quizResponse = await axiosInstance.get(
+          `/user-teacher/quiz/list/?classroom_id=${classroomId}`
+        );
+        const quizData = quizResponse.data.quizzes.find(
+          (q) => q.id === parseInt(quizId)
+        );
+
+        if (!quizData) {
+          throw new Error("Quiz not found");
+        }
+
+        setFormData({
+          title: quizData.title,
+          description: quizData.description,
+          dueDate: quizData.due_date || "",
+        });
+
+        // Fetch questions for this quiz
+        const questionsResponse = await axiosInstance.get(
+          "/user-teacher/questions/list/",
+          {
+            params: { quiz: quizId },
+          }
+        );
+
+        // Format questions data
+        const formattedQuestions = questionsResponse.data.questions.map(
+          (q) => ({
+            id: q.id,
+            text: q.text,
+            question_type: q.question_type,
+            options: q.choices.map((c) => c.text),
+            correct_answer:
+              q.question_type === "identification"
+                ? q.choices.find((c) => c.is_correct)?.text || ""
+                : q.question_type === "multi"
+                ? q.choices
+                    .map((c, idx) => (c.is_correct ? idx.toString() : null))
+                    .filter((idx) => idx !== null)
+                : q.choices.findIndex((c) => c.is_correct).toString(),
+          })
+        );
+
+        setQuestions(formattedQuestions);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching quiz data:", error);
+        onError(error);
+      }
+    };
+
+    fetchQuizData();
+  }, [quizId, classroomId]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -32,15 +99,9 @@ const CreateQuiz = ({ classroomId, onQuizCreated, onError, onCancel }) => {
         text: "",
         question_type: "single",
         options: [""],
-        correct_answer: "",
+        correct_answer: "0",
       },
     ]);
-  };
-
-  const handleDeleteQuestion = (questionIndex) => {
-    setQuestions((prevQuestions) =>
-      prevQuestions.filter((_, index) => index !== questionIndex)
-    );
   };
 
   const handleQuestionChange = (index, field, value) => {
@@ -72,28 +133,61 @@ const CreateQuiz = ({ classroomId, onQuizCreated, onError, onCancel }) => {
     );
   };
 
-  const formatQuestionData = (questions) => {
-    return questions.map((question) => {
-      const formattedQuestion = {
-        text: question.text,
-        question_type: question.question_type,
-        correct_answer: question.correct_answer,
-      };
-
-      if (
-        question.question_type === "single" ||
-        question.question_type === "multi"
-      ) {
-        formattedQuestion.options = question.options.filter(
-          (opt) => opt.trim() !== ""
+  const handleDeleteQuestion = async (questionIndex) => {
+    const question = questions[questionIndex];
+    if (question.id) {
+      try {
+        // Delete existing question using the detail endpoint
+        await axiosInstance.delete(`/user-teacher/questions/${question.id}/`);
+        setQuestions((prevQuestions) =>
+          prevQuestions.filter((_, index) => index !== questionIndex)
         );
+      } catch (error) {
+        console.error("Error deleting question:", error);
+        onError(error);
       }
-
-      return formattedQuestion;
-    });
+    } else {
+      // Remove new question from state
+      setQuestions((prevQuestions) =>
+        prevQuestions.filter((_, index) => index !== questionIndex)
+      );
+    }
   };
 
-  const createQuestion = async (quizId, questionData) => {
+  const updateQuestion = async (questionId, questionData) => {
+    try {
+      const choices =
+        questionData.question_type === "identification"
+          ? [{ text: questionData.options[0], is_correct: true }]
+          : questionData.options.map((text, index) => ({
+              text,
+              is_correct:
+                questionData.question_type === "multi"
+                  ? questionData.correct_answer.includes(index.toString())
+                  : index.toString() === questionData.correct_answer,
+            }));
+
+      // Use the detail endpoint for updating
+      const response = await axiosInstance.put(
+        `/user-teacher/questions/${questionId}/`,
+        {
+          quiz: quizId,
+          text: questionData.text,
+          question_type: questionData.question_type,
+          choices: choices,
+        }
+      );
+
+      if (response.status === 200) {
+        return response.data.question;
+      }
+    } catch (error) {
+      console.error("Error updating question:", error);
+      throw error;
+    }
+  };
+
+  const createQuestion = async (questionData) => {
     try {
       const choices =
         questionData.question_type === "identification"
@@ -117,46 +211,61 @@ const CreateQuiz = ({ classroomId, onQuizCreated, onError, onCancel }) => {
       );
 
       if (response.status === 201) {
-        console.log("Question created successfully:", response.data);
-        return response.data;
+        return response.data.question;
       }
     } catch (error) {
       console.error("Error creating question:", error);
+      throw error;
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     setIsSubmitting(true);
     try {
-      // First create the quiz
-      const quizResponse = await axiosInstance.post(
-        "/user-teacher/quiz/create/",
+      // Update the quiz details
+      const quizResponse = await axiosInstance.put(
+        `/user-teacher/quiz/update/${quizId}/`,
         {
           ...formData,
           classroom: classroomId,
         }
       );
 
-      if (quizResponse.status === 201) {
-        const quizData = quizResponse.data.quiz;
-        console.log("Quiz Data: ", quizData);
+      if (quizResponse.status === 200) {
+        const quizData = quizResponse.data;
 
-        // Then create each question for the quiz
+        // Handle questions updates
         for (const question of questions) {
           const questionData = {
             text: question.text,
             question_type: question.question_type,
-            choices: question.options.map((text, index) => ({
-              text,
-              is_correct: index === parseInt(question.correct_answer),
-            })),
+            options: question.options.filter((opt) => opt.trim() !== ""),
+            correct_answer: question.correct_answer,
           };
 
-          await createQuestion(quizData.id, questionData);
+          if (question.id) {
+            // Update existing question
+            await updateQuestion(question.id, questionData);
+          } else {
+            // Create new question
+            await createQuestion(questionData);
+          }
         }
 
-        onQuizCreated(quizData, "Quiz created successfully!");
+        const updatedQuizResponse = await axiosInstance.get(
+          `/user-teacher/quiz/list/?classroom_id=${classroomId}`
+        );
+
+        if (updatedQuizResponse.status === 200) {
+          const updatedQuiz = updatedQuizResponse.data.quizzes.find(
+            (q) => q.id === parseInt(quizId)
+          );
+          if (updatedQuiz) {
+            onQuizUpdated(updatedQuiz, "Quiz updated successfully!");
+          }
+        }
       }
     } catch (error) {
       console.error("An error occurred:", error);
@@ -166,10 +275,18 @@ const CreateQuiz = ({ classroomId, onQuizCreated, onError, onCancel }) => {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-96">
+        <DotLoaderSpinner color="#4ade80" />
+      </div>
+    );
+  }
+
   return (
     <>
       <div className="bg-white p-6 rounded-lg shadow-md">
-        <h2 className="text-xl font-semibold mb-4">Create New Quiz</h2>
+        <h2 className="text-xl font-semibold mb-4">Quiz</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-bold text-gray-700 mb-1">
@@ -284,22 +401,35 @@ const CreateQuiz = ({ classroomId, onQuizCreated, onError, onCancel }) => {
                           name={`question-${questionIndex}-correct`}
                           checked={
                             question.question_type === "single"
-                              ? question.correct_answer === option
-                              : question.correct_answer?.includes(option)
+                              ? question.correct_answer ===
+                                optionIndex.toString()
+                              : Array.isArray(question.correct_answer) &&
+                                question.correct_answer.includes(
+                                  optionIndex.toString()
+                                )
                           }
-                          onChange={() =>
+                          onChange={() => {
+                            const newCorrectAnswer =
+                              question.question_type === "single"
+                                ? optionIndex.toString()
+                                : Array.isArray(question.correct_answer)
+                                ? question.correct_answer.includes(
+                                    optionIndex.toString()
+                                  )
+                                  ? question.correct_answer.filter(
+                                      (ans) => ans !== optionIndex.toString()
+                                    )
+                                  : [
+                                      ...question.correct_answer,
+                                      optionIndex.toString(),
+                                    ]
+                                : [optionIndex.toString()];
                             handleQuestionChange(
                               questionIndex,
                               "correct_answer",
-                              question.question_type === "single"
-                                ? option
-                                : question.correct_answer?.includes(option)
-                                ? question.correct_answer.filter(
-                                    (ans) => ans !== option
-                                  )
-                                : [...(question.correct_answer || []), option]
-                            )
-                          }
+                              newCorrectAnswer
+                            );
+                          }}
                           className="h-4 w-4"
                         />
                         <input
@@ -438,10 +568,10 @@ const CreateQuiz = ({ classroomId, onQuizCreated, onError, onCancel }) => {
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     />
                   </svg>
-                  Creating Quiz...
+                  Updating Quiz...
                 </span>
               ) : (
-                "Create Quiz"
+                "Update Quiz"
               )}
             </button>
           </div>
@@ -451,4 +581,4 @@ const CreateQuiz = ({ classroomId, onQuizCreated, onError, onCancel }) => {
   );
 };
 
-export default CreateQuiz;
+export default EditQuiz;

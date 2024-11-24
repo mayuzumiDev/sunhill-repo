@@ -26,6 +26,7 @@ urlpatterns = [
     path('materials/list/', EducationMaterialListView.as_view(), name='materials_list'),
 
     path('quiz/create/', QuizCreateView.as_view(), name="quiz_create"),
+     path('quiz/update/<int:pk>/', QuizUpdateView.as_view(), name='quiz_update'),
     path('quiz/delete/<int:pk>/', QuizDestroyView.as_view(), name='quiz_destroy'),
     path('quiz/list/', QuizListView.as_view(), name="quiz_list"),
 

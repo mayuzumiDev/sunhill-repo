@@ -2,16 +2,19 @@ import React, { useState, useEffect } from "react";
 import { axiosInstance } from "../../utils/axiosInstance";
 import ClassroomCard from "../../components/teacher/quizzes/ClassroomCard";
 import CreateQuiz from "../../components/teacher/quizzes/CreateQuiz";
+import EditQuiz from "../../components/teacher/quizzes/EditQuiz";
 import QuizCard from "../../components/teacher/quizzes/QuizCard";
 import DotLoaderSpinner from "../../components/loaders/DotLoaderSpinner";
 import CustomAlert from "../../components/alert/teacher/CustomAlert";
 import ConfirmDeleteModal from "../../components/modal/teacher/ConfirmDeleteModal";
+import HideScrollBar from "../../components/misc/HideScrollBar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft } from "@fortawesome/free-solid-svg-icons";
 
 const ManageAssignments = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showCreateQuiz, setShowCreateQuiz] = useState(false);
+  const [showEditQuiz, setShowEditQuiz] = useState(false);
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
@@ -86,7 +89,26 @@ const ManageAssignments = () => {
     setShowAlert(true);
   };
 
-  const handleEditQuiz = async () => {};
+  // const handleEditQuiz = (quizId) => {
+  //   const quiz = quizzes.find((q) => q.id === quizId);
+  //   setSelectedQuiz(quiz);
+  //   setShowEditQuiz(true);
+  // };
+
+  const handleQuizUpdated = (updatedQuiz, message) => {
+    setQuizzes((prevQuizzes) =>
+      prevQuizzes.map((quiz) =>
+        quiz.id === updatedQuiz.id ? updatedQuiz : quiz
+      )
+    );
+    setShowEditQuiz(false);
+    setSelectedQuiz(null);
+    setAlertType("success");
+    setAlertMessage(message || "Quiz updated successfully!");
+    setShowAlert(true);
+
+    // await fetchQuizzes();
+  };
 
   const handleDeleteQuiz = async (quizId) => {
     try {
@@ -113,6 +135,7 @@ const ManageAssignments = () => {
 
   return (
     <div className="p-6">
+      <HideScrollBar />
       <CustomAlert
         message={alertMessage}
         type={alertType}
@@ -178,7 +201,7 @@ const ManageAssignments = () => {
                 </p>
               </div>
               {/* Button for Create Quiz */}
-              {!showCreateQuiz && (
+              {!showCreateQuiz && !showEditQuiz && (
                 <button
                   onClick={handleCreateQuiz}
                   className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 font-bold"
@@ -204,6 +227,17 @@ const ManageAssignments = () => {
                   onError={handleCreateQuizError}
                   onCancel={() => setShowCreateQuiz(false)}
                 />
+              ) : showEditQuiz && selectedQuiz ? (
+                <EditQuiz
+                  quizId={selectedQuiz.id}
+                  classroomId={selectedClassroom.id}
+                  onQuizUpdated={handleQuizUpdated}
+                  onError={handleCreateQuizError}
+                  onCancel={() => {
+                    setShowEditQuiz(false);
+                    setSelectedQuiz(null);
+                  }}
+                />
               ) : quizzes.length === 0 ? (
                 <p className="text-gray-600 text-center">
                   No quizzes created yet.
@@ -214,7 +248,10 @@ const ManageAssignments = () => {
                     <QuizCard
                       key={quiz.id || index}
                       quiz={quiz}
-                      onEdit={handleEditQuiz}
+                      onEdit={() => {
+                        setShowEditQuiz(true);
+                        setSelectedQuiz(quiz);
+                      }}
                       onDelete={() => {
                         setShowConfirmDelete(true);
                         setSelectedQuiz(quiz.id);
