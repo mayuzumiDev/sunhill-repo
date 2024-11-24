@@ -5,6 +5,7 @@ from .views.classroom.classroom_list_views import *
 from .views.classroom.classroom_student_views import *
 from .views.classroom.materials_manage_views import *
 from .views.quizzes.quiz_views import *
+from .views.quizzes.question_views import *
 
 urlpatterns = [
     path('current-teacher/', GetCurrentTeacherView.as_view(), name="get_current_teacher"),
@@ -26,5 +27,9 @@ urlpatterns = [
 
     path('quiz/create/', QuizCreateView.as_view(), name="quiz_create"),
     path('quiz/delete/<int:pk>/', QuizDestroyView.as_view(), name='quiz_destroy'),
-    path('quiz/list/', QuizListView.as_view(), name="quiz_list")
+    path('quiz/list/', QuizListView.as_view(), name="quiz_list"),
+
+    path('questions/create/', QuestionCreateView.as_view(), name='question-create'),
+    path('questions/list/', QuestionListView.as_view(), name='question-list'),
+    path('questions/<int:pk>/', QuestionDetailView.as_view(), name='question-detail'),
 ]

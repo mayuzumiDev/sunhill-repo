@@ -5,12 +5,14 @@ import CreateQuiz from "../../components/teacher/quizzes/CreateQuiz";
 import QuizCard from "../../components/teacher/quizzes/QuizCard";
 import DotLoaderSpinner from "../../components/loaders/DotLoaderSpinner";
 import CustomAlert from "../../components/alert/teacher/CustomAlert";
+import ConfirmDeleteModal from "../../components/modal/teacher/ConfirmDeleteModal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft } from "@fortawesome/free-solid-svg-icons";
 
 const ManageAssignments = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showCreateQuiz, setShowCreateQuiz] = useState(false);
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertType, setAlertType] = useState("success");
@@ -18,6 +20,7 @@ const ManageAssignments = () => {
   const [classrooms, setClassrooms] = useState([]);
   const [quizzes, setQuizzes] = useState([]);
   const [selectedClassroom, setSelectedClassroom] = useState(null);
+  const [selectedQuiz, setSelectedQuiz] = useState(null);
 
   useEffect(() => {
     fetchClassroom();
@@ -46,10 +49,12 @@ const ManageAssignments = () => {
     }
   };
 
-  const fetchQuizzes = async () => {
+  const fetchQuizzes = async (classroomId) => {
     try {
       setIsLoading(true);
-      const response = await axiosInstance.get("/user-teacher/quiz/list/");
+      const response = await axiosInstance.get(
+        `/user-teacher/quiz/list/?classroom_id=${classroomId}`
+      );
 
       if (response.status === 200) {
         const quiz_list = response.data.quizzes;
@@ -66,17 +71,62 @@ const ManageAssignments = () => {
     setShowCreateQuiz(true);
   };
 
-  const handleQuizCreated = (newQuiz) => {
+  const handleQuizCreated = (newQuiz, message) => {
     setQuizzes((prev) => [...prev, newQuiz]);
     setShowCreateQuiz(false);
+
+    setAlertType("success");
+    setAlertMessage(message || "Quiz created successfully!");
+    setShowAlert(true);
+  };
+
+  const handleCreateQuizError = (error) => {
+    setAlertType("error");
+    setAlertMessage(error.response?.data?.message || "Failed to create quiz");
+    setShowAlert(true);
   };
 
   const handleEditQuiz = async () => {};
 
-  const handleDeleteQuiz = async () => {};
+  const handleDeleteQuiz = async (quizId) => {
+    try {
+      const response = await axiosInstance.delete(
+        `/user-teacher/quiz/delete/${quizId}/`
+      );
+
+      if (response.status === 200) {
+        setQuizzes((prevQuizzes) =>
+          prevQuizzes.filter((quiz) => quiz.id !== quizId)
+        );
+
+        setAlertType("success");
+        setAlertMessage("Quiz deleted successfully");
+        setShowAlert(true);
+      }
+    } catch (error) {
+      console.error("Error deleting quiz:", error);
+      setAlertType("error");
+      setAlertMessage(error.response?.data?.message || "Failed to delete quiz");
+      setShowAlert(true);
+    }
+  };
 
   return (
     <div className="p-6">
+      <CustomAlert
+        message={alertMessage}
+        type={alertType}
+        isVisible={showAlert}
+        onClose={() => setShowAlert(false)}
+      />
+
+      <ConfirmDeleteModal
+        isOpen={showConfirmDelete}
+        onClose={() => setShowConfirmDelete(false)}
+        onConfirm={() => handleDeleteQuiz(selectedQuiz)}
+        message={`Are you sure you want to delete this quiz? This action cannot be undone.`}
+      />
+
       {!selectedClassroom ? (
         <>
           <h1 className="text-2xl font-bold mb-12">Manage Quizzes</h1>
@@ -151,6 +201,7 @@ const ManageAssignments = () => {
                 <CreateQuiz
                   classroomId={selectedClassroom.id}
                   onQuizCreated={handleQuizCreated}
+                  onError={handleCreateQuizError}
                   onCancel={() => setShowCreateQuiz(false)}
                 />
               ) : quizzes.length === 0 ? (
@@ -164,7 +215,10 @@ const ManageAssignments = () => {
                       key={quiz.id || index}
                       quiz={quiz}
                       onEdit={handleEditQuiz}
-                      onDelete={handleDeleteQuiz}
+                      onDelete={() => {
+                        setShowConfirmDelete(true);
+                        setSelectedQuiz(quiz.id);
+                      }}
                     />
                   ))}
                 </div>

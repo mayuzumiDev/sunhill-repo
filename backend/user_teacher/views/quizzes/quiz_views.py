@@ -96,7 +96,14 @@ class QuizListView(generics.ListAPIView):
 
     def get_queryset(self):
         teacher_info = self.request.user.user_info.teacher_info
-        return Quiz.objects.filter(classroom__class_instructor=teacher_info)
+        classroom_id = self.request.query_params.get('classroom_id')
+        
+        queryset = Quiz.objects.filter(classroom__class_instructor=teacher_info)
+        
+        if classroom_id:
+            queryset = queryset.filter(classroom_id=classroom_id)
+            
+        return queryset
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())

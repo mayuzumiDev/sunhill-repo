@@ -23,7 +23,7 @@ class EducationMaterialAdmin(admin.ModelAdmin):
 
 @admin.register(Quiz)
 class QuizAdmin(admin.ModelAdmin):
-    list_display = ('title', 'classroom', 'created_by', 'created_at', 'due_date')
+    list_display = ('id','title', 'classroom', 'created_by', 'created_at', 'due_date')
     list_filter = ('classroom', 'created_at', 'due_date')
     search_fields = ('title', 'description', 'classroom__class_section')
     readonly_fields = ('created_at', 'updated_at')
