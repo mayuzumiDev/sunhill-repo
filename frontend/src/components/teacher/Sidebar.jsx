@@ -199,7 +199,7 @@ const Sidebar = ({
               ))}
 
               {/* Additional Tabs */}
-              {additionalTabs.map(({ name, icon }) => (
+              {/* {additionalTabs.map(({ name, icon }) => (
                 <li key={name} className="w-full relative">
                   <Link
                     to={`/teacher/${name.toLowerCase().replace(/\s+/g, "-")}/`}
@@ -228,7 +228,7 @@ const Sidebar = ({
                     {isSidebarOpen && <span>{name}</span>}
                   </Link>
                 </li>
-              ))}
+              ))} */}
             </ul>
           </nav>
         </div>
