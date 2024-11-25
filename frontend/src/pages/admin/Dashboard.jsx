@@ -31,6 +31,7 @@ const Dashboard = () => {
     totalUsers: 0,
     classCount: 0,
     monthlyRegistrations: [],
+    classesData: [],
   });
   const [viewMode, setViewMode] = useState('charts'); // 'charts' or 'table'
 
@@ -48,6 +49,7 @@ const Dashboard = () => {
             totalUsers: response.data.total_users,
             classCount: response.data.class_count,
             monthlyRegistrations: response.data.monthly_registrations || [],
+            classesData: response.data.classes_data || [],
           });
         }
       } catch (error) {
@@ -58,8 +60,87 @@ const Dashboard = () => {
     fetchDashboardData();
   }, []);
 
-  
+  // Helper function - Move this to the top before any chart options
+  const calculateGrowthRate = (data) => {
+    return data.map((item, index) => {
+      if (index === 0) return 0;
+      const previousCount = data[index - 1].count;
+      const currentCount = item.count;
+      return ((currentCount - previousCount) / previousCount * 100).toFixed(1);
+    });
+  };
 
+  // Now define chart options that use calculateGrowthRate
+  const userTrendOptions = {
+    chart: {
+      type: 'area',
+      style: { fontFamily: 'Inter, sans-serif' }
+    },
+    title: { text: 'User Growth Trends' },
+    xAxis: {
+      categories: dashboardData.monthlyRegistrations.map(item => item.month)
+    },
+    yAxis: [{
+      title: { text: 'Number of Users' },
+      labels: { style: { color: '#64748b' } }
+    }, {
+      title: { text: 'Growth Rate %' },
+      opposite: true
+    }],
+    series: [{
+      name: 'Total Users',
+      data: dashboardData.monthlyRegistrations.map(item => item.count),
+      color: '#3b82f6'
+    }, {
+      name: 'Growth Rate',
+      type: 'line',
+      yAxis: 1,
+      data: calculateGrowthRate(dashboardData.monthlyRegistrations),
+      color: '#22c55e'
+    }],
+    plotOptions: {
+      area: {
+        fillOpacity: 0.3
+      }
+    }
+  };
+
+  const KPIMetrics = () => {
+    const metrics = [
+      {
+        label: "User Growth Rate",
+        value: calculateGrowthRate(dashboardData.monthlyRegistrations).slice(-1)[0] + "%",
+        trend: "up",
+        target: "10%"
+      },
+      {
+        label: "Student-Teacher Ratio",
+        value: dashboardData.teacherCount > 0 
+          ? (dashboardData.studentCount / dashboardData.teacherCount).toFixed(1) + ":1"
+          : "N/A",
+        target: "15:1"
+      },
+      {
+        label: "Class Utilization",
+        value: ((dashboardData.studentCount / (dashboardData.classCount * 30)) * 100).toFixed(1) + "%",
+        target: "85%"
+      }
+    ];
+
+    return (
+      <div className="grid grid-cols-3 gap-4">
+        {metrics.map((metric, index) => (
+          <div key={index} className="bg-white p-4 rounded-lg shadow">
+            <h3>{metric.label}</h3>
+            <div className="flex items-center">
+              <span className="text-2xl font-bold">{metric.value}</span>
+              <span className="text-sm ml-2">Target: {metric.target}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  };
 
   // Line chart options
   const lineChartOptions = {
@@ -230,82 +311,126 @@ const Dashboard = () => {
     },
   ];
 
+  const userEngagementOptions = {
+    chart: {
+      type: 'column'
+    },
+    title: { text: 'User Engagement Matrix' },
+    xAxis: {
+      categories: ['Students', 'Teachers', 'Parents', 'Public']
+    },
+    yAxis: [{
+      title: { text: 'Count' }
+    }],
+    series: [{
+      name: 'Active Users',
+      data: [
+        dashboardData.studentCount,
+        dashboardData.teacherCount,
+        dashboardData.parentCount,
+        dashboardData.publicUserCount
+      ]
+    }],
+    plotOptions: {
+      column: {
+        dataLabels: {
+          enabled: true,
+          format: '{point.y:.0f}'
+        }
+      }
+    }
+  };
+
   return (
-    <div className="p-6 space-y-8 overflow-hidden bg-lightblue-800" id="dashboard-content">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-4xl text-gray-700 font-bold">Dashboard</h1>
-        <div className="flex gap-4">
+    <div className="p-4 md:p-6 space-y-6 md:space-y-8 bg-gray-50 min-h-screen" id="dashboard-content">
+      {/* Header Section - Improved spacing and responsive design */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <h1 className="text-3xl md:text-4xl text-gray-800 font-bold">Dashboard</h1>
+        <div className="w-full sm:w-auto">
           <button
             onClick={() => setViewMode(viewMode === 'charts' ? 'table' : 'charts')}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all shadow-sm hover:shadow-md"
           >
             {viewMode === 'charts' ? <FaTable className="text-lg" /> : <FaChartBar className="text-lg" />}
             {viewMode === 'charts' ? 'View Table' : 'View Charts'}
           </button>
-          
         </div>
       </div>
 
-      {/* Metrics Section with Hover Animation */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+      {/* Metrics Cards - Improved grid and card design */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         {metrics.map((metric) => (
           <div
             key={metric.id}
-            className="bg-white p-6 rounded-lg shadow-lg flex items-center hover:shadow-xl transition-shadow duration-300 transform hover:scale-105"
+            className="bg-white p-4 md:p-6 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
           >
-            <div className="mr-4">{metric.icon}</div>
-            <div>
-              <h3 className="text-xl md:text-2xl font-bold text-gray-700">
-                {metric.value}
-              </h3>
-              <p className="text-sm md:text-base text-gray-500">
-                {metric.label}
-              </p>
+            <div className="flex items-start gap-4">
+              <div className="p-3 rounded-lg bg-gray-50">
+                {metric.icon}
+              </div>
+              <div className="flex-1">
+                <p className="text-sm text-gray-500 mb-1">{metric.label}</p>
+                <h3 className="text-2xl font-bold text-gray-800">
+                  {metric.value.toLocaleString()}
+                </h3>
+              </div>
             </div>
           </div>
         ))}
       </div>
 
       {viewMode === 'charts' ? (
-        /* Chart Section */
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
-            <HighchartsReact
-              highcharts={Highcharts}
-              options={lineChartOptions}
-            />
+        <div className="space-y-6">
+          {/* KPI Metrics - Improved card design */}
+          <div className="bg-white p-4 md:p-6 rounded-xl shadow-sm">
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">Key Performance Indicators</h2>
+            <KPIMetrics />
           </div>
-          <div className="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
-            <HighchartsReact
-              highcharts={Highcharts}
-              options={pieChartOptions}
-            />
+
+          {/* Charts Grid - Improved layout and responsiveness */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="bg-white p-4 md:p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+              <HighchartsReact highcharts={Highcharts} options={lineChartOptions} />
+            </div>
+            <div className="bg-white p-4 md:p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+              <HighchartsReact highcharts={Highcharts} options={pieChartOptions} />
+            </div>
+          </div>
+
+          {/* Full-width charts */}
+          <div className="bg-white p-4 md:p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+            <HighchartsReact highcharts={Highcharts} options={userTrendOptions} />
+          </div>
+          <div className="bg-white p-4 md:p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+            <HighchartsReact highcharts={Highcharts} options={userEngagementOptions} />
           </div>
         </div>
       ) : (
-        /* Table Section */
-        <div className="bg-white rounded-lg shadow-lg p-6">
+        /* Table Section - Improved table design */
+        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
+            <table className="w-full">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Month</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">New Users</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Students</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Teachers</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Parents</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Public Users</th>
+                  <th className="px-4 py-3.5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    Month
+                  </th>
+                  <th className="px-4 py-3.5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">New Users</th>
+                  <th className="px-4 py-3.5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Students</th>
+                  <th className="px-4 py-3.5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Teachers</th>
+                  <th className="px-4 py-3.5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Parents</th>
+                  <th className="px-4 py-3.5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Public Users</th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="divide-y divide-gray-200">
                 {dashboardData.monthlyRegistrations.map((item, index) => (
-                  <tr key={index} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.month}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.count}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{dashboardData.studentCount}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{dashboardData.teacherCount}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{dashboardData.parentCount}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{dashboardData.publicUserCount}</td>
+                  <tr key={index} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-4 py-3.5 text-sm text-gray-900">{item.month}</td>
+                    <td className="px-4 py-3.5 text-sm text-gray-900">{item.count}</td>
+                    <td className="px-4 py-3.5 text-sm text-gray-900">{dashboardData.studentCount}</td>
+                    <td className="px-4 py-3.5 text-sm text-gray-900">{dashboardData.teacherCount}</td>
+                    <td className="px-4 py-3.5 text-sm text-gray-900">{dashboardData.parentCount}</td>
+                    <td className="px-4 py-3.5 text-sm text-gray-900">{dashboardData.publicUserCount}</td>
                   </tr>
                 ))}
               </tbody>
@@ -314,14 +439,28 @@ const Dashboard = () => {
         </div>
       )}
 
-      {/* Styles to hide scrollbar */}
+      {/* Updated scrollbar styles */}
       <style>{`
-        /* Hide scrollbar in all browsers */
-        ::-webkit-scrollbar {
-          display: none;
-        }
-        body {
-          overflow: hidden; /* Prevent scrolling on the body */
+        @media (min-width: 768px) {
+          ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+            display: block;
+          }
+          ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+          }
+          ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+          }
+          ::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+          }
+          body {
+            overflow: auto;
+          }
         }
       `}</style>
     </div>

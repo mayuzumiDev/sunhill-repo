@@ -18,20 +18,22 @@ function Tooltip({ name, position, isVisible }) {
   if (!isVisible) return null;
 
   const style = {
-    top: position.top + 8 + "px",
-    left: position.left + 11 + "px", // Offset from the sidebar for better visibility
+    position: 'fixed',
+    top: `${position.top + 12}px`,
+    left: `${position.left + 10}px`,
     zIndex: 1000,
     whiteSpace: "nowrap",
+    transform: 'translateY(-100%)',
   };
 
   return createPortal(
     <div
-      className="absolute bg-black text-white text-xs rounded py-1 px-2"
+      className="bg-black text-white text-xs rounded py-1 px-2"
       style={style}
     >
       {name}
     </div>,
-    document.body // Render outside of sidebar container
+    document.body
   );
 }
 
@@ -61,7 +63,11 @@ const Sidebar = ({
   const handleMouseEnter = (name, event) => {
     if (!isSidebarOpen) {
       const rect = event.currentTarget.getBoundingClientRect();
-      setTooltipPosition({ top: rect.top, left: rect.right });
+      const centerY = rect.top + (rect.height / 2);
+      setTooltipPosition({ 
+        top: centerY,
+        left: rect.right
+      });
       setTooltip(name);
     }
   };
