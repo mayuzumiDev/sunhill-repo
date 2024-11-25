@@ -46,6 +46,8 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
   });
   const [chartsLoading, setChartsLoading] = useState(false);
   const navigate = useNavigate();
+  const [teacherInsights, setTeacherInsights] = useState([]);
+  const [metricsLoading, setMetricsLoading] = useState(true);
 
   // Setting greeting message and daily illustration
   useEffect(() => {
@@ -56,7 +58,7 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
 
       if (currentHour < 12) {
         greetingMessage = "Good Morning";
-      } else if (currentHour < 18) {
+      } else if (currentHour < 18) {  
         greetingMessage = "Good Afternoon";
       } else {
         greetingMessage = "Good Evening";
@@ -126,6 +128,7 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
   // Add new useEffect to fetch classroom metrics
   useEffect(() => {
     const fetchClassroomMetrics = async () => {
+      setMetricsLoading(true);
       try {
         // Fetch classrooms
         const classroomsResponse = await axiosInstance.get('/user-teacher/classroom/list/');
@@ -163,12 +166,12 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
         });
       } catch (error) {
         console.error("Error fetching classroom metrics:", error);
+      } finally {
+        setMetricsLoading(false);
       }
     };
 
     fetchClassroomMetrics();
-    const intervalId = setInterval(fetchClassroomMetrics, 30000);
-    return () => clearInterval(intervalId);
   }, []);
 
   // Update chart data fetch to include quiz insights
@@ -293,73 +296,113 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
       }
     };
 
+    // Initial fetch
     fetchChartData();
-    // Fetch every 5 minutes
-    const intervalId = setInterval(fetchChartData, 300000);
-    return () => clearInterval(intervalId);
-  }, []);
+    
+    // Optional: If you need periodic updates, use a longer interval
+    // const intervalId = setInterval(fetchChartData, 300000); // 5 minutes
+    // return () => clearInterval(intervalId);
+    
+  }, []); // Empty dependency array for single execution
 
-  // Update metrics array to use real data
+  // Add new useEffect for generating insights
+  useEffect(() => {
+    const generateInsights = () => {
+      const insights = [];
+
+      // Student Engagement Insight (based on quiz completion rates)
+      if (assignmentData.values.length > 0) {
+        const averageCompletion = assignmentData.values.reduce((a, b) => a + b, 0) / assignmentData.values.length;
+        insights.push({
+          title: "Student Engagement",
+          metric: `${Math.round(averageCompletion)}%`,
+          trend: averageCompletion > 75 ? "up" : averageCompletion > 50 ? "warning" : "down",
+          recommendation: averageCompletion < 75 
+            ? "Consider interactive activities to boost quiz completion rates"
+            : "Maintain current engagement strategies",
+          
+          icon: <IoTrendingUp className={`${averageCompletion > 75 ? "text-green-500" : "text-yellow-500"}`} />,
+          priority: averageCompletion < 50 ? "high" : averageCompletion < 75 ? "medium" : "low"
+        });
+      }
+
+      // // Learning Gaps Insight (based on performance data)
+      // if (performanceData.values.length > 0) {
+      //   const averageScore = performanceData.values.reduce((a, b) => a + b, 0) / performanceData.values.length;
+      //   const lowPerformingCount = performanceData.values.filter(score => score < 60).length;
+        
+      //   insights.push({
+      //     title: "Learning Gaps",
+      //     metric: `${lowPerformingCount} subjects`,
+      //     trend: lowPerformingCount > 2 ? "down" : "up",
+      //     recommendation: lowPerformingCount > 0 
+      //       ? `Review needed in ${lowPerformingCount} subjects with scores below 60%`
+      //       : "All subjects performing well",
+          
+      //     icon: <FaBook className={`${lowPerformingCount > 2 ? "text-red-500" : "text-green-500"}`} />,
+      //     priority: lowPerformingCount > 2 ? "high" : lowPerformingCount > 0 ? "medium" : "low"
+      //   });
+      // }
+
+      // // At-Risk Students Insight
+      // if (performanceData.values.length > 0) {
+      //   const atRiskCount = performanceData.values.filter(score => score < 50).length;
+      //   insights.push({
+      //     title: "At-Risk Students",
+      //     metric: `${atRiskCount} students`,
+      //     trend: atRiskCount > 0 ? "down" : "up",
+      //     recommendation: atRiskCount > 0
+      //       ? `Schedule support sessions for ${atRiskCount} students below 50%`
+      //       : "No students currently at risk",
+       
+      //     icon: <FaUserGraduate className={`${atRiskCount > 0 ? "text-red-500" : "text-green-500"}`} />,
+      //     priority: atRiskCount > 2 ? "high" : atRiskCount > 0 ? "medium" : "low"
+      //   });
+      // }
+
+      // Class Progress Insight (based on materials and quizzes)
+      const materialsPerStudent = classroomData.totalStudents > 0 
+        ? classroomData.totalMaterials / classroomData.totalStudents 
+        : 0;
+      insights.push({
+        title: "Class Progress",
+        metric: `${Math.round(materialsPerStudent * 10) / 10} materials/student`,
+        trend: materialsPerStudent > 2 ? "up" : "warning",
+        recommendation: materialsPerStudent < 2 
+          ? "Consider adding more learning materials"
+          : "Good material distribution",
+        
+        icon: <IoStatsChart className={`${materialsPerStudent > 2 ? "text-blue-500" : "text-yellow-500"}`} />,
+        priority: materialsPerStudent < 1 ? "high" : materialsPerStudent < 2 ? "medium" : "low"
+      });
+
+      setTeacherInsights(insights);
+    };
+
+    generateInsights();
+  }, [assignmentData, performanceData, classroomData, navigate]);
+
+  // Remove individual loading states from metrics array
   const metrics = [
     { 
       title: "Total Classrooms", 
-      value: classroomData.totalClassrooms, 
-      color: "bg-blue-600" 
+      value: classroomData.totalClassrooms || 0, 
+      color: "bg-blue-600"
     },
     { 
       title: "Total Students", 
-      value: classroomData.totalStudents, 
-      color: "bg-green-600" 
+      value: classroomData.totalStudents || 0, 
+      color: "bg-green-600"
     },
     { 
       title: "Learning Materials", 
-      value: classroomData.totalMaterials, 
-      color: "bg-yellow-400" 
+      value: classroomData.totalMaterials || 0, 
+      color: "bg-yellow-400"
     },
     { 
       title: "Total Quizzes", 
-      value: classroomData.upcomingQuizzes, 
-      color: "bg-red-600" 
-    }
-  ];
-
-  // Replace quickLinks with teacherInsights
-  const teacherInsights = [
-    {
-      title: "Student Engagement",
-      metric: "75%",
-      trend: "up",
-      recommendation: "Consider interactive activities to boost engagement for remaining 25%",
-      action: () => navigate('/teacher/engagement-strategies'),
-      icon: <IoTrendingUp className="text-green-500" />,
-      priority: "high"
-    },
-    {
-      title: "Learning Gaps",
-      metric: "3 topics",
-      trend: "warning",
-      recommendation: "Review fractions, decimals, and geometry concepts",
-      action: () => navigate('/teacher/learning-materials'),
-      icon: <FaBook className="text-yellow-500" />,
-      priority: "medium"
-    },
-    {
-      title: "At-Risk Students",
-      metric: "4 students",
-      trend: "down",
-      recommendation: "Schedule one-on-one sessions with struggling students",
-      action: () => navigate('/teacher/student-support'),
-      icon: <FaUserGraduate className="text-red-500" />,
-      priority: "high"
-    },
-    {
-      title: "Class Progress",
-      metric: "On track",
-      trend: "up",
-      recommendation: "Current pace aligns with curriculum goals",
-      action: () => navigate('/teacher/curriculum-tracking'),
-      icon: <IoStatsChart className="text-blue-500" />,
-      priority: "low"
+      value: classroomData.upcomingQuizzes || 0, 
+      color: "bg-red-600"
     }
   ];
 
@@ -371,7 +414,8 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
       style: {
         fontFamily: 'Inter, system-ui, sans-serif'
       },
-      height: 300 // Set fixed height
+      height: '300',
+      spacing: [10, 10, 15, 10] // Adjust spacing for mobile
     },
     title: {
       text: 'Recent Quiz Completion Rates',
@@ -418,6 +462,26 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
       column: {
         borderRadius: 5
       }
+    },
+    responsive: {
+      rules: [{
+        condition: {
+          maxWidth: 500
+        },
+        chartOptions: {
+          legend: {
+            enabled: false
+          },
+          xAxis: {
+            labels: {
+              rotation: -45,
+              style: {
+                fontSize: '10px'
+              }
+            }
+          }
+        }
+      }]
     }
   };
 
@@ -425,7 +489,8 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
     chart: {
       type: 'line',
       backgroundColor: darkMode ? '#1f2937' : '#ffffff',
-      height: 300 // Set fixed height
+      height: '300',
+      spacing: [10, 10, 15, 10] // Adjust spacing for mobile
     },
     title: {
       text: 'Top 5 Students by Average Score',
@@ -475,6 +540,26 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
           enabled: true
         }
       }
+    },
+    responsive: {
+      rules: [{
+        condition: {
+          maxWidth: 500
+        },
+        chartOptions: {
+          legend: {
+            enabled: false
+          },
+          xAxis: {
+            labels: {
+              rotation: -45,
+              style: {
+                fontSize: '10px'
+              }
+            }
+          }
+        }
+      }]
     }
   };
 
@@ -537,39 +622,93 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
     }
   };
 
+  // Loading placeholder component
+  const NameLoadingPlaceholder = () => (
+    <div className="animate-pulse space-y-4">
+      <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded-lg w-64"></div>
+      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-48"></div>
+      <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
+    </div>
+  );
+
+  // Add this to your CSS or style block
+  const shimmerStyle = {
+    background: `
+      linear-gradient(
+        90deg,
+        ${darkMode ? '#1f2937' : '#f3f4f6'} 0%,
+        ${darkMode ? '#374151' : '#e5e7eb'} 50%,
+        ${darkMode ? '#1f2937' : '#f3f4f6'} 100%
+      )
+    `,
+    backgroundSize: '200% 100%',
+    animation: 'shimmer 1.5s infinite',
+  };
+
+  // Add this to your CSS
+  `
+  @keyframes shimmer {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
+  `;
+
+  // Single metric placeholder component
+  const MetricPlaceholder = () => (
+    <div className={`p-6 rounded-xl shadow-lg bg-gray-800 bg-opacity-50`}>
+      <div className="flex flex-col space-y-3">
+        <div className="animate-pulse h-4 bg-gray-700 rounded w-20"></div>
+        <div className="animate-pulse h-8 bg-gray-700 rounded w-16"></div>
+        <div className="flex items-center space-x-2">
+          <div className="animate-pulse h-3 w-3 bg-gray-700 rounded"></div>
+          <div className="animate-pulse h-3 bg-gray-700 rounded w-24"></div>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
-    <div className="p-6 min-h-screen">
-      {/* Main Grid Container */}
+    <div className="p-3 sm:p-6 min-h-screen">
+      {/* Main Grid Container - adjust gap for mobile */}
       <motion.div 
-        className="grid grid-cols-1 lg:grid-cols-4 gap-8"
+        className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-8"
         variants={containerVariants}
         initial="hidden"
         animate="visible"
       >
         {/* Main Content Area */}
-        <div className="lg:col-span-3 space-y-8">
-          {/* Header Section */}
+        <div className="lg:col-span-3 space-y-4 sm:space-y-8">
+          {/* Header Section - improve mobile layout */}
           <motion.div 
             variants={itemVariants}
-            className={`rounded-xl shadow-lg p-6 ${
+            className={`rounded-xl shadow-lg p-4 sm:p-6 ${
               darkMode ? "bg-gray-800 bg-opacity-50" : "bg-white"
             }`}
           >
-            <div className="flex flex-col lg:flex-row items-center justify-between">
-              <div className="flex-1 space-y-4">
-                {teacherData && (
-                  <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-transparent bg-clip-text">
-                    {greeting.split(",")[0]}, {teacherData.first_name}!
-                  </h1>
+            <div className="flex flex-col sm:flex-row items-center justify-between">
+              <div className="flex-1 space-y-2 sm:space-y-4 text-center sm:text-left">
+                {teacherData ? (
+                  <>
+                    <h1 className="text-2xl sm:text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-transparent bg-clip-text">
+                      {greeting.split(",")[0]}, {teacherData.first_name}!
+                    </h1>
+                    <p className={`text-base sm:text-lg ${darkMode ? "text-gray-300" : "text-gray-600"}`}>
+                      {greeting.split(",").slice(1).join(",").trim()}
+                    </p>
+                    <p className={`text-xs sm:text-sm ${darkMode ? "text-gray-400" : "text-gray-500"}`}>
+                      {formattedDate}
+                    </p>
+                  </>
+                ) : (
+                  <NameLoadingPlaceholder />
                 )}
-                <p className={`text-lg ${darkMode ? "text-gray-300" : "text-gray-600"}`}>
-                  {greeting.split(",").slice(1).join(",").trim()}
-                </p>
-                <p className={`text-sm ${darkMode ? "text-gray-400" : "text-gray-500"}`}>
-                  {formattedDate}
-                </p>
               </div>
-              <div className="flex-shrink-0 w-40 h-40 lg:w-56 lg:h-56 p-4">
+              {/* Adjust illustration size for mobile */}
+              <div className="flex-shrink-0 w-32 h-32 sm:w-40 sm:h-40 lg:w-56 lg:h-56 p-2 sm:p-4">
                 <img
                   src={illustrations}
                   alt="Teacher Illustration"
@@ -579,36 +718,95 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
             </div>
           </motion.div>
 
-          {/* Metrics Grid */}
+          {/* Metrics Grid - adjust for mobile */}
           <motion.div 
             variants={itemVariants}
-            className="grid grid-cols-2 lg:grid-cols-4 gap-6"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6"
           >
-            {metrics.map((metric, index) => (
+            {/* Classrooms Metric */}
+            {metricsLoading ? (
+              <MetricPlaceholder />
+            ) : (
               <motion.div
-                key={metric.title}
                 whileHover={{ scale: 1.05 }}
-                className={`p-6 rounded-xl shadow-lg ${metric.color} bg-opacity-90 backdrop-blur-lg`}
+                className="p-6 rounded-xl shadow-lg bg-blue-600 bg-opacity-90 backdrop-blur-lg"
               >
                 <div className="flex flex-col space-y-2">
-                  <h2 className="text-white text-sm font-medium">{metric.title}</h2>
-                  <p className="text-white text-3xl font-bold">{metric.value}</p>
+                  <h2 className="text-white text-sm font-medium">Total Classrooms</h2>
+                  <p className="text-white text-3xl font-bold">{classroomData.totalClassrooms || 0}</p>
                   <div className="flex items-center text-white text-xs">
                     <IoTrendingUp className="mr-1" />
-                    <span>+{metric.value}% this period</span>
+                    <span>+{classroomData.totalClassrooms || 0}% this period</span>
                   </div>
                 </div>
               </motion.div>
-            ))}
+            )}
+
+            {/* Students Metric */}
+            {metricsLoading ? (
+              <MetricPlaceholder />
+            ) : (
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                className="p-6 rounded-xl shadow-lg bg-green-600 bg-opacity-90 backdrop-blur-lg"
+              >
+                <div className="flex flex-col space-y-2">
+                  <h2 className="text-white text-sm font-medium">Total Students</h2>
+                  <p className="text-white text-3xl font-bold">{classroomData.totalStudents || 0}</p>
+                  <div className="flex items-center text-white text-xs">
+                    <IoTrendingUp className="mr-1" />
+                    <span>+{classroomData.totalStudents || 0}% this period</span>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Materials Metric */}
+            {metricsLoading ? (
+              <MetricPlaceholder />
+            ) : (
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                className="p-6 rounded-xl shadow-lg bg-yellow-400 bg-opacity-90 backdrop-blur-lg"
+              >
+                <div className="flex flex-col space-y-2">
+                  <h2 className="text-white text-sm font-medium">Learning Materials</h2>
+                  <p className="text-white text-3xl font-bold">{classroomData.totalMaterials || 0}</p>
+                  <div className="flex items-center text-white text-xs">
+                    <IoTrendingUp className="mr-1" />
+                    <span>+{classroomData.totalMaterials || 0}% this period</span>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Quizzes Metric */}
+            {metricsLoading ? (
+              <MetricPlaceholder />
+            ) : (
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                className="p-6 rounded-xl shadow-lg bg-red-600 bg-opacity-90 backdrop-blur-lg"
+              >
+                <div className="flex flex-col space-y-2">
+                  <h2 className="text-white text-sm font-medium">Total Quizzes</h2>
+                  <p className="text-white text-3xl font-bold">{classroomData.upcomingQuizzes || 0}</p>
+                  <div className="flex items-center text-white text-xs">
+                    <IoTrendingUp className="mr-1" />
+                    <span>+{classroomData.upcomingQuizzes || 0}% this period</span>
+                  </div>
+                </div>
+              </motion.div>
+            )}
           </motion.div>
 
-          {/* Charts Section */}
+          {/* Charts Section - stack on mobile */}
           <motion.div 
             variants={itemVariants} 
-            className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+            className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6"
           >
-            {/* Quiz Completion Chart */}
-            <div className={`rounded-xl shadow-lg p-6 h-full flex flex-col ${
+            {/* Adjust chart containers for mobile */}
+            <div className={`rounded-xl shadow-lg p-4 sm:p-6 h-full flex flex-col ${
               darkMode ? "bg-gray-800 bg-opacity-50" : "bg-white"
             }`}>
               <div className="flex-1 min-h-0">
@@ -627,7 +825,7 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
             </div>
             
             {/* Performance Trends Chart */}
-            <div className={`rounded-xl shadow-lg p-6 h-full flex flex-col ${
+            <div className={`rounded-xl shadow-lg p-4 sm:p-6 h-full flex flex-col ${
               darkMode ? "bg-gray-800 bg-opacity-50" : "bg-white"
             }`}>
               <div className="flex-1 min-h-0">
@@ -646,21 +844,21 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
             </div>
           </motion.div>
 
-          {/* Top Students Section */}
+          {/* Top Students Section - adjust padding and spacing */}
           <motion.div 
             variants={itemVariants}
-            className={`rounded-xl shadow-lg p-6 ${
+            className={`rounded-xl shadow-lg p-4 sm:p-6 ${
               darkMode ? "bg-gray-800 bg-opacity-50" : "bg-white"
             }`}
           >
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold">Top Performing Students</h2>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 space-y-3 sm:space-y-0">
+              <h2 className="text-lg sm:text-xl font-semibold">Top Performing Students</h2>
               <input
                 type="text"
                 placeholder="Search students..."
                 value={filter}
                 onChange={(e) => setFilter(e.target.value)}
-                className="px-4 py-2 rounded-lg border focus:ring-2 focus:ring-blue-500 outline-none"
+                className="w-full sm:w-auto px-4 py-2 rounded-lg border focus:ring-2 focus:ring-blue-500 outline-none"
               />
             </div>
             <div className="space-y-4">
@@ -698,13 +896,13 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
           </motion.div>
         </div>
 
-        {/* Sidebar */}
+        {/* Sidebar - full width on mobile */}
         <motion.div 
           variants={itemVariants}
-          className="lg:col-span-1 space-y-6"
+          className="lg:col-span-1 space-y-4 sm:space-y-6"
         >
           {/* Calendar Card */}
-          <div className={`rounded-xl shadow-lg p-6 ${
+          <div className={`rounded-xl shadow-lg p-4 sm:p-6 ${
             darkMode ? "bg-gray-800 bg-opacity-50" : "bg-white"
           }`}>
             <h2 className="text-xl font-semibold mb-4">Calendar</h2>
@@ -715,11 +913,11 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
             />
           </div>
 
-          {/* Replace Quick Links Card with Decision Support Card */}
-          <div className={`rounded-xl shadow-lg p-6 ${
+          {/* Teaching Insights Card */}
+          <div className={`rounded-xl shadow-lg p-4 sm:p-6 ${
             darkMode ? "bg-gray-800 bg-opacity-50" : "bg-white"
           }`}>
-            <h2 className="text-xl font-semibold mb-4">Decision Support</h2>
+            <h2 className="text-xl font-semibold mb-4">Teaching Insights</h2>
             <div className="space-y-4">
               {teacherInsights.map((insight, index) => (
                 <motion.div
