@@ -1,10 +1,27 @@
 from rest_framework import serializers
 from user_teacher.models.classroom_models import EducationMaterial
+import cloudinary
+import cloudinary.uploader
 
 class EducationMaterialUploadSerializer(serializers.ModelSerializer):
+    file_url = serializers.SerializerMethodField()
+
     class Meta:
         model = EducationMaterial
-        fields = ['classroom', 'title', 'description', 'material_type', 'file']
+        fields = ['classroom', 'title', 'description', 'material_type', 'file', 'file_url']
+        extra_kwargs = {
+            'file': {'write_only': True}  # This ensures file is only used for upload
+        }
+
+    def get_file_url(self, obj):
+        if obj.file:
+            return obj.file.build_url(secure=True)
+        return None
+    
+    def validate_file(self, value):
+        # The file has already been uploaded to Cloudinary by the view
+        # Just return the value as is
+        return value
 
 
 class EducationMaterialsEditSerializer(serializers.ModelSerializer):
