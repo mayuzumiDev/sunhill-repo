@@ -25,14 +25,14 @@ axiosInstance.interceptors.request.use(
     if (token) {
       config.headers["Authorization"] = `Bearer ` + token;
     }
-    console.log(`API Request: ${config.method.toUpperCase()} ${config.url}`, {
-      headers: config.headers,
-      data: config.data
-    });
+    // console.log(`API Request: ${config.method.toUpperCase()} ${config.url}`, {
+    //   headers: config.headers,
+    //   data: config.data
+    // });
     return config;
   },
   (error) => {
-    console.error('Request Error:', error);
+    console.error("Request Error:", error);
     return Promise.reject(error);
   }
 );
@@ -40,19 +40,19 @@ axiosInstance.interceptors.request.use(
 // Add response interceptor for logging and error handling
 axiosInstance.interceptors.response.use(
   (response) => {
-    console.log(`API Response: ${response.config.method.toUpperCase()} ${response.config.url}`, {
-      status: response.status,
-      data: response.data
-    });
+    // console.log(`API Response: ${response.config.method.toUpperCase()} ${response.config.url}`, {
+    //   status: response.status,
+    //   data: response.data
+    // });
     return response;
   },
   async (error) => {
-    console.error('Response Error:', {
+    console.error("Response Error:", {
       url: error.config?.url,
       method: error.config?.method,
       status: error.response?.status,
       data: error.response?.data,
-      error: error.message
+      error: error.message,
     });
 
     const originalRequest = error.config;

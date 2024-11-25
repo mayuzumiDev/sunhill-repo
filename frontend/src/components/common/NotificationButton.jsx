@@ -1,9 +1,16 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBell, faTimes, faCalendarAlt, faTrash, faMapMarkerAlt, faClock } from '@fortawesome/free-solid-svg-icons';
-import { motion, AnimatePresence } from 'framer-motion';
-import { axiosInstance } from '../../utils/axiosInstance';
-import { format } from 'date-fns';
+import React, { useState, useEffect, useRef } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faBell,
+  faTimes,
+  faCalendarAlt,
+  faTrash,
+  faMapMarkerAlt,
+  faClock,
+} from "@fortawesome/free-solid-svg-icons";
+import { motion, AnimatePresence } from "framer-motion";
+import { axiosInstance } from "../../utils/axiosInstance";
+import { format } from "date-fns";
 
 const NotificationButton = ({ userRole, userBranch }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -15,13 +22,15 @@ const NotificationButton = ({ userRole, userBranch }) => {
   const [showModal, setShowModal] = useState(false);
 
   // Get user role and branch from props or localStorage
-  const effectiveRole = userRole || localStorage.getItem('userRole') || 'teacher';
-  const effectiveBranch = userBranch || localStorage.getItem('userBranch') || '';
-  
-  const isAdmin = effectiveRole === 'admin';
+  const effectiveRole =
+    userRole || localStorage.getItem("userRole") || "teacher";
+  const effectiveBranch =
+    userBranch || localStorage.getItem("userBranch") || "";
+
+  const isAdmin = effectiveRole === "admin";
 
   useEffect(() => {
-    console.log('NotificationButton initialized:', { 
+    /*     console.log('NotificationButton initialized:', { 
       effectiveRole, 
       effectiveBranch,
       fromProps: { userRole, userBranch },
@@ -29,7 +38,7 @@ const NotificationButton = ({ userRole, userBranch }) => {
         storedRole: localStorage.getItem('userRole'),
         storedBranch: localStorage.getItem('userBranch')
       }
-    });
+    }); */
     fetchNotifications();
     const interval = setInterval(fetchNotifications, 5 * 60 * 1000);
     return () => clearInterval(interval);
@@ -42,8 +51,8 @@ const NotificationButton = ({ userRole, userBranch }) => {
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const handleNotificationClick = async () => {
@@ -51,12 +60,12 @@ const NotificationButton = ({ userRole, userBranch }) => {
     if (!isOpen && unreadCount > 0) {
       // Mark all as read when opening
       try {
-        await axiosInstance.post('/user-admin/notifications/mark_all_as_read/');
+        await axiosInstance.post("/user-admin/notifications/mark_all_as_read/");
         setUnreadCount(0);
         // Update notifications to reflect read status
-        setNotifications(notifications.map(n => ({ ...n, is_read: true })));
+        setNotifications(notifications.map((n) => ({ ...n, is_read: true })));
       } catch (error) {
-        console.error('Error marking notifications as read:', error);
+        console.error("Error marking notifications as read:", error);
       }
     }
   };
@@ -64,27 +73,28 @@ const NotificationButton = ({ userRole, userBranch }) => {
   const fetchNotifications = async () => {
     try {
       setIsLoading(true);
-      console.log('Fetching notifications for:', { 
+      /*       console.log("Fetching notifications for:", {
         role: effectiveRole,
-        branch: effectiveBranch
-      });
-      
-      const response = await axiosInstance.get('/user-admin/notifications/');
-      
+        branch: effectiveBranch,
+      }); */
+
+      const response = await axiosInstance.get("/user-admin/notifications/");
+
       if (response.status === 200) {
         const { notifications: notificationData, unread_count } = response.data;
-        console.log('Received notifications:', notificationData?.length);
-        
+        // console.log("Received notifications:", notificationData?.length);
+
         // Sort notifications by date
-        const sortedNotifications = (notificationData || [])
-          .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-        
+        const sortedNotifications = (notificationData || []).sort(
+          (a, b) => new Date(b.created_at) - new Date(a.created_at)
+        );
+
         setNotifications(sortedNotifications);
         setUnreadCount(unread_count);
-        console.log('Set unread count:', unread_count);
+        // console.log("Set unread count:", unread_count);
       }
     } catch (error) {
-      console.error('Error fetching notifications:', error);
+      console.error("Error fetching notifications:", error);
       setNotifications([]); // Clear notifications on error
       setUnreadCount(0);
     } finally {
@@ -101,28 +111,28 @@ const NotificationButton = ({ userRole, userBranch }) => {
   const handleDeleteEvent = async (eventId) => {
     try {
       await axiosInstance.delete(`/user-admin/event/delete/${eventId}/`);
-      setNotifications(notifications.filter(n => n.event.id !== eventId));
+      setNotifications(notifications.filter((n) => n.event.id !== eventId));
       setShowModal(false);
-      setUnreadCount(prev => Math.max(0, prev - 1));
+      setUnreadCount((prev) => Math.max(0, prev - 1));
     } catch (error) {
-      console.error('Error deleting event:', error);
-      alert('Failed to delete event. Please try again.');
+      console.error("Error deleting event:", error);
+      alert("Failed to delete event. Please try again.");
     }
   };
 
   const formatEventDate = (date) => {
     try {
-      return format(new Date(date), 'MMM dd, yyyy');
+      return format(new Date(date), "MMM dd, yyyy");
     } catch {
-      return 'Date not available';
+      return "Date not available";
     }
   };
 
   const formatEventTime = (date) => {
     try {
-      return format(new Date(date), 'hh:mm a');
+      return format(new Date(date), "hh:mm a");
     } catch {
-      return 'Time not available';
+      return "Time not available";
     }
   };
 
@@ -135,18 +145,20 @@ const NotificationButton = ({ userRole, userBranch }) => {
       const diffInDays = Math.floor(diffInHours / 24);
 
       if (diffInMinutes < 1) {
-        return 'Just now';
+        return "Just now";
       } else if (diffInMinutes < 60) {
-        return `${diffInMinutes} ${diffInMinutes === 1 ? 'minute' : 'minutes'} ago`;
+        return `${diffInMinutes} ${
+          diffInMinutes === 1 ? "minute" : "minutes"
+        } ago`;
       } else if (diffInHours < 24) {
-        return `${diffInHours} ${diffInHours === 1 ? 'hour' : 'hours'} ago`;
+        return `${diffInHours} ${diffInHours === 1 ? "hour" : "hours"} ago`;
       } else if (diffInDays < 7) {
-        return `${diffInDays} ${diffInDays === 1 ? 'day' : 'days'} ago`;
+        return `${diffInDays} ${diffInDays === 1 ? "day" : "days"} ago`;
       } else {
-        return format(createdAt, 'MMM dd, yyyy hh:mm a');
+        return format(createdAt, "MMM dd, yyyy hh:mm a");
       }
     } catch {
-      return 'Time not available';
+      return "Time not available";
     }
   };
 
@@ -162,7 +174,7 @@ const NotificationButton = ({ userRole, userBranch }) => {
       >
         <FontAwesomeIcon icon={faBell} className="text-xl md:text-2xl" />
         {unreadCount > 0 && (
-          <motion.span 
+          <motion.span
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center shadow-lg"
@@ -183,7 +195,9 @@ const NotificationButton = ({ userRole, userBranch }) => {
             style={{ maxWidth: "calc(100vw - 2rem)" }}
           >
             <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-4 py-4 flex justify-between items-center">
-              <h3 className="text-white font-semibold text-lg">Notifications</h3>
+              <h3 className="text-white font-semibold text-lg">
+                Notifications
+              </h3>
               <motion.button
                 whileHover={{ rotate: 90 }}
                 whileTap={{ scale: 0.9 }}
@@ -201,7 +215,10 @@ const NotificationButton = ({ userRole, userBranch }) => {
                 </div>
               ) : notifications.length === 0 ? (
                 <div className="p-8 text-center text-gray-500">
-                  <FontAwesomeIcon icon={faBell} className="text-4xl mb-3 text-gray-300" />
+                  <FontAwesomeIcon
+                    icon={faBell}
+                    className="text-4xl mb-3 text-gray-300"
+                  />
                   <p>No new notifications</p>
                 </div>
               ) : (
@@ -209,10 +226,14 @@ const NotificationButton = ({ userRole, userBranch }) => {
                   {notifications.map((notification) => (
                     <motion.div
                       key={notification.id}
-                      whileHover={{ backgroundColor: 'rgba(243, 244, 246, 0.8)' }}
+                      whileHover={{
+                        backgroundColor: "rgba(243, 244, 246, 0.8)",
+                      }}
                       onClick={() => handleEventClick(notification)}
                       className={`p-4 transition-colors duration-200 cursor-pointer ${
-                        !notification.is_read ? 'bg-blue-50 hover:bg-blue-100' : ''
+                        !notification.is_read
+                          ? "bg-blue-50 hover:bg-blue-100"
+                          : ""
                       }`}
                     >
                       <div className="flex items-start gap-3">
@@ -234,15 +255,24 @@ const NotificationButton = ({ userRole, userBranch }) => {
                             </span>
                           </div>
                           <p className="text-sm text-gray-600 mt-1 flex items-center">
-                            <FontAwesomeIcon icon={faCalendarAlt} className="mr-2 text-blue-400" />
+                            <FontAwesomeIcon
+                              icon={faCalendarAlt}
+                              className="mr-2 text-blue-400"
+                            />
                             {formatEventDate(notification.event.date)}
                             <span className="mx-1">•</span>
-                            <FontAwesomeIcon icon={faClock} className="mr-2 text-blue-400" />
+                            <FontAwesomeIcon
+                              icon={faClock}
+                              className="mr-2 text-blue-400"
+                            />
                             {formatEventTime(notification.event.date)}
                           </p>
                           {notification.event.location && (
                             <p className="text-xs text-gray-500 mt-1 flex items-center">
-                              <FontAwesomeIcon icon={faMapMarkerAlt} className="mr-2 text-blue-400" />
+                              <FontAwesomeIcon
+                                icon={faMapMarkerAlt}
+                                className="mr-2 text-blue-400"
+                              />
                               {notification.event.location}
                             </p>
                           )}
@@ -283,7 +313,9 @@ const NotificationButton = ({ userRole, userBranch }) => {
             >
               <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4 rounded-t-lg">
                 <div className="flex justify-between items-center">
-                  <h3 className="text-white font-semibold text-lg">Event Details</h3>
+                  <h3 className="text-white font-semibold text-lg">
+                    Event Details
+                  </h3>
                   <motion.button
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
@@ -306,35 +338,46 @@ const NotificationButton = ({ userRole, userBranch }) => {
                 </div>
 
                 <div className="space-y-4">
-                  <motion.div 
+                  <motion.div
                     whileHover={{ x: 5 }}
                     className="flex items-center text-gray-600 p-3 bg-gray-50 rounded-lg"
                   >
-                    <FontAwesomeIcon icon={faCalendarAlt} className="w-5 h-5 mr-3 text-blue-500" />
+                    <FontAwesomeIcon
+                      icon={faCalendarAlt}
+                      className="w-5 h-5 mr-3 text-blue-500"
+                    />
                     <span>{formatEventDate(selectedEvent.date)}</span>
                   </motion.div>
 
-                  <motion.div 
+                  <motion.div
                     whileHover={{ x: 5 }}
                     className="flex items-center text-gray-600 p-3 bg-gray-50 rounded-lg"
                   >
-                    <FontAwesomeIcon icon={faClock} className="w-5 h-5 mr-3 text-blue-500" />
+                    <FontAwesomeIcon
+                      icon={faClock}
+                      className="w-5 h-5 mr-3 text-blue-500"
+                    />
                     <span>{formatEventTime(selectedEvent.date)}</span>
                   </motion.div>
 
                   {selectedEvent.location && (
-                    <motion.div 
+                    <motion.div
                       whileHover={{ x: 5 }}
                       className="flex items-center text-gray-600 p-3 bg-gray-50 rounded-lg"
                     >
-                      <FontAwesomeIcon icon={faMapMarkerAlt} className="w-5 h-5 mr-3 text-blue-500" />
+                      <FontAwesomeIcon
+                        icon={faMapMarkerAlt}
+                        className="w-5 h-5 mr-3 text-blue-500"
+                      />
                       <span>{selectedEvent.location}</span>
                     </motion.div>
                   )}
 
                   {selectedEvent.description && (
                     <div className="mt-6">
-                      <h5 className="text-sm font-semibold text-gray-700 mb-2">Description</h5>
+                      <h5 className="text-sm font-semibold text-gray-700 mb-2">
+                        Description
+                      </h5>
                       <p className="text-gray-600 text-sm p-3 bg-gray-50 rounded-lg">
                         {selectedEvent.description}
                       </p>
