@@ -28,6 +28,8 @@ const SpecialEd = () => {
     password: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [userRole, setUserRole] = useState(null);
+  const [userId, setUserId] = useState(null);
   const [showResults, setShowResults] = useState(false);
   const [completionMessage, setCompletionMessage] = useState('');
   const [categoryScores, setCategoryScores] = useState(null);
@@ -69,6 +71,19 @@ const SpecialEd = () => {
     };
 
     fetchInitialData();
+  }, []);
+
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      try {
+        const response = await axiosInstance.get('/user-admin/user-info/');
+        setUserRole(response.data.role);
+        setUserId(response.data.id);
+      } catch (error) {
+        console.error('Error fetching user info:', error);
+      }
+    };
+    fetchUserInfo();
   }, []);
 
   const handleStartAssessment = async () => {
@@ -475,8 +490,19 @@ const SpecialEd = () => {
       
       // Construct the URL based on filter
       let url = '/special-education/assessments/';
+      const params = new URLSearchParams();
+      
       if (studentId && studentId !== 'all' && studentId !== 'null') {
-        url += `?student=${studentId}`;
+        params.append('student', studentId);
+      }
+
+      if (userRole === 'teacher' && userId) {
+        params.append('teacher', userId);
+      }
+      
+      // Add params to URL if any exist
+      if (params.toString()) {
+        url += `?${params.toString()}`;
       }
       
       console.log('Fetching assessment history from:', url);
@@ -935,7 +961,7 @@ const SpecialEd = () => {
               />
               <FaSearch className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" />
             </div>
-            <select
+            {/* <select
               value={historyFilter}
               onChange={(e) => setHistoryFilter(e.target.value)}
               className="block w-full sm:w-48 pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
@@ -946,7 +972,7 @@ const SpecialEd = () => {
                   {student.first_name} {student.last_name}
                 </option>
               ))}
-            </select>
+            </select> */}
           </div>
         </div>
 
@@ -965,7 +991,7 @@ const SpecialEd = () => {
               <div className="bg-gray-50">
                 <div className="grid grid-cols-1 sm:grid-cols-5 gap-2 sm:gap-4 px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
                   <div className="sm:col-span-1">Student</div>
-                  <div className="sm:col-span-1">Category</div>
+                  <div className="sm:col-span-1">Assessment</div>
                   <div className="sm:col-span-1">Date</div>
                   <div className="sm:col-span-1">Status</div>
                   <div className="sm:col-span-1">Actions</div>
@@ -978,9 +1004,9 @@ const SpecialEd = () => {
                      `${assessment.student_details.first_name} ${assessment.student_details.last_name}`) ||
                     'Unknown Student';
 
-                  const categoryName = assessment.category_name ||
-                    (assessment.category_details && assessment.category_details.title) ||
-                    'Unknown Category';
+                  // const categoryName = assessment.category_name ||
+                  //   (assessment.category_details && assessment.category_details.title) ||
+                  //   'Unknown Category';
 
                   return (
                     <div key={assessment.id} className="hover:bg-gray-50">
@@ -995,9 +1021,6 @@ const SpecialEd = () => {
                         </div>
                         <div className="sm:col-span-1">
                           <div className="text-sm text-gray-900">
-                            {categoryName}
-                          </div>
-                          <div className="text-xs text-gray-500">
                             Assessment #{assessment.assessment_number || 'N/A'}/30
                           </div>
                         </div>
@@ -1172,8 +1195,8 @@ const SpecialEd = () => {
                     <td className="font-medium">{new Date().toLocaleDateString()}</td>
                   </tr>
                   <tr>
-                    <td className="pr-2 py-1 text-gray-600">Category:</td>
-                    <td className="font-medium">{selectedCategory?.title || 'General Assessment'}</td>
+                    {/* <td className="pr-2 py-1 text-gray-600">Category:</td>
+                    <td className="font-medium">{selectedCategory?.title || 'General Assessment'}</td> */}
                   </tr>
                 </tbody>
               </table>

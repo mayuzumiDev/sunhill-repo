@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Bar, Line } from "react-chartjs-2";
+import Highcharts from 'highcharts';
+import HighchartsReact from 'highcharts-react-official';
 import teachingIllusMon from "../../assets/img/home/illustrationMon.png";
 import teachingIllusTue from "../../assets/img/home/illustrationTue.png";
 import teachingIllusWed from "../../assets/img/home/illustrationWed.png";
@@ -11,17 +12,6 @@ import { axiosInstance } from "../../utils/axiosInstance";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  LineElement,
-  PointElement,
-  Title,
-  Tooltip,
-  Legend,
-} from "chart.js";
-import {
   FaBook,
   FaUserGraduate,
   FaClipboardCheck,
@@ -30,23 +20,26 @@ import {
   FaChartLine,
 } from "react-icons/fa";
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  LineElement,
-  PointElement,
-  Title,
-  Tooltip,
-  Legend
-);
-
 const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
   const [greeting, setGreeting] = useState("");
   const [date, setDate] = useState(new Date());
   const [illustrations, setIllustration] = useState(teachingIllusMon);
   const [filter, setFilter] = useState("");
   const [teacherData, setTeacherData] = useState(null);
+  const [classroomData, setClassroomData] = useState({
+    totalClassrooms: 0,
+    totalStudents: 0,
+    totalMaterials: 0,
+    upcomingQuizzes: 0
+  });
+  const [assignmentData, setAssignmentData] = useState({
+    labels: [],
+    values: []
+  });
+  const [performanceData, setPerformanceData] = useState({
+    labels: [],
+    values: []
+  });
 
   // Setting greeting message and daily illustration
   useEffect(() => {
@@ -124,11 +117,93 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
     getGreetingAndIllustration();
   }, [userName]);
 
+  // Add new useEffect to fetch classroom metrics
+  useEffect(() => {
+    const fetchClassroomMetrics = async () => {
+      try {
+        // Fetch classrooms
+        const classroomsResponse = await axiosInstance.get('/user-teacher/classroom/list/');
+        const classrooms = classroomsResponse.data.classroom_list;
+        
+        // Fetch materials
+        const materialsResponse = await axiosInstance.get('/user-teacher/materials/list/');
+        const materials = materialsResponse.data.materials_list;
+
+        // Calculate metrics
+        const totalStudents = classrooms.reduce((acc, classroom) => 
+          acc + (classroom.student_count || 0), 0);
+
+        setClassroomData({
+          totalClassrooms: classrooms.length,
+          totalStudents: totalStudents,
+          totalMaterials: materials.length,
+          upcomingQuizzes: 0 // You can add quiz counting logic here
+        });
+      } catch (error) {
+        console.error("Error fetching classroom metrics:", error);
+      }
+    };
+
+    fetchClassroomMetrics();
+  }, []);
+
+  // Add new useEffect to fetch chart data
+  useEffect(() => {
+    const fetchChartData = async () => {
+      try {
+        // Fetch assignments data
+        const assignmentsResponse = await axiosInstance.get('/user-teacher/assignments/analytics/');
+        const assignmentsData = assignmentsResponse.data;
+
+        // Fetch performance data
+        const performanceResponse = await axiosInstance.get('/user-teacher/performance/analytics/');
+        const performanceData = performanceResponse.data;
+
+        // Process assignments data
+        setAssignmentData({
+          labels: assignmentsData.map(item => item.week),
+          values: assignmentsData.map(item => item.completed_count)
+        });
+
+        // Process performance data
+        setPerformanceData({
+          labels: performanceData.map(item => item.week),
+          values: performanceData.map(item => item.average_score)
+        });
+
+      } catch (error) {
+        console.error("Error fetching chart data:", error);
+      }
+    };
+
+    fetchChartData();
+    // Set up periodic refresh (every 5 minutes)
+    const intervalId = setInterval(fetchChartData, 300000);
+    return () => clearInterval(intervalId);
+  }, []);
+
+  // Update metrics array to use real data
   const metrics = [
-    { title: "Class Progress", value: "75%", color: "bg-blue-600" },
-    { title: "Student Activity", value: "85%", color: "bg-green-600" },
-    { title: "Upcoming Lessons", value: "3", color: "bg-yellow-400" },
-    { title: "Assignments Due", value: "2", color: "bg-red-600" },
+    { 
+      title: "Total Classrooms", 
+      value: classroomData.totalClassrooms, 
+      color: "bg-blue-600" 
+    },
+    { 
+      title: "Total Students", 
+      value: classroomData.totalStudents, 
+      color: "bg-green-600" 
+    },
+    { 
+      title: "Learning Materials", 
+      value: classroomData.totalMaterials, 
+      color: "bg-yellow-400" 
+    },
+    { 
+      title: "Upcoming Quizzes", 
+      value: classroomData.upcomingQuizzes, 
+      color: "bg-red-600" 
+    }
   ];
 
   const quickLinks = [
@@ -164,38 +239,103 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
     },
   ];
 
-  const barChartData = {
-    labels: ["Week 1", "Week 2", "Week 3", "Week 4"],
-    datasets: [
-      {
-        label: "Assignments Completed",
-        data: [10, 15, 12, 20],
-        backgroundColor: "rgba(75, 192, 192, 0.6)",
-        borderColor: "rgba(75, 192, 192, 1)",
-        borderWidth: 1,
-      },
-    ],
-  };
-
-  const lineChartData = {
-    labels: ["Week 1", "Week 2", "Week 3", "Week 4"],
-    datasets: [
-      {
-        label: "Student Performance",
-        data: [65, 70, 75, 80],
-        fill: false,
-        borderColor: "rgba(255, 99, 132, 1)",
-        tension: 0.1,
-      },
-    ],
-  };
-
-  const chartOptions = {
-    responsive: true,
-    plugins: {
-      legend: { position: "top" },
-      tooltip: { enabled: true },
+  // Update Highcharts configurations to use real data
+  const barChartOptions = {
+    chart: {
+      type: 'column',
+      backgroundColor: darkMode ? '#1f2937' : '#ffffff'
     },
+    title: {
+      text: 'Assignments Completed',
+      style: {
+        color: darkMode ? '#ffffff' : '#000000'
+      }
+    },
+    xAxis: {
+      categories: assignmentData.labels,
+      labels: {
+        style: {
+          color: darkMode ? '#ffffff' : '#000000'
+        }
+      }
+    },
+    yAxis: {
+      title: {
+        text: 'Number of Assignments',
+        style: {
+          color: darkMode ? '#ffffff' : '#000000'
+        }
+      },
+      labels: {
+        style: {
+          color: darkMode ? '#ffffff' : '#000000'
+        }
+      }
+    },
+    series: [{
+      name: 'Assignments Completed',
+      data: assignmentData.values,
+      color: 'rgba(75, 192, 192, 0.6)'
+    }],
+    credits: {
+      enabled: false
+    },
+    tooltip: {
+      formatter: function() {
+        return `<b>Week ${this.x}</b><br/>
+                Completed Assignments: ${this.y}`;
+      }
+    }
+  };
+
+  const lineChartOptions = {
+    chart: {
+      type: 'line',
+      backgroundColor: darkMode ? '#1f2937' : '#ffffff'
+    },
+    title: {
+      text: 'Student Performance',
+      style: {
+        color: darkMode ? '#ffffff' : '#000000'
+      }
+    },
+    xAxis: {
+      categories: performanceData.labels,
+      labels: {
+        style: {
+          color: darkMode ? '#ffffff' : '#000000'
+        }
+      }
+    },
+    yAxis: {
+      title: {
+        text: 'Average Score (%)',
+        style: {
+          color: darkMode ? '#ffffff' : '#000000'
+        }
+      },
+      labels: {
+        style: {
+          color: darkMode ? '#ffffff' : '#000000'
+        }
+      },
+      min: 0,
+      max: 100
+    },
+    series: [{
+      name: 'Class Average',
+      data: performanceData.values,
+      color: 'rgba(255, 99, 132, 1)'
+    }],
+    credits: {
+      enabled: false
+    },
+    tooltip: {
+      formatter: function() {
+        return `<b>Week ${this.x}</b><br/>
+                Average Score: ${this.y}%`;
+      }
+    }
   };
 
   const topStudents = [
@@ -244,9 +384,7 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Main Dashboard Content */}
         <div className="col-span-3">
-          <h1 className="text-2xl font-bold mb-6 text-gray-500">
-            Teacher Dashboard
-          </h1>
+          <h1 className="text-2xl font-bold mb-6">Teacher Dashboard</h1>
 
           {/* Greeting Section */}
 
@@ -307,7 +445,10 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
               <h2 className="text-md font-semibold mb-4">
                 Assignments Completion Over Time
               </h2>
-              <Bar data={barChartData} options={chartOptions} />
+              <HighchartsReact
+                highcharts={Highcharts}
+                options={barChartOptions}
+              />
             </div>
             <div
               className={`rounded-lg shadow-lg p-4 ${
@@ -317,7 +458,10 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
               <h2 className="text-md font-semibold mb-4">
                 Student Performance Over Time
               </h2>
-              <Line data={lineChartData} options={chartOptions} />
+              <HighchartsReact
+                highcharts={Highcharts}
+                options={lineChartOptions}
+              />
             </div>
           </div>
 

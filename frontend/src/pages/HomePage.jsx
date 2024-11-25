@@ -57,15 +57,14 @@ const branches = [
   },
   {
     address:
-      "M. Dimapilis St., Anuling Lejos 2, Metro Tagaytay, Mendez, Cavite",
+      "El Sitio Filipino Camping and Teambuilding Center, Dumuclay East, Batangas City, Philippines",
     phone: "0917 146 8790",
-    email: "N/A",
-    fbPage: "https://www.facebook.com/profile.php?id=100054311690176",
+    email: "sdebatangascity@sunhilledu.com",
+    fbPage: "https://www.facebook.com/SDEBatangasCity",
     fbPageName: "Sunhill Montessori Casa-Metro Tagaytay",
     mapSrc:
-      "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d4086.0275085843036!2d120.89258292056984!3d14.11359481714555!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x33bd77e845da079f%3A0x810d615af8ad78d7!2sSunhill%20Montessori%20Casa%20Metro%20Tagaytay!5e1!3m2!1sen!2sph!4v1724856784592!5m2!1sen!2sph",
-  },
-];
+      "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d838.1638972888367!2d121.11830807386876!3d13.742318369192658!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x33bd05aeeeee250f%3A0x4bc4bfb66572ae61!2sSunhill%20Developmental%20Education%20Batangas!5e1!3m2!1sen!2sph!4v1732509328373!5m2!1sen!2sph",
+}];
 
 const Home = () => {
   const [darkMode, setDarkMode] = useState(
@@ -392,7 +391,7 @@ const Home = () => {
                 {[
                   { number: "500+", label: "Students", icon: faGraduationCap },
                   { number: "50+", label: "Teachers", icon: faChalkboardTeacher },
-                  { number: "15+", label: "Years Experience", icon: faClock },
+                  { number: "18+", label: "Years Experience", icon: faClock },
                   { number: "4", label: "Branches", icon: faSchool }
                 ].map((stat, index) => (
                   <Fade delay={index * 100} key={index}>
@@ -448,7 +447,7 @@ const Home = () => {
                     </div>
 
                     <div className="mt-6 grid grid-cols-2 gap-2">
-                      {["Batangas", "Rosario", "Bauan", "Metro Tagaytay"].map((branchName, index) => (
+                      {["Batangas", "Rosario", "Bauan", "Sunhill Developmental Education"].map((branchName, index) => (
                         <button
                           key={index}
                           onClick={() => handleBranchChange(index)}
