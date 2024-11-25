@@ -77,6 +77,7 @@ const FileOpener = ({
   children = <FiEye />,
   className = "text-blue-600 hover:text-blue-800 text-xl",
   title = "View",
+  id,
 }) => {
   const handleOpenFile = () => {
     // Normalize file type to lowercase and use default if not found
@@ -108,7 +109,12 @@ const FileOpener = ({
   };
 
   return (
-    <button onClick={handleOpenFile} className={className} title={title}>
+    <button
+      onClick={handleOpenFile}
+      className={className}
+      title={title}
+      id={id}
+    >
       {children}
     </button>
   );

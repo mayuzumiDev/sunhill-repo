@@ -14,6 +14,7 @@ import { FaArrowLeft } from "react-icons/fa";
 
 const StudentDashboard = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingMaterials, setIsLoadingMaterials] = useState(false);
   const [showClassrooms, setShowClassrooms] = useState(false);
   const [showQuizzes, setShowQuizzes] = useState(false);
   const [selectedClassroom, setSelectedClassroom] = useState(null);
@@ -77,7 +78,7 @@ const StudentDashboard = () => {
 
   const fetchMaterials = async (classroomId) => {
     try {
-      setIsLoading(true);
+      setIsLoadingMaterials(true);
       const response = await axiosInstance.get(
         "/api/user-student/classroom/materials/",
         {
@@ -95,7 +96,7 @@ const StudentDashboard = () => {
       console.error("Error fetching materials:", error);
       console.log("Error details:", error.response);
     } finally {
-      setIsLoading(false);
+      setIsLoadingMaterials(false);
     }
   };
 
@@ -220,7 +221,12 @@ const StudentDashboard = () => {
                           </button>
                         </div>
                         <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 place-items-center">
-                          {learningMaterials && learningMaterials.length > 0 ? (
+                          {isLoadingMaterials ? (
+                            <div className="col-span-3 flex justify-center items-center min-h-[300px]">
+                              <DotLoaderSpinner color="#6B21A8" />
+                            </div>
+                          ) : learningMaterials &&
+                            learningMaterials.length > 0 ? (
                             learningMaterials.map((material) => (
                               <LearningMaterialsCard
                                 key={material.id}

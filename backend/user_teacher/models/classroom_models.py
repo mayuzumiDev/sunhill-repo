@@ -1,6 +1,9 @@
 from django.db import models
 from django.core.validators import FileExtensionValidator
 from user_admin.models.account_models import TeacherInfo, StudentInfo
+import cloudinary
+import cloudinary.uploader
+from cloudinary.models import CloudinaryField
 
 GRADE_LEVEL_CHOICES = [
     ('Nursery', 'Nursery'),
@@ -55,10 +58,10 @@ class EducationMaterial(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField(max_length=255, blank=True)
     material_type = models.CharField(max_length=10, choices=MATERIAL_TYPES)
-    file = models.FileField(
-        upload_to='education_materials/', 
-        validators=[FileExtensionValidator(allowed_extensions=['ppt', 'pptx', 'pdf', 'jpg', 'jpeg', 'png', 'mp4', 'avi', 'doc', 'docx'])
-        ]
+    file = CloudinaryField(
+        'education_materials',
+        resource_type='auto',
+        validators=[FileExtensionValidator(allowed_extensions=['ppt', 'pptx', 'pdf', 'jpg', 'jpeg', 'png', 'mp4', 'avi', 'doc', 'docx'])]
     )
     uploaded_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

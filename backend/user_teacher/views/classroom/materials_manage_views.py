@@ -4,6 +4,8 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from user_teacher.serializers.classroom.materials_manage_serializers import *
 from user_teacher.models.classroom_models import *
+import cloudinary
+import cloudinary.uploader
 
 class EducationMaterialUploadView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]
@@ -28,6 +30,18 @@ class EducationMaterialUploadView(generics.CreateAPIView):
             'message': 'Failed to upload education material',
             'errors': serializer.errors
         }, status=status.HTTP_400_BAD_REQUEST)
+
+        # Upload to Cloudinary first
+        cloudinary_response = cloudinary.uploader.upload(
+            file_obj,
+            folder='education_materials',
+            resource_type='auto',
+            use_filename=True,
+            unique_filename=True
+        )
+
+        # Add the Cloudinary URL to the request data
+        request.data['file'] = cloudinary_response['secure_url']
 
     def perform_create(self, serializer):
         serializer.save()
