@@ -3,6 +3,7 @@ import { Dialog, Transition } from "@headlessui/react";
 import { Fragment } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import { renderAsync } from "docx-preview";
+import * as PptxPreview from "pptx-preview";
 import DotLoaderSpinner from "../../../components/loaders/DotLoaderSpinner";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -17,7 +18,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/$
 const FilePreviewModal = ({ isOpen, onClose, file }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-
+  const [slides, setSlides] = useState([]);
   const [numPages, setNumPages] = useState(null);
   const [pageNumber, setPageNumber] = useState(1);
   const [scale, setScale] = useState(1);
@@ -48,7 +49,6 @@ const FilePreviewModal = ({ isOpen, onClose, file }) => {
   const handleZoomOut = () => setScale((prev) => Math.max(prev - 0.1, 0.5));
   const handleResetZoom = () => setScale(1);
 
-  // Add zoom controls component
   const ZoomControls = () => (
     <div className="fixed bottom-4 right-4 flex gap-2 bg-white rounded-lg shadow-lg p-2">
       <button
@@ -90,65 +90,233 @@ const FilePreviewModal = ({ isOpen, onClose, file }) => {
     setError(error);
   };
 
-  const containerRef = useRef(null);
+  const previewContainerRef = useRef(null);
 
   useEffect(() => {
-    let mounted = true;
+    setIsLoading(false);
+    setError(null);
+    setNumPages(null);
+  }, [file]);
 
-    const renderDocxContent = async () => {
-      if (!file?.file_url || !isOpen || !containerRef.current) {
+  useEffect(() => {
+    const renderDocx = async () => {
+      setIsLoading(true);
+      setError(null);
+
+      if (!file?.file_url || !previewContainerRef.current) {
         setIsLoading(false);
         return;
       }
 
       try {
-        setIsLoading(true);
-        const response = await fetch(file.file_url);
+        const response = await fetch(file.file_url, {
+          signal: AbortSignal.timeout(10000),
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
         const blob = await response.blob();
 
-        if (mounted && containerRef.current) {
-          // Create a new div for the content
-          const contentDiv = document.createElement("div");
-          containerRef.current.innerHTML = ""; // Clear existing content
-          containerRef.current.appendChild(contentDiv);
+        if (blob.size === 0) {
+          throw new Error("Received empty file");
+        }
 
-          await renderAsync(blob, contentDiv, contentDiv, {
-            className: "docx-viewer",
+        previewContainerRef.current.innerHTML = "";
+
+        await renderAsync(blob, previewContainerRef.current, {
+          className: "docx-preview-container",
+        });
+
+        setIsLoading(false);
+      } catch (err) {
+        console.error("DOCX Rendering Error:", err);
+        setError(err);
+        setIsLoading(false);
+      }
+    };
+
+    if (file?.material_type?.toLowerCase() === "docx") {
+      renderDocx();
+    }
+  }, [file]);
+
+  const [pptxData, setPptxData] = useState(null);
+  const [pptxSlides, setPptxSlides] = useState(0);
+  const [currentPptxSlide, setCurrentPptxSlide] = useState(1);
+  const [pptxError, setPptxError] = useState(null);
+  const pptxContainerRef = useRef(null);
+
+  const handlePreviousSlide = () => {
+    setCurrentPptxSlide((prev) => Math.max(1, prev - 1));
+  };
+
+  const handleNextSlide = () => {
+    setCurrentPptxSlide((prev) => Math.min(pptxSlides, prev + 1));
+  };
+
+  // Enhanced PPTX loading with comprehensive error handling
+  useEffect(() => {
+    const loadPptx = async () => {
+      // Reset states
+      setPptxData(null);
+      setPptxSlides(0);
+      setPptxError(null);
+
+      if (["ppt", "pptx"].includes(file?.material_type?.toLowerCase())) {
+        try {
+          console.log("Attempting to load PPTX from URL:", file.file_url);
+
+          // Fetch with extended timeout and error handling
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 10000); // 10-second timeout
+
+          const response = await fetch(file.file_url, {
+            signal: controller.signal,
+            method: "GET",
+            headers: {
+              "Cache-Control": "no-cache",
+              Pragma: "no-cache",
+              Expires: "0",
+            },
           });
 
-          if (mounted) {
-            setIsLoading(false);
+          clearTimeout(timeoutId);
+
+          if (!response.ok) {
+            throw new Error(
+              `HTTP error! status: ${response.status}, ${response.statusText}`
+            );
           }
-        }
-      } catch (error) {
-        console.error("Error rendering DOCX:", error);
-        if (mounted) {
-          setError(error);
-          setIsLoading(false);
+
+          const arrayBuffer = await response.arrayBuffer();
+
+          console.log("ArrayBuffer details:", {
+            byteLength: arrayBuffer.byteLength,
+            type: Object.prototype.toString.call(arrayBuffer),
+          });
+
+          if (arrayBuffer.byteLength === 0) {
+            throw new Error("Received empty file");
+          }
+
+          setPptxData(arrayBuffer);
+        } catch (error) {
+          console.error("Comprehensive PPTX Loading Error:", {
+            message: error.message,
+            name: error.name,
+            stack: error.stack,
+          });
+          setPptxError(error);
         }
       }
     };
 
-    // Reset loading state when component mounts or file changes
-    setIsLoading(true);
+    loadPptx();
+  }, [file]);
 
-    if (
-      (file?.material_type?.toLowerCase() === "doc" ||
-        file?.material_type?.toLowerCase() === "docx") &&
-      isOpen
-    ) {
-      renderDocxContent();
-    } else {
-      setIsLoading(false);
+  // Rendering PowerPoint with advanced error tracking
+  useEffect(() => {
+    const renderPptx = async () => {
+      if (pptxData && pptxContainerRef.current) {
+        try {
+          // Clear previous content
+          pptxContainerRef.current.innerHTML = "";
+
+          console.log("Attempting to render PPTX slides");
+
+          // Render PowerPoint with enhanced options
+          const slides = await PptxPreview.renderSlides(pptxData, {
+            container: pptxContainerRef.current,
+            slideMode: true,
+            renderOptions: {
+              width: "100%",
+              height: "600px",
+            },
+          });
+
+          console.log("Slides rendered successfully:", slides.length);
+          setPptxSlides(slides.length);
+        } catch (error) {
+          console.error("Advanced PPTX Rendering Error:", {
+            message: error.message,
+            name: error.name,
+            stack: error.stack,
+          });
+          setPptxError(error);
+        }
+      }
+    };
+
+    renderPptx();
+  }, [pptxData]);
+
+  const renderPptxContent = () => {
+    // Comprehensive error handling
+    if (pptxError) {
+      return (
+        <div className="text-red-500 p-4 text-center">
+          <p>Error loading PowerPoint:</p>
+          <p className="text-sm">{pptxError.message}</p>
+          <div className="flex justify-center space-x-4 mt-4">
+            <button
+              onClick={() => window.open(file.file_url, "_blank")}
+              className="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600"
+            >
+              Open Original File
+            </button>
+            <button
+              onClick={() => window.location.reload()}
+              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            >
+              Reload Page
+            </button>
+          </div>
+        </div>
+      );
     }
 
-    return () => {
-      mounted = false;
-      if (containerRef.current) {
-        containerRef.current.innerHTML = "";
-      }
-    };
-  }, [file, isOpen]);
+    if (!pptxData) {
+      return (
+        <div className="flex justify-center items-center h-full">
+          <DotLoaderSpinner color="#6B21A8" />
+        </div>
+      );
+    }
+    return (
+      <div className="w-full h-[80vh] relative overflow-auto bg-gray-100 p-4">
+        <div className="flex flex-col items-center">
+          <div
+            ref={pptxContainerRef}
+            className="w-full max-w-4xl pptx-preview-container"
+          />
+
+          {pptxSlides > 1 && (
+            <div className="mt-4 flex items-center space-x-4">
+              <button
+                onClick={handlePreviousSlide}
+                disabled={currentPptxSlide === 1}
+                className="px-4 py-2 bg-purple-500 text-white rounded disabled:opacity-50"
+              >
+                Previous
+              </button>
+              <span>
+                Slide {currentPptxSlide} of {pptxSlides}
+              </span>
+              <button
+                onClick={handleNextSlide}
+                disabled={currentPptxSlide === pptxSlides}
+                className="px-4 py-2 bg-purple-500 text-white rounded disabled:opacity-50"
+              >
+                Next
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
 
   const renderFileContent = () => {
     switch (file?.material_type?.toLowerCase()) {
@@ -208,25 +376,29 @@ const FilePreviewModal = ({ isOpen, onClose, file }) => {
           </div>
         );
 
-      case "doc":
       case "docx":
         return (
-          <div
-            ref={containerRef}
-            className="w-full h-[80vh] overflow-auto bg-gray-100 p-4"
-            style={{
-              transform: `scale(${scale})`,
-              transformOrigin: "top center",
-            }}
-          >
+          <div className="w-full h-[80vh] overflow-auto bg-gray-100 p-4">
             {isLoading && (
               <div className="flex justify-center items-center h-full">
-                <DotLoaderSpinner color="#6B21A8" />
+                <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-purple-600"></div>
               </div>
             )}
-            <ZoomControls />
+            {error && (
+              <div className="text-red-500 text-center mt-4">
+                Error loading document: {error.message}
+              </div>
+            )}
+            <div
+              ref={previewContainerRef}
+              className={`w-full h-full ${isLoading || error ? "hidden" : ""}`}
+            />
           </div>
         );
+
+      case "ppt":
+      case "pptx":
+        return renderPptxContent();
 
       case "image":
       case "jpg":

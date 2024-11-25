@@ -50,7 +50,14 @@ const LearningMaterialsCard = ({ material, onClick }) => {
   return (
     <>
       <div
-        onClick={() => setIsModalOpen(true)}
+        onClick={() => {
+          const fileOpenerButton = document.querySelector(
+            `#file-opener-${material.id}`
+          );
+          if (fileOpenerButton) {
+            fileOpenerButton.click();
+          }
+        }}
         className="bg-gradient-to-r from-blue-600 to-blue-400 rounded-lg shadow-md hover:shadow-xl transition-all hover:scale-105 overflow-hidden cursor-pointer min-w-[280px] w-full max-w-[400px] "
       >
         {/* Decorative Elements */}
@@ -92,20 +99,21 @@ const LearningMaterialsCard = ({ material, onClick }) => {
             {/* <span className="text-white/70 text-sm">
               {new Date(material.uploaded_at).toLocaleDateString()}
             </span> */}
-            {/* <FileOpener
-            fileUrl={material.file_url}
-            fileType={material.material_type}
-            className="text-white hover:text-blue-100 transition-colors"
-          /> */}
+            <FileOpener
+              id={`file-opener-${material.id}`}
+              fileUrl={material.file_url}
+              fileType={material.material_type}
+              className="opacity-0 text-white transition-colors"
+            />
           </div>
         </div>
       </div>
 
-      <FilePreviewModal
+      {/* <FilePreviewModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         file={material}
-      />
+      /> */}
     </>
   );
 };

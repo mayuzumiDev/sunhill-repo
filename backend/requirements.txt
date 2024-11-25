@@ -12,3 +12,5 @@ python-dotenv
 dj-database-url
 Pillow
 reportlab
+cloudinary
+django-cloudinary-storage
