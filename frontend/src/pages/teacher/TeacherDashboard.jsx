@@ -11,14 +11,7 @@ import teachingIllusSun from "../../assets/img/home/illustrationSun.png";
 import { axiosInstance } from "../../utils/axiosInstance";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
-import {
-  FaBook,
-  FaUserGraduate,
-  FaClipboardCheck,
-  FaChalkboardTeacher,
-  FaCalendarAlt,
-  FaChartLine,
-} from "react-icons/fa";
+
 import { motion } from 'framer-motion';
 import { IoStatsChart, IoTrendingUp } from 'react-icons/io5';
 import { useNavigate } from 'react-router-dom';
@@ -694,7 +687,7 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
                 {teacherData ? (
                   <>
                     <h1 className="text-2xl sm:text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-transparent bg-clip-text">
-                      {greeting.split(",")[0]}, {teacherData.first_name}!
+                      {greeting.split(",")[0]}, Teacher {teacherData.first_name}!
                     </h1>
                     <p className={`text-base sm:text-lg ${darkMode ? "text-gray-300" : "text-gray-600"}`}>
                       {greeting.split(",").slice(1).join(",").trim()}

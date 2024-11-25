@@ -342,7 +342,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="p-4 md:p-6 space-y-6 md:space-y-8 bg-gray-50 min-h-screen" id="dashboard-content">
+    <div className="p-4 md:p-6 space-y-6 md:space-y-8  min-h-screen" id="dashboard-content">
       {/* Header Section - Improved spacing and responsive design */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <h1 className="text-3xl md:text-4xl text-gray-800 font-bold">Dashboard</h1>

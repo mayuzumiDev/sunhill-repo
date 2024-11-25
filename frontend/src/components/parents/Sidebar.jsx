@@ -16,7 +16,7 @@ function Tooltip({ name, position, isVisible }) {
 
   const style = {
     top: position.top + 5 + "px",
-    left: position.left + 8 + "px", // Offset from the sidebar for better visibility
+    left: position.left + 13 + "px", // Offset from the sidebar for better visibility
     zIndex: 1000,
     whiteSpace: "nowrap",
   };
