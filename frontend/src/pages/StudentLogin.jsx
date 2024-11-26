@@ -47,7 +47,7 @@ function StudentLogin() {
       const message = new SpeechSynthesisUtterance(randomGreeting);
       message.lang = "en-US";
       message.pitch = 2.9;
-      message.rate = 1.3;
+      message.rate = 0.9; // Reduced from 1.3 to 0.9 for slower speech
       window.speechSynthesis.speak(message);
     };
 
