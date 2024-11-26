@@ -13,7 +13,7 @@ const QuizDetailCard = ({ quizData, onStartQuiz, onBack, isQuizStarted }) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [questions, setQuestions] = useState();
   const [isLoading, setIsLoading] = useState(false);
-
+  const [quizScore, setQuizScore] = useState(null);
   const [responses, setResponses] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -69,10 +69,14 @@ const QuizDetailCard = ({ quizData, onStartQuiz, onBack, isQuizStarted }) => {
       );
 
       if (response.status === 201) {
-        // Handle successful submission
-        const { score } = response.data;
-        // You can add a success message or redirect here
-        onBack(); // Or handle completion differently
+        // Get score data from the response
+        const { data } = response.data;
+        setQuizScore({
+          totalScore: data.total_score,
+          totalPossible: data.total_possible,
+          percentageScore: data.percentage_score,
+          status: data.status,
+        });
       }
     } catch (error) {
       console.error("Error submitting quiz responses:", error);
@@ -112,6 +116,76 @@ const QuizDetailCard = ({ quizData, onStartQuiz, onBack, isQuizStarted }) => {
           {isSubmitting && (
             <p className="ml-3 text-purple-600">Submitting your quiz...</p>
           )}
+        </div>
+      );
+    }
+
+    if (quizScore) {
+      const getEncouragingMessage = (status, score, total) => {
+        if (status === "passed") {
+          if (score === total) {
+            return "Perfect Score! You're Amazing!";
+          }
+          return "Great Job! Keep up the good work! ";
+        }
+        return "Don't worry! You can try again!";
+      };
+
+      return (
+        <div className="bg-white p-8 rounded-2xl shadow-lg border-2 border-purple-100 relative overflow-hidden">
+          {/* Decorative shapes */}
+          <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-200 rounded-full opacity-20 transform translate-x-16 -translate-y-16"></div>
+          <div className="absolute bottom-0 left-0 w-40 h-40 bg-purple-200 rounded-full opacity-20 transform -translate-x-20 translate-y-20"></div>
+          <div className="absolute top-1/2 right-1/4 w-24 h-24 bg-blue-200 rounded-full opacity-20 transform rotate-45"></div>
+
+          <div className="relative z-10">
+            <h2 className="text-4xl font-bold text-purple-800 mb-8 text-center">
+              Quiz Results
+            </h2>
+            <div className="space-y-6">
+              <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-8 rounded-xl shadow-md">
+                <div className="text-center mb-6">
+                  <p className="text-3xl font-bold text-purple-800">
+                    You got{" "}
+                    <span className="text-4xl text-purple-600">
+                      {quizScore.totalScore}
+                    </span>{" "}
+                    out of {quizScore.totalPossible}!
+                  </p>
+                </div>
+
+                <p className="text-2xl text-center font-medium text-purple-700 mt-4">
+                  {getEncouragingMessage(
+                    quizScore.status,
+                    quizScore.totalScore,
+                    quizScore.totalPossible
+                  )}
+                </p>
+
+                <div className="text-center mt-6">
+                  <span
+                    className={`inline-block px-6 py-2 rounded-full text-xl font-bold ${
+                      quizScore.status === "passed"
+                        ? "bg-green-100 text-green-600"
+                        : "bg-orange-100 text-orange-600"
+                    }`}
+                  >
+                    {quizScore.status === "passed"
+                      ? "You Passed!"
+                      : "Try Again!"}
+                  </span>
+                </div>
+              </div>
+
+              <button
+                onClick={onBack}
+                className="w-full bg-purple-600 text-white py-4 rounded-xl hover:bg-purple-700 
+                         transition-all transform hover:scale-[1.02] text-xl font-bold shadow-lg"
+              >
+                Back to More Fun Quizzes!
+              </button>
+            </div>
+          </div>
         </div>
       );
     }

@@ -43,10 +43,10 @@ class QuizResponseCreateView(generics.CreateAPIView):
                 
             response = serializer.save()
             
-            # Return the score in the response
+            # Return both the response and score data
             return JsonResponse({
-                'response': QuizResponseSerializer(response).data,
-                'score': QuizScoreSerializer(response.score).data
+                'message': 'Quiz response submitted successfully',
+                'data': QuizResponseSerializer(response).data
             }, status=status.HTTP_201_CREATED)
             
         except ObjectDoesNotExist as e:

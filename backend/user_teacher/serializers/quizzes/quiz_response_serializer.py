@@ -4,9 +4,14 @@ from ...models.quizzes_models import *
 from user_admin.models.account_models import *
 
 class QuizResponseSerializer(serializers.ModelSerializer):
+    total_score = serializers.IntegerField(read_only=True)
+    total_possible = serializers.IntegerField(read_only=True)
+    percentage_score = serializers.FloatField(read_only=True)
+    status = serializers.CharField(read_only=True)
+
     class Meta:
         model = StudentResponse
-        fields = ['quiz', 'responses', 'classroom']
+        fields = ['quiz', 'responses', 'classroom', 'total_score', 'total_possible', 'percentage_score', 'status']
         
     def validate_responses(self, responses):
         """
@@ -51,8 +56,14 @@ class QuizResponseSerializer(serializers.ModelSerializer):
             **validated_data
         )
         
-        # Calculate scores
-        self._calculate_and_create_score(student_response)
+        # Calculate scores and create QuizScore instance
+        quiz_score = self._calculate_and_create_score(student_response)
+        
+        # Add score data to the response
+        student_response.total_score = quiz_score.total_score
+        student_response.total_possible = quiz_score.total_possible
+        student_response.percentage_score = quiz_score.percentage_score
+        student_response.status = quiz_score.status
         
         return student_response
     
@@ -72,7 +83,7 @@ class QuizResponseSerializer(serializers.ModelSerializer):
         percentage = (correct_count / total_possible * 100) if total_possible > 0 else 0
         status = 'passed' if percentage >= 50 else 'failed'
         
-        QuizScore.objects.create(
+        quiz_score = QuizScore.objects.create(
             student=student_response.student,
             quiz=student_response.quiz,
             classroom=student_response.classroom,
@@ -82,6 +93,7 @@ class QuizResponseSerializer(serializers.ModelSerializer):
             percentage_score=percentage,
             status=status
         )
+        return quiz_score
     
     def _check_answer(self, question, answer):
         """Check if the answer is correct based on question type"""
