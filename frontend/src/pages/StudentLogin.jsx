@@ -55,9 +55,9 @@ function StudentLogin() {
       const randomGreeting = getRandomGreeting();
       const message = new SpeechSynthesisUtterance(randomGreeting);
       message.lang = "en-US";
-      message.pitch = 1.5;
-      message.rate = 0.9;
-      message.volume = 1.0;
+      message.pitch = 1.8;
+      message.rate = 0.95;
+      message.volume = 0.9;
       
       const voices = window.speechSynthesis.getVoices();
       const childVoice = voices.find(voice => 
@@ -76,15 +76,17 @@ function StudentLogin() {
       if (childVoice) {
         console.log('Selected voice:', childVoice.name);
         message.voice = childVoice;
+        if (childVoice.name.includes('Microsoft')) {
+          message.pitch = 1.6;
+          message.rate = 1.0;
+        }
       } else {
         message.pitch = 2.0;
-        message.rate = 0.85;
+        message.rate = 0.9;
       }
       
-      setTimeout(() => {
-        window.speechSynthesis.cancel();
-        window.speechSynthesis.speak(message);
-      }, 500);
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(message);
     };
 
     if (window.speechSynthesis.getVoices().length === 0) {
