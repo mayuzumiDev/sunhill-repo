@@ -602,6 +602,13 @@ const SpecialEd = () => {
     );
   });
 
+  const getSeverityLevel = (score) => {
+    if (score <= 25) return { level: 'Minimal', color: 'green' };
+    if (score <= 50) return { level: 'Moderate', color: 'yellow' };
+    if (score <= 75) return { level: 'Significant', color: 'orange' };
+    return { level: 'Severe', color: 'red' };
+  };
+
   const renderResults = () => {
     if (!categoryScores) return null;
 
@@ -634,14 +641,25 @@ const SpecialEd = () => {
             </div>
             <div className="border-t border-gray-200">
               <dl>
-                {Object.entries(categoryScores).map(([category, score], idx) => (
-                  <div key={category} className={`${idx % 2 === 0 ? 'bg-gray-50' : 'bg-white'} px-3 py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-4`}>
-                    <dt className="text-sm font-medium text-gray-500">{category}</dt>
-                    <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                      {score}% concern level
-                    </dd>
-                  </div>
-                ))}
+                {Object.entries(categoryScores).map(([category, score], idx) => {
+                  const severity = getSeverityLevel(score);
+                  return (
+                    <div key={category} className={`${idx % 2 === 0 ? 'bg-gray-50' : 'bg-white'} px-3 py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-4`}>
+                      <dt className="text-sm font-medium text-gray-500">{category}</dt>
+                      <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2 flex items-center justify-between">
+                        <span>{score}% concern level</span>
+                        <span className={`px-2 py-1 text-xs font-medium rounded-full
+                          ${severity.color === 'green' ? 'bg-green-100 text-green-800' : ''}
+                          ${severity.color === 'yellow' ? 'bg-yellow-100 text-yellow-800' : ''}
+                          ${severity.color === 'orange' ? 'bg-orange-100 text-orange-800' : ''}
+                          ${severity.color === 'red' ? 'bg-red-100 text-red-800' : ''}
+                        `}>
+                          {severity.level}
+                        </span>
+                      </dd>
+                    </div>
+                  );
+                })}
               </dl>
             </div>
           </div>
