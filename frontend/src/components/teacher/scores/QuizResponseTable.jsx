@@ -6,7 +6,7 @@ const QuizResponseTable = ({ responses, isLoading = false }) => {
     return (
       <div className="overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
-          <thead className="bg-green-400">
+          <thead className="bg-green-500">
             <tr>
               <th className="px-6 py-3 text-center text-xs font-bold text-white uppercase tracking-wider">
                 Student Name

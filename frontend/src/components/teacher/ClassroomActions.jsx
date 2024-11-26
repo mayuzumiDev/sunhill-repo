@@ -1,80 +1,192 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   HiUserGroup,
   HiAcademicCap,
   HiClipboardList,
   HiCollection,
+  HiArrowLeft,
 } from "react-icons/hi";
-import ClassroomDetailsModal from "./classroom/ClassroomDetailsModal";
+import { axiosInstance } from "../../utils/axiosInstance";
+import ClassroomDetailsTable from "./classroom/ClassroomDetailsTable";
+import QuizResponseTable from "./scores/QuizResponseTable";
 
 const ClassroomActions = ({ onClose, classroomData }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedAction, setSelectedAction] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const [quizResponses, setQuizResponses] = useState([]);
+
+  const fetchQuizScores = async () => {
+    setIsLoading(true);
+    try {
+      const response = await axiosInstance.get(
+        "/user-teacher/quiz-scores/list/",
+        {
+          params: {
+            classroom: classroomData.id,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        const quiz_scores = response.data.quiz_scores;
+        setQuizResponses(quiz_scores);
+      }
+    } catch (error) {
+      console.error("An error occurred fetching the quiz scores.", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedAction === "scores") {
+      fetchQuizScores();
+    }
+  }, [selectedAction]);
 
   const actions = [
     {
+      id: "students",
       title: "Students List",
       icon: <HiUserGroup className="w-8 h-8" />,
-      onClick: () => setIsModalOpen(true),
+      onClick: () => setSelectedAction("students"),
       bgColor: "bg-green-500",
       hoverColor: "hover:bg-green-600",
     },
     {
+      id: "scores",
       title: "Scores",
       icon: <HiAcademicCap className="w-8 h-8" />,
-      onClick: () => console.log("Scores clicked"),
+      onClick: () => setSelectedAction("scores"),
       bgColor: "bg-green-500",
       hoverColor: "hover:bg-green-600",
     },
     {
+      id: "quizzes",
       title: "Quizzes",
       icon: <HiClipboardList className="w-8 h-8" />,
-      onClick: () => console.log("Quizzes clicked"),
+      onClick: () => setSelectedAction("quizzes"),
       bgColor: "bg-green-500",
       hoverColor: "hover:bg-green-600",
     },
     {
+      id: "materials",
       title: "Materials",
       icon: <HiCollection className="w-8 h-8" />,
-      onClick: () => console.log("Materials clicked"),
+      onClick: () => setSelectedAction("materials"),
       bgColor: "bg-green-500",
       hoverColor: "hover:bg-green-600",
     },
   ];
 
+  const renderContent = () => {
+    switch (selectedAction) {
+      case "students":
+        return (
+          <div className="mt-6 w-full">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-semibold text-gray-700">
+                Students Lists
+              </h3>
+              <button
+                onClick={() => setSelectedAction(null)}
+                className="text-gray-600 hover:text-gray-800"
+              >
+                Close
+              </button>
+            </div>
+            <ClassroomDetailsTable classroom={classroomData} />
+          </div>
+        );
+
+      case "scores":
+        return (
+          <div className="mt-6 w-full">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-semibold text-gray-700">
+                Quiz Scores
+              </h3>
+              <button
+                onClick={() => setSelectedAction(null)}
+                className="text-gray-600 hover:text-gray-800"
+              >
+                Close
+              </button>
+            </div>
+            <QuizResponseTable
+              responses={quizResponses}
+              isLoading={isLoading}
+            />
+          </div>
+        );
+      case "quizzes":
+        return (
+          <div className="mt-6 w-full">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-semibold text-gray-700">Quizzes</h3>
+              <button
+                onClick={() => setSelectedAction(null)}
+                className="text-gray-600 hover:text-gray-800"
+              >
+                Close
+              </button>
+            </div>
+            <div className="text-gray-600">Quizzes content will go here</div>
+          </div>
+        );
+      case "materials":
+        return (
+          <div className="mt-6 w-full">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-semibold text-gray-700">Materials</h3>
+              <button
+                onClick={() => setSelectedAction(null)}
+                className="text-gray-600 hover:text-gray-800"
+              >
+                Close
+              </button>
+            </div>
+            <div className="text-gray-600">Materials content will go here</div>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="h-full flex flex-col">
-      <div className="flex justify-between items-center mb-6 sm:mb-10 md:mb-16 lg:mb-20 xl:mb-24">
+      <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-gray-700">
           {classroomData.grade_level} - {classroomData.class_section}
         </h2>
         <button
           onClick={onClose}
-          className="text-gray-500 hover:text-gray-700 transition-colors"
+          className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-green-500 border border-transparent rounded-md shadow-sm hover:bg-green-600 transition-all duration-300 ease-in-out transform hover:-translate-x-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 group"
         >
-          ← Back to Classrooms
+          <HiArrowLeft className="w-5 h-5 mr-2 transition-transform duration-300 ease-in-out group-hover:-translate-x-1" />
+          Back to Classrooms
         </button>
       </div>
 
-      <div className="flex-1 grid grid-cols-2 gap-4 w-full max-w-4xl mx-auto place-content-center">
-        {actions.map((action, index) => (
-          <button
-            key={index}
-            onClick={action.onClick}
-            className={`${action.bgColor} ${action.hoverColor} text-white p-6 rounded-lg 
-              transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg
-              flex items-center justify-center space-x-3 w-full`}
-          >
-            {action.icon}
-            <span className="font-semibold text-lg">{action.title}</span>
-          </button>
-        ))}
-      </div>
+      <div className="flex-1 flex flex-col w-full max-w-4xl mx-auto">
+        <div className="grid grid-cols-2 gap-4">
+          {actions.map((action) => (
+            <button
+              key={action.id}
+              className={`${action.bgColor} ${action.hoverColor} text-white p-4 rounded-lg shadow-md transition-colors duration-200 flex flex-col items-center justify-center space-y-2`}
+              onClick={action.onClick}
+            >
+              {action.icon}
+              <span className="text-sm font-medium">{action.title}</span>
+            </button>
+          ))}
+        </div>
 
-      <ClassroomDetailsModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        classroom={classroomData}
-      />
+        {renderContent()}
+      </div>
     </div>
   );
 };
