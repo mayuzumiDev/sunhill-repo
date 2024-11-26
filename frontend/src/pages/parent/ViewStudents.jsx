@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaUser, FaBook, FaCalendarAlt, FaGraduationCap, FaChartLine, FaSearch, FaSort, FaEye, FaFilter, FaBell, FaEnvelope } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
+import { axiosInstance } from "../../utils/axiosInstance";
 
 const ViewStudents = ({ darkMode }) => {
   const [students, setStudents] = useState([]);
@@ -11,15 +12,30 @@ const ViewStudents = ({ darkMode }) => {
   const [selectedStudents, setSelectedStudents] = useState([]);
 
   useEffect(() => {
-    // Fetch students data from API or context
-    // This is a placeholder. Replace with actual API calls.
-    setStudents([
-      { id: 1, name: 'John Doe', grade: '10th', recentGrade: 'A', upcomingAssignment: 'Math Project', attendance: '95%' },
-      { id: 2, name: 'Jane Doe', grade: '8th', recentGrade: 'B+', upcomingAssignment: 'Science Report', attendance: '98%' },
-      { id: 3, name: 'Alice Smith', grade: '9th', recentGrade: 'A-', upcomingAssignment: 'History Essay', attendance: '92%' },
-      { id: 4, name: 'Bob Johnson', grade: '10th', recentGrade: 'B', upcomingAssignment: 'English Presentation', attendance: '90%' },
-      { id: 5, name: 'Charlie Brown', grade: '8th', recentGrade: 'A+', upcomingAssignment: 'Art Project', attendance: '97%' },
-    ]);
+    const fetchParentStudents = async () => {
+      try {
+        const response = await axiosInstance.get('/api/user-parent/current-parent/');
+        
+        if (response.data.status === 'success') {
+          const studentData = response.data.data.student_info || [];
+          const formattedStudents = studentData.map(student => ({
+            id: student.student_info_id,
+            name: `${student.first_name} ${student.last_name}`,
+            grade: student.grade_level,
+            email: student.email,
+            profile_image: student.user_info?.profile_image,
+            recentGrade: 'N/A',
+            upcomingAssignment: 'N/A',
+            attendance: 'N/A'
+          }));
+          setStudents(formattedStudents);
+        }
+      } catch (error) {
+        console.error('Error fetching students:', error);
+      }
+    };
+
+    fetchParentStudents();
   }, []);
 
   const handleSearch = (event) => {
@@ -40,16 +56,13 @@ const ViewStudents = ({ darkMode }) => {
   };
 
   const handleStudentSelection = (studentId) => {
-    setSelectedStudents(prevSelected => 
-      prevSelected.includes(studentId)
-        ? prevSelected.filter(id => id !== studentId)
-        : [...prevSelected, studentId]
-    );
-  };
-
-  const handleBulkAction = (action) => {
-    // Implement bulk actions (e.g., send notification, message)
-    console.log(`Bulk ${action} for students:`, selectedStudents);
+    setSelectedStudents(prevSelected => {
+      if (prevSelected.includes(studentId)) {
+        return prevSelected.filter(id => id !== studentId);
+      } else {
+        return [...prevSelected, studentId];
+      }
+    });
   };
 
   const filteredStudents = students.filter(student =>
@@ -67,110 +80,93 @@ const ViewStudents = ({ darkMode }) => {
     <div className={`p-4 sm:p-6 ${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`}>
       <h1 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-orange-600">My Students</h1>
       
-      <div className="mb-4 flex flex-col sm:flex-row flex-wrap justify-between items-start sm:items-center">
-        <div className="relative w-full sm:w-auto mb-4 sm:mb-0">
+      {/* Search and filter controls */}
+      <div className="mb-4 flex flex-wrap gap-4 items-center">
+        <div className="relative">
           <input
             type="text"
             placeholder="Search students..."
-            className={`w-full sm:w-auto pl-10 pr-4 py-2 rounded-lg ${darkMode ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-800'}`}
+            className={`pl-10 pr-4 py-2 rounded-lg ${darkMode ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-800'}`}
             value={searchTerm}
             onChange={handleSearch}
           />
           <FaSearch className="absolute left-3 top-3 text-gray-400" />
         </div>
-        <div className="flex flex-wrap items-center mb-4 sm:mb-0">
-          <FaFilter className={`mr-2 ${darkMode ? 'text-orange-400' : 'text-orange-600'}`} />
-          <select
-            value={filterGrade}
-            onChange={handleFilterChange}
-            className={`mr-4 p-2 rounded-lg ${darkMode ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-800'}`}
-          >
-            <option value="">All Grades</option>
-            <option value="8th">8th Grade</option>
-            <option value="9th">9th Grade</option>
-            <option value="10th">10th Grade</option>
-          </select>
-          <button
-            onClick={() => handleSort('name')}
-            className={`mr-2 ${darkMode ? 'text-orange-400' : 'text-orange-600'}`}
-          >
-            Sort by Name <FaSort />
-          </button>
-          <button
-            onClick={() => handleSort('grade')}
-            className={`${darkMode ? 'text-orange-400' : 'text-orange-600'}`}
-          >
-            Sort by Grade <FaSort />
-          </button>
-        </div>
-        <div className="flex flex-wrap items-center mt-4 sm:mt-0">
-          <button
-            onClick={() => handleBulkAction('notify')}
-            className={`mr-2 mb-2 sm:mb-0 ${darkMode ? 'text-orange-400' : 'text-orange-600'}`}
-            disabled={selectedStudents.length === 0}
-          >
-            <FaBell className="mr-1 inline" />
-            Notify Selected
-          </button>
-          <button
-            onClick={() => handleBulkAction('message')}
-            className={`${darkMode ? 'text-orange-400' : 'text-orange-600'}`}
-            disabled={selectedStudents.length === 0}
-          >
-            <FaEnvelope className="mr-1 inline" />
-            Message Selected
-          </button>
-        </div>
+        <select
+          value={filterGrade}
+          onChange={handleFilterChange}
+          className={`p-2 rounded-lg ${darkMode ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-800'}`}
+        >
+          <option value="">All Grades</option>
+          <option value="8th">8th Grade</option>
+          <option value="9th">9th Grade</option>
+          <option value="10th">10th Grade</option>
+        </select>
       </div>
-      
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-        {sortedStudents.map(student => (
-          <StudentCard 
-            key={student.id} 
-            student={student} 
-            darkMode={darkMode}
-            isSelected={selectedStudents.includes(student.id)}
-            onSelect={() => handleStudentSelection(student.id)}
-          />
-        ))}
-      </div>
-    </div>
-  );
-};
 
-const StudentCard = ({ student, darkMode, isSelected, onSelect }) => {
-  return (
-    <div className={`p-4 rounded-lg shadow-md ${darkMode ? 'bg-gray-700' : 'bg-orange-100'} ${isSelected ? 'border-2 border-orange-500' : ''}`}>
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center">
-          <input
-            type="checkbox"
-            checked={isSelected}
-            onChange={onSelect}
-            className="mr-2"
-          />
-          <FaUser className={`mr-2 ${darkMode ? 'text-orange-400' : 'text-orange-600'}`} />
-          <h2 className="text-lg sm:text-xl font-semibold">{student.name}</h2>
-        </div>
-        <Link to={`/student/${student.id}`} className={`${darkMode ? 'text-orange-400' : 'text-orange-600'}`}>
-          <FaEye />
-        </Link>
-      </div>
-      <div className="flex items-center mb-2">
-        <FaGraduationCap className={`mr-2 ${darkMode ? 'text-orange-400' : 'text-orange-600'}`} />
-        <p>Grade: {student.grade}</p>
-      </div>
-      <div className="flex items-center mb-2">
-        <FaChartLine className={`mr-2 ${darkMode ? 'text-orange-400' : 'text-orange-600'}`} />
-        <p>Recent Grade: {student.recentGrade}</p>
-      </div>
-      <div className="flex items-center mb-2">
-        <FaBook className={`mr-2 ${darkMode ? 'text-orange-400' : 'text-orange-600'}`} />
-        <p className="truncate">Upcoming: {student.upcomingAssignment}</p>
-      </div>
-      <div className="flex items-center mt-4">
-        <FaCalendarAlt className={`mr-2 ${darkMode ? 'text-orange-400' : 'text-orange-600'}`} />
-        <p>Attendance: {student.attendance}</p>
+      {/* Table View */}
+      <div className="overflow-x-auto">
+        <table className={`w-full border-collapse ${darkMode ? 'text-white' : 'text-gray-800'}`}>
+          <thead>
+            <tr className={`border-b ${darkMode ? 'border-gray-600' : 'border-gray-200'}`}>
+              <th className="p-3 text-left">
+                <input
+                  type="checkbox"
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setSelectedStudents(students.map(s => s.id));
+                    } else {
+                      setSelectedStudents([]);
+                    }
+                  }}
+                />
+              </th>
+              <th className="p-3 text-left cursor-pointer" onClick={() => handleSort('name')}>
+                <div className="flex items-center">
+                  Name <FaSort className="ml-2" />
+                </div>
+              </th>
+              <th className="p-3 text-left cursor-pointer" onClick={() => handleSort('grade')}>
+                <div className="flex items-center">
+                  Grade <FaSort className="ml-2" />
+                </div>
+              </th>
+              <th className="p-3 text-left">Recent Grade</th>
+              <th className="p-3 text-left">Upcoming Assignment</th>
+              <th className="p-3 text-left">Attendance</th>
+              <th className="p-3 text-left">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sortedStudents.map(student => (
+              <tr 
+                key={student.id} 
+                className={`border-b ${darkMode ? 'border-gray-600 hover:bg-gray-700' : 'border-gray-200 hover:bg-orange-50'}`}
+              >
+                <td className="p-3">
+                  <input
+                    type="checkbox"
+                    checked={selectedStudents.includes(student.id)}
+                    onChange={() => handleStudentSelection(student.id)}
+                  />
+                </td>
+                <td className="p-3">{student.name}</td>
+                <td className="p-3">{student.grade}</td>
+                <td className="p-3">{student.recentGrade}</td>
+                <td className="p-3">{student.upcomingAssignment}</td>
+                <td className="p-3">{student.attendance}</td>
+                <td className="p-3">
+                  <Link 
+                    to={`/student/${student.id}`} 
+                    className={`${darkMode ? 'text-orange-400' : 'text-orange-600'} hover:text-orange-500`}
+                  >
+                    <FaEye className="inline mr-2" /> View
+                  </Link>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );

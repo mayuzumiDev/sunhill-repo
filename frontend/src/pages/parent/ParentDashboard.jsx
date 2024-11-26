@@ -458,55 +458,7 @@ const ParentDashboard = ({ darkMode }) => {
           </motion.div>
 
           {/* Student Details Section */}
-          <motion.div 
-            variants={itemVariants}
-            className="mt-8"
-          >
-            {studentMetrics.map((student) => (
-              <div 
-                key={student.id}
-                className={`mb-4 rounded-xl p-6 ${darkMode ? "bg-gray-800 bg-opacity-50" : "bg-white"} shadow-lg`}
-              >
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center overflow-hidden">
-                    {student.profile_image ? (
-                      <img
-                        src={student.profile_image}
-                        alt={student.name}
-                        className="h-full w-full object-cover"
-                        onError={(e) => {
-                          e.target.style.display = 'none';
-                          e.target.parentElement.innerHTML = student.name.charAt(0);
-                        }}
-                      />
-                    ) : (
-                      <span className="text-xl font-semibold text-blue-600">
-                        {student.name.charAt(0)}
-                      </span>
-                    )}
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-semibold">{student.name}</h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">{student.grade}</p>
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="p-4 bg-opacity-50 bg-blue-50 dark:bg-blue-900 rounded-lg">
-                    <p className="text-sm text-gray-600 dark:text-gray-300">Recent Grade Average</p>
-                    <p className="text-2xl font-bold">{student.grade_average || 'N/A'}</p>
-                  </div>
-                  <div className="p-4 bg-opacity-50 bg-green-50 dark:bg-green-900 rounded-lg">
-                    <p className="text-sm text-gray-600 dark:text-gray-300">Assignments Completed</p>
-                    <p className="text-2xl font-bold">{student.completed_assignments || 0}/{student.total_assignments || 0}</p>
-                  </div>
-                  <div className="p-4 bg-opacity-50 bg-yellow-50 dark:bg-yellow-900 rounded-lg">
-                    <p className="text-sm text-gray-600 dark:text-gray-300">Next Test</p>
-                    <p className="text-2xl font-bold">{student.next_test_date || 'None'}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </motion.div>
+
 
           {/* Charts Section */}
           <motion.div 

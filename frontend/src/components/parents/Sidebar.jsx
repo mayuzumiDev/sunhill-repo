@@ -68,8 +68,8 @@ const SideNavbar = ({
     { name: "Dashboard", icon: FaHome },
     { name: "Students", icon: FaUser },
     { name: "Assignments", icon: FaBook },
-    { name: "Messages", icon: FaEnvelope },
-    { name: "Analytics", icon: FaChartLine },
+    // { name: "Messages", icon: FaEnvelope },
+    // { name: "Analytics", icon: FaChartLine },
     { name: "Settings", icon: FaCog },
   ];
 
