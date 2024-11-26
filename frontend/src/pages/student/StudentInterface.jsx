@@ -6,18 +6,29 @@ import DateTimeBar from "../../components/student/dashboard/DateTimeBar";
 import CardTiles from "../../components/student/dashboard/CardTiles";
 import ClassroomCard from "../../components/student/classrooms/ClassroomCard";
 import LearningMaterialsCard from "../../components/student/materials/LearningMaterialsCard";
+import QuizCard from "../../components/student/quizzes/QuizCard";
+import QuizDetailCard from "../../components/student/quizzes/QuizDetailedCard";
 import DotLoaderSpinner from "../../components/loaders/DotLoaderSpinner";
 import SpaceBG from "../../assets/img/home/space.png";
 import userThree from "../../assets/img/home/unknown.jpg";
-import { faBook, faClipboardQuestion } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faBook,
+  faClipboardQuestion,
+  faGamepad,
+} from "@fortawesome/free-solid-svg-icons";
 import { FaArrowLeft } from "react-icons/fa";
 
 const StudentDashboard = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingMaterials, setIsLoadingMaterials] = useState(false);
+  const [isLoadingQuizzes, setIsLoadingQuizzes] = useState(false);
   const [showClassrooms, setShowClassrooms] = useState(false);
   const [showQuizzes, setShowQuizzes] = useState(false);
+
   const [selectedClassroom, setSelectedClassroom] = useState(null);
+  const [selectedQuiz, setSelectedQuiz] = useState(null);
+  const [isQuizStarted, setIsQuizStarted] = useState(false);
 
   const [studentData, setStudentData] = useState({
     name: "Loading...",
@@ -27,6 +38,7 @@ const StudentDashboard = () => {
 
   const [classrooms, setClassrooms] = useState([]);
   const [learningMaterials, setLearningMaterials] = useState([]);
+  const [quizzes, setQuizzes] = useState([]);
 
   useEffect(() => {
     if (selectedClassroom) {
@@ -37,6 +49,7 @@ const StudentDashboard = () => {
   useEffect(() => {
     fetchStudentData();
     fetchClassrooms();
+    fetchQuizzes();
   }, []);
 
   const fetchStudentData = async () => {
@@ -97,6 +110,24 @@ const StudentDashboard = () => {
       console.log("Error details:", error.response);
     } finally {
       setIsLoadingMaterials(false);
+    }
+  };
+
+  const fetchQuizzes = async () => {
+    setIsLoadingQuizzes(true);
+    console.log("fetchQuizzes is running");
+    try {
+      const response = await axiosInstance.get("/api/user-student/quizzes/");
+
+      if (response.status === 200) {
+        const student_quizzes = response.data.student_quizzes;
+        console.log("Student Quiz", student_quizzes);
+        setQuizzes(student_quizzes);
+      }
+    } catch (error) {
+      console.error("An erro occured fetching the quizzes");
+    } finally {
+      setIsLoadingQuizzes(false);
     }
   };
 
@@ -251,27 +282,45 @@ const StudentDashboard = () => {
                 {showQuizzes && (
                   <div className="bg-white p-6 rounded-lg shadow-lg">
                     <h2 className="text-2xl font-bold text-purple-800 mb-4">
-                      Available Quizzes
+                      {selectedQuiz ? selectedQuiz.title : "Available Quizzes"}
                     </h2>
-                    <div className="space-y-4">
-                      <div className="p-4 border rounded-lg hover:bg-purple-50 cursor-pointer transition-all">
-                        <h3 className="text-lg font-semibold text-purple-700">
-                          Math Quiz - Chapter 1
-                        </h3>
-                        <p className="text-gray-600">Due: September 30, 2023</p>
-                      </div>
-                      <div className="p-4 border rounded-lg hover:bg-purple-50 cursor-pointer transition-all">
-                        <h3 className="text-lg font-semibold text-purple-700">
-                          Science Quiz - Forces
-                        </h3>
-                        <p className="text-gray-600">Due: October 5, 2023</p>
-                      </div>
-                      <div className="p-4 border rounded-lg hover:bg-purple-50 cursor-pointer transition-all">
-                        <h3 className="text-lg font-semibold text-purple-700">
-                          English Quiz - Grammar
-                        </h3>
-                        <p className="text-gray-600">Due: October 7, 2023</p>
-                      </div>
+
+                    <div className="flex flex-col space-y-2 px-4">
+                      {isLoadingQuizzes ? (
+                        <div className="col-span-3 flex justify-center items-center min-h-[300px]">
+                          <DotLoaderSpinner color="#6B21A8" />
+                        </div>
+                      ) : selectedQuiz ? (
+                        <QuizDetailCard
+                          quizData={selectedQuiz}
+                          isQuizStarted={isQuizStarted}
+                          onStartQuiz={() => {
+                            setIsQuizStarted(true);
+                          }}
+                          onBack={() => {
+                            setSelectedQuiz(null);
+                            setIsQuizStarted(false);
+                          }}
+                        />
+                      ) : quizzes && quizzes.length > 0 ? (
+                        quizzes.map((quiz) => (
+                          <QuizCard
+                            key={quiz.id}
+                            quizData={quiz}
+                            onSelect={setSelectedQuiz}
+                          />
+                        ))
+                      ) : (
+                        <>
+                          <p className="text-gray-500 col-span-3 text-center">
+                            No Quizzes Right Now!
+                          </p>
+                          <p className="text-gray-600 col-span-3 text-center">
+                            Time to take a break and come back later for some
+                            fun quiz challenges!
+                          </p>
+                        </>
+                      )}
                     </div>
                   </div>
                 )}
