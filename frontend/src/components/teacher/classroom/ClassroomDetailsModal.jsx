@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { axiosInstance } from "../../../utils/axiosInstance";
 import ConfirmDeleteModal from "../../modal/teacher/ConfirmDeleteModal";
+import { HiTrash } from "react-icons/hi";
 
 const ClassroomDetailsModal = ({ isOpen, onClose, classroom }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
-
   const [classroomStudents, setClassroomStudents] = useState([]);
   const [selectedStudentId, setSelectedStudentId] = useState(null);
 
@@ -66,118 +66,121 @@ const ClassroomDetailsModal = ({ isOpen, onClose, classroom }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-8 max-w-2xl w-full mx-4">
-        <div className="flex justify-between items-center text-gray-600 mb-6">
-          <h2 className="text-2xl font-bold">
-            {classroom.grade_level} - {classroom.class_section}
-          </h2>
-          <div>
-            <h3 className="font-semibold text-lg">Subject</h3>
-            <p>{classroom.subject_name_display}</p>
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 transition-opacity duration-300">
+      <div className="bg-white rounded-xl shadow-2xl p-6 max-w-3xl w-full mx-4 transform transition-all duration-300">
+        {/* Header */}
+        <div className="flex flex-col border-b border-gray-200 pb-4 mb-6">
+          <div className="flex justify-between items-start mb-2">
+            <div className="space-y-1">
+              <h2 className="text-3xl font-bold text-gray-800 tracking-tight">
+                {classroom.grade_level} - {classroom.class_section}
+              </h2>
+              <p className="text-lg text-gray-600 font-medium">
+                {classroom.subject_name_display}
+              </p>
+            </div>
+            <button
+              onClick={onClose}
+              className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors font-medium shadow-sm"
+            >
+              Close
+            </button>
           </div>
         </div>
 
-        {/* Table for the Added Student to Classroom */}
-        <div className="space-y-4">
-          <div>
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider w-32"
-                  >
-                    Student ID
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-full"
-                  >
-                    Name
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-20"
-                  ></th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {isLoading ? (
-                  <>
-                    {[1, 2, 3, 4, 5].map((index) => (
-                      <tr key={index}>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="inline-block h-4 w-24 bg-gray-400/30 animate-pulse rounded"></div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="inline-block h-4 w-64 bg-gray-400/30 animate-pulse rounded"></div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="inline-block h-4 w-8 bg-gray-400/30 animate-pulse rounded"></div>
-                        </td>
-                      </tr>
-                    ))}
-                  </>
-                ) : classroomStudents.length === 0 ? (
-                  <tr>
-                    <td
-                      colSpan="2"
-                      className="px-6 py-4 whitespace-nowrap text-center text-gray-500"
-                    >
-                      No students found in this classroom
-                    </td>
-                  </tr>
-                ) : (
-                  classroomStudents.map((student) => (
-                    <tr key={student.id}>
-                      <td className="px-6 py-4 whitespace-nowrap text-center">
-                        <div className="text-sm font-medium text-gray-900">
-                          {student.student.id}
-                        </div>
+        {/* Table */}
+        <div className="overflow-hidden rounded-lg border border-gray-200 shadow-sm">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th
+                  scope="col"
+                  className="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider w-32 border-b-2 border-green-500/20"
+                >
+                  Student ID
+                </th>
+                <th
+                  scope="col"
+                  className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-b-2 border-green-500/20"
+                >
+                  Name
+                </th>
+                <th
+                  scope="col"
+                  className="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider w-20 border-b-2 border-green-500/20"
+                ></th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {isLoading ? (
+                <>
+                  {[1, 2, 3].map((index) => (
+                    <tr key={index} className="animate-pulse">
+                      <td className="px-6 py-4">
+                        <div className="h-4 bg-green-100 rounded w-20 mx-auto"></div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">
-                          {student.student.first_name}{" "}
-                          {student.student.last_name}
-                        </div>
+                      <td className="px-6 py-4">
+                        <div className="h-4 bg-green-100 rounded w-48"></div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right">
-                        <button
-                          onClick={() => {
-                            setSelectedStudentId(student.id);
-                            setShowConfirmDelete(true);
-                          }}
-                          className="text-red-600 hover:text-red-800 text-sm font-medium"
-                        >
-                          Remove
-                        </button>
+                      <td className="px-6 py-4">
+                        <div className="h-4 bg-green-100 rounded w-16 ml-auto"></div>
                       </td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+                  ))}
+                </>
+              ) : classroomStudents.length === 0 ? (
+                <tr>
+                  <td colSpan="3" className="px-6 py-8 text-center">
+                    <p className="text-lg text-gray-500">
+                      No students found in this classroom
+                    </p>
+                    <p className="text-sm text-green-600 mt-1">
+                      Add students to get started
+                    </p>
+                  </td>
+                </tr>
+              ) : (
+                classroomStudents.map((student) => (
+                  <tr
+                    key={student.id}
+                    className="hover:bg-green-50 transition-colors"
+                  >
+                    <td className="px-6 py-4 whitespace-nowrap text-center">
+                      <span className="text-sm font-medium text-gray-900">
+                        {student.student.id}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="text-sm font-medium text-gray-900">
+                        {student.student.first_name} {student.student.last_name}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right">
+                      <button
+                        onClick={() => {
+                          setSelectedStudentId(student.id);
+                          setShowConfirmDelete(true);
+                        }}
+                        className="inline-flex items-center text-red-600 hover:text-red-800 text-sm font-medium transition-colors hover:bg-red-50 px-2 py-1 rounded"
+                      >
+                        <HiTrash className="w-4 h-4 mr-1" />
+                        Remove
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
 
-        {/* Modal for Delete confirm */}
+        {/* Confirm Delete Modal */}
         <ConfirmDeleteModal
           isOpen={showConfirmDelete}
           onClose={() => setShowConfirmDelete(false)}
           onConfirm={() => handleRemoveStudent(selectedStudentId)}
-          message={"Are you sure to remove this student?"}
+          message="Are you sure you want to remove this student from the classroom?"
         />
-
-        {/* Button for Closing the Modal */}
-        <div className="mt-8 flex justify-end">
-          <button
-            onClick={onClose}
-            className="bg-gray-200 font-bold text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300"
-          >
-            Close
-          </button>
-        </div>
       </div>
     </div>
   );

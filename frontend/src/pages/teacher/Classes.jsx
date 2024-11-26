@@ -5,6 +5,7 @@ import { axiosInstance } from "../../utils/axiosInstance";
 import AddClassroomModal from "../../components/teacher/classroom/AddClassroomModal";
 import EditClassroomModal from "../../components/modal/teacher/classroom/EditClassroomModal";
 import ClassroomCard from "../../components/teacher/classroom/ClassroomCard";
+import ClassroomActions from "../../components/teacher/ClassroomActions";
 import ConfirmDeleteModal from "../../components/modal/teacher/ConfirmDeleteModal";
 import AddStudentModal from "../../components/modal/teacher/classroom/AddStudentModal";
 import DotLoaderSpinner from "../../components/loaders/DotLoaderSpinner";
@@ -16,7 +17,7 @@ const ManageLessons = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showAddStudent, setShowAddStudent] = useState(false);
-
+  const [showActions, setShowActions] = useState(false);
   const [classrooms, setClassrooms] = useState([]);
   const [selectedClassroom, setSelectedClassroom] = useState(null);
 
@@ -116,49 +117,64 @@ const ManageLessons = () => {
     <div className="p-6">
       <HideScrollBar />
       <h1 className="text-2xl font-bold mb-4 text-gray-500">Classroom</h1>
-
-      {/* Button for creating classroom */}
-      <button
-        onClick={() => setShowModal(true)}
-        className="group bg-white border-2 border-green-500 hover:bg-green-500 text-green-500 hover:text-white px-6 py-2.5 rounded-lg font-semibold mb-6 transition-all duration-300 ease-in-out transform hover:scale-105 active:scale-95 shadow-md hover:shadow-lg flex items-center justify-center space-x-2"
-      >
-        <FontAwesomeIcon
-          icon={faPlus}
-          className="text-sm transition-transform duration-300 group-hover:rotate-90"
+      {showActions && selectedClassroom ? (
+        <ClassroomActions
+          classroomData={selectedClassroom}
+          onClose={() => {
+            setShowActions(false);
+            setSelectedClassroom(null);
+          }}
         />
-        <span>Create Classroom</span>
-      </button>
-
-      {/* Grid List for classroom */}
-      {isLoading ? (
-        <div className="flex justify-center items-center h-64">
-          <DotLoaderSpinner color="#4ade80" />
-        </div>
-      ) : classrooms.length === 0 ? (
-        <p className="text-gray-600">
-          No classroom available. Please create a classroom.
-        </p>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {classrooms.map((classroom, index) => (
-            <ClassroomCard
-              key={classroom.id || index}
-              classroomData={classroom}
-              onEdit={() => {
-                setShowEditModal(true);
-                setSelectedClassroom(classroom);
-              }}
-              onDelete={() => {
-                setShowDeleteModal(true);
-                setSelectedClassroom(classroom.id);
-              }}
-              addStudent={() => {
-                setShowAddStudent(true);
-                setSelectedClassroom(classroom.id);
-              }}
+        <>
+          {/* Button for creating classroom */}
+          <button
+            onClick={() => setShowModal(true)}
+            className="group bg-white border-2 border-green-500 hover:bg-green-500 text-green-500 hover:text-white px-6 py-2.5 rounded-lg font-semibold mb-6 transition-all duration-300 ease-in-out transform hover:scale-105 active:scale-95 shadow-md hover:shadow-lg flex items-center justify-center space-x-2"
+          >
+            <FontAwesomeIcon
+              icon={faPlus}
+              className="text-sm transition-transform duration-300 group-hover:rotate-90"
             />
-          ))}
-        </div>
+            <span>Create Classroom</span>
+          </button>
+
+          {/* Grid List for classroom */}
+          {isLoading ? (
+            <div className="flex justify-center items-center h-64">
+              <DotLoaderSpinner color="#4ade80" />
+            </div>
+          ) : classrooms.length === 0 ? (
+            <p className="text-gray-600">
+              No classroom available. Please create a classroom.
+            </p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {classrooms.map((classroom, index) => (
+                <ClassroomCard
+                  key={classroom.id || index}
+                  classroomData={classroom}
+                  onEdit={() => {
+                    setShowEditModal(true);
+                    setSelectedClassroom(classroom);
+                  }}
+                  onDelete={() => {
+                    setShowDeleteModal(true);
+                    setSelectedClassroom(classroom.id);
+                  }}
+                  addStudent={() => {
+                    setShowAddStudent(true);
+                    setSelectedClassroom(classroom.id);
+                  }}
+                  onView={() => {
+                    setSelectedClassroom(classroom);
+                    setShowActions(true);
+                  }}
+                />
+              ))}
+            </div>
+          )}
+        </>
       )}
 
       {/* Modal for Adding Classroom */}
@@ -176,7 +192,6 @@ const ManageLessons = () => {
         classroomData={selectedClassroom}
       />
 
-      {/* Modal for Adding Student to Classroom */}
       <AddStudentModal
         isOpen={showAddStudent}
         onClose={() => setShowAddStudent(false)}
