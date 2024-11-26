@@ -11,6 +11,7 @@ import ClassroomDetailsTable from "./classroom/ClassroomDetailsTable";
 import QuizResponseTable from "./scores/QuizResponseTable";
 import ClassroomMaterials from "./materials/ClassroomMaterials";
 import QuizList from "./quizzes/QuizList";
+import ConfirmDeleteModal from "../modal/teacher/ConfirmDeleteModal";
 
 const ClassroomActions = ({ onClose, classroomData }) => {
   const [selectedAction, setSelectedAction] = useState(null);
@@ -23,6 +24,8 @@ const ClassroomActions = ({ onClose, classroomData }) => {
   const [showEditQuiz, setShowEditQuiz] = useState(false);
   const [selectedQuiz, setSelectedQuiz] = useState(null);
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+  const [quizToDelete, setQuizToDelete] = useState(null);
+  const [activeTab, setActiveTab] = useState("quizzes");
 
   const fetchQuizzes = async () => {
     try {
@@ -32,7 +35,9 @@ const ClassroomActions = ({ onClose, classroomData }) => {
       });
 
       if (response.status === 200) {
-        setQuizzes(response.data.quiz_list);
+        const quizList = response.data.quizzes;
+        console.log(quizList);
+        setQuizzes(response.data.quizzes);
       }
     } catch (error) {
       console.error("An error occurred fetching the quizzes.", error);
@@ -64,6 +69,22 @@ const ClassroomActions = ({ onClose, classroomData }) => {
   const handleCreateQuizError = (error) => {
     console.error("Error creating/updating quiz:", error);
     // Add error handling logic here
+  };
+
+  const handleDeleteQuiz = async () => {
+    try {
+      const response = await axiosInstance.delete(
+        `/user-teacher/quiz/delete/${quizToDelete}/`
+      );
+
+      if (response.status === 204) {
+        setQuizzes((prevQuizzes) =>
+          prevQuizzes.filter((quiz) => quiz.id !== quizToDelete)
+        );
+      }
+    } catch (error) {
+      console.error("Error deleting quiz:", error);
+    }
   };
 
   const fetchQuizScores = async () => {
@@ -184,21 +205,29 @@ const ClassroomActions = ({ onClose, classroomData }) => {
                 Close
               </button>
             </div>
-            <QuizList
-              isLoading={isLoading}
-              showCreateQuiz={showCreateQuiz}
-              showEditQuiz={showEditQuiz}
-              selectedQuiz={selectedQuiz}
-              quizzes={quizzes}
-              selectedClassroom={classroomData}
-              onQuizCreated={handleQuizCreated}
-              onQuizUpdated={handleQuizUpdated}
-              onCreateQuizError={handleCreateQuizError}
-              onSetShowCreateQuiz={setShowCreateQuiz}
-              onSetShowEditQuiz={setShowEditQuiz}
-              onSetSelectedQuiz={setSelectedQuiz}
-              onSetShowConfirmDelete={setShowConfirmDelete}
-            />
+            {activeTab === "quizzes" && (
+              <QuizList
+                isLoading={isLoading}
+                showCreateQuiz={showCreateQuiz}
+                showEditQuiz={showEditQuiz}
+                selectedQuiz={selectedQuiz}
+                quizzes={quizzes}
+                selectedClassroom={classroomData}
+                onQuizCreated={handleQuizCreated}
+                onQuizUpdated={handleQuizUpdated}
+                onCreateQuizError={handleCreateQuizError}
+                onSetShowCreateQuiz={setShowCreateQuiz}
+                onSetShowEditQuiz={setShowEditQuiz}
+                onSetSelectedQuiz={(quiz) => {
+                  if (typeof quiz === "number") {
+                    setQuizToDelete(quiz);
+                  } else {
+                    setSelectedQuiz(quiz);
+                  }
+                }}
+                onSetShowConfirmDelete={setShowConfirmDelete}
+              />
+            )}
           </div>
         );
       case "materials":
@@ -251,6 +280,17 @@ const ClassroomActions = ({ onClose, classroomData }) => {
         </div>
 
         {renderContent()}
+
+        <ConfirmDeleteModal
+          isOpen={showConfirmDelete}
+          onClose={() => {
+            setShowConfirmDelete(false);
+            setQuizToDelete(null);
+          }}
+          onConfirm={handleDeleteQuiz}
+          title="Delete Quiz"
+          message="Are you sure you want to delete this quiz? This action cannot be undone."
+        />
       </div>
     </div>
   );

@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import QuizCard from "./QuizCard";
 import CreateQuiz from "./CreateQuiz";
 import EditQuiz from "./EditQuiz";
 import DotLoaderSpinner from "../../loaders/DotLoaderSpinner";
+import CustomAlert from "../../../components/alert/teacher/CustomAlert";
 
 const QuizList = ({
   isLoading,
@@ -95,15 +96,14 @@ const QuizList = ({
         <div className="flex flex-col gap-6">
           {quizzes?.map((quiz, index) => (
             <QuizCard
-              key={quiz.id || index}
               quiz={quiz}
               onEdit={() => {
                 onSetShowEditQuiz(true);
                 onSetSelectedQuiz(quiz);
               }}
-              onDelete={() => {
+              onDelete={(quizId) => {
                 onSetShowConfirmDelete(true);
-                onSetSelectedQuiz(quiz.id);
+                onSetSelectedQuiz(quizId);
               }}
             />
           ))}
