@@ -98,21 +98,54 @@ class QuizResponseSerializer(serializers.ModelSerializer):
     def _check_answer(self, question, answer):
         """Check if the answer is correct based on question type"""
         if question.question_type == 'single':
-            # For single choice, answer should be the ID of the correct choice
-            return question.choices.filter(id=answer, is_correct=True).exists()
+            # For single choice, check both by ID and text
+            try:
+                # Try by ID first
+                if question.choices.filter(id=answer, is_correct=True).exists():
+                    return True
+                # Try by text match
+                student_answer = ''.join(c for c in str(answer).lower() if c.isalnum())
+                correct_choice = question.choices.filter(is_correct=True).first()
+                if correct_choice:
+                    correct = ''.join(c for c in correct_choice.text.lower() if c.isalnum())
+                    return correct == student_answer
+                return False
+            except (ValueError, TypeError):
+                return False
             
         elif question.question_type == 'multi':
-            # For multiple choice, answer should be a list of choice IDs
-            correct_choices = set(question.choices.filter(is_correct=True).values_list('id', flat=True))
-            return set(map(int, answer)) == correct_choices
+            # For multiple choice, handle both ID and text matching
+            try:
+                # Convert answer to list if it isn't already
+                answer_list = answer if isinstance(answer, list) else [answer]
+                
+                # Try matching by IDs first
+                student_answers = set(map(str, answer_list))  # Convert all to strings for comparison
+                correct_choices = set(map(str, question.choices.filter(is_correct=True).values_list('id', flat=True)))
+                if student_answers == correct_choices:
+                    return True
+                
+                # If ID matching fails, try text matching
+                correct_texts = {
+                    ''.join(c for c in choice.text.lower() if c.isalnum())
+                    for choice in question.choices.filter(is_correct=True)
+                }
+                student_texts = {
+                    ''.join(c for c in str(ans).lower() if c.isalnum())
+                    for ans in answer_list
+                }
+                return student_texts == correct_texts
+            except (ValueError, TypeError):
+                return False
             
         elif question.question_type == 'identification':
             # For identification, get the correct answer from the first choice
             correct_choice = question.choices.filter(is_correct=True).first()
             if not correct_choice:
                 return False
-            correct = correct_choice.text.lower().strip()
-            student_answer = str(answer).lower().strip()
+            # Clean up both answers for comparison
+            correct = ''.join(c for c in correct_choice.text.lower() if c.isalnum())
+            student_answer = ''.join(c for c in str(answer).lower() if c.isalnum())
             return correct == student_answer
             
         return False
