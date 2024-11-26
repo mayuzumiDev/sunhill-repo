@@ -203,6 +203,7 @@ const StudentDashboard = () => {
                       setShowClassrooms(false);
                       setShowQuizzes(false);
                       setSelectedClassroom(false);
+                      setSelectedQuiz(false);
                     }}
                     className="mb-6 flex items-center bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-3 rounded-full font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
                   >

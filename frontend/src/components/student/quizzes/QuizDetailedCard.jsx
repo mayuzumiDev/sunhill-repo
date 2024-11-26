@@ -6,7 +6,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faChalkboardTeacher,
   faBookOpen,
-  faStar,
 } from "@fortawesome/free-solid-svg-icons";
 
 const QuizDetailCard = ({ quizData, onStartQuiz, onBack, isQuizStarted }) => {
@@ -32,7 +31,6 @@ const QuizDetailCard = ({ quizData, onStartQuiz, onBack, isQuizStarted }) => {
 
       if (response.status === 200) {
         const question_list = response.data.questions;
-        console.log("Questions and Choices: ", question_list);
         setQuestions(question_list);
       }
     } catch (error) {
@@ -212,14 +210,6 @@ const QuizDetailCard = ({ quizData, onStartQuiz, onBack, isQuizStarted }) => {
   return (
     <div className="space-y-6">
       <div className="bg-gradient-to-br from-purple-50 to-white p-8 rounded-2xl shadow-lg border-2 border-purple-100 relative">
-        {/* Fun decorative elements */}
-        <div className="absolute top-4 right-4">
-          <FontAwesomeIcon
-            icon={faStar}
-            className="text-yellow-400 text-2xl animate-pulse"
-          />
-        </div>
-
         {/* Quiz Description */}
         <div className="mb-8">
           <p className="text-gray-700 text-lg leading-relaxed mb-6">

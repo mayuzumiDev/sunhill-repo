@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from user_teacher.models.quizzes_models import Quiz, StudentResponse, QuizScore
 from user_teacher.models.classroom_models import Classroom,  SUBJECT_CHOICES
+from user_admin.models.account_models import StudentInfo
 from django.utils import timezone
 
 class StudentQuizListSerializer(serializers.ModelSerializer):
@@ -43,9 +44,19 @@ class StudentQuizListSerializer(serializers.ModelSerializer):
 
     def get_has_submitted(self, obj):
         request = self.context.get('request')
-        if request and hasattr(request.user, 'studentinfo'):
-            return StudentResponse.objects.filter(
-                student=request.user.studentinfo,
-                quiz=obj
-            ).exists()
+        if request and hasattr(request.user, 'user_info'):
+            
+            try:
+                student_info = StudentInfo.objects.get(student_info=request.user.user_info)
+                has_submitted = StudentResponse.objects.filter(
+                    student=student_info,
+                    quiz=obj
+                ).exists()
+
+                return has_submitted
+            except Exception as e:
+                print(f"Error checking submission: {str(e)}")
+                return False
+                
+        print("No request or user doesn't have user_info")
         return False

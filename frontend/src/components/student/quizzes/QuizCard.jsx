@@ -3,10 +3,19 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBook } from "@fortawesome/free-solid-svg-icons";
 
 const QuizCard = ({ quizData, onSelect }) => {
+  const handleClick = () => {
+    // Only allow clicking if quiz hasn't been submitted
+    if (!quizData.has_submitted) {
+      onSelect(quizData);
+    }
+  };
+
   return (
     <div
-      onClick={() => onSelect(quizData)}
-      className="bg-gradient-to-r from-purple-600 to-purple-400 rounded-xl p-6 shadow-md cursor-pointer transition-all hover:shadow-xl hover:scale-[1.02] relative overflow-hidden mx-4 mb-4 flex flex-col md:flex-row items-center"
+      onClick={handleClick}
+      className={`bg-gradient-to-r from-purple-600 to-purple-400 rounded-xl p-6 shadow-md cursor-pointer transition-all hover:shadow-xl hover:scale-[1.02] relative overflow-hidden mx-4 mb-4 flex flex-col md:flex-row items-center ${
+        !quizData.has_submitted ? "" : "opacity-80 cursor-not-allowed"
+      }`}
     >
       {/* Background shapes with reduced opacity */}
       <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -mr-12 -mt-12"></div>
@@ -41,16 +50,16 @@ const QuizCard = ({ quizData, onSelect }) => {
           {/* Status indicator */}
           {quizData.has_submitted ? (
             <div className="flex items-center px-4 border-l border-white/20">
-              <span className="h-4 w-4 rounded-full bg-green-400 mr-3"></span>
+              <span className="h-4 w-4 rounded-full bg-green-300 mr-3"></span>
               <span className="text-white/90 text-base font-medium">
-                Submitted
+                Great job! Quiz completed!
               </span>
             </div>
           ) : (
             <div className="flex items-center px-4 border-l border-white/20">
-              <span className="h-4 w-4 rounded-full bg-yellow-400 animate-pulse mr-3"></span>
+              <span className="h-4 w-4 rounded-full bg-yellow-300 animate-pulse mr-3"></span>
               <span className="text-white/90 text-base font-medium">
-                Pending
+                Ready to start! Let's go!
               </span>
             </div>
           )}
