@@ -10,12 +10,61 @@ import { axiosInstance } from "../../utils/axiosInstance";
 import ClassroomDetailsTable from "./classroom/ClassroomDetailsTable";
 import QuizResponseTable from "./scores/QuizResponseTable";
 import ClassroomMaterials from "./materials/ClassroomMaterials";
+import QuizList from "./quizzes/QuizList";
 
 const ClassroomActions = ({ onClose, classroomData }) => {
   const [selectedAction, setSelectedAction] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const [quizResponses, setQuizResponses] = useState([]);
+
+  const [quizzes, setQuizzes] = useState([]);
+  const [showCreateQuiz, setShowCreateQuiz] = useState(false);
+  const [showEditQuiz, setShowEditQuiz] = useState(false);
+  const [selectedQuiz, setSelectedQuiz] = useState(null);
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+
+  const fetchQuizzes = async () => {
+    try {
+      setIsLoading(true);
+      const response = await axiosInstance.get("/user-teacher/quiz/list/", {
+        params: { classroom: classroomData.id },
+      });
+
+      if (response.status === 200) {
+        setQuizzes(response.data.quiz_list);
+      }
+    } catch (error) {
+      console.error("An error occurred fetching the quizzes.", error);
+      setQuizzes([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleQuizCreated = (newQuiz) => {
+    if (!newQuiz) return;
+    setQuizzes((prev) =>
+      Array.isArray(prev) ? [...prev, newQuiz] : [newQuiz]
+    );
+    setShowCreateQuiz(false);
+  };
+
+  const handleQuizUpdated = (updatedQuiz) => {
+    if (!updatedQuiz) return;
+    setQuizzes((prev) =>
+      Array.isArray(prev)
+        ? prev.map((quiz) => (quiz.id === updatedQuiz.id ? updatedQuiz : quiz))
+        : [updatedQuiz]
+    );
+    setShowEditQuiz(false);
+    setSelectedQuiz(null);
+  };
+
+  const handleCreateQuizError = (error) => {
+    console.error("Error creating/updating quiz:", error);
+    // Add error handling logic here
+  };
 
   const fetchQuizScores = async () => {
     setIsLoading(true);
@@ -43,6 +92,8 @@ const ClassroomActions = ({ onClose, classroomData }) => {
   useEffect(() => {
     if (selectedAction === "scores") {
       fetchQuizScores();
+    } else if (selectedAction === "quizzes") {
+      fetchQuizzes();
     }
   }, [selectedAction]);
 
@@ -133,7 +184,21 @@ const ClassroomActions = ({ onClose, classroomData }) => {
                 Close
               </button>
             </div>
-            <div className="text-gray-600">Quizzes content will go here</div>
+            <QuizList
+              isLoading={isLoading}
+              showCreateQuiz={showCreateQuiz}
+              showEditQuiz={showEditQuiz}
+              selectedQuiz={selectedQuiz}
+              quizzes={quizzes}
+              selectedClassroom={classroomData}
+              onQuizCreated={handleQuizCreated}
+              onQuizUpdated={handleQuizUpdated}
+              onCreateQuizError={handleCreateQuizError}
+              onSetShowCreateQuiz={setShowCreateQuiz}
+              onSetShowEditQuiz={setShowEditQuiz}
+              onSetSelectedQuiz={setSelectedQuiz}
+              onSetShowConfirmDelete={setShowConfirmDelete}
+            />
           </div>
         );
       case "materials":
