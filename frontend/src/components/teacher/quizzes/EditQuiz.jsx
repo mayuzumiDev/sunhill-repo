@@ -56,22 +56,33 @@ const EditQuiz = ({
         );
 
         // Format questions data
-        const formattedQuestions = questionsResponse.data.questions.map(
-          (q) => ({
+        const formattedQuestions = questionsResponse.data.questions.map((q) => {
+          const formattedQuestion = {
             id: q.id,
             text: q.text,
             question_type: q.question_type,
             options: q.choices.map((c) => c.text),
-            correct_answer:
-              q.question_type === "identification"
-                ? q.choices.find((c) => c.is_correct)?.text || ""
-                : q.question_type === "multi"
-                ? q.choices
-                    .map((c, idx) => (c.is_correct ? idx.toString() : null))
-                    .filter((idx) => idx !== null)
-                : q.choices.findIndex((c) => c.is_correct).toString(),
-          })
-        );
+          };
+
+          if (q.question_type === "identification") {
+            formattedQuestion.correct_answer =
+              q.choices.find((c) => c.is_correct)?.text || "";
+            formattedQuestion.correct_answers = [];
+          } else if (q.question_type === "multi") {
+            formattedQuestion.correct_answers = q.choices
+              .map((c, idx) => (c.is_correct ? idx.toString() : null))
+              .filter((idx) => idx !== null);
+            formattedQuestion.correct_answer = "";
+          } else {
+            // single choice
+            formattedQuestion.correct_answer = q.choices
+              .findIndex((c) => c.is_correct)
+              .toString();
+            formattedQuestion.correct_answers = [];
+          }
+
+          return formattedQuestion;
+        });
 
         setQuestions(formattedQuestions);
         setLoading(false);
@@ -86,10 +97,7 @@ const EditQuiz = ({
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleAddQuestion = () => {
@@ -99,14 +107,36 @@ const EditQuiz = ({
         text: "",
         question_type: "single",
         options: [""],
-        correct_answer: "0",
+        correct_answer: "", // For single choice and identification
+        correct_answers: [], // For multiple choice
       },
     ]);
   };
 
   const handleQuestionChange = (index, field, value) => {
     setQuestions((prev) =>
-      prev.map((q, i) => (i === index ? { ...q, [field]: value } : q))
+      prev.map((q, i) => {
+        if (i === index) {
+          const updatedQuestion = { ...q, [field]: value };
+          // Reset correct answers when changing question type
+          if (field === "question_type") {
+            if (value === "multi") {
+              updatedQuestion.correct_answers = [];
+              updatedQuestion.correct_answer = "";
+            } else {
+              updatedQuestion.correct_answer = "";
+              updatedQuestion.correct_answers = [];
+            }
+            if (value === "identification") {
+              updatedQuestion.options = [];
+            } else if (updatedQuestion.options.length === 0) {
+              updatedQuestion.options = [""];
+            }
+          }
+          return updatedQuestion;
+        }
+        return q;
+      })
     );
   };
 
@@ -156,18 +186,23 @@ const EditQuiz = ({
 
   const updateQuestion = async (questionId, questionData) => {
     try {
-      const choices =
-        questionData.question_type === "identification"
-          ? [{ text: questionData.options[0], is_correct: true }]
-          : questionData.options.map((text, index) => ({
-              text,
-              is_correct:
-                questionData.question_type === "multi"
-                  ? questionData.correct_answer.includes(index.toString())
-                  : index.toString() === questionData.correct_answer,
-            }));
+      let choices;
 
-      // Use the detail endpoint for updating
+      if (questionData.question_type === "identification") {
+        choices = [{ text: questionData.correct_answer, is_correct: true }];
+      } else if (questionData.question_type === "multi") {
+        choices = questionData.options.map((text, index) => ({
+          text,
+          is_correct: questionData.correct_answers.includes(index.toString()),
+        }));
+      } else {
+        // single choice
+        choices = questionData.options.map((text, index) => ({
+          text,
+          is_correct: index.toString() === questionData.correct_answer,
+        }));
+      }
+
       const response = await axiosInstance.put(
         `/user-teacher/questions/${questionId}/`,
         {
@@ -189,16 +224,22 @@ const EditQuiz = ({
 
   const createQuestion = async (questionData) => {
     try {
-      const choices =
-        questionData.question_type === "identification"
-          ? [{ text: questionData.correct_answer, is_correct: true }]
-          : questionData.options.map((text, index) => ({
-              text,
-              is_correct:
-                questionData.question_type === "multi"
-                  ? questionData.correct_answer.includes(index.toString())
-                  : index.toString() === questionData.correct_answer,
-            }));
+      let choices;
+
+      if (questionData.question_type === "identification") {
+        choices = [{ text: questionData.correct_answer, is_correct: true }];
+      } else if (questionData.question_type === "multi") {
+        choices = questionData.options.map((text, index) => ({
+          text,
+          is_correct: questionData.correct_answers.includes(index.toString()),
+        }));
+      } else {
+        // single choice
+        choices = questionData.options.map((text, index) => ({
+          text,
+          is_correct: index.toString() === questionData.correct_answer,
+        }));
+      }
 
       const response = await axiosInstance.post(
         "/user-teacher/questions/create/",
@@ -221,7 +262,6 @@ const EditQuiz = ({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     setIsSubmitting(true);
     try {
       // Update the quiz details
@@ -243,6 +283,7 @@ const EditQuiz = ({
             question_type: question.question_type,
             options: question.options.filter((opt) => opt.trim() !== ""),
             correct_answer: question.correct_answer,
+            correct_answers: question.correct_answers,
           };
 
           if (question.id) {
@@ -400,35 +441,36 @@ const EditQuiz = ({
                           }
                           name={`question-${questionIndex}-correct`}
                           checked={
-                            question.question_type === "single"
-                              ? question.correct_answer ===
-                                optionIndex.toString()
-                              : Array.isArray(question.correct_answer) &&
-                                question.correct_answer.includes(
+                            question.question_type === "multi"
+                              ? (question.correct_answers || []).includes(
                                   optionIndex.toString()
                                 )
+                              : optionIndex.toString() ===
+                                question.correct_answer
                           }
                           onChange={() => {
-                            const newCorrectAnswer =
-                              question.question_type === "single"
-                                ? optionIndex.toString()
-                                : Array.isArray(question.correct_answer)
-                                ? question.correct_answer.includes(
-                                    optionIndex.toString()
+                            if (question.question_type === "multi") {
+                              const currentAnswers =
+                                question.correct_answers || [];
+                              const newAnswers = currentAnswers.includes(
+                                optionIndex.toString()
+                              )
+                                ? currentAnswers.filter(
+                                    (ans) => ans !== optionIndex.toString()
                                   )
-                                  ? question.correct_answer.filter(
-                                      (ans) => ans !== optionIndex.toString()
-                                    )
-                                  : [
-                                      ...question.correct_answer,
-                                      optionIndex.toString(),
-                                    ]
-                                : [optionIndex.toString()];
-                            handleQuestionChange(
-                              questionIndex,
-                              "correct_answer",
-                              newCorrectAnswer
-                            );
+                                : [...currentAnswers, optionIndex.toString()];
+                              handleQuestionChange(
+                                questionIndex,
+                                "correct_answers",
+                                newAnswers
+                              );
+                            } else {
+                              handleQuestionChange(
+                                questionIndex,
+                                "correct_answer",
+                                optionIndex.toString()
+                              );
+                            }
                           }}
                           className="h-4 w-4"
                         />

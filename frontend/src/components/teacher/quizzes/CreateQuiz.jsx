@@ -19,10 +19,7 @@ const CreateQuiz = ({ classroomId, onQuizCreated, onError, onCancel }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleAddQuestion = () => {
@@ -32,7 +29,8 @@ const CreateQuiz = ({ classroomId, onQuizCreated, onError, onCancel }) => {
         text: "",
         question_type: "single",
         options: [""],
-        correct_answer: "",
+        correct_answer: "", // For single choice and identification
+        correct_answers: [], // For multiple choice
       },
     ]);
   };
@@ -45,7 +43,28 @@ const CreateQuiz = ({ classroomId, onQuizCreated, onError, onCancel }) => {
 
   const handleQuestionChange = (index, field, value) => {
     setQuestions((prev) =>
-      prev.map((q, i) => (i === index ? { ...q, [field]: value } : q))
+      prev.map((q, i) => {
+        if (i === index) {
+          const updatedQuestion = { ...q, [field]: value };
+          // Reset correct answers when changing question type
+          if (field === "question_type") {
+            if (value === "multi") {
+              updatedQuestion.correct_answers = [];
+              updatedQuestion.correct_answer = "";
+            } else {
+              updatedQuestion.correct_answer = "";
+              updatedQuestion.correct_answers = [];
+            }
+            if (value === "identification") {
+              updatedQuestion.options = [];
+            } else if (updatedQuestion.options.length === 0) {
+              updatedQuestion.options = [""];
+            }
+          }
+          return updatedQuestion;
+        }
+        return q;
+      })
     );
   };
 
@@ -95,16 +114,24 @@ const CreateQuiz = ({ classroomId, onQuizCreated, onError, onCancel }) => {
 
   const createQuestion = async (quizId, questionData) => {
     try {
-      const choices =
-        questionData.question_type === "identification"
-          ? [{ text: questionData.correct_answer, is_correct: true }]
-          : questionData.options.map((text, index) => ({
-              text,
-              is_correct:
-                questionData.question_type === "multi"
-                  ? questionData.correct_answer.includes(index.toString())
-                  : index.toString() === questionData.correct_answer,
-            }));
+      let choices;
+
+      if (questionData.question_type === "identification") {
+        choices = [{ text: questionData.correct_answer, is_correct: true }];
+      } else if (questionData.question_type === "multi") {
+        choices = questionData.options.map((text, index) => ({
+          text,
+          is_correct: (questionData.correct_answers || []).includes(
+            index.toString()
+          ),
+        }));
+      } else {
+        // single choice
+        choices = questionData.options.map((text, index) => ({
+          text,
+          is_correct: index.toString() === questionData.correct_answer,
+        }));
+      }
 
       const response = await axiosInstance.post(
         "/user-teacher/questions/create/",
@@ -122,6 +149,7 @@ const CreateQuiz = ({ classroomId, onQuizCreated, onError, onCancel }) => {
       }
     } catch (error) {
       console.error("Error creating question:", error);
+      throw error;
     }
   };
 
@@ -147,10 +175,12 @@ const CreateQuiz = ({ classroomId, onQuizCreated, onError, onCancel }) => {
           const questionData = {
             text: question.text,
             question_type: question.question_type,
-            choices: question.options.map((text, index) => ({
-              text,
-              is_correct: index === parseInt(question.correct_answer),
-            })),
+            options:
+              question.question_type === "identification"
+                ? []
+                : question.options,
+            correct_answer: question.correct_answer,
+            correct_answers: question.correct_answers,
           };
 
           await createQuestion(quizData.id, questionData);
@@ -283,23 +313,37 @@ const CreateQuiz = ({ classroomId, onQuizCreated, onError, onCancel }) => {
                           }
                           name={`question-${questionIndex}-correct`}
                           checked={
-                            question.question_type === "single"
-                              ? question.correct_answer === option
-                              : question.correct_answer?.includes(option)
+                            question.question_type === "multi"
+                              ? (question.correct_answers || []).includes(
+                                  optionIndex.toString()
+                                )
+                              : optionIndex.toString() ===
+                                question.correct_answer
                           }
-                          onChange={() =>
-                            handleQuestionChange(
-                              questionIndex,
-                              "correct_answer",
-                              question.question_type === "single"
-                                ? option
-                                : question.correct_answer?.includes(option)
-                                ? question.correct_answer.filter(
-                                    (ans) => ans !== option
+                          onChange={() => {
+                            if (question.question_type === "multi") {
+                              const currentAnswers =
+                                question.correct_answers || [];
+                              const newAnswers = currentAnswers.includes(
+                                optionIndex.toString()
+                              )
+                                ? currentAnswers.filter(
+                                    (ans) => ans !== optionIndex.toString()
                                   )
-                                : [...(question.correct_answer || []), option]
-                            )
-                          }
+                                : [...currentAnswers, optionIndex.toString()];
+                              handleQuestionChange(
+                                questionIndex,
+                                "correct_answers",
+                                newAnswers
+                              );
+                            } else {
+                              handleQuestionChange(
+                                questionIndex,
+                                "correct_answer",
+                                optionIndex.toString()
+                              );
+                            }
+                          }}
                           className="h-4 w-4"
                         />
                         <input
