@@ -76,21 +76,30 @@ const Branches = () => {
   };
 
   return (
-    <div className="p-2 sm:p-6 min-h-screen">
+    <div className="p-2 sm:p-6 min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl sm:text-4xl text-gray-800 font-bold font-montserrat">
-            Branches
-          </h1>
+        <div className="flex justify-between items-center mb-8 bg-white p-6 rounded-xl shadow-sm">
+          <div>
+            <h1 className="text-3xl sm:text-4xl text-gray-800 font-bold font-montserrat">
+              Branches
+            </h1>
+            <p className="text-gray-500 mt-2">Manage and monitor all Sunhill branches</p>
+          </div>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          <BranchCard
-            branchName={"Batangas"}
-            imageUrl={batangasSunhillImg}
-            branchAddress={"123 Main Street, Batangas City"}
-            branchCounts={{ data: branchCounts["Batangas"] }}
-            onClick={() => handleBranchSelect("Batangas")}
-          />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
+          <motion.div
+            whileHover={{ y: -5 }}
+            transition={{ duration: 0.2 }}
+          >
+            <BranchCard
+              branchName={"Batangas"}
+              imageUrl={batangasSunhillImg}
+              branchAddress={"123 Main Street, Batangas City"}
+              branchCounts={{ data: branchCounts["Batangas"] }}
+              onClick={() => handleBranchSelect("Batangas")}
+              className="h-full bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300"
+            />
+          </motion.div>
           <BranchCard
             branchName={"Rosario"}
             imageUrl={rosarioSunhillImg}
@@ -124,58 +133,40 @@ const Branches = () => {
               initial="hidden"
               animate="visible"
               exit="exit"
-              className="bg-white rounded-xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden"
+              className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden"
             >
               {/* Modal Header */}
-              <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 relative">
+              <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-8 relative">
                 <motion.button
-                  whileHover={{ rotate: 90 }}
+                  whileHover={{ rotate: 90, scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                   onClick={handleCloseModal}
-                  className="absolute top-4 right-4 text-white hover:text-gray-200 transition-colors"
+                  className="absolute top-6 right-6 text-white hover:text-gray-200 transition-colors"
                 >
                   <FontAwesomeIcon icon={faTimes} className="w-6 h-6" />
                 </motion.button>
-                <h2 className="text-2xl font-bold text-white">
+                <h2 className="text-3xl font-bold text-white">
                   {selectedBranch.name} Branch
                 </h2>
+                <p className="text-blue-100 mt-2">Branch Details and Statistics</p>
               </div>
 
               {/* Modal Content */}
-              <div className="p-6 overflow-y-auto" style={{ maxHeight: 'calc(90vh - 200px)' }}>
-                {/* Tab Navigation */}
-                <div className="mb-6">
-                  <div className="flex space-x-4 border-b">
-                    {["overview", "students", "teachers", "parents"].map((tab) => (
-                      <button
-                        key={tab}
-                        onClick={() => setActiveTab(tab)}
-                        className={`px-4 py-2 font-medium transition-colors ${
-                          activeTab === tab
-                            ? "text-blue-600 border-b-2 border-blue-600"
-                            : "text-gray-600 hover:text-blue-600"
-                        }`}
-                      >
-                        {tab.charAt(0).toUpperCase() + tab.slice(1)}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
+              <div className="p-8 overflow-y-auto" style={{ maxHeight: 'calc(90vh - 240px)' }}>
                 <BranchTabContent
                   selectedBranch={selectedBranch}
-                  activeTab={activeTab}
+                  activeTab="overview"
                 />
               </div>
 
               {/* Modal Footer */}
-              <div className="border-t border-gray-100 p-6">
+              <div className="border-t border-gray-100 p-6 bg-gray-50">
                 <div className="flex justify-end">
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={handleCloseModal}
-                    className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium transition-colors"
+                    className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:opacity-90 font-medium transition-all duration-200 shadow-sm hover:shadow"
                   >
                     Close
                   </motion.button>

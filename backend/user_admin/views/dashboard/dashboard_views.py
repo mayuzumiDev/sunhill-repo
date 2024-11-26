@@ -95,3 +95,37 @@ class DashboardMetricsView(APIView):
             'monthly_registrations': monthly_data,
             'weekly_registrations': weekly_data
         })
+
+class BranchMetricsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, branch_id):
+        try:
+            # Add print statement for debugging
+            print(f"Fetching metrics for branch_id: {branch_id}")
+            
+            # Get class count for the specific branch
+            class_count = Classroom.objects.filter(branch_id=branch_id).count()
+            print(f"Found {class_count} classes")
+            
+            # Get students in classes for this branch
+            total_students_in_classes = ClassRoomStudent.objects.filter(
+                classroom__branch_id=branch_id
+            ).count()
+            
+            # Calculate average class size
+            avg_class_size = round(total_students_in_classes / class_count, 1) if class_count > 0 else 0
+
+            data = {
+                'class_count': class_count,
+                'average_class_size': avg_class_size
+            }
+            print(f"Returning data: {data}")
+            return Response(data)
+            
+        except Exception as e:
+            print(f"Error in BranchMetricsView: {str(e)}")
+            return Response({
+                'error': str(e)
+            }, status=500)
+    

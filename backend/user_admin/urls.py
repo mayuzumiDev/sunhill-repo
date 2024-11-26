@@ -11,7 +11,7 @@ from .views.profile.admin_profile_views import *
 from .views.events.event_manage_views import *
 from .views.events.event_list_views import *
 from .views.notifications.notification_views import EventNotificationViewSet
-from .views.dashboard.dashboard_views import DashboardMetricsView
+from .views.dashboard.dashboard_views import DashboardMetricsView, BranchMetricsView
 
 router = DefaultRouter()
 router.register(r'notifications', EventNotificationViewSet, basename='notifications')
@@ -44,6 +44,7 @@ urlpatterns = [
     path('event/list/', EventListView.as_view(), name='event_list'),
     path('public-user-list/', PublicUserListView.as_view(), name='public_user_list'),
     path('dashboard/metrics/', DashboardMetricsView.as_view(), name='dashboard_metrics'),
+    path('branch-metrics/<int:branch_id>/', BranchMetricsView.as_view(), name='branch-metrics'),
 
     # Public user endpoints
     # path('auth/public/register/', PublicUserRegistrationView.as_view(), name='public_register'),

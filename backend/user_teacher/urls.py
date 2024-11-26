@@ -20,6 +20,7 @@ urlpatterns = [
     path('classroom/add-student/', AddStudentToClassroomView.as_view(), name='classroom_add_student'),
     path('classroom/delete-student/<int:pk>/', ClassroomStudentDeleteView.as_view(), name='classroom_delete_student'),
     path('classroom/list-student/', ClassroomStudentListView.as_view(), name='classroom_list_student'),
+    path('classroom/count/<int:branch_id>/', ClassroomCountByBranchView.as_view(), name='classroom_count_by_branch'),
 
     path('materials/upload/', EducationMaterialUploadView.as_view(), name="materials_upload"),
     path('materials/edit/<int:pk>/', EducationMaterialEditView.as_view(), name='materials_edit'),
