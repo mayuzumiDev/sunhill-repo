@@ -9,9 +9,9 @@ import {
 import { axiosInstance } from "../../utils/axiosInstance";
 import ClassroomDetailsTable from "./classroom/ClassroomDetailsTable";
 import QuizResponseTable from "./scores/QuizResponseTable";
+import ClassroomMaterials from "./materials/ClassroomMaterials";
 
 const ClassroomActions = ({ onClose, classroomData }) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedAction, setSelectedAction] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -85,14 +85,14 @@ const ClassroomActions = ({ onClose, classroomData }) => {
     switch (selectedAction) {
       case "students":
         return (
-          <div className="mt-6 w-full">
+          <div className="mt-6 w-full bg-white rounded-lg shadow p-6">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-xl font-semibold text-gray-700">
                 Students Lists
               </h3>
               <button
-                onClick={() => setSelectedAction(null)}
-                className="text-gray-600 hover:text-gray-800"
+                onClick={() => setSelectedAction("students")}
+                className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-green-500 border border-transparent rounded-md shadow-sm hover:bg-green-600 transition-all duration-300 ease-in-out transform hover:scale-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
               >
                 Close
               </button>
@@ -103,14 +103,14 @@ const ClassroomActions = ({ onClose, classroomData }) => {
 
       case "scores":
         return (
-          <div className="mt-6 w-full">
+          <div className="mt-6 w-full bg-white rounded-lg shadow p-6">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-xl font-semibold text-gray-700">
                 Quiz Scores
               </h3>
               <button
-                onClick={() => setSelectedAction(null)}
-                className="text-gray-600 hover:text-gray-800"
+                onClick={() => setSelectedAction("scores")}
+                className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-green-500 border border-transparent rounded-md shadow-sm hover:bg-green-600 transition-all duration-300 ease-in-out transform hover:scale-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
               >
                 Close
               </button>
@@ -123,12 +123,12 @@ const ClassroomActions = ({ onClose, classroomData }) => {
         );
       case "quizzes":
         return (
-          <div className="mt-6 w-full">
+          <div className="mt-6 w-full bg-white rounded-lg shadow p-6">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-xl font-semibold text-gray-700">Quizzes</h3>
               <button
-                onClick={() => setSelectedAction(null)}
-                className="text-gray-600 hover:text-gray-800"
+                onClick={() => setSelectedAction("quizzes")}
+                className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-green-500 border border-transparent rounded-md shadow-sm hover:bg-green-600 transition-all duration-300 ease-in-out transform hover:scale-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
               >
                 Close
               </button>
@@ -138,17 +138,17 @@ const ClassroomActions = ({ onClose, classroomData }) => {
         );
       case "materials":
         return (
-          <div className="mt-6 w-full">
+          <div className="mt-6 w-full bg-white rounded-lg shadow p-6">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-xl font-semibold text-gray-700">Materials</h3>
               <button
-                onClick={() => setSelectedAction(null)}
-                className="text-gray-600 hover:text-gray-800"
+                onClick={() => setSelectedAction("materials")}
+                className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-green-500 border border-transparent rounded-md shadow-sm hover:bg-green-600 transition-all duration-300 ease-in-out transform hover:scale-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
               >
                 Close
               </button>
             </div>
-            <div className="text-gray-600">Materials content will go here</div>
+            <ClassroomMaterials classroomId={classroomData.id} />
           </div>
         );
       default:
@@ -158,7 +158,7 @@ const ClassroomActions = ({ onClose, classroomData }) => {
 
   return (
     <div className="h-full flex flex-col">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center mb-4 sm:mb-6 md:mb-8 lg:mb-10">
         <h2 className="text-2xl font-bold text-gray-700">
           {classroomData.grade_level} - {classroomData.class_section}
         </h2>
