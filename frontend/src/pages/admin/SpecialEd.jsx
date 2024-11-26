@@ -95,7 +95,35 @@ const SpecialEd = () => {
     try {
       setLoading(true);
       setError(null);
-      console.log('Starting assessment for student:', selectedStudent);
+      
+      // Check existing assessments for this student by this user
+      const checkResponse = await axiosInstance.get('/special-education/assessments/', {
+        params: {
+          student: selectedStudent.id,
+          assessor: userId
+        }
+      });
+
+      // If there are existing assessments, check if they're all completed
+      if (Array.isArray(checkResponse.data) && checkResponse.data.length > 0) {
+        const incompleteAssessment = checkResponse.data.find(a => !a.completed);
+        if (incompleteAssessment) {
+          toast.error('Please complete your existing assessment for this student first');
+          setLoading(false);
+          return;
+        }
+        
+        // Check if all 30 assessments are completed
+        const completedAssessments = checkResponse.data.filter(a => a.completed);
+        if (completedAssessments.length >= 30) {
+          toast.info('You have completed all 30 assessments for this student. Starting a new set.');
+          // Optional: Add API call here to reset assessment count for this student
+          await axiosInstance.post('/special-education/assessments/reset/', {
+            student: selectedStudent.id,
+            assessor: userId
+          });
+        }
+      }
 
       // Get a random assessment
       console.log('Fetching random assessment...');
@@ -326,7 +354,7 @@ const SpecialEd = () => {
         <div className="bg-white rounded-md shadow-md p-4 sm:p-6">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 gap-3">
             <div>
-              <h2 className="text-base sm:text-lg font-bold text-gray-900">{selectedCategory.title}</h2>
+              {/* <h2 className="text-base sm:text-lg font-bold text-gray-900">{selectedCategory.title}</h2> */}
               <p className="text-sm text-gray-600">
                 Student: {selectedStudent.first_name} {selectedStudent.last_name}
               </p>
@@ -488,7 +516,6 @@ const SpecialEd = () => {
       setLoading(true);
       setError(null);
       
-      // Construct the URL based on filter
       let url = '/special-education/assessments/';
       const params = new URLSearchParams();
       
@@ -496,21 +523,19 @@ const SpecialEd = () => {
         params.append('student', studentId);
       }
 
+      // Always filter by teacher if user is a teacher
       if (userRole === 'teacher' && userId) {
         params.append('teacher', userId);
       }
       
-      // Add params to URL if any exist
       if (params.toString()) {
         url += `?${params.toString()}`;
       }
       
       console.log('Fetching assessment history from:', url);
       const response = await axiosInstance.get(url);
-      console.log('Assessment history raw response:', response);
       
       if (Array.isArray(response.data)) {
-        console.log('Setting assessment history:', response.data);
         setAssessmentHistory(response.data);
       } else {
         console.error('Unexpected response format:', response.data);
@@ -564,13 +589,14 @@ const SpecialEd = () => {
        `${assessment.student_details.first_name} ${assessment.student_details.last_name}`) ||
       'Unknown Student';
 
-    const categoryName = assessment.category_name ||
-      (assessment.category_details && assessment.category_details.title) ||
-      'Unknown Category';
+    const assessorName = assessment.teacher_name ||
+      (assessment.teacher_details && 
+       `${assessment.teacher_details.first_name} ${assessment.teacher_details.last_name}`) ||
+      'Unknown Teacher';
 
     return (
       studentName.toLowerCase().includes(searchLower) ||
-      categoryName.toLowerCase().includes(searchLower) ||
+      assessorName.toLowerCase().includes(searchLower) ||
       (assessment.date && new Date(assessment.date).toLocaleDateString().toLowerCase().includes(searchLower)) ||
       (assessment.completed ? 'completed' : 'in progress').includes(searchLower)
     );
@@ -812,7 +838,7 @@ const SpecialEd = () => {
               </div>
               {!searchQuery && filteredStudents.length > 0 && (
                 <div className="text-center mt-4 text-sm text-gray-500">
-                  Showing {filteredStudents.length} of {students.length} students. Use the search to find more.
+                  Showing {Math.min(10, filteredStudents.length)} of {students.length} students. Use the search to find more.
                 </div>
               )}
               {searchQuery && filteredStudents.length === 0 && (
@@ -989,11 +1015,12 @@ const SpecialEd = () => {
           <div className="overflow-x-auto">
             <div className="min-w-full divide-y divide-gray-200">
               <div className="bg-gray-50">
-                <div className="grid grid-cols-1 sm:grid-cols-5 gap-2 sm:gap-4 px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <div className="grid grid-cols-1 sm:grid-cols-6 gap-2 sm:gap-4 px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
                   <div className="sm:col-span-1">Student</div>
                   <div className="sm:col-span-1">Assessment</div>
                   <div className="sm:col-span-1">Date</div>
                   <div className="sm:col-span-1">Status</div>
+                  <div className="sm:col-span-1">Assessor</div>
                   <div className="sm:col-span-1">Actions</div>
                 </div>
               </div>
@@ -1004,13 +1031,11 @@ const SpecialEd = () => {
                      `${assessment.student_details.first_name} ${assessment.student_details.last_name}`) ||
                     'Unknown Student';
 
-                  // const categoryName = assessment.category_name ||
-                  //   (assessment.category_details && assessment.category_details.title) ||
-                  //   'Unknown Category';
+                  const assessorName = assessment.assessor_name || 'Unknown Assessor';
 
                   return (
                     <div key={assessment.id} className="hover:bg-gray-50">
-                      <div className="grid grid-cols-1 sm:grid-cols-5 gap-2 sm:gap-4 px-4 py-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-6 gap-2 sm:gap-4 px-4 py-3">
                         <div className="sm:col-span-1">
                           <div className="text-sm font-medium text-gray-900">
                             {studentName}
@@ -1040,6 +1065,14 @@ const SpecialEd = () => {
                           }`}>
                             {assessment.completed ? 'Completed' : 'In Progress'}
                           </span>
+                        </div>
+                        <div className="sm:col-span-1">
+                          <div className="text-sm text-gray-900">
+                            {assessorName}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            ID: {assessment.assessor || 'N/A'}
+                          </div>
                         </div>
                         <div className="sm:col-span-1">
                           <div className="flex flex-col sm:flex-row gap-2">

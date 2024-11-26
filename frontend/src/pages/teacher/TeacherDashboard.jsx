@@ -41,6 +41,38 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
   const navigate = useNavigate();
   const [teacherInsights, setTeacherInsights] = useState([]);
   const [metricsLoading, setMetricsLoading] = useState(true);
+  const [showCompletionRec, setShowCompletionRec] = useState(false);
+  const [showPerformanceRec, setShowPerformanceRec] = useState(false);
+  const [atRiskStudents, setAtRiskStudents] = useState([]);
+  const [improvementSuggestions, setImprovementSuggestions] = useState({});
+
+  // Animation variants
+  const containerVariants = {
+    hidden: { 
+      opacity: 0 
+    },
+    visible: { 
+      opacity: 1,
+      transition: { 
+        staggerChildren: 0.1,
+        duration: 0.5 
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { 
+      y: 20, 
+      opacity: 0 
+    },
+    visible: { 
+      y: 0,
+      opacity: 1,
+      transition: { 
+        duration: 0.5 
+      }
+    }
+  };
 
   // Setting greeting message and daily illustration
   useEffect(() => {
@@ -274,6 +306,9 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
           values: studentAverages.map(student => Math.round(student.averageScore))
         });
 
+        // Add this function to analyze student performance and generate warnings/suggestions
+        analyzeStudentPerformance(studentScores);
+
       } catch (error) {
         console.error("Error fetching chart data:", error);
         setAssignmentData({
@@ -399,7 +434,102 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
     }
   ];
 
-  // Update Highcharts configurations
+  // Update the recommendation functions
+  const getCompletionRateRecommendation = (values) => {
+    if (!values || values.length === 0) return {
+      title: 'No Data Available',
+      points: ['Start creating quizzes to see completion insights'],
+      priority: 'medium'
+    };
+    
+    const averageCompletion = values.reduce((a, b) => a + b, 0) / values.length;
+    const lowestCompletion = Math.min(...values);
+    
+    if (averageCompletion < 50) {
+      return {
+        title: 'Low Completion Rate',
+        points: [
+          'Send automated reminders before quiz deadlines',
+          `Focus on ${lowestCompletion}% completion areas first`,
+          'Consider extending deadlines for complex topics',
+          'Implement mobile-friendly quiz formats'
+        ],
+        priority: 'high'
+      };
+    } else if (averageCompletion < 75) {
+      return {
+        title: 'Moderate Completion Rate',
+        points: [
+          `Improve from current ${Math.round(averageCompletion)}% average`,
+          'Create bite-sized practice quizzes',
+          'Enable partial submissions to track progress',
+          'Use class announcements to boost participation'
+        ],
+        priority: 'medium'
+      };
+    } else {
+      return {
+        title: 'Strong Completion Rate',
+        points: [
+          `Maintain excellent ${Math.round(averageCompletion)}% rate`,
+          'Introduce bonus challenges for early completion',
+          'Share completion statistics with the class',
+          'Consider peer review opportunities'
+        ],
+        priority: 'low'
+      };
+    }
+  };
+
+  const getPerformanceRecommendation = (values) => {
+    if (!values || values.length === 0) return {
+      title: 'No Data Available',
+      points: ['Start adding student scores to see performance insights'],
+      priority: 'medium'
+    };
+    
+    const averageScore = values.reduce((a, b) => a + b, 0) / values.length;
+    const lowestScore = Math.min(...values);
+    const highestScore = Math.max(...values);
+    const scoreSpread = highestScore - lowestScore;
+    
+    if (averageScore < 70) {
+      return {
+        title: 'Performance Needs Attention',
+        points: [
+          `Current average: ${Math.round(averageScore)}%`,
+          'Schedule targeted review sessions',
+          'Create concept-specific practice materials',
+          'Consider prerequisite topic review'
+        ],
+        priority: 'high'
+      };
+    } else if (scoreSpread > 20) {
+      return {
+        title: 'Wide Performance Gap',
+        points: [
+          `Score range: ${Math.round(lowestScore)}% - ${Math.round(highestScore)}%`,
+          'Implement differentiated learning paths',
+          'Create peer study groups',
+          'Provide additional support materials'
+        ],
+        priority: 'medium'
+      };
+    } else {
+      return {
+        title: 'Consistent Performance',
+        points: [
+          `Strong average: ${Math.round(averageScore)}%`,
+          'Introduce advanced topics',
+          'Consider group projects',
+          'Share success strategies'
+        ],
+        priority: 'low'
+      };
+    }
+  };
+
+  // Update chart options to better display multi-line recommendations
   const barChartOptions = {
     chart: {
       type: 'column',
@@ -556,17 +686,6 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
     }
   };
 
-  const topStudents = [
-    { name: "Alice", score: 90, rank: 1 },
-    { name: "John", score: 85, rank: 2 },
-    { name: "Eve", score: 88, rank: 3 },
-    { name: "Bob", score: 78, rank: 4 },
-  ];
-
-  const filteredStudents = topStudents.filter((student) =>
-    student.name.toLowerCase().includes(filter.toLowerCase())
-  );
-
   const currentDate = new Date();
   const formattedDate = currentDate.toLocaleDateString("en-US", {
     weekday: "long",
@@ -574,10 +693,6 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
     day: "numeric",
     year: "numeric",
   });
-
-  const viewReports = (studentName) => {
-    alert(`Viewing reports for ${studentName}`);
-  };
 
   useEffect(() => {
     const fetchTeacherData = async () => {
@@ -596,24 +711,6 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
 
     fetchTeacherData();
   }, []);
-
-  // Add animation variants
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: { 
-      opacity: 1,
-      transition: { staggerChildren: 0.1 }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: { 
-      y: 0,
-      opacity: 1,
-      transition: { duration: 0.5 }
-    }
-  };
 
   // Loading placeholder component
   const NameLoadingPlaceholder = () => (
@@ -664,8 +761,202 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
     </div>
   );
 
+  // Add click handler for recommendation button
+  const toggleRecommendation = (type) => {
+    if (type === 'completion') {
+      setShowCompletionRec(!showCompletionRec);
+      setShowPerformanceRec(false); // Close other recommendation
+    } else {
+      setShowPerformanceRec(!showPerformanceRec);
+      setShowCompletionRec(false); // Close other recommendation
+    }
+  };
+
+  // Add this function to analyze student performance and generate warnings/suggestions
+  const analyzeStudentPerformance = (studentScores) => {
+    const AT_RISK_THRESHOLD = 60; // Students below 60% are considered at risk
+    const IMPROVEMENT_THRESHOLD = 75; // Students below 75% need improvement
+    
+    const atRiskList = [];
+    const suggestions = {};
+
+    Object.entries(studentScores).forEach(([studentName, data]) => {
+      const averageScore = data.quizCount > 0 
+        ? data.totalScore / data.quizCount 
+        : 0;
+      
+      const recentScores = data.scores.slice(-3); // Last 3 scores
+      const recentAverage = recentScores.length > 0 
+        ? recentScores.reduce((a, b) => a + b, 0) / recentScores.length 
+        : 0;
+      
+      const scoreTrend = recentScores.length >= 2 
+        ? recentScores[recentScores.length - 1] - recentScores[recentScores.length - 2]
+        : 0;
+
+      // Generate suggestions based on performance patterns
+      if (averageScore < AT_RISK_THRESHOLD) {
+        atRiskList.push({
+          name: studentName,
+          average: averageScore,
+          trend: scoreTrend,
+          lastScore: recentScores[recentScores.length - 1] || 0,
+          riskLevel: 'high',
+          warning: `Immediate attention needed - Consistently performing below ${AT_RISK_THRESHOLD}%`
+        });
+      }
+
+      if (averageScore < IMPROVEMENT_THRESHOLD) {
+        suggestions[studentName] = {
+          currentAverage: averageScore,
+          trend: scoreTrend,
+          suggestions: [
+            {
+              area: 'Performance',
+              details: `Current average: ${Math.round(averageScore)}%`,
+              actions: [
+                scoreTrend < 0 ? 'Schedule immediate review session' : 'Continue with regular check-ins',
+                'Create personalized study plan',
+                'Set up weekly progress tracking'
+              ]
+            },
+            {
+              area: 'Study Habits',
+              details: `Recent trend: ${scoreTrend > 0 ? 'Improving' : 'Declining'}`,
+              actions: [
+                'Implement structured study schedule',
+                'Use active recall techniques',
+                'Join study groups for peer support'
+              ]
+            },
+            {
+              area: 'Support Needed',
+              details: 'Additional resources recommended',
+              actions: [
+                'Provide supplementary learning materials',
+                'Consider one-on-one tutoring',
+                'Regular progress check-ins'
+              ]
+            }
+          ]
+        };
+      }
+    });
+
+    setAtRiskStudents(atRiskList);
+    setImprovementSuggestions(suggestions);
+  };
+
+  // Add new components to display warnings and suggestions
+  const AtRiskWarnings = () => (
+    <motion.div 
+      variants={itemVariants}
+      className={`rounded-xl shadow-lg p-4 sm:p-6 ${
+        darkMode ? "bg-gray-800 bg-opacity-50" : "bg-white"
+      }`}
+    >
+      <h2 className="text-xl font-semibold mb-4 flex items-center">
+        <span className="text-red-500 mr-2">⚠️</span>
+        Early Warning Alerts
+      </h2>
+      <div className="space-y-4">
+        {atRiskStudents.length > 0 ? (
+          atRiskStudents.map((student, index) => (
+            <motion.div
+              key={index}
+              initial={{ x: -20, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ delay: index * 0.1 }}
+              className={`p-4 rounded-lg border border-red-200 bg-red-50 dark:bg-red-900/20 dark:border-red-800`}
+            >
+              <div className="flex justify-between items-start">
+                <div>
+                  <h3 className="font-semibold text-red-700 dark:text-red-400">
+                    {student.name}
+                  </h3>
+                  <p className="text-sm text-red-600 dark:text-red-300 mt-1">
+                    {student.warning}
+                  </p>
+                  <div className="mt-2 flex items-center space-x-4 text-sm">
+                    <span>Average: {Math.round(student.average)}%</span>
+                    <span>Last Score: {Math.round(student.lastScore)}%</span>
+                    <span className={student.trend >= 0 ? "text-green-500" : "text-red-500"}>
+                      {student.trend > 0 ? "↑" : "↓"} {Math.abs(Math.round(student.trend))}%
+                    </span>
+                  </div>
+                </div>
+           
+              </div>
+            </motion.div>
+          ))
+        ) : (
+          <p className="text-gray-500 dark:text-gray-400 text-center py-4">
+            No students currently at risk
+          </p>
+        )}
+      </div>
+    </motion.div>
+  );
+
+  const ImprovementSuggestions = () => (
+    <motion.div 
+      variants={itemVariants}
+      className={`rounded-xl shadow-lg p-4 sm:p-6 ${
+        darkMode ? "bg-gray-800 bg-opacity-50" : "bg-white"
+      }`}
+    >
+      <h2 className="text-xl font-semibold mb-4 flex items-center">
+        <span className="text-yellow-500 mr-2">💡</span>
+        Improvement Suggestions
+      </h2>
+      <div className="space-y-4">
+        {Object.entries(improvementSuggestions).map(([studentName, data], index) => (
+          <motion.div
+            key={studentName}
+            initial={{ x: -20, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ delay: index * 0.1 }}
+            className="p-4 rounded-lg border border-yellow-200 bg-yellow-50 dark:bg-yellow-900/20 dark:border-yellow-800"
+          >
+            <div className="flex justify-between items-start">
+              <div className="space-y-3 w-full">
+                <div className="flex justify-between">
+                  <h3 className="font-semibold text-yellow-700 dark:text-yellow-400">
+                    {studentName}
+                  </h3>
+                  <span className="text-sm text-yellow-600 dark:text-yellow-300">
+                    Average: {Math.round(data.currentAverage)}%
+                  </span>
+                </div>
+                <div className="space-y-2">
+                  {data.suggestions.map((suggestion, idx) => (
+                    <div key={idx} className="text-sm">
+                      <h4 className="font-medium text-yellow-700 dark:text-yellow-400">
+                        {suggestion.area}
+                      </h4>
+                      <p className="text-yellow-600 dark:text-yellow-300 mb-1">
+                        {suggestion.details}
+                      </p>
+                      <ul className="list-disc list-inside text-yellow-600 dark:text-yellow-300 pl-2">
+                        {suggestion.actions.map((action, actionIdx) => (
+                          <li key={actionIdx} className="text-sm">
+                            {action}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+    </motion.div>
+  );
+
   return (
-    <div className="p-3 sm:p-6 min-h-screen">
+    <div className=" min-h-screen">
       {/* Main Grid Container - adjust gap for mobile */}
       <motion.div 
         className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-8"
@@ -798,95 +1089,184 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
             variants={itemVariants} 
             className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6"
           >
-            {/* Adjust chart containers for mobile */}
-            <div className={`rounded-xl shadow-lg p-4 sm:p-6 h-full flex flex-col ${
+            {/* Completion Rates Chart */}
+            <div className={`rounded-xl shadow-lg p-4 sm:p-6 h-full flex flex-col relative ${
               darkMode ? "bg-gray-800 bg-opacity-50" : "bg-white"
             }`}>
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold">Recent Quiz Completion Rates</h3>
+                <button
+                  onClick={() => toggleRecommendation('completion')}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                    showCompletionRec
+                      ? 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300'
+                  }`}
+                >
+                  {showCompletionRec ? 'Hide Insights' : 'View Insights'}
+                </button>
+              </div>
+              
               <div className="flex-1 min-h-0">
                 {chartsLoading ? (
                   <div className="flex justify-center items-center h-[300px]">
                     <DotLoaderSpinner color="#4ade80" />
                   </div>
                 ) : (
-                  <HighchartsReact 
-                    highcharts={Highcharts} 
-                    options={barChartOptions}
-                    containerProps={{ className: 'h-full' }}
-                  />
+                  <div className="relative">
+                    <HighchartsReact 
+                      highcharts={Highcharts} 
+                      options={barChartOptions}
+                      containerProps={{ className: 'h-full' }}
+                    />
+                    
+                    {/* Recommendation Panel - Slides in from right */}
+                    <motion.div
+                      initial={{ x: '100%', opacity: 0 }}
+                      animate={{ 
+                        x: showCompletionRec ? 0 : '100%',
+                        opacity: showCompletionRec ? 1 : 0
+                      }}
+                      transition={{ type: 'spring', damping: 20 }}
+                      className={`absolute top-0 right-0 w-full sm:w-80 h-full p-4 bg-white dark:bg-gray-800 
+                        rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-y-auto`}
+                    >
+                      {(() => {
+                        const rec = getCompletionRateRecommendation(assignmentData.values);
+                        return (
+                          <div className="space-y-4">
+                            <div className="flex items-center justify-between">
+                              <h3 className="font-semibold text-lg">{rec.title}</h3>
+                              <span className={`px-2 py-1 rounded-full text-xs ${
+                                rec.priority === 'high' ? 'bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-300' :
+                                rec.priority === 'medium' ? 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900 dark:text-yellow-300' :
+                                'bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300'
+                              }`}>
+                                {rec.priority} priority
+                              </span>
+                            </div>
+                            <ul className="space-y-3">
+                              {rec.points.map((point, index) => (
+                                <motion.li
+                                  key={index}
+                                  initial={{ x: 50, opacity: 0 }}
+                                  animate={{ x: 0, opacity: 1 }}
+                                  transition={{ delay: index * 0.1 }}
+                                  className="flex items-start space-x-2 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
+                                >
+                                  <span className="text-blue-500 mt-1">•</span>
+                                  <span className="text-sm">{point}</span>
+                                </motion.li>
+                              ))}
+                            </ul>
+                            <button
+                              onClick={() => setShowCompletionRec(false)}
+                              className="absolute top-2 right-2 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
+                            >
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                              </svg>
+                            </button>
+                          </div>
+                        );
+                      })()}
+                    </motion.div>
+                  </div>
                 )}
               </div>
             </div>
             
             {/* Performance Trends Chart */}
-            <div className={`rounded-xl shadow-lg p-4 sm:p-6 h-full flex flex-col ${
+            <div className={`rounded-xl shadow-lg p-4 sm:p-6 h-full flex flex-col relative ${
               darkMode ? "bg-gray-800 bg-opacity-50" : "bg-white"
             }`}>
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold">Top 5 Students by Average Score</h3>
+                <button
+                  onClick={() => toggleRecommendation('performance')}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                    showPerformanceRec
+                      ? 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300'
+                  }`}
+                >
+                  {showPerformanceRec ? 'Hide Insights' : 'View Insights'}
+                </button>
+              </div>
+
               <div className="flex-1 min-h-0">
                 {chartsLoading ? (
                   <div className="flex justify-center items-center h-[300px]">
                     <DotLoaderSpinner color="#4ade80" />
                   </div>
                 ) : (
-                  <HighchartsReact 
-                    highcharts={Highcharts} 
-                    options={lineChartOptions}
-                    containerProps={{ className: 'h-full' }}
-                  />
+                  <div className="relative">
+                    <HighchartsReact 
+                      highcharts={Highcharts} 
+                      options={lineChartOptions}
+                      containerProps={{ className: 'h-full' }}
+                    />
+                    
+                    {/* Performance Recommendation Panel */}
+                    <motion.div
+                      initial={{ x: '100%', opacity: 0 }}
+                      animate={{ 
+                        x: showPerformanceRec ? 0 : '100%',
+                        opacity: showPerformanceRec ? 1 : 0
+                      }}
+                      transition={{ type: 'spring', damping: 20 }}
+                      className={`absolute top-0 right-0 w-full sm:w-80 h-full p-4 bg-white dark:bg-gray-800 
+                        rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-y-auto`}
+                    >
+                      {(() => {
+                        const rec = getPerformanceRecommendation(performanceData.values);
+                        return (
+                          <div className="space-y-4">
+                            <div className="flex items-center justify-between">
+                              <h3 className="font-semibold text-lg">{rec.title}</h3>
+                              <span className={`px-2 py-1 rounded-full text-xs ${
+                                rec.priority === 'high' ? 'bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-300' :
+                                rec.priority === 'medium' ? 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900 dark:text-yellow-300' :
+                                'bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300'
+                              }`}>
+                                {rec.priority} priority
+                              </span>
+                            </div>
+                            <ul className="space-y-3">
+                              {rec.points.map((point, index) => (
+                                <motion.li
+                                  key={index}
+                                  initial={{ x: 50, opacity: 0 }}
+                                  animate={{ x: 0, opacity: 1 }}
+                                  transition={{ delay: index * 0.1 }}
+                                  className="flex items-start space-x-2 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
+                                >
+                                  <span className="text-blue-500 mt-1">•</span>
+                                  <span className="text-sm">{point}</span>
+                                </motion.li>
+                              ))}
+                            </ul>
+                            <button
+                              onClick={() => setShowPerformanceRec(false)}
+                              className="absolute top-2 right-2 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
+                            >
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                              </svg>
+                            </button>
+                          </div>
+                        );
+                      })()}
+                    </motion.div>
+                  </div>
                 )}
               </div>
             </div>
           </motion.div>
 
-          {/* Top Students Section - adjust padding and spacing */}
-          <motion.div 
-            variants={itemVariants}
-            className={`rounded-xl shadow-lg p-4 sm:p-6 ${
-              darkMode ? "bg-gray-800 bg-opacity-50" : "bg-white"
-            }`}
-          >
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 space-y-3 sm:space-y-0">
-              <h2 className="text-lg sm:text-xl font-semibold">Top Performing Students</h2>
-              <input
-                type="text"
-                placeholder="Search students..."
-                value={filter}
-                onChange={(e) => setFilter(e.target.value)}
-                className="w-full sm:w-auto px-4 py-2 rounded-lg border focus:ring-2 focus:ring-blue-500 outline-none"
-              />
-            </div>
-            <div className="space-y-4">
-              {filteredStudents.map((student, index) => (
-                <motion.div
-                  key={index}
-                  whileHover={{ scale: 1.02 }}
-                  className={`p-4 rounded-lg border ${
-                    darkMode ? "border-gray-700" : "border-gray-200"
-                  } flex items-center justify-between`}
-                >
-                  <div className="flex items-center space-x-4">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                      index === 0 ? "bg-yellow-400" :
-                      index === 1 ? "bg-gray-300" :
-                      index === 2 ? "bg-orange-400" :
-                      "bg-blue-400"
-                    } text-white font-bold`}>
-                      {student.rank}
-                    </div>
-                    <div>
-                      <p className="font-semibold">{student.name}</p>
-                      <p className="text-sm text-gray-500">Score: {student.score}%</p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => viewReports(student.name)}
-                    className="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition-colors"
-                  >
-                    View Report
-                  </button>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
+          {/* Add the new components */}
+          <AtRiskWarnings />
+          <ImprovementSuggestions />
         </div>
 
         {/* Sidebar - full width on mobile */}
