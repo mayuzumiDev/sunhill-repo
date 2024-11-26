@@ -137,6 +137,20 @@ const StudentDashboard = () => {
     }
   };
 
+  const handleQuizComplete = (completed) => {
+    if (completed && selectedQuiz) {
+      // Update the status of the completed quiz in the quizzes array
+      setQuizzes((prevQuizzes) =>
+        prevQuizzes.map((quiz) =>
+          quiz.id === selectedQuiz.id ? { ...quiz, has_submitted: true } : quiz
+        )
+      );
+      // // Reset quiz states
+      // setIsQuizStarted(false);
+      // setSelectedQuiz(null);
+    }
+  };
+
   const handleMaterialClick = (material) => {
     console.log("Material is Click");
   };
@@ -349,6 +363,7 @@ const StudentDashboard = () => {
                         <QuizDetailCard
                           quizData={selectedQuiz}
                           isQuizStarted={isQuizStarted}
+                          onQuizComplete={handleQuizComplete}
                           onStartQuiz={() => {
                             setIsQuizStarted(true);
                           }}

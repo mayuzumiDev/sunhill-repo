@@ -14,37 +14,19 @@ class EducationMaterialUploadView(generics.CreateAPIView):
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
-
         if serializer.is_valid():
+            # The CloudinaryField will handle the upload automatically
             self.perform_create(serializer)
-            education_material = serializer.data
-
             return Response({
                 'status': 'success',
                 'message': 'Education material uploaded successfully',
-                'education_material': education_material
+                'education_material': serializer.data
             }, status=status.HTTP_201_CREATED)
-
         return Response({
             'status': 'error',
             'message': 'Failed to upload education material',
             'errors': serializer.errors
         }, status=status.HTTP_400_BAD_REQUEST)
-
-        # Upload to Cloudinary first
-        cloudinary_response = cloudinary.uploader.upload(
-            file_obj,
-            folder='education_materials',
-            resource_type='auto',
-            use_filename=True,
-            unique_filename=True
-        )
-
-        # Add the Cloudinary URL to the request data
-        request.data['file'] = cloudinary_response['secure_url']
-
-    def perform_create(self, serializer):
-        serializer.save()
 
 
 class EducationMaterialEditView(generics.UpdateAPIView):
@@ -74,7 +56,14 @@ class EducationMaterialDeleteView(generics.DestroyAPIView):
         try:
             instance = self.get_object()
             if instance.file:
-                instance.file.delete(save=False)
+                # Get the public ID from the Cloudinary URL
+                # The public ID is the part after the last '/' and before any '.' in the URL
+                public_id = instance.file.public_id
+                if public_id:
+                    # Delete the file from Cloudinary
+                    cloudinary.uploader.destroy(public_id)
+            
+            # Delete the model instance
             self.perform_destroy(instance)
             
             return Response({

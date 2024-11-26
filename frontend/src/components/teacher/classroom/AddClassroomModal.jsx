@@ -27,9 +27,13 @@ const AddClassroomModal = ({ isOpen, isClose, onSuccess }) => {
       );
 
       if (response.status === 201) {
+        console.log("Response from create classroom:", response.data);
+        const newClassroom = response.data.classroom_created;
         setFormData(initialFormState);
         isClose();
-        await onSuccess();
+        if (onSuccess && newClassroom) {
+          onSuccess(newClassroom);
+        }
       }
     } catch (error) {
       console.error("Error Response Data:", error.response?.data);
