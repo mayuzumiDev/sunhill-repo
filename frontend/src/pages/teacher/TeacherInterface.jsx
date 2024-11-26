@@ -6,7 +6,7 @@ import StudentScores from "./StudentScores";
 import ManageLessons from "./Classes";
 import ManageMaterials from "./ManageMaterials";
 import ManageAssignments from "./ManageAssignments";
-import SpecialEd from "../admin/SpecialEd"
+import SpecialEd from "../admin/SpecialEd";
 // import Messages from "./Messages";
 // import TeacherSettings from "./TeacherSettings";
 import AccountSettings from "./AccountSettings";
@@ -45,19 +45,19 @@ function TeacherInterface() {
     >
       {/* Sidebar */}
       <div className="print-hidden">
-      <div
-        className={`fixed  inset-y-0 left-0 z-10 ${
-          darkMode ? "bg-gray-900" : "bg-white"
-        } shadow-lg transition-all duration-300 ease-in-ot`}
-      >
-        <SideNavbar
-          currentTab={currentTab}
-          setCurrentTab={setCurrentTab}
-          toggleSidebar={toggleSidebar}
-          isSidebarOpen={isSidebarOpen}
-          darkMode={darkMode} // Pass dark mode state to Sidebar
-        />
-      </div>
+        <div
+          className={`fixed  inset-y-0 left-0 z-10 ${
+            darkMode ? "bg-gray-900" : "bg-white"
+          } shadow-lg transition-all duration-300 ease-in-ot`}
+        >
+          <SideNavbar
+            currentTab={currentTab}
+            setCurrentTab={setCurrentTab}
+            toggleSidebar={toggleSidebar}
+            isSidebarOpen={isSidebarOpen}
+            darkMode={darkMode} // Pass dark mode state to Sidebar
+          />
+        </div>
       </div>
 
       {/* Main content area */}
@@ -93,15 +93,13 @@ function TeacherInterface() {
           {currentTab === "Dashboard" && (
             <TeacherDashboard darkMode={darkMode} />
           )}
-          {currentTab === "Scores" && <StudentScores darkMode={darkMode} />}
+          {/* {currentTab === "Scores" && <StudentScores darkMode={darkMode} />} */}
           {currentTab === "Classroom" && <ManageLessons darkMode={darkMode} />}
-          {currentTab === "Materials" && <ManageMaterials />}
+          {/* {currentTab === "Materials" && <ManageMaterials />}
           {currentTab === "Quizzes" && (
             <ManageAssignments darkMode={darkMode} />
-          )}
-          {currentTab === "SpecialED" && (
-            <SpecialEd darkMode={darkMode} />
-          )}
+          )} */}
+          {currentTab === "SpecialED" && <SpecialEd darkMode={darkMode} />}
           {/* {currentTab === "Messages" && <Messages darkMode={darkMode} />} */}
           {/* {currentTab === "Settings" && <TeacherSettings darkMode={darkMode} />} */}
           {currentTab === "Account Settings" && (
