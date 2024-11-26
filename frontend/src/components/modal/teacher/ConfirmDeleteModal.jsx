@@ -1,13 +1,13 @@
 import React from "react";
 
-const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm, message }) => {
+const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm, title, message }) => {
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
         <h2 className="text-xl font-bold text-gray-700 mb-3 text-center">
-          Confirm Delete
+          {title}
         </h2>
         <p className="mb-4 text-gray-700 text-center">{message}</p>
         <div className="flex justify-center gap-2">
