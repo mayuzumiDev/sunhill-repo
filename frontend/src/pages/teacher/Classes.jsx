@@ -94,6 +94,24 @@ const ManageLessons = () => {
     }
   };
 
+  const handleClassroomCreated = (newClassroom) => {
+    console.log("New classroom data:", newClassroom);
+    if (!newClassroom) return;
+
+    // Format classroom data to match the list structure
+    const formattedClassroom = {
+      id: newClassroom.id,
+      grade_level: newClassroom.grade_level,
+      class_section: newClassroom.class_section,
+      subject_name: newClassroom.subject_name,
+      students: [], // New classrooms start with no students
+      student_count: 0, // Initialize student count to 0
+    };
+
+    setClassrooms((prevClassrooms) => [...prevClassrooms, formattedClassroom]);
+    setShowModal(false);
+  };
+
   return (
     <div className="p-6">
       <HideScrollBar />
@@ -147,6 +165,7 @@ const ManageLessons = () => {
       <AddClassroomModal
         isOpen={showModal}
         isClose={() => setShowModal(false)}
+        onSuccess={handleClassroomCreated}
       />
 
       {/* Modal for Editing CLassroom */}

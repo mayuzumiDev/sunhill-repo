@@ -13,11 +13,11 @@ class EducationMaterialUploadSerializer(serializers.ModelSerializer):
             'file': {'write_only': True}  # This ensures file is only used for upload
         }
 
-    def get_file_url(self, obj):
+    def get_file_url(self, obj):    
         if obj.file:
-            return obj.file.build_url(secure=True)
+            return obj.file.url  # Use the standard Cloudinary URL
         return None
-    
+        
     def validate_file(self, value):
         # The file has already been uploaded to Cloudinary by the view
         # Just return the value as is

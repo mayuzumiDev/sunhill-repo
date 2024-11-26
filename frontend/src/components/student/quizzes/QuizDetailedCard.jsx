@@ -8,7 +8,13 @@ import {
   faBookOpen,
 } from "@fortawesome/free-solid-svg-icons";
 
-const QuizDetailCard = ({ quizData, onStartQuiz, onBack, isQuizStarted }) => {
+const QuizDetailCard = ({
+  quizData,
+  onStartQuiz,
+  onBack,
+  isQuizStarted,
+  onQuizComplete,
+}) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [questions, setQuestions] = useState();
   const [isLoading, setIsLoading] = useState(false);
@@ -46,12 +52,9 @@ const QuizDetailCard = ({ quizData, onStartQuiz, onBack, isQuizStarted }) => {
 
       const formattedResponses = Object.entries(responses).reduce(
         (acc, [questionId, response]) => {
-          // For single choice questions, take the first (and only) item from the array
           const answer = response.answer;
-          acc[questionId] =
-            Array.isArray(answer) && answer.length === 1
-              ? answer[0] // Single choice - take the single value
-              : answer; // Multiple choice or identification - keep as is
+          // Always ensure the answer is an array
+          acc[questionId] = Array.isArray(answer) ? answer : [answer];
           return acc;
         },
         {}
@@ -75,6 +78,8 @@ const QuizDetailCard = ({ quizData, onStartQuiz, onBack, isQuizStarted }) => {
           percentageScore: data.percentage_score,
           status: data.status,
         });
+
+        onQuizComplete?.(true);
       }
     } catch (error) {
       console.error("Error submitting quiz responses:", error);
