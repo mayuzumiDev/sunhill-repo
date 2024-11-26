@@ -23,18 +23,27 @@ function StudentLogin() {
     e.preventDefault();
     handleLogin({ username, password, loginPageName });
   };
-
   const greetings = [
-    "Welcome, Sunhillians! Let's have fun learning today. Login to begin your journey!",
-    "Hey there, Sunhillians! Ready for another exciting day? Login to get started!",
-    "Good to see you, Sunhillians! Let's make today a day of learning and fun!",
-    "Hi Sunhillians! Time to learn something amazing! Login to begin todays adventure!",
-    "Hello Sunhillians! Adventure awaits you today. Login and let's go!",
-    "Hey Sunhillians! Let's dive into a new adventure today. Login and discover something new!",
-    "Welcome back, Sunhillians! Your learning journey continues. Login to explore!",
-    "Greetings, Sunhillians! Another exciting day of learning is just a login away!",
-    "Sunhillians, it's time to shine! Login and start your day of learning now!",
-    "Hi there, Sunhillians! Let's unlock new knowledge today. Ready to begin? Login now!",
+    "Welcome Sunhillians! Let's have fun learning today. Login to begin your journey!",
+    "Hey there Sunhillians! Ready for another exciting day? Login to get started!",
+    "Good to see you Sunhillians! Let's make today a day of learning and fun!",
+    "Hi Sunhillians Time to learn something amazing! Login to begin todays adventure!",
+    "Hello Sunhillians Adventure awaits you today. Login and let's go!",
+    "Hey Sunhillians Let's dive into a new adventure today. Login and discover something new!",
+    "Welcome back Sunhillians! Your learning journey continues. Login to explore!",
+    "Greetings Sunhillians! Another exciting day of learning is just a login away!",
+    "Sunhillians it's time to shine! Login and start your day of learning now!",
+    "Hi there Sunhillians! Let's unlock new knowledge today. Ready to begin? Login now!",
+    "Welcome aboard Sunhillians! Your educational voyage begins with a simple login!",
+    "Greetings young Sunhillians! Ready to embark on today's learning quest? Login now!",
+    "Hello bright minds! Another day of discovery awaits. Login to start your journey!",
+    "Hi future leaders! Your path to knowledge starts here. Login to begin!",
+    "Welcome champions of learning! Ready for today's challenges? Login to get started!",
+    "Hey brilliant Sunhillians! Your next adventure in education is just a login away!",
+    "Good day knowledge seekers! Login to unlock today's learning treasures!",
+    "Hello amazing Sunhillians! Your next learning milestone awaits. Login now!",
+    "Welcome back eager learners! Ready to make today count? Login to begin!",
+    "Hi dedicated Sunhillians! Your journey of growth continues. Login to proceed!"
   ];
 
   const getRandomGreeting = () => {
@@ -46,15 +55,47 @@ function StudentLogin() {
       const randomGreeting = getRandomGreeting();
       const message = new SpeechSynthesisUtterance(randomGreeting);
       message.lang = "en-US";
-      message.pitch = 2.9;
-      message.rate = 0.9; // Reduced from 1.3 to 0.9 for slower speech
-      window.speechSynthesis.speak(message);
+      message.pitch = 1.5;
+      message.rate = 0.9;
+      message.volume = 1.0;
+      
+      const voices = window.speechSynthesis.getVoices();
+      const childVoice = voices.find(voice => 
+        voice.name.toLowerCase().includes('child') || 
+        voice.name.toLowerCase().includes('kid') || 
+        voice.name.toLowerCase().includes('junior') ||
+        voice.name.toLowerCase().includes('girl') ||
+        voice.name.includes('Samantha') ||
+        voice.name.includes('Microsoft Michelle') ||
+        voice.name.includes('Google UK English Female') ||
+        voice.name.toLowerCase().includes('zira')
+      );
+      
+      console.log('Available voices:', voices.map(v => v.name));
+      
+      if (childVoice) {
+        console.log('Selected voice:', childVoice.name);
+        message.voice = childVoice;
+      } else {
+        message.pitch = 2.0;
+        message.rate = 0.85;
+      }
+      
+      setTimeout(() => {
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(message);
+      }, 500);
     };
 
-    speakWelcome();
+    if (window.speechSynthesis.getVoices().length === 0) {
+      window.speechSynthesis.addEventListener('voiceschanged', speakWelcome);
+    } else {
+      speakWelcome();
+    }
 
     return () => {
       window.speechSynthesis.cancel();
+      window.speechSynthesis.removeEventListener('voiceschanged', speakWelcome);
     };
   }, []);
 
@@ -190,7 +231,7 @@ function StudentLogin() {
               <input
                 type="text"
                 className="p-4 rounded-2xl border-3 border-purple-200 focus:border-purple-400 focus:ring-2 focus:ring-purple-200 
-                         outline-none text-lg transition-all duration-200 bg-purple-50 placeholder-purple-300"
+                         outline-none text-sm sm:text-base transition-all duration-200 bg-purple-50 placeholder-purple-300"
                 placeholder="Type your username here!"
                 required
                 value={username}
@@ -215,7 +256,7 @@ function StudentLogin() {
                 <input
                   type={showPassword ? "text" : "password"}
                   className="w-full p-4 rounded-2xl border-3 border-purple-200 focus:border-purple-400 focus:ring-2 
-                           focus:ring-purple-200 outline-none text-lg transition-all duration-200 bg-purple-50 placeholder-purple-300"
+                           focus:ring-purple-200 outline-none text-sm sm:text-base transition-all duration-200 bg-purple-50 placeholder-purple-300"
                   placeholder="Enter your secret code!"
                   required
                   value={password}
