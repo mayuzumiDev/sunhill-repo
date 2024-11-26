@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import QuestionCard from "./QuestionCard";
 import DotLoaderSpinner from "../../loaders/DotLoaderSpinner";
+import StudentAlert from "../../alert/student/StudentAlert";
 import { axiosInstance } from "../../../utils/axiosInstance";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -20,13 +21,27 @@ const QuizDetailCard = ({
   const [isLoading, setIsLoading] = useState(false);
   const [quizScore, setQuizScore] = useState(null);
   const [responses, setResponses] = useState({});
+
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
 
   useEffect(() => {
     if (isQuizStarted && !questions) {
       fetchQuizQuestions();
     }
   }, [isQuizStarted]);
+
+  useEffect(() => {
+    if (alertMessage) {
+      setShowAlert(true);
+      const timer = setTimeout(() => {
+        setShowAlert(false);
+        setAlertMessage("");
+      }, 3000); // Hide after 3 seconds
+      return () => clearTimeout(timer);
+    }
+  }, [alertMessage]);
 
   const fetchQuizQuestions = async () => {
     try {
@@ -50,15 +65,52 @@ const QuizDetailCard = ({
     try {
       setIsSubmitting(true);
 
+      const unansweredQuestions = questions.filter((q) => !responses[q.id]);
+      if (unansweredQuestions.length > 0) {
+        setAlertMessage("Don't forget to answer all the questions!");
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Log the original responses and questions
+      console.log("Original Responses:", responses);
+      console.log("Questions:", questions);
+
       const formattedResponses = Object.entries(responses).reduce(
         (acc, [questionId, response]) => {
           const answer = response.answer;
-          // Always ensure the answer is an array
-          acc[questionId] = Array.isArray(answer) ? answer : [answer];
+          const questionType = questions?.find(
+            (q) => q.id.toString() === questionId
+          )?.question_type;
+
+          // Log each question and its answer being processed
+          console.log("Processing Question:", {
+            questionId,
+            questionType: questions?.question_type,
+            originalAnswer: answer,
+          });
+
+          // Format answer based on question type
+          if (questionType === "multi") {
+            // For multiple choice, ensure it's an array
+            acc[questionId] = Array.isArray(answer) ? answer : [answer];
+          } else {
+            // For single choice and identification, keep as single value
+            acc[questionId] = Array.isArray(answer) ? answer[0] : answer;
+          }
+
+          console.log(
+            "Formatted answer for question",
+            questionId,
+            ":",
+            acc[questionId]
+          );
           return acc;
         },
         {}
       );
+
+      console.log("Final Formatted Responses:", formattedResponses);
 
       const response = await axiosInstance.post(
         "/user-teacher/quiz-responses/create/",
@@ -77,6 +129,16 @@ const QuizDetailCard = ({
           totalPossible: data.total_possible,
           percentageScore: data.percentage_score,
           status: data.status,
+        });
+
+        console.log("Server Response:", {
+          data,
+          formattedResponses,
+          questions: questions.map((q) => ({
+            id: q.id,
+            type: q.question_type,
+            correctChoices: q.choices?.filter((c) => c.is_correct),
+          })),
         });
 
         onQuizComplete?.(true);
@@ -115,7 +177,7 @@ const QuizDetailCard = ({
     if (isLoading || isSubmitting) {
       return (
         <div className="flex justify-center items-center h-64">
-          <DotLoaderSpinner />
+          <DotLoaderSpinner color="#6B21A8" />
           {isSubmitting && (
             <p className="ml-3 text-purple-600">Submitting your quiz...</p>
           )}
@@ -214,6 +276,7 @@ const QuizDetailCard = ({
 
   return (
     <div className="space-y-6">
+      <StudentAlert message={alertMessage} isVisible={showAlert} />
       <div className="bg-gradient-to-br from-purple-50 to-white p-8 rounded-2xl shadow-lg border-2 border-purple-100 relative">
         {/* Quiz Description */}
         <div className="mb-8">

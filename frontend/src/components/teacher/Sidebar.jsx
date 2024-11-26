@@ -18,12 +18,12 @@ function Tooltip({ name, position, isVisible }) {
   if (!isVisible) return null;
 
   const style = {
-    position: 'fixed',
+    position: "fixed",
     top: `${position.top + 12}px`,
     left: `${position.left + 10}px`,
     zIndex: 1000,
     whiteSpace: "nowrap",
-    transform: 'translateY(-100%)',
+    transform: "translateY(-100%)",
   };
 
   return createPortal(
@@ -63,10 +63,10 @@ const Sidebar = ({
   const handleMouseEnter = (name, event) => {
     if (!isSidebarOpen) {
       const rect = event.currentTarget.getBoundingClientRect();
-      const centerY = rect.top + (rect.height / 2);
-      setTooltipPosition({ 
+      const centerY = rect.top + rect.height / 2;
+      setTooltipPosition({
         top: centerY,
-        left: rect.right
+        left: rect.right,
       });
       setTooltip(name);
     }
@@ -75,9 +75,9 @@ const Sidebar = ({
   const mainTabs = [
     { name: "Dashboard", icon: <FaHome /> },
     { name: "Classroom", icon: <FaChalkboardTeacher /> },
-    { name: "Materials", icon: <MdLibraryBooks /> },
-    { name: "Scores", icon: <FaUserGraduate /> },
-    { name: "Quizzes", icon: <FaClipboardList /> },
+    // { name: "Materials", icon: <MdLibraryBooks /> },
+    // { name: "Scores", icon: <FaUserGraduate /> },
+    // { name: "Quizzes", icon: <FaClipboardList /> },
     {
       name: "SpecialED",
       icon: (
