@@ -109,9 +109,9 @@ const QuizResponseTable = ({ responses, isLoading = false }) => {
                 <span
                   className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full
                   ${
-                    response.status === "Passed"
-                      ? "bg-red-100 text-red-800"
-                      : "bg-green-100 text-green-800"
+                    response.status === "passed"
+                      ? "bg-green-100 text-green-800"
+                      : "bg-red-100 text-red-800"
                   }`}
                 >
                   {response.status.charAt(0).toUpperCase() +

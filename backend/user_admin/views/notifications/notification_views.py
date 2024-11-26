@@ -18,8 +18,8 @@ class EventNotificationViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         """Get notifications relevant to the current user"""
         user = self.request.user
-        print(f"\nFetching notifications for user: {user.username}")
-        print(f"User details - Role: {user.role}, Branch: {user.branch_name}")
+        # print(f"\nFetching notifications for user: {user.username}")
+        # print(f"User details - Role: {user.role}, Branch: {user.branch_name}")
         
         # Base queryset with related event data
         queryset = EventNotification.objects.select_related('event')
@@ -47,19 +47,19 @@ class EventNotificationViewSet(viewsets.ModelViewSet):
             try:
                 filter_date = datetime.strptime(date_filter, '%Y-%m-%d').date()
                 queryset = queryset.filter(event__date=filter_date)
-                print(f"Applying date filter: {filter_date}")
+                # print(f"Applying date filter: {filter_date}")
             except ValueError:
                 print(f"Invalid date format: {date_filter}")
         
         # Order by event date and creation time
         queryset = queryset.order_by('-event__date', '-created_at')
         
-        # Log the notifications found
-        print("\nNotifications found:")
-        for notif in queryset:
-            print(f"- Event: {notif.event.title}")
-            print(f"  Target: {notif.event.target_audience}, Branch: {notif.event.branch}")
-            print(f"  For user: {notif.user.username} ({notif.user.role})")
+        # # Log the notifications found
+        # print("\nNotifications found:")
+        # for notif in queryset:
+        #     print(f"- Event: {notif.event.title}")
+        #     print(f"  Target: {notif.event.target_audience}, Branch: {notif.event.branch}")
+        #     print(f"  For user: {notif.user.username} ({notif.user.role})")
         
         return queryset
 
