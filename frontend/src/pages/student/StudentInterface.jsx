@@ -8,13 +8,19 @@ import ClassroomCard from "../../components/student/classrooms/ClassroomCard";
 import LearningMaterialsCard from "../../components/student/materials/LearningMaterialsCard";
 import QuizCard from "../../components/student/quizzes/QuizCard";
 import QuizDetailCard from "../../components/student/quizzes/QuizDetailedCard";
+import HideScrollBar from "../../components/misc/HideScrollBar";
+import {
+  TodoQuizCard,
+  EmptyTodoCard,
+} from "../../components/student/dashboard/TodoTiles";
 import DotLoaderSpinner from "../../components/loaders/DotLoaderSpinner";
 import SpaceBG from "../../assets/img/home/space.png";
 import userThree from "../../assets/img/home/unknown.jpg";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faBook,
-  faClipboardQuestion,
+  faGraduationCap,
+  faListCheck,
   faGamepad,
 } from "@fortawesome/free-solid-svg-icons";
 import { FaArrowLeft } from "react-icons/fa";
@@ -140,7 +146,8 @@ const StudentDashboard = () => {
   };
 
   return (
-    <div className="bg-gradient-to-r from-blue-400 to-purple-500 min-h-screen relative overflow-hidden ">
+    <div className="bg-gradient-to-r from-blue-400 to-purple-500 min-h-screen relative overflow-hidden scrollbar-hide">
+      <HideScrollBar />
       <div
         className="absolute inset-0 bg-cover bg-center"
         style={{
@@ -150,7 +157,7 @@ const StudentDashboard = () => {
           opacity: 0.3,
         }}
       ></div>
-      <div className="font-comic relative z-10">
+      <div className="font-comic relative z-10 h-screen overflow-y-auto scrollbar-hide">
         <TopNav
           studentData={studentData}
           onLogout={handleLogout}
@@ -158,7 +165,7 @@ const StudentDashboard = () => {
         />
 
         <main className="mt-[calc(5rem+10px)]">
-          <div className="container mx-auto px-4">
+          <div className="container mx-auto px-4 pb-8">
             {!showClassrooms && !showQuizzes ? (
               // Initial content
               <>
@@ -167,8 +174,55 @@ const StudentDashboard = () => {
 
                 {/* Main content split into two columns */}
                 <div className="flex flex-col md:flex-row gap-6 mt-8">
-                  {/* Left Column - Cards */}
-                  <div className="md:w-1/3 space-y-6 xl:pl-32">
+                  {/* Left Column - To Do List */}
+                  <div className="md:w-2/3">
+                    <div className="flex justify-center items-center h-full">
+                      <div className="w-full max-w-2xl">
+                        {/* To Do List Header Card */}
+                        <div className="bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl p-6 shadow-lg mb-6 relative overflow-hidden">
+                          {/* Background decoration */}
+                          <div className="absolute -right-4 -top-4 w-24 h-24 bg-white rounded-full opacity-10" />
+                          <div className="absolute -left-4 -bottom-4 w-16 h-16 bg-white rounded-full opacity-10" />
+
+                          <h2 className="text-2xl font-bold text-white mb-2 relative">
+                            My To Do List
+                          </h2>
+                          <p className="text-purple-100 text-sm relative">
+                            Keep track of your learning journey!
+                          </p>
+                        </div>
+
+                        {/* Quiz Cards Container */}
+                        <div className="space-y-4">
+                          {isLoadingQuizzes ? (
+                            <div className="flex justify-center items-center min-h-[200px]">
+                              <DotLoaderSpinner color="#6B21A8" />
+                            </div>
+                          ) : quizzes.filter((quiz) => !quiz.has_submitted)
+                              .length > 0 ? (
+                            quizzes
+                              .filter((quiz) => !quiz.has_submitted)
+                              .map((quiz, index) => (
+                                <TodoQuizCard
+                                  key={quiz.id}
+                                  quiz={quiz}
+                                  index={index}
+                                  onClick={() => {
+                                    setSelectedQuiz(quiz);
+                                    setShowQuizzes(true);
+                                  }}
+                                />
+                              ))
+                          ) : (
+                            <EmptyTodoCard />
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Right Column - Cards */}
+                  <div className="md:w-1/3 space-y-6">
                     {/* My Classroom Card */}
                     <CardTiles
                       icon={faBook}
@@ -178,19 +232,10 @@ const StudentDashboard = () => {
 
                     {/* Quizzes Card */}
                     <CardTiles
-                      icon={faClipboardQuestion}
-                      title={"Quiz Time"}
+                      icon={faListCheck}
+                      title={"My Quizzes"}
                       onClick={() => setShowQuizzes(true)}
                     />
-                  </div>
-
-                  {/* Right Column */}
-                  <div className="md:w-2/3">
-                    <div className="flex justify-center items-center h-full">
-                      <p className="text-gray-500 text-lg">
-                        Select a card to view content
-                      </p>
-                    </div>
                   </div>
                 </div>
               </>
@@ -212,13 +257,17 @@ const StudentDashboard = () => {
                 )}
 
                 {showClassrooms && (
-                  <div className="bg-white p-6 rounded-lg shadow-lg overflow-hidden ">
+                  <div className="bg-white p-6 rounded-lg shadow-lg overflow-hidden scrollbar-hide">
                     {!selectedClassroom ? (
                       <>
-                        <h2 className="text-2xl font-bold text-purple-800 mb-6">
+                        <h2 className="text-3xl font-bold text-purple-800 mb-4">
                           My Classrooms
                         </h2>
-                        <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 place-items-center">
+                        <p className="text-gray-600 text-lg mb-6">
+                          Welcome to your virtual classrooms! Here you can find
+                          all your learning materials.
+                        </p>
+                        <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 place-items-center overflow-hidden scrollbar-hide">
                           {isLoading ? (
                             <div className="col-span-3 flex justify-center items-center min-h-[300px]">
                               <DotLoaderSpinner color="#6B21A8" />
@@ -252,7 +301,7 @@ const StudentDashboard = () => {
                             <span>Back to Classrooms</span>
                           </button>
                         </div>
-                        <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 place-items-center">
+                        <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 place-items-center overflow-hidden scrollbar-hide">
                           {isLoadingMaterials ? (
                             <div className="col-span-3 flex justify-center items-center min-h-[300px]">
                               <DotLoaderSpinner color="#6B21A8" />
@@ -281,12 +330,17 @@ const StudentDashboard = () => {
                 )}
 
                 {showQuizzes && (
-                  <div className="bg-white p-6 rounded-lg shadow-lg">
-                    <h2 className="text-2xl font-bold text-purple-800 mb-4">
-                      {selectedQuiz ? selectedQuiz.title : "Available Quizzes"}
+                  <div className="bg-white p-6 rounded-lg shadow-lg overflow-hidden scrollbar-hide">
+                    <h2 className="text-3xl font-bold text-purple-800 mb-4">
+                      {selectedQuiz ? selectedQuiz.title : "Your Quiz Journey"}
                     </h2>
-
-                    <div className="flex flex-col space-y-2 px-4">
+                    {!selectedQuiz && (
+                      <p className="text-gray-600 text-lg mb-6">
+                        Here you can see all your quizzes - both the ones you
+                        need to take and the ones you've completed!
+                      </p>
+                    )}
+                    <div className="flex flex-col space-y-2 px-4 overflow-hidden scrollbar-hide">
                       {isLoadingQuizzes ? (
                         <div className="col-span-3 flex justify-center items-center min-h-[300px]">
                           <DotLoaderSpinner color="#6B21A8" />
@@ -304,13 +358,20 @@ const StudentDashboard = () => {
                           }}
                         />
                       ) : quizzes && quizzes.length > 0 ? (
-                        quizzes.map((quiz) => (
-                          <QuizCard
-                            key={quiz.id}
-                            quizData={quiz}
-                            onSelect={setSelectedQuiz}
-                          />
-                        ))
+                        [...quizzes]
+                          .sort((a, b) => {
+                            if (a.has_submitted === b.has_submitted) {
+                              return a.id - b.id;
+                            }
+                            return a.has_submitted ? 1 : -1;
+                          })
+                          .map((quiz) => (
+                            <QuizCard
+                              key={quiz.id}
+                              quizData={quiz}
+                              onSelect={setSelectedQuiz}
+                            />
+                          ))
                       ) : (
                         <>
                           <p className="text-gray-500 col-span-3 text-center">
