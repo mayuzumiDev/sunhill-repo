@@ -34,10 +34,12 @@ const Dashboard = () => {
     classesData: [],
   });
   const [viewMode, setViewMode] = useState('charts'); // 'charts' or 'table'
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
+        setIsLoading(true);
         const response = await axiosInstance.get('/user-admin/dashboard/metrics/');
         if (response.status === 200) {
           console.log('Dashboard Data:', response.data);
@@ -54,6 +56,8 @@ const Dashboard = () => {
         }
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -128,13 +132,15 @@ const Dashboard = () => {
     ];
 
     return (
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-3">
         {metrics.map((metric, index) => (
-          <div key={index} className="bg-white p-4 rounded-lg shadow">
-            <h3>{metric.label}</h3>
-            <div className="flex items-center">
-              <span className="text-2xl font-bold">{metric.value}</span>
-              <span className="text-sm ml-2">Target: {metric.target}</span>
+          <div key={index} className="bg-gray-50 p-3 rounded-lg">
+            <div className="flex justify-between items-center">
+              <h3 className="text-sm text-gray-600">{metric.label}</h3>
+              <span className="text-xs text-gray-500">Target: {metric.target}</span>
+            </div>
+            <div className="mt-1">
+              <span className="text-lg font-semibold text-gray-800">{metric.value}</span>
             </div>
           </div>
         ))}
@@ -341,8 +347,84 @@ const Dashboard = () => {
     }
   };
 
+  // Add new helper function for generating insights
+  const generateInsights = () => {
+    const insights = [];
+    
+    // Growth rate insight
+    const latestGrowthRate = parseFloat(calculateGrowthRate(dashboardData.monthlyRegistrations).slice(-1)[0]);
+    if (latestGrowthRate < 5) {
+      insights.push({
+        type: 'warning',
+        title: 'Low User Growth',
+        message: 'User growth rate is below 5%. Consider implementing user acquisition campaigns.',
+        action: 'Review marketing strategy and user onboarding process'
+      });
+    }
+
+    // Student-teacher ratio insight
+    const studentTeacherRatio = dashboardData.teacherCount > 0 
+      ? dashboardData.studentCount / dashboardData.teacherCount 
+      : 0;
+    if (studentTeacherRatio > 15) {
+      insights.push({
+        type: 'alert',
+        title: 'High Student-Teacher Ratio',
+        message: `Current ratio of ${studentTeacherRatio.toFixed(1)}:1 exceeds target of 15:1`,
+        action: 'Consider hiring more teachers or redistributing classes'
+      });
+    }
+
+    // Class utilization insight
+    const classUtilization = (dashboardData.studentCount / (dashboardData.classCount * 30)) * 100;
+    if (classUtilization < 70) {
+      insights.push({
+        type: 'info',
+        title: 'Low Class Utilization',
+        message: `Classes are ${classUtilization.toFixed(1)}% utilized, below optimal levels`,
+        action: 'Consider consolidating classes or promoting available spots'
+      });
+    }
+
+    return insights;
+  };
+
+  // Add new component for displaying insights
+  const DecisionSupport = () => {
+    const insights = generateInsights();
+    
+    return (
+      <div className="bg-white p-4 md:p-6 rounded-xl shadow-sm">
+       
+        <div className="space-y-4">
+          {insights.length > 0 ? (
+            insights.map((insight, index) => (
+              <div 
+                key={index} 
+                className={`p-4 rounded-lg border ${
+                  insight.type === 'warning' ? 'bg-yellow-50 border-yellow-200' :
+                  insight.type === 'alert' ? 'bg-red-50 border-red-200' :
+                  'bg-blue-50 border-blue-200'
+                }`}
+              >
+                <h3 className="font-semibold mb-1">{insight.title}</h3>
+                <p className="text-sm text-gray-600 mb-2">{insight.message}</p>
+                <div className="flex items-center text-sm font-medium">
+                  <span className="mr-2">Recommended Action:</span>
+                  <span className="text-blue-600">{insight.action}</span>
+                </div>
+              </div>
+            ))
+          ) : (
+            <p className="text-gray-500">All metrics are within expected ranges.</p>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   return (
-    <div className="p-4 md:p-6 space-y-6 md:space-y-8  min-h-screen" id="dashboard-content">
+    <div className="p-4 md:p-6 space-y-6 md:space-y-8 min-h-screen" id="dashboard-content">
       {/* Header Section - Improved spacing and responsive design */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <h1 className="text-3xl md:text-4xl text-gray-800 font-bold">Dashboard</h1>
@@ -370,9 +452,13 @@ const Dashboard = () => {
               </div>
               <div className="flex-1">
                 <p className="text-sm text-gray-500 mb-1">{metric.label}</p>
-                <h3 className="text-2xl font-bold text-gray-800">
-                  {metric.value.toLocaleString()}
-                </h3>
+                {isLoading ? (
+                  <div className="h-8 bg-gray-200 animate-pulse rounded"></div>
+                ) : (
+                  <h3 className="text-2xl font-bold text-gray-800">
+                    {metric.value.toLocaleString()}
+                  </h3>
+                )}
               </div>
             </div>
           </div>
@@ -381,20 +467,44 @@ const Dashboard = () => {
 
       {viewMode === 'charts' ? (
         <div className="space-y-6">
-          {/* KPI Metrics - Improved card design */}
-          <div className="bg-white p-4 md:p-6 rounded-xl shadow-sm">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">Key Performance Indicators</h2>
-            <KPIMetrics />
-          </div>
+          {/* New side-by-side layout for KPI and Insights */}
+          {!isLoading && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* KPI Metrics */}
+              <div className="bg-white p-4 md:p-6 rounded-xl shadow-sm">
+                <h2 className="text-xl font-semibold text-gray-800 mb-4">Key Performance Indicators</h2>
+                <KPIMetrics />
+              </div>
+              
+              {/* Insights & Recommendations */}
+              <div className="bg-white p-4 md:p-6 rounded-xl shadow-sm">
+                <h2 className="text-xl font-semibold text-gray-800 mb-4">Insights & Recommendations</h2>
+                <DecisionSupport />
+              </div>
+            </div>
+          )}
 
-          {/* Charts Grid - Improved layout and responsiveness */}
+          {/* Charts Grid and remaining content */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-white p-4 md:p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
-              <HighchartsReact highcharts={Highcharts} options={lineChartOptions} />
-            </div>
-            <div className="bg-white p-4 md:p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
-              <HighchartsReact highcharts={Highcharts} options={pieChartOptions} />
-            </div>
+            {isLoading ? (
+              <>
+                <div className="bg-white p-4 md:p-6 rounded-xl shadow-sm">
+                  <div className="bg-gray-100 h-[300px] rounded-lg animate-pulse"></div>
+                </div>
+                <div className="bg-white p-4 md:p-6 rounded-xl shadow-sm">
+                  <div className="bg-gray-100 h-[300px] rounded-lg animate-pulse"></div>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="bg-white p-4 md:p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+                  <HighchartsReact highcharts={Highcharts} options={lineChartOptions} />
+                </div>
+                <div className="bg-white p-4 md:p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+                  <HighchartsReact highcharts={Highcharts} options={pieChartOptions} />
+                </div>
+              </>
+            )}
           </div>
 
           {/* Full-width charts */}
