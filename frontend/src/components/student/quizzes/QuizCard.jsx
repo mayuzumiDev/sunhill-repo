@@ -4,8 +4,10 @@ import { faBook } from "@fortawesome/free-solid-svg-icons";
 
 const QuizCard = ({ quizData, onSelect }) => {
   const handleClick = () => {
-    // Only allow clicking if quiz hasn't been submitted
-    if (!quizData.has_submitted) {
+    if (
+      !quizData.has_submitted &&
+      Date.parse(quizData.due_date) >= Date.now()
+    ) {
       onSelect(quizData);
     }
   };
@@ -14,7 +16,9 @@ const QuizCard = ({ quizData, onSelect }) => {
     <div
       onClick={handleClick}
       className={`bg-gradient-to-r from-purple-600 to-purple-400 rounded-xl p-6 shadow-md cursor-pointer transition-all hover:shadow-xl hover:scale-[1.02] relative overflow-hidden mx-4 mb-4 flex flex-col md:flex-row items-center ${
-        !quizData.has_submitted ? "" : "opacity-80 cursor-not-allowed"
+        !quizData.has_submitted && Date.parse(quizData.due_date) >= Date.now()
+          ? ""
+          : "opacity-80 cursor-not-allowed hover:scale-100"
       }`}
     >
       {/* Background shapes with reduced opacity */}
