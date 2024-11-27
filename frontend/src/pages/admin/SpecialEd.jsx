@@ -52,7 +52,7 @@ import HideScrollbar from "../../components/misc/HideScrollBar";
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <p className="text-xs">Name: <span>{selectedStudent?.first_name} {selectedStudent?.last_name}</span></p>
-                  <p className="text-xs">Grade: <span>{selectedStudent?.grade_level}</span></p>
+                  
                 </div>
                 <div>
                   <p className="text-xs">ID: <span>{selectedStudent?.id}</span></p>
