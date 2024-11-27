@@ -83,16 +83,16 @@ const MaterialCard = ({ material, onDelete, onEdit }) => {
           </span>
           <div className="flex gap-4">
             <FileOpener
-              fileUrl={material.file_url}
+              fileUrl={material.cloudinary_url}
               fileType={material.material_type}
             />
-            <button
+            {/* <button
               className="text-blue-600 hover:text-blue-800 text-xl"
               onClick={onEdit}
               title="Edit"
             >
               <FiEdit2 />
-            </button>
+            </button> */}
             <button
               className="text-red-600 hover:text-red-800 text-xl"
               onClick={onDelete}

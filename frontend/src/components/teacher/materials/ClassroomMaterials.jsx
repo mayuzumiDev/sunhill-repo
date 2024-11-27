@@ -33,6 +33,7 @@ const ClassroomMaterials = ({ classroomId }) => {
       );
 
       if (response.status === 200) {
+        console.log(response.data.materials_list);
         setMaterials(response.data.materials_list || []);
       }
     } catch (error) {

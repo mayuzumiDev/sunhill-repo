@@ -1,8 +1,7 @@
 from django.db import models
 from django.core.validators import FileExtensionValidator
 from user_admin.models.account_models import TeacherInfo, StudentInfo
-import cloudinary
-import cloudinary.uploader
+from cloudinary_storage.storage import RawMediaCloudinaryStorage
 from cloudinary.models import CloudinaryField
 
 GRADE_LEVEL_CHOICES = [
@@ -58,11 +57,17 @@ class EducationMaterial(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField(max_length=255, blank=True)
     material_type = models.CharField(max_length=10, choices=MATERIAL_TYPES)
-    file = CloudinaryField(
-        'education_materials',
-        resource_type='auto',
-        validators=[FileExtensionValidator(allowed_extensions=['ppt', 'pptx', 'pdf', 'jpg', 'jpeg', 'png', 'mp4', 'avi', 'doc', 'docx'])]
-    )
+    original_filename = models.CharField(max_length=255)  # Store original filename
+    file = CloudinaryField('file')  # This will store in Cloudinary
+    cloudinary_url = models.URLField(max_length=500, blank=True)  # Store the full URL
+
     uploaded_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        if self.file and not self.original_filename:
+            self.original_filename = self.file.name
+            # Store the Cloudinary URL
+            self.cloudinary_url = self.file.url
+        super().save(*args, **kwargs)
 

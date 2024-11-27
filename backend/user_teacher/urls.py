@@ -23,7 +23,7 @@ urlpatterns = [
     path('classroom/count/<int:branch_id>/', ClassroomCountByBranchView.as_view(), name='classroom_count_by_branch'),
 
     path('materials/upload/', EducationMaterialUploadView.as_view(), name="materials_upload"),
-    path('materials/edit/<int:pk>/', EducationMaterialEditView.as_view(), name='materials_edit'),
+    # path('materials/edit/<int:pk>/', EducationMaterialEditView.as_view(), name='materials_edit'),
     path('materials/delete/<int:pk>/', EducationMaterialDeleteView.as_view(), name='materials_delete'),
     path('materials/list/', EducationMaterialListView.as_view(), name='materials_list'),
 

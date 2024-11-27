@@ -23,6 +23,17 @@ class EducationMaterialUploadSerializer(serializers.ModelSerializer):
         # Just return the value as is
         return value
 
+class EducationMaterialSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EducationMaterial
+        fields = ['id', 'title', 'original_filename', 'file', 'cloudinary_url', 'material_type']
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        # Always return both the original filename and the Cloudinary URL
+        data['original_filename'] = instance.original_filename
+        data['file_url'] = instance.cloudinary_url
+        return data
 
 class EducationMaterialsEditSerializer(serializers.ModelSerializer):
     class Meta:
@@ -51,7 +62,7 @@ class EducationMaterialListSerializer(serializers.ModelSerializer):
     class Meta:
         model = EducationMaterial
         fields = ['id', 'classroom', 'title', 'description', 'material_type', 
-                 'material_type_display', 'file', 'file_url', 'uploaded_at', 'updated_at']
+                 'material_type_display', 'file', 'file_url', 'cloudinary_url', 'uploaded_at', 'updated_at']
     
     def get_file_url(self, obj):
         if obj.file:
