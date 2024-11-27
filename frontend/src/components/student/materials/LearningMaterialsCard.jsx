@@ -47,6 +47,12 @@ const LearningMaterialsCard = ({ material, onClick }) => {
     return null;
   }
 
+  console.log("Material data:", {
+    id: material.id,
+    cloudinary_url: material.cloudinary_url,
+    type: material.material_type,
+  });
+
   return (
     <>
       <div
@@ -101,7 +107,7 @@ const LearningMaterialsCard = ({ material, onClick }) => {
             </span> */}
             <FileOpener
               id={`file-opener-${material.id}`}
-              fileUrl={material.file_url}
+              fileUrl={material.cloudinary_url}
               fileType={material.material_type}
               className="opacity-0 text-white transition-colors"
             />
