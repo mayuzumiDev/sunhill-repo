@@ -117,7 +117,7 @@ class StudentAssessment(models.Model):
         if not self.completed:
             return None
 
-        responses = self.responses.all()
+        responses = AssessmentResponse.objects.filter(assessment=self)
         if not responses:
             return None
 
@@ -155,6 +155,67 @@ class StudentAssessment(models.Model):
 
         return results
 
+    @classmethod
+    def get_completion_analysis(cls, student_id):
+        """Calculate completion analysis for a student's 30 assessments"""
+        assessments = cls.objects.filter(
+            student_id=student_id,
+            completed=True
+        ).order_by('-date')[:30]
+
+        if not assessments:
+            return None
+
+        total_assessments = len(assessments)
+        completion_percentage = (total_assessments / 30) * 100
+
+        # Initialize category tracking
+        category_totals = {}
+        category_counts = {}
+        assessment_timeline = []
+
+        # Process each assessment
+        for assessment in assessments:
+            scores = assessment.calculate_category_scores()
+            if scores:
+                # Add to timeline
+                assessment_timeline.append({
+                    'date': assessment.date,
+                    'scores': scores
+                })
+
+                # Update category totals
+                for category, score in scores.items():
+                    if category not in category_totals:
+                        category_totals[category] = 0
+                        category_counts[category] = 0
+                    category_totals[category] += score
+                    category_counts[category] += 1
+
+        # Calculate average scores per category
+        category_percentages = {}
+        dominant_category = None
+        highest_score = 0
+
+        for category in category_totals:
+            if category_counts[category] > 0:
+                average = category_totals[category] / category_counts[category]
+                category_percentages[category] = round(average, 1)
+                
+                # Track highest scoring category
+                if average > highest_score:
+                    highest_score = average
+                    dominant_category = category
+
+        return {
+            'total_assessments': total_assessments,
+            'completion_percentage': completion_percentage,
+            'category_percentages': category_percentages,
+            'dominant_category': dominant_category,
+            'assessment_timeline': assessment_timeline,
+            'latest_assessment': assessments[0] if assessments else None
+        }
+
 class AssessmentResponse(models.Model):
     RESPONSE_CHOICES = [
         ('never', 'Never'),
@@ -163,7 +224,11 @@ class AssessmentResponse(models.Model):
         ('very_often', 'Very Often'),
     ]
 
-    assessment = models.ForeignKey(StudentAssessment, related_name='responses', on_delete=models.CASCADE)
+    assessment = models.ForeignKey(
+        StudentAssessment,
+        on_delete=models.CASCADE,
+        related_name='responses'
+    )
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     response = models.CharField(max_length=20, choices=RESPONSE_CHOICES)
     created_at = models.DateTimeField(auto_now_add=True)

@@ -16,6 +16,7 @@ import random
 from rest_framework import status
 from django.db.models import Count, Avg
 from collections import defaultdict
+from django.http import JsonResponse
 
 class CategoryListView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
@@ -175,41 +176,98 @@ class AssessmentUpdateView(generics.UpdateAPIView):
 
     def update(self, request, *args, **kwargs):
         try:
-            print('Assessment Update Request Data:', request.data)
             instance = self.get_object()
             
-            # Only allow updating the completed field
-            data = {'completed': request.data.get('completed', instance.completed)}
+            # Update completion status
+            instance.completed = request.data.get('completed', instance.completed)
+            instance.save()
+
+            # Get all completed assessments for this student
+            completed_assessments = StudentAssessment.objects.filter(
+                student=instance.student,
+                completed=True
+            ).order_by('date')
             
-            serializer = self.get_serializer(instance, data=data, partial=True)
-            if not serializer.is_valid():
-                print('Validation Errors:', serializer.errors)
-                return Response(
-                    {'message': 'Invalid data provided', 'errors': serializer.errors},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-            
-            self.perform_update(serializer)
-            
-            # Calculate assessment results and return with completion info
-            assessment_data = serializer.data
-            if instance.completed:
-                category_scores = instance.calculate_category_scores()
-                assessment_data.update({
-                    'category_scores': category_scores,
-                    'assessment_number': instance.assessment_number,
-                    'days_remaining': 30,
-                    'results_available_date': instance.results_available_date.isoformat() if instance.results_available_date else None,
-                    'message': f'Assessment {instance.assessment_number}/30 completed. Continue assessing for more accurate results.'
+            completed_count = completed_assessments.count()
+
+            # Calculate cumulative scores
+            cumulative_scores = defaultdict(list)
+            for assessment in completed_assessments:
+                responses = AssessmentResponse.objects.filter(assessment=assessment)
+                for response in responses:
+                    score = self.calculate_response_score(response.response)
+                    cumulative_scores[response.question.question_category].append(score)
+
+            # Calculate average scores
+            final_scores = {
+                category: (sum(scores) / len(scores)) * (100/3)
+                for category, scores in cumulative_scores.items()
+            }
+
+            response_data = {
+                'message': f'Assessment {completed_count}/30 completed successfully',
+                'assessment_number': completed_count,
+                'category_scores': final_scores,
+                'assessment': AssessmentSerializer(instance).data
+            }
+
+            # Add completion analysis for 30th assessment
+            if completed_count == 30:
+                response_data.update({
+                    'message': 'Congratulations! All 30 assessments completed!',
+                    'completion_analysis': True,
+                    'diagnosis_results': self.calculate_diagnosis_probabilities(final_scores)
                 })
-            
-            return Response(assessment_data)
+
+            return Response(response_data)
+
         except Exception as e:
-            print('Error during assessment update:', str(e))
+            print(f"Error updating assessment: {str(e)}")  # Debug log
             return Response(
                 {'message': str(e)},
                 status=status.HTTP_400_BAD_REQUEST
             )
+
+    def calculate_response_score(self, response):
+        score_mapping = {
+            'never': 0,
+            'sometimes': 1,
+            'often': 2,
+            'very_often': 3
+        }
+        return score_mapping.get(response.lower(), 0)
+
+    def calculate_diagnosis_probabilities(self, category_scores):
+        diagnosis_criteria = {
+            'ASD': {
+                'categories': ['Social', 'Behavioral', 'Communication'],
+                'threshold': 70
+            },
+            'ADHD': {
+                'categories': ['Attention', 'Hyperactivity', 'Impulsivity'],
+                'threshold': 65
+            },
+            'Learning Disability': {
+                'categories': ['Academic', 'Cognitive', 'Processing'],
+                'threshold': 60
+            }
+        }
+
+        results = {}
+        for diagnosis, criteria in diagnosis_criteria.items():
+            relevant_scores = [
+                category_scores.get(cat, 0)
+                for cat in criteria['categories']
+            ]
+            if relevant_scores:
+                avg_score = sum(relevant_scores) / len(relevant_scores)
+                probability = (avg_score / criteria['threshold']) * 100
+                results[diagnosis] = {
+                    'probability': min(probability, 100),
+                    'threshold_met': avg_score >= criteria['threshold']
+                }
+
+        return results
 
 class AssessmentDetailView(generics.RetrieveAPIView):
     permission_classes = [IsAuthenticated]
@@ -370,57 +428,206 @@ class RandomQuestionView(APIView):
 class AssessmentAnalysisView(APIView):
     def get(self, request, student_id):
         try:
+            print(f"Analyzing assessments for student ID: {student_id}")  # Debug log
+
             # Get all completed assessments for the student
             assessments = StudentAssessment.objects.filter(
                 student_id=student_id,
                 completed=True
-            ).order_by('-date')
+            ).order_by('date')
 
             total_assessments = assessments.count()
+            print(f"Found {total_assessments} completed assessments")  # Debug log
 
             if total_assessments == 0:
                 return Response({
-                    'total_assessments': 0,
-                    'category_percentages': {},
-                    'latest_assessment': None
+                    'error': 'No completed assessments found for this student'
+                }, status=status.HTTP_404_NOT_FOUND)
+
+            # Initialize data structures
+            all_responses = []
+            category_totals = defaultdict(lambda: {'total': 0, 'count': 0})
+            assessment_timeline = []
+
+            # Process each assessment
+            for assessment in assessments:
+                # Get responses directly without using prefetch_related
+                responses = AssessmentResponse.objects.filter(assessment=assessment).select_related('question')
+                assessment_scores = defaultdict(list)
+
+                for response in responses:
+                    category = response.question.question_category
+                    score = self.calculate_response_score(response.response)
+                    
+                    # Add to category totals
+                    category_totals[category]['total'] += score
+                    category_totals[category]['count'] += 1
+                    
+                    # Add to assessment scores
+                    assessment_scores[category].append(score)
+                    
+                    # Add to all responses
+                    all_responses.append({
+                        'category': category,
+                        'score': score,
+                        'assessment_number': assessment.assessment_number
+                    })
+
+                # Calculate average scores for this assessment
+                assessment_averages = {
+                    category: (sum(scores) / len(scores)) * (100/3)  # Normalize to percentage
+                    for category, scores in assessment_scores.items()
+                    if scores  # Only include categories with scores
+                }
+
+                # Add to timeline
+                assessment_timeline.append({
+                    'id': assessment.id,
+                    'date': assessment.date,
+                    'assessment_number': assessment.assessment_number,
+                    'scores': assessment_averages
                 })
 
-            # Get the latest assessment
-            latest_assessment = assessments.first()
-
-            # Calculate category percentages
-            responses = AssessmentResponse.objects.filter(assessment__in=assessments)
-            category_scores = defaultdict(list)
-
-            for response in responses:
-                category = response.question.category.title
-                # Convert response to numeric value
-                value_map = {
-                    'never': 0,
-                    'sometimes': 1,
-                    'often': 2,
-                    'very_often': 3
-                }
-                category_scores[category].append(value_map.get(response.response.lower(), 0))
-
-            # Calculate percentage for each category
+            # Calculate overall category percentages
             category_percentages = {}
-            for category, scores in category_scores.items():
-                if scores:
-                    # Calculate percentage (max score would be 3 * number of questions)
-                    max_possible = 3 * len(scores)
-                    actual_sum = sum(scores)
-                    percentage = (actual_sum / max_possible) * 100
-                    category_percentages[category] = round(percentage, 1)
+            for category, data in category_totals.items():
+                if data['count'] > 0:  # Prevent division by zero
+                    category_percentages[category] = (data['total'] / data['count']) * (100/3)  # Normalize to percentage
 
-            return Response({
+            # Find dominant category
+            if category_percentages:
+                dominant_category = max(category_percentages.items(), key=lambda x: x[1])[0]
+            else:
+                dominant_category = None
+
+            # Calculate progress trends
+            progress_trend = defaultdict(list)
+            for response in all_responses:
+                progress_trend[response['category']].append({
+                    'assessment_number': response['assessment_number'],
+                    'score': response['score'] * (100/3)  # Normalize to percentage
+                })
+
+            # Calculate diagnosis thresholds
+            diagnosis_results = {}
+            diagnosis_criteria = {
+                'ASD': {
+                    'categories': ['Social', 'Behavioral', 'Communication'],
+                    'threshold': 70
+                },
+                'ADHD': {
+                    'categories': ['Attention', 'Hyperactivity', 'Impulsivity'],
+                    'threshold': 65
+                },
+                'Learning Disability': {
+                    'categories': ['Academic', 'Cognitive', 'Processing'],
+                    'threshold': 60
+                }
+            }
+
+            # Calculate diagnosis probabilities
+            for diagnosis, criteria in diagnosis_criteria.items():
+                relevant_scores = [
+                    category_percentages[cat] 
+                    for cat in criteria['categories'] 
+                    if cat in category_percentages
+                ]
+                if relevant_scores:
+                    avg_score = sum(relevant_scores) / len(relevant_scores)
+                    probability = (avg_score / criteria['threshold']) * 100
+                    diagnosis_results[diagnosis] = {
+                        'probability': min(probability, 100),
+                        'relevant_categories': relevant_scores,
+                        'threshold_met': avg_score >= criteria['threshold']
+                    }
+
+            response_data = {
                 'total_assessments': total_assessments,
                 'category_percentages': category_percentages,
-                'latest_assessment': AssessmentSerializer(latest_assessment).data if latest_assessment else None
-            })
+                'dominant_category': dominant_category,
+                'assessment_timeline': assessment_timeline,
+                'progress_trend': dict(progress_trend),
+                'latest_assessment': assessments.last().id if assessments else None,
+                'completion_status': 'completed' if total_assessments >= 30 else 'in_progress',
+                'completion_percentage': (total_assessments / 30) * 100,
+                'diagnosis_results': diagnosis_results,
+                'detailed_responses': [
+                    {
+                        'assessment_number': assessment.assessment_number,
+                        'date': assessment.date,
+                        'responses': [
+                            {
+                                'question': response.question.question_text,
+                                'category': response.question.question_category,
+                                'response': response.response,
+                                'score': self.calculate_response_score(response.response)
+                            }
+                            for response in AssessmentResponse.objects.filter(assessment=assessment)
+                        ]
+                    }
+                    for assessment in assessments
+                ]
+            }
+
+            print("Analysis response data:", response_data)  # Debug log
+            return Response(response_data)
 
         except Exception as e:
-            return Response(
-                {'error': str(e)},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
+            print(f"Error in assessment analysis: {str(e)}")  # Debug log
+            return Response({
+                'error': str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def calculate_response_score(self, response):
+        score_mapping = {
+            'never': 0,
+            'sometimes': 1,
+            'often': 2,
+            'very_often': 3
+        }
+        return score_mapping.get(response.lower(), 0)
+
+def get_student_analysis(request, student_id):
+    try:
+        analysis = StudentAssessment.get_completion_analysis(student_id)
+        if not analysis:
+            return JsonResponse({'error': 'No completed assessments found'}, status=404)
+        
+        return JsonResponse(analysis)
+    except Exception as e:
+        print(f"Error in assessment analysis: {str(e)}")
+        return JsonResponse({'error': str(e)}, status=500)
+
+def update_assessment(request, assessment_id):
+    try:
+        assessment = StudentAssessment.objects.get(id=assessment_id)
+        assessment.completed = True
+        assessment.save()
+
+        # Get category scores for this assessment
+        category_scores = assessment.calculate_category_scores()
+
+        # Check if this is the 30th assessment
+        completed_count = StudentAssessment.objects.filter(
+            student=assessment.student,
+            completed=True
+        ).count()
+
+        response_data = {
+            'success': True,
+            'assessment_number': completed_count,
+            'category_scores': category_scores,
+        }
+
+        # If this is the 30th assessment, include the full analysis
+        if completed_count == 30:
+            full_analysis = StudentAssessment.get_completion_analysis(assessment.student.id)
+            response_data['completion_analysis'] = full_analysis
+            response_data['message'] = "Congratulations! You have completed all 30 assessments."
+
+        return JsonResponse(response_data)
+
+    except StudentAssessment.DoesNotExist:
+        return JsonResponse({'error': 'Assessment not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
