@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { axiosInstance } from "../../../utils/axiosInstance";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPlus, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
 
 const CreateQuiz = ({ classroomId, onQuizCreated, onError, onCancel }) => {
   const [formData, setFormData] = useState({
@@ -15,6 +17,7 @@ const CreateQuiz = ({ classroomId, onQuizCreated, onError, onCancel }) => {
     { value: "single", label: "Single Choice" },
     { value: "multi", label: "Multiple Choice" },
     { value: "identification", label: "Identification" },
+    { value: "true_false", label: "True or False" },
   ];
 
   const handleChange = (e) => {
@@ -161,7 +164,11 @@ const CreateQuiz = ({ classroomId, onQuizCreated, onError, onCancel }) => {
       const quizResponse = await axiosInstance.post(
         "/user-teacher/quiz/create/",
         {
-          ...formData,
+          title: formData.title,
+          description: formData.description,
+          due_date: formData.dueDate
+            ? new Date(formData.dueDate).toISOString()
+            : null,
           classroom: classroomId,
         }
       );
@@ -368,19 +375,10 @@ const CreateQuiz = ({ classroomId, onQuizCreated, onError, onCancel }) => {
                         onClick={() => handleAddOption(questionIndex)}
                         className="inline-flex items-center px-4 py-2 text-sm font-bold text-blue-700 bg-blue-50 rounded-lg hover:bg-blue-100 border border-transparent hover:border-blue-200 transition-all duration-200"
                       >
-                        <svg
+                        <FontAwesomeIcon
+                          icon={faPlus}
                           className="w-4 h-4 mr-2 text-blue-600"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                          />
-                        </svg>
+                        />
                         Add Option
                       </button>
                       <button
@@ -388,21 +386,56 @@ const CreateQuiz = ({ classroomId, onQuizCreated, onError, onCancel }) => {
                         onClick={() => handleDeleteQuestion(questionIndex)}
                         className="inline-flex items-center px-4 py-2 ml-3 text-sm font-bold text-red-700 bg-red-50 rounded-lg hover:bg-red-100 border border-transparent hover:border-red-200 transition-all duration-200"
                       >
-                        <svg
+                        <FontAwesomeIcon
+                          icon={faTrashAlt}
                           className="w-4 h-4 mr-2 text-red-600"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                          />
-                        </svg>
+                        />
                         Delete Question
                       </button>
+                    </div>
+                  </div>
+                )}
+
+                {question.question_type === "true_false" && (
+                  <div className="mt-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Correct Answer
+                    </label>
+                    <div className="space-x-4">
+                      <label className="inline-flex items-center">
+                        <input
+                          type="radio"
+                          name={`correct_answer_${questionIndex}`}
+                          value="true"
+                          checked={question.correct_answer === "true"}
+                          onChange={(e) =>
+                            handleQuestionChange(
+                              questionIndex,
+                              "correct_answer",
+                              e.target.value
+                            )
+                          }
+                          className="form-radio h-4 w-4 text-blue-600"
+                        />
+                        <span className="ml-2">True</span>
+                      </label>
+                      <label className="inline-flex items-center">
+                        <input
+                          type="radio"
+                          name={`correct_answer_${questionIndex}`}
+                          value="false"
+                          checked={question.correct_answer === "false"}
+                          onChange={(e) =>
+                            handleQuestionChange(
+                              questionIndex,
+                              "correct_answer",
+                              e.target.value
+                            )
+                          }
+                          className="form-radio h-4 w-4 text-blue-600"
+                        />
+                        <span className="ml-2">False</span>
+                      </label>
                     </div>
                   </div>
                 )}

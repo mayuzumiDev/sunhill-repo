@@ -13,3 +13,20 @@ class QuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Question
         fields = ['id', 'quiz', 'text', 'image', 'question_type', 'correct_answer', 'choices']
+
+    def validate(self, data):
+        """
+        Custom validation for different question types
+        """
+        question_type = data.get('question_type')
+        correct_answer = data.get('correct_answer')
+
+        if question_type == 'true_false':
+            # Ensure correct_answer is provided for true/false questions
+            if correct_answer is None:
+                data['correct_answer'] = 'false'  # Default to false if not provided
+            else:
+                # Normalize the boolean answer to string
+                data['correct_answer'] = str(correct_answer).lower()
+
+        return data

@@ -1,7 +1,28 @@
+import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faClipboardQuestion } from "@fortawesome/free-solid-svg-icons";
 
 const QuizResponseTable = ({ responses, isLoading = false }) => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const rowsPerPage = 10;
+
+  // Calculate pagination values
+  const indexOfLastRow = currentPage * rowsPerPage;
+  const indexOfFirstRow = indexOfLastRow - rowsPerPage;
+  const currentRows = responses
+    ? responses.slice(indexOfFirstRow, indexOfLastRow)
+    : [];
+  const totalPages = responses ? Math.ceil(responses.length / rowsPerPage) : 0;
+
+  // Handle page navigation
+  const handlePrevPage = () => {
+    setCurrentPage((prev) => Math.max(prev - 1, 1));
+  };
+
+  const handleNextPage = () => {
+    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+  };
+
   if (isLoading) {
     return (
       <div className="overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">

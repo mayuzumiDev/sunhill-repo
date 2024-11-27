@@ -23,6 +23,7 @@ const EditQuiz = ({
     { value: "single", label: "Single Choice" },
     { value: "multi", label: "Multiple Choice" },
     { value: "identification", label: "Identification" },
+    { value: "true_false", label: "True or False" },
   ];
 
   // Fetch existing quiz data and its questions
@@ -43,8 +44,10 @@ const EditQuiz = ({
 
         setFormData({
           title: quizData.title,
-          description: quizData.description,
-          dueDate: quizData.due_date || "",
+          description: quizData.description || "",
+          dueDate: quizData.due_date
+            ? new Date(quizData.due_date).toISOString().slice(0, 16)
+            : "",
         });
 
         // Fetch questions for this quiz
@@ -73,6 +76,10 @@ const EditQuiz = ({
               .map((c, idx) => (c.is_correct ? idx.toString() : null))
               .filter((idx) => idx !== null);
             formattedQuestion.correct_answer = "";
+          } else if (q.question_type === "true_false") {
+            formattedQuestion.correct_answer = q.correct_answer || "false";
+            formattedQuestion.correct_answers = [];
+            formattedQuestion.options = [];
           } else {
             // single choice
             formattedQuestion.correct_answer = q.choices
@@ -233,6 +240,8 @@ const EditQuiz = ({
           text,
           is_correct: questionData.correct_answers.includes(index.toString()),
         }));
+      } else if (questionData.question_type === "true_false") {
+        choices = []; // No choices needed for true/false
       } else {
         // single choice
         choices = questionData.options.map((text, index) => ({
@@ -248,6 +257,10 @@ const EditQuiz = ({
           text: questionData.text,
           question_type: questionData.question_type,
           choices: choices,
+          correct_answer:
+            questionData.question_type === "true_false"
+              ? questionData.correct_answer
+              : undefined,
         }
       );
 
@@ -268,7 +281,11 @@ const EditQuiz = ({
       const quizResponse = await axiosInstance.put(
         `/user-teacher/quiz/update/${quizId}/`,
         {
-          ...formData,
+          title: formData.title,
+          description: formData.description,
+          due_date: formData.dueDate
+            ? new Date(formData.dueDate).toISOString()
+            : null,
           classroom: classroomId,
         }
       );
@@ -531,6 +548,50 @@ const EditQuiz = ({
                         </svg>
                         Delete Question
                       </button>
+                    </div>
+                  </div>
+                )}
+
+                {question.question_type === "true_false" && (
+                  <div className="mt-4">
+                    <label className="block text-sm font-bold text-gray-700 mb-2">
+                      Correct Answer
+                    </label>
+                    <div className="space-x-4">
+                      <label className="inline-flex items-center">
+                        <input
+                          type="radio"
+                          name={`correct_answer_${questionIndex}`}
+                          value="true"
+                          checked={question.correct_answer === "true"}
+                          onChange={(e) =>
+                            handleQuestionChange(
+                              questionIndex,
+                              "correct_answer",
+                              e.target.value
+                            )
+                          }
+                          className="form-radio h-4 w-4 text-blue-600"
+                        />
+                        <span className="ml-2">True</span>
+                      </label>
+                      <label className="inline-flex items-center">
+                        <input
+                          type="radio"
+                          name={`correct_answer_${questionIndex}`}
+                          value="false"
+                          checked={question.correct_answer === "false"}
+                          onChange={(e) =>
+                            handleQuestionChange(
+                              questionIndex,
+                              "correct_answer",
+                              e.target.value
+                            )
+                          }
+                          className="form-radio h-4 w-4 text-blue-600"
+                        />
+                        <span className="ml-2">False</span>
+                      </label>
                     </div>
                   </div>
                 )}

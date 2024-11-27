@@ -35,6 +35,7 @@ const StudentDashboard = () => {
   const [selectedClassroom, setSelectedClassroom] = useState(null);
   const [selectedQuiz, setSelectedQuiz] = useState(null);
   const [isQuizStarted, setIsQuizStarted] = useState(false);
+  const [hasQuizScore, setHasQuizScore] = useState(false);
 
   const [studentData, setStudentData] = useState({
     name: "Loading...",
@@ -45,6 +46,9 @@ const StudentDashboard = () => {
   const [classrooms, setClassrooms] = useState([]);
   const [learningMaterials, setLearningMaterials] = useState([]);
   const [quizzes, setQuizzes] = useState([]);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
   useEffect(() => {
     if (selectedClassroom) {
@@ -212,10 +216,17 @@ const StudentDashboard = () => {
                             <div className="flex justify-center items-center min-h-[200px]">
                               <DotLoaderSpinner color="#6B21A8" />
                             </div>
-                          ) : quizzes.filter((quiz) => !quiz.has_submitted)
-                              .length > 0 ? (
+                          ) : quizzes.filter(
+                              (quiz) =>
+                                !quiz.has_submitted &&
+                                Date.parse(quiz.due_date) > Date.now()
+                            ).length > 0 ? (
                             quizzes
-                              .filter((quiz) => !quiz.has_submitted)
+                              .filter(
+                                (quiz) =>
+                                  !quiz.has_submitted &&
+                                  Date.parse(quiz.due_date) > Date.now()
+                              )
                               .map((quiz, index) => (
                                 <TodoQuizCard
                                   key={quiz.id}
@@ -256,13 +267,15 @@ const StudentDashboard = () => {
             ) : (
               // Classroom or Quiz content
               <div className="p-4">
-                {!selectedClassroom && (
+                {!selectedClassroom && !hasQuizScore && !isQuizStarted && (
                   <button
                     onClick={() => {
                       setShowClassrooms(false);
                       setShowQuizzes(false);
                       setSelectedClassroom(false);
                       setSelectedQuiz(false);
+                      setHasQuizScore(false);
+                      setIsQuizStarted(false);
                     }}
                     className="mb-6 flex items-center bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-3 rounded-full font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
                   >
@@ -271,7 +284,7 @@ const StudentDashboard = () => {
                 )}
 
                 {showClassrooms && (
-                  <div className="bg-white p-6 rounded-lg shadow-lg overflow-hidden scrollbar-hide">
+                  <div className="bg-white p-6 rounded-lg shadow-lg overflow-hidden scrollbar-hide lg:max-w-[1000px] xl:max-w-[1200px] mx-auto">
                     {!selectedClassroom ? (
                       <>
                         <h2 className="text-3xl font-bold text-purple-800 mb-4">
@@ -344,7 +357,7 @@ const StudentDashboard = () => {
                 )}
 
                 {showQuizzes && (
-                  <div className="bg-white p-6 rounded-lg shadow-lg overflow-hidden scrollbar-hide">
+                  <div className="bg-white p-6 rounded-lg shadow-lg overflow-hidden scrollbar-hide lg:max-w-[1000px] xl:max-w-[1200px] mx-auto">
                     <h2 className="text-3xl font-bold text-purple-800 mb-4">
                       {selectedQuiz ? selectedQuiz.title : "Your Quiz Journey"}
                     </h2>
@@ -364,29 +377,81 @@ const StudentDashboard = () => {
                           quizData={selectedQuiz}
                           isQuizStarted={isQuizStarted}
                           onQuizComplete={handleQuizComplete}
+                          onQuizScoreChange={setHasQuizScore}
                           onStartQuiz={() => {
                             setIsQuizStarted(true);
                           }}
                           onBack={() => {
                             setSelectedQuiz(null);
                             setIsQuizStarted(false);
+                            setHasQuizScore(false);
                           }}
                         />
                       ) : quizzes && quizzes.length > 0 ? (
-                        [...quizzes]
-                          .sort((a, b) => {
-                            if (a.has_submitted === b.has_submitted) {
-                              return a.id - b.id;
-                            }
-                            return a.has_submitted ? 1 : -1;
-                          })
-                          .map((quiz) => (
-                            <QuizCard
-                              key={quiz.id}
-                              quizData={quiz}
-                              onSelect={setSelectedQuiz}
-                            />
-                          ))
+                        <>
+                          {[...quizzes]
+                            .sort((a, b) => {
+                              if (a.has_submitted === b.has_submitted) {
+                                return a.id - b.id;
+                              }
+                              return a.has_submitted ? 1 : -1;
+                            })
+                            .slice(
+                              (currentPage - 1) * itemsPerPage,
+                              currentPage * itemsPerPage
+                            )
+                            .map((quiz) => (
+                              <QuizCard
+                                key={quiz.id}
+                                quizData={quiz}
+                                onSelect={setSelectedQuiz}
+                              />
+                            ))}
+
+                          {/* Pagination Controls */}
+                          <div className="mt-8 border-t border-purple-200"></div>
+                          <div className="flex justify-center items-center space-x-4 mt-8 mb-6">
+                            <button
+                              onClick={() =>
+                                setCurrentPage((prev) => Math.max(1, prev - 1))
+                              }
+                              disabled={currentPage === 1}
+                              className={`px-4 py-2 rounded-md transition-all duration-300 ${
+                                currentPage === 1
+                                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                  : "bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:shadow-lg transform hover:scale-105"
+                              }`}
+                            >
+                              Previous
+                            </button>
+                            <span className="text-gray-600 font-medium">
+                              Page {currentPage} of{" "}
+                              {Math.ceil(quizzes.length / itemsPerPage)}
+                            </span>
+                            <button
+                              onClick={() =>
+                                setCurrentPage((prev) =>
+                                  Math.min(
+                                    Math.ceil(quizzes.length / itemsPerPage),
+                                    prev + 1
+                                  )
+                                )
+                              }
+                              disabled={
+                                currentPage >=
+                                Math.ceil(quizzes.length / itemsPerPage)
+                              }
+                              className={`px-4 py-2 rounded-md transition-all duration-300 ${
+                                currentPage >=
+                                Math.ceil(quizzes.length / itemsPerPage)
+                                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                  : "bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:shadow-lg transform hover:scale-105"
+                              }`}
+                            >
+                              Next
+                            </button>
+                          </div>
+                        </>
                       ) : (
                         <>
                           <p className="text-gray-500 col-span-3 text-center">

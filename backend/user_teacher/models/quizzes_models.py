@@ -17,6 +17,7 @@ class Question(models.Model):
         ('single', 'Single Choice'),
         ('multi', 'Multiple Choice'),
         ('identification', 'Identification'),
+        ('true_false', 'True or False')
     ]
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='questions')
     text = models.TextField()

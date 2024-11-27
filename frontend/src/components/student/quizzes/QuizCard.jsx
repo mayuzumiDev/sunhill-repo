@@ -48,7 +48,15 @@ const QuizCard = ({ quizData, onSelect }) => {
           </div>
 
           {/* Status indicator */}
-          {quizData.has_submitted ? (
+          {Date.parse(quizData.due_date) < Date.now() &&
+          !quizData.has_submitted ? (
+            <div className="flex items-center px-4 border-l border-white/20">
+              <span className="h-4 w-4 rounded-full bg-red-500 mr-3"></span>
+              <span className="text-white/90 text-base font-medium">
+                Quiz past due date!
+              </span>
+            </div>
+          ) : quizData.has_submitted ? (
             <div className="flex items-center px-4 border-l border-white/20">
               <span className="h-4 w-4 rounded-full bg-green-300 mr-3"></span>
               <span className="text-white/90 text-base font-medium">

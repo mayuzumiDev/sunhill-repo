@@ -39,6 +39,9 @@ class QuizResponseSerializer(serializers.ModelSerializer):
         elif question.question_type == 'identification':
             if not isinstance(answer, str):
                 raise serializers.ValidationError(f"Identification answer must be text")
+        elif question.question_type == 'true_false':
+            if not isinstance(answer, bool) and not isinstance(answer, str):
+                raise serializers.ValidationError(f"True/False answer must be a boolean or string")
 
     @transaction.atomic
     def create(self, validated_data):
@@ -97,7 +100,12 @@ class QuizResponseSerializer(serializers.ModelSerializer):
     
     def _check_answer(self, question, answer):
         """Check if the answer is correct based on question type"""
-        if question.question_type == 'single':
+        if question.question_type == 'true_false':
+            # Convert both answers to lowercase strings for comparison
+            student_answer = str(answer).lower().strip()
+            correct_answer = str(question.correct_answer).lower().strip()
+            return student_answer == correct_answer
+        elif question.question_type == 'single':
             # For single choice, check both by ID and text
             try:
                 # Try by ID first

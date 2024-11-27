@@ -163,7 +163,7 @@ const ClassroomActions = ({ onClose, classroomData }) => {
                 Students Lists
               </h3>
               <button
-                onClick={() => setSelectedAction("students")}
+                onClick={() => setSelectedAction(null)}
                 className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-green-500 border border-transparent rounded-md shadow-sm hover:bg-green-600 transition-all duration-300 ease-in-out transform hover:scale-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
               >
                 Close
@@ -181,7 +181,7 @@ const ClassroomActions = ({ onClose, classroomData }) => {
                 Quiz Scores
               </h3>
               <button
-                onClick={() => setSelectedAction("scores")}
+                onClick={() => setSelectedAction(null)}
                 className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-green-500 border border-transparent rounded-md shadow-sm hover:bg-green-600 transition-all duration-300 ease-in-out transform hover:scale-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
               >
                 Close
@@ -199,7 +199,7 @@ const ClassroomActions = ({ onClose, classroomData }) => {
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-xl font-semibold text-gray-700">Quizzes</h3>
               <button
-                onClick={() => setSelectedAction("quizzes")}
+                onClick={() => setSelectedAction(null)}
                 className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-green-500 border border-transparent rounded-md shadow-sm hover:bg-green-600 transition-all duration-300 ease-in-out transform hover:scale-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
               >
                 Close
@@ -236,7 +236,7 @@ const ClassroomActions = ({ onClose, classroomData }) => {
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-xl font-semibold text-gray-700">Materials</h3>
               <button
-                onClick={() => setSelectedAction("materials")}
+                onClick={() => setSelectedAction(null)}
                 className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-green-500 border border-transparent rounded-md shadow-sm hover:bg-green-600 transition-all duration-300 ease-in-out transform hover:scale-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
               >
                 Close
