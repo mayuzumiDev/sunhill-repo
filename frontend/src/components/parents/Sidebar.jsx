@@ -67,7 +67,7 @@ const SideNavbar = ({
   const navItems = [
     { name: "Dashboard", icon: FaHome },
     { name: "Students", icon: FaUser },
-    { name: "Assignments", icon: FaBook },
+    { name: "Scores", icon: FaBook },
     // { name: "Messages", icon: FaEnvelope },
     // { name: "Analytics", icon: FaChartLine },
     { name: "Settings", icon: FaCog },
@@ -90,7 +90,11 @@ const SideNavbar = ({
     <div
       className={`h-full flex flex-col transition-all duration-300 ${
         isSidebarOpen ? "w-64" : "w-20"
-      } ${darkMode ? "bg-gray-900 text-white" : "bg-gradient-to-r from-orange-500 to-orange-700 text-white"} ${window.innerWidth < 1024 && !isSidebarOpen ? "hidden" : ""}`}
+      } ${
+        darkMode
+          ? "bg-gray-900 text-white"
+          : "bg-gradient-to-r from-orange-500 to-orange-700 text-white"
+      } ${window.innerWidth < 1024 && !isSidebarOpen ? "hidden" : ""}`}
     >
       <div className="flex items-center justify-between p-6 border-b">
         <div className="flex items-center p4">
@@ -114,14 +118,18 @@ const SideNavbar = ({
                   LMS
                 </h1>
               </div>
-              <p className="text-xs italic mt-1 ml-1">Educating the Leaders of the Future...Today!</p>
+              <p className="text-xs italic mt-1 ml-1">
+                Educating the Leaders of the Future...Today!
+              </p>
             </div>
           )}
         </div>
       </div>
 
       <nav className="mt-7 flex-1">
-        <h1 className={`text-md ml-4 font-bold ${!isSidebarOpen && "hidden"}`}>Menu</h1>
+        <h1 className={`text-md ml-4 font-bold ${!isSidebarOpen && "hidden"}`}>
+          Menu
+        </h1>
         <ul className="space-y-4 py-4">
           {navItems.map((item) => (
             <li key={item.name} className="flex justify-left ml-3 text-white">
@@ -131,11 +139,17 @@ const SideNavbar = ({
                 onMouseLeave={handleMouseLeave}
                 className={`flex items-center px-4 py-2 text-center rounded-full transition-all duration-200 ${
                   currentTab === item.name
-                    ? `${darkMode ? "bg-gray-700 text-white" : "bg-white text-orange-500"} w-10/12`
+                    ? `${
+                        darkMode
+                          ? "bg-gray-700 text-white"
+                          : "bg-white text-orange-500"
+                      } w-10/12`
                     : `hover:bg-orange-400 hover:text-white w-10/12` // Darker orange for hover
                 }`}
               >
-                <item.icon className={`h-5 w-5 ${isSidebarOpen ? "mr-2" : "mr-0"}`} />
+                <item.icon
+                  className={`h-5 w-5 ${isSidebarOpen ? "mr-2" : "mr-0"}`}
+                />
                 {isSidebarOpen && <span>{item.name}</span>}
               </button>
             </li>
@@ -155,7 +169,11 @@ const SideNavbar = ({
           </div>
         </footer>
       )}
-       <Tooltip name={tooltip} position={tooltipPosition} isVisible={!!tooltip} />
+      <Tooltip
+        name={tooltip}
+        position={tooltipPosition}
+        isVisible={!!tooltip}
+      />
     </div>
   );
 };
