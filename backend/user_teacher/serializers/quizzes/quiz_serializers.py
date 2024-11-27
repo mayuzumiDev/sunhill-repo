@@ -2,6 +2,7 @@ from rest_framework import serializers
 from user_teacher.models.quizzes_models import Quiz
 from user_teacher.models.classroom_models import Classroom
 from user_admin.models.account_models import TeacherInfo
+from django.utils import timezone
 
 class QuizSerializer(serializers.ModelSerializer):
     classroom_name = serializers.SerializerMethodField()
@@ -53,5 +54,14 @@ class QuizSerializer(serializers.ModelSerializer):
     def validate(self, data):
         if not data.get('title'):
             raise serializers.ValidationError({"title": "Quiz title cannot be empty"})
+        
+        # Validate due_date
+        due_date = data.get('due_date')
+        if not due_date:
+            raise serializers.ValidationError({"due_date": "Due date is required"})
+
+        # Check if due date is in the past
+        if due_date < timezone.now():
+            raise serializers.ValidationError({"due_date": "Due date cannot be in the past"})
         
         return data

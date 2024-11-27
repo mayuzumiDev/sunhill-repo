@@ -6,9 +6,11 @@ const QuestionCard = ({
   totalQuestions,
   onNext,
   onPrev,
+  onBack,
 }) => {
   const [selectedChoices, setSelectedChoices] = useState([]);
   const [answer, setAnswer] = useState("");
+  const [booleanAnswer, setBooleanAnswer] = useState(""); // for true/false questions
 
   const handleChoiceClick = (choiceId) => {
     if (question.question_type === "multi") {
@@ -23,13 +25,44 @@ const QuestionCard = ({
   };
 
   const renderChoices = () => {
+    if (question.question_type === "true_false") {
+      return (
+        <div className="grid grid-cols-2 gap-4">
+          <button
+            onClick={() => setBooleanAnswer("true")}
+            className={`text-center text-xl  font-bold p-6 rounded-xl border-2 
+              max-w-[300px] w-full mx-auto
+              ${
+                booleanAnswer === "true"
+                  ? "border-purple-500 bg-purple-50"
+                  : "border-purple-100 hover:border-purple-500 hover:bg-purple-50"
+              } transition-all`}
+          >
+            True
+          </button>
+          <button
+            onClick={() => setBooleanAnswer("false")}
+            className={`text-center text-xl  font-bold p-6 rounded-xl border-2 
+              max-w-[300px] w-full mx-auto
+              ${
+                booleanAnswer === "false"
+                  ? "border-purple-500 bg-purple-50"
+                  : "border-purple-100 hover:border-purple-500 hover:bg-purple-50"
+              } transition-all`}
+          >
+            False
+          </button>
+        </div>
+      );
+    }
+
     if (question.question_type === "identification") {
       return (
         <input
           type="text"
           value={answer}
           onChange={(e) => setAnswer(e.target.value)}
-          className="w-full p-4 rounded-xl border-2 border-purple-100 
+          className="text-xl font-bold w-full p-4 rounded-xl border-2 border-purple-100 max-w-[300px] mx-auto
                    focus:border-purple-500 focus:outline-none"
           placeholder="Type your answer here..."
         />
@@ -42,7 +75,8 @@ const QuestionCard = ({
           <button
             key={choice.id}
             onClick={() => handleChoiceClick(choice.id)}
-            className={`text-left p-6 rounded-xl border-2 
+            className={`text-center text-xl  font-bold p-6 rounded-xl border-2 
+              max-w-[300px] w-full mx-auto
               ${
                 selectedChoices.includes(choice.id)
                   ? "border-purple-500 bg-purple-50"
@@ -75,7 +109,7 @@ const QuestionCard = ({
 
       {/* Question Content */}
       <div className="mb-8">
-        <h3 className="text-3xl font-bold text-gray-700 mb-6 p-4 bg-purple-50 rounded-lg">
+        <h3 className="text-4xl font-extrabold  text-gray-700 mb-6 p-4 bg-purple-50 rounded-lg">
           {question?.text}
         </h3>
         {question?.image && (
@@ -92,16 +126,22 @@ const QuestionCard = ({
       <div className="flex justify-between gap-4">
         <button
           onClick={() => {
-            setSelectedChoices([]);
-            setAnswer("");
-            onPrev();
+            if (currentQuestionIndex === 0) {
+              onBack();
+            } else {
+              setSelectedChoices([]);
+              setAnswer("");
+              setBooleanAnswer("");
+              onPrev();
+            }
           }}
-          disabled={currentQuestionIndex === 0}
+          // disabled={currentQuestionIndex === 0}
           className="flex-1 py-3 px-6 rounded-xl border-2 border-purple-600 
                    text-purple-600 font-semibold hover:bg-purple-50 
-                   disabled:opacity-50 disabled:cursor-not-allowed"
+                   disabled:opacity-50 disabled:cursor-not-allowed
+                   min-w-[120px] max-w-[200px] sm:min-w-[150px] sm:max-w-[250px]"
         >
-          Previous
+          {currentQuestionIndex === 0 ? "Quiz Menu" : "Previous"}
         </button>
         <button
           onClick={() => {
@@ -110,20 +150,29 @@ const QuestionCard = ({
               answer:
                 question.question_type === "identification"
                   ? answer
+                  : question.question_type === "true_false"
+                  ? booleanAnswer
                   : selectedChoices,
             };
             onNext(response);
-            setSelectedChoices([]);
-            setAnswer("");
+            // Only clear answers if it's not the last question
+            if (currentQuestionIndex !== totalQuestions - 1) {
+              setSelectedChoices([]);
+              setAnswer("");
+              setBooleanAnswer("");
+            }
           }}
           disabled={
             (question.question_type === "identification" && !answer) ||
+            (question.question_type === "true_false" && !booleanAnswer) ||
             (question.question_type !== "identification" &&
+              question.question_type !== "true_false" &&
               selectedChoices.length === 0)
           }
           className="flex-1 py-3 px-6 rounded-xl bg-purple-600 text-white 
                    font-semibold hover:bg-purple-700 transition-all
-                   disabled:opacity-50 disabled:cursor-not-allowed"
+                   disabled:opacity-50 disabled:cursor-not-allowed
+                   min-w-[120px] max-w-[200px] sm:min-w-[150px] sm:max-w-[250px]"
         >
           {currentQuestionIndex === totalQuestions - 1 ? "Finish" : "Next"}
         </button>

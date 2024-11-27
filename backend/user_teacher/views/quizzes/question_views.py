@@ -20,14 +20,20 @@ class QuestionCreateView(generics.CreateAPIView):
         serializer.is_valid(raise_exception=True)
         question = serializer.save()
         
-        # Handle choices if provided
-        choices_data = request.data.get('choices', [])
-        for choice_data in choices_data:
-            Choice.objects.create(
-                question=question,
-                text=choice_data.get('text'),
-                is_correct=choice_data.get('is_correct', False)
-            )
+        # Handle true/false questions
+        if question.question_type == 'true_false':
+            correct_answer = request.data.get('correct_answer', 'false')
+            question.correct_answer = str(correct_answer).lower()
+            question.save()
+        else:
+            # Handle choices if provided
+            choices_data = request.data.get('choices', [])
+            for choice_data in choices_data:
+                Choice.objects.create(
+                    question=question,
+                    text=choice_data.get('text'),
+                    is_correct=choice_data.get('is_correct', False)
+                )
 
         updated_serializer = self.get_serializer(question)
         return Response(
@@ -72,18 +78,26 @@ class QuestionDetailView(generics.RetrieveUpdateDestroyAPIView):
         serializer.is_valid(raise_exception=True)
         question = serializer.save()
         
-        # Handle choices update if provided
-        choices_data = request.data.get('choices')
-        if choices_data:
-            # Clear existing choices
+        # Handle true/false questions
+        if question.question_type == 'true_false':
+            correct_answer = request.data.get('correct_answer', 'false')
+            question.correct_answer = str(correct_answer).lower()
+            question.save()
+            # Clear any existing choices
             question.choices.all().delete()
-            # Create new choices
-            for choice_data in choices_data:
-                Choice.objects.create(
-                    question=question,
-                    text=choice_data.get('text'),
-                    is_correct=choice_data.get('is_correct', False)
-                )
+        else:
+            # Handle choices update if provided
+            choices_data = request.data.get('choices')
+            if choices_data:
+                # Clear existing choices
+                question.choices.all().delete()
+                # Create new choices
+                for choice_data in choices_data:
+                    Choice.objects.create(
+                        question=question,
+                        text=choice_data.get('text'),
+                        is_correct=choice_data.get('is_correct', False)
+                    )
 
         # Get updated data with choices
         updated_serializer = self.get_serializer(question)
