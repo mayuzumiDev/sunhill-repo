@@ -102,6 +102,7 @@ class CurrentParentSerializer(serializers.ModelSerializer):
                             'grade_level': student_info.grade_level,
                             'first_name': user.first_name,
                             'last_name': user.last_name,
+                            'branch_name': user.branch_name,
                             'email': user.email,
                             'user_info': user_info_data
                         })

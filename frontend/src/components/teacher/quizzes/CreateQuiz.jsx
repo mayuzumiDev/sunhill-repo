@@ -487,9 +487,11 @@ const CreateQuiz = ({ classroomId, onQuizCreated, onError, onCancel }) => {
             </button>
             <button
               type="submit"
-              disabled={isSubmitting}
+              disabled={
+                isSubmitting || questions.length === 0 || !formData.dueDate
+              }
               className={`px-4 py-2 text-sm font-bold text-white rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 ${
-                isSubmitting
+                isSubmitting || questions.length === 0 || !formData.dueDate
                   ? "bg-green-400 cursor-not-allowed"
                   : "bg-green-600 hover:bg-green-700"
               }`}

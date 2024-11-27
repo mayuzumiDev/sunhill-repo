@@ -1,90 +1,176 @@
-import React, { useState, useEffect } from 'react';
-import { FaUserGraduate, FaChartLine, FaClipboardCheck, FaExclamationTriangle, FaCalendarCheck, FaBookReader } from 'react-icons/fa';
-import { IoTrendingUp } from 'react-icons/io5';
-import Highcharts from 'highcharts';
-import HighchartsReact from 'highcharts-react-official';
+import React, { useState, useEffect } from "react";
+import {
+  FaUserGraduate,
+  FaChartLine,
+  FaClipboardCheck,
+  FaExclamationTriangle,
+  FaCalendarCheck,
+  FaBookReader,
+} from "react-icons/fa";
+import { IoTrendingUp } from "react-icons/io5";
+import Highcharts from "highcharts";
+import HighchartsReact from "highcharts-react-official";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
-import { motion } from 'framer-motion';
+import { motion } from "framer-motion";
 import parentIllusMon from "../../assets/img/home/illustrationMon.png";
 import { axiosInstance } from "../../utils/axiosInstance";
+import HideScrollbar from "../../components/misc/HideScrollBar";
+import QuizScoreDonutChart from "../../components/parent/charts/QuizScoreDonutChart";
+import QuizScoreLineChart from "../../components/parent/charts/QuizScoreLineChart";
 // ... import other daily illustrations similarly
 
 // Add this new component at the top of the file
 const DailyIllustration = ({ day, darkMode }) => {
   const illustrations = {
-    0: { // Sunday
+    0: {
+      // Sunday
       color: "from-purple-400 to-pink-500",
       icon: (
         <svg className="w-full h-full" viewBox="0 0 200 200" fill="none">
-          <circle cx="100" cy="100" r="80" className="fill-current text-purple-200 dark:text-purple-900"/>
-          <path d="M100 50v100M50 100h100" stroke="currentColor" strokeWidth="8" strokeLinecap="round"/>
-          <circle cx="100" cy="100" r="20" className="fill-current text-purple-500"/>
+          <circle
+            cx="100"
+            cy="100"
+            r="80"
+            className="fill-current text-purple-200 dark:text-purple-900"
+          />
+          <path
+            d="M100 50v100M50 100h100"
+            stroke="currentColor"
+            strokeWidth="8"
+            strokeLinecap="round"
+          />
+          <circle
+            cx="100"
+            cy="100"
+            r="20"
+            className="fill-current text-purple-500"
+          />
         </svg>
-      )
+      ),
     },
-    1: { // Monday
+    1: {
+      // Monday
       color: "from-blue-400 to-indigo-500",
       icon: (
         <svg className="w-full h-full" viewBox="0 0 200 200" fill="none">
-          <rect x="40" y="40" width="120" height="120" rx="10" className="fill-current text-blue-200 dark:text-blue-900"/>
-          <path d="M70 100h60M100 70v60" stroke="currentColor" strokeWidth="8" strokeLinecap="round"/>
+          <rect
+            x="40"
+            y="40"
+            width="120"
+            height="120"
+            rx="10"
+            className="fill-current text-blue-200 dark:text-blue-900"
+          />
+          <path
+            d="M70 100h60M100 70v60"
+            stroke="currentColor"
+            strokeWidth="8"
+            strokeLinecap="round"
+          />
         </svg>
-      )
+      ),
     },
-    2: { // Tuesday
+    2: {
+      // Tuesday
       color: "from-green-400 to-emerald-500",
       icon: (
         <svg className="w-full h-full" viewBox="0 0 200 200" fill="none">
-          <polygon points="100,20 180,180 20,180" className="fill-current text-green-200 dark:text-green-900"/>
-          <circle cx="100" cy="100" r="30" className="fill-current text-green-500"/>
+          <polygon
+            points="100,20 180,180 20,180"
+            className="fill-current text-green-200 dark:text-green-900"
+          />
+          <circle
+            cx="100"
+            cy="100"
+            r="30"
+            className="fill-current text-green-500"
+          />
         </svg>
-      )
+      ),
     },
-    3: { // Wednesday
+    3: {
+      // Wednesday
       color: "from-yellow-400 to-orange-500",
       icon: (
         <svg className="w-full h-full" viewBox="0 0 200 200" fill="none">
-          <path d="M100 20C140 20 180 60 180 100C180 140 140 180 100 180C60 180 20 140 20 100C20 60 60 20 100 20Z" 
-                className="fill-current text-yellow-200 dark:text-yellow-900"/>
-          <path d="M100 60v80M60 100h80" stroke="currentColor" strokeWidth="8" strokeLinecap="round"/>
+          <path
+            d="M100 20C140 20 180 60 180 100C180 140 140 180 100 180C60 180 20 140 20 100C20 60 60 20 100 20Z"
+            className="fill-current text-yellow-200 dark:text-yellow-900"
+          />
+          <path
+            d="M100 60v80M60 100h80"
+            stroke="currentColor"
+            strokeWidth="8"
+            strokeLinecap="round"
+          />
         </svg>
-      )
+      ),
     },
-    4: { // Thursday
+    4: {
+      // Thursday
       color: "from-red-400 to-rose-500",
       icon: (
         <svg className="w-full h-full" viewBox="0 0 200 200" fill="none">
-          <rect x="30" y="30" width="140" height="140" className="fill-current text-red-200 dark:text-red-900"/>
-          <circle cx="100" cy="100" r="40" className="fill-current text-red-500"/>
+          <rect
+            x="30"
+            y="30"
+            width="140"
+            height="140"
+            className="fill-current text-red-200 dark:text-red-900"
+          />
+          <circle
+            cx="100"
+            cy="100"
+            r="40"
+            className="fill-current text-red-500"
+          />
         </svg>
-      )
+      ),
     },
-    5: { // Friday
+    5: {
+      // Friday
       color: "from-pink-400 to-fuchsia-500",
       icon: (
         <svg className="w-full h-full" viewBox="0 0 200 200" fill="none">
-          <path d="M20,100 A80,80 0 1,1 180,100 A80,80 0 1,1 20,100" 
-                className="fill-current text-pink-200 dark:text-pink-900"/>
-          <circle cx="100" cy="100" r="30" className="fill-current text-pink-500"/>
+          <path
+            d="M20,100 A80,80 0 1,1 180,100 A80,80 0 1,1 20,100"
+            className="fill-current text-pink-200 dark:text-pink-900"
+          />
+          <circle
+            cx="100"
+            cy="100"
+            r="30"
+            className="fill-current text-pink-500"
+          />
         </svg>
-      )
+      ),
     },
-    6: { // Saturday
+    6: {
+      // Saturday
       color: "from-violet-400 to-purple-500",
       icon: (
         <svg className="w-full h-full" viewBox="0 0 200 200" fill="none">
-          <path d="M100,20 L180,180 H20 Z" className="fill-current text-violet-200 dark:text-violet-900"/>
-          <circle cx="100" cy="100" r="25" className="fill-current text-violet-500"/>
+          <path
+            d="M100,20 L180,180 H20 Z"
+            className="fill-current text-violet-200 dark:text-violet-900"
+          />
+          <circle
+            cx="100"
+            cy="100"
+            r="25"
+            className="fill-current text-violet-500"
+          />
         </svg>
-      )
-    }
+      ),
+    },
   };
 
   return (
-    <div className={`relative w-full h-full rounded-xl overflow-hidden
+    <div
+      className={`relative w-full h-full rounded-xl overflow-hidden
       bg-gradient-to-br ${illustrations[day].color}
-      ${darkMode ? 'opacity-80' : 'opacity-90'}
+      ${darkMode ? "opacity-80" : "opacity-90"}
       transition-all duration-300 ease-in-out
       hover:scale-105 hover:opacity-100`}
     >
@@ -96,113 +182,137 @@ const DailyIllustration = ({ day, darkMode }) => {
 // Add these chart configurations after imports
 const createGradeChartOptions = (studentData, darkMode) => ({
   chart: {
-    type: 'line',
-    backgroundColor: 'transparent',
-    style: { fontFamily: 'Inter, sans-serif' },
-    height: '300px'
+    type: "line",
+    backgroundColor: "transparent",
+    style: { fontFamily: "Inter, sans-serif" },
+    height: "300px",
   },
   title: {
-    text: 'Academic Performance',
-    align: 'left',
+    text: "Academic Performance",
+    align: "left",
     style: {
-      fontSize: '16px',
-      fontWeight: '600',
-      color: darkMode ? '#fff' : '#000'
-    }
+      fontSize: "16px",
+      fontWeight: "600",
+      color: darkMode ? "#fff" : "#000",
+    },
   },
   xAxis: {
-    categories: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+    categories: ["Week 1", "Week 2", "Week 3", "Week 4"],
     labels: {
-      style: { color: darkMode ? '#cbd5e1' : '#475569' }
+      style: { color: darkMode ? "#cbd5e1" : "#475569" },
     },
-    gridLineWidth: 0
+    gridLineWidth: 0,
   },
   yAxis: {
     title: { text: null },
     labels: {
-      style: { color: darkMode ? '#cbd5e1' : '#475569' }
+      style: { color: darkMode ? "#cbd5e1" : "#475569" },
     },
-    gridLineColor: darkMode ? '#374151' : '#e5e7eb',
+    gridLineColor: darkMode ? "#374151" : "#e5e7eb",
     min: 0,
-    max: 100
+    max: 100,
   },
-  series: studentData.map(student => ({
+  series: studentData.map((student) => ({
     name: student.name,
     data: [
       parseFloat(student.grade_average) || 75,
       parseFloat(student.grade_average) + Math.random() * 5 || 78,
       parseFloat(student.grade_average) - Math.random() * 3 || 82,
-      parseFloat(student.grade_average) + Math.random() * 4 || 85
+      parseFloat(student.grade_average) + Math.random() * 4 || 85,
     ],
-    marker: { symbol: 'circle' }
+    marker: { symbol: "circle" },
   })),
   legend: {
-    align: 'right',
-    verticalAlign: 'top',
-    itemStyle: { color: darkMode ? '#cbd5e1' : '#475569' }
+    align: "right",
+    verticalAlign: "top",
+    itemStyle: { color: darkMode ? "#cbd5e1" : "#475569" },
   },
   credits: { enabled: false },
   plotOptions: {
     line: {
       lineWidth: 3,
       states: {
-        hover: { lineWidth: 4 }
-      }
-    }
-  }
+        hover: { lineWidth: 4 },
+      },
+    },
+  },
 });
 
 const createAttendanceChartOptions = (studentData, darkMode) => ({
   chart: {
-    type: 'column',
-    backgroundColor: 'transparent',
-    style: { fontFamily: 'Inter, sans-serif' },
-    height: '300px'
+    type: "column",
+    backgroundColor: "transparent",
+    style: { fontFamily: "Inter, sans-serif" },
+    height: "300px",
   },
   title: {
-    text: 'Monthly Attendance',
-    align: 'left',
+    text: "Monthly Attendance",
+    align: "left",
     style: {
-      fontSize: '16px',
-      fontWeight: '600',
-      color: darkMode ? '#fff' : '#000'
-    }
+      fontSize: "16px",
+      fontWeight: "600",
+      color: darkMode ? "#fff" : "#000",
+    },
   },
   xAxis: {
-    categories: studentData.map(student => student.name),
+    categories: studentData.map((student) => student.name),
     labels: {
-      style: { color: darkMode ? '#cbd5e1' : '#475569' }
+      style: { color: darkMode ? "#cbd5e1" : "#475569" },
     },
-    gridLineWidth: 0
+    gridLineWidth: 0,
   },
   yAxis: {
     title: { text: null },
     labels: {
-      format: '{value}%',
-      style: { color: darkMode ? '#cbd5e1' : '#475569' }
+      format: "{value}%",
+      style: { color: darkMode ? "#cbd5e1" : "#475569" },
     },
-    gridLineColor: darkMode ? '#374151' : '#e5e7eb',
+    gridLineColor: darkMode ? "#374151" : "#e5e7eb",
     min: 0,
-    max: 100
+    max: 100,
   },
-  series: [{
-    name: 'Attendance Rate',
-    data: studentData.map(student => ({
-      y: student.attendance_rate || 0,
-      color: `hsl(${Math.random() * 360}, 70%, 50%)`
-    })),
-    borderRadius: 5
-  }],
+  series: [
+    {
+      name: "Attendance Rate",
+      data: studentData.map((student) => ({
+        y: student.attendance_rate || 0,
+        color: `hsl(${Math.random() * 360}, 70%, 50%)`,
+      })),
+      borderRadius: 5,
+    },
+  ],
   legend: { enabled: false },
   credits: { enabled: false },
   plotOptions: {
     column: {
-      minPointLength: 3
-    }
-  }
+      minPointLength: 3,
+    },
+  },
 });
 
 const ParentDashboard = ({ darkMode }) => {
+  const [quizScores, setQuizScores] = useState([]);
+
+  const fetchQuizScores = async () => {
+    try {
+      const response = await axiosInstance.get(
+        "/api/user-parent/students/scores/"
+      );
+
+      if (response.status === 200 && response.data) {
+        const scores = response.data.quiz_scores.student_scores;
+        console.log(scores);
+        setQuizScores(scores || []);
+      }
+    } catch (error) {
+      console.error("Error fetching quiz scores:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchQuizScores();
+  }, []);
+
   const [date, setDate] = useState(new Date());
   const [greeting, setGreeting] = useState("");
   const [currentDay] = useState(new Date().getDay());
@@ -213,7 +323,7 @@ const ParentDashboard = ({ darkMode }) => {
     averageGrade: 0,
     attendanceRate: 0,
     nextAssignment: null,
-    recentGrades: []
+    recentGrades: [],
   });
   const [parentName, setParentName] = useState("");
   const [studentMetrics, setStudentMetrics] = useState([]);
@@ -222,59 +332,73 @@ const ParentDashboard = ({ darkMode }) => {
   useEffect(() => {
     const fetchParentData = async () => {
       try {
-        const response = await axiosInstance.get('/api/user-parent/current-parent/');
-        if (response.data.status === 'success') {
+        const response = await axiosInstance.get(
+          "/api/user-parent/current-parent/"
+        );
+        if (response.data.status === "success") {
           const profile = response.data.data;
-          setParentName(profile.first_name || '');
-          
+          setParentName(profile.first_name || "");
+
           // Fetch detailed metrics for each student
           if (profile.student_info?.length) {
             const studentsData = await Promise.all(
               profile.student_info.map(async (student) => {
                 try {
-                  const metricsResponse = await axiosInstance.get(`/api/students/${student.id}/metrics`);
+                  const metricsResponse = await axiosInstance.get(
+                    `/api/students/${student.id}/metrics`
+                  );
                   return {
                     id: student.id,
                     name: `${student.first_name} ${student.last_name}`,
                     grade: student.grade_level,
                     email: student.email,
                     profile_image: student.user_info?.profile_image,
-                    ...metricsResponse.data
+                    ...metricsResponse.data,
                   };
                 } catch (error) {
-                  console.error(`Error fetching metrics for student ${student.id}:`, error);
+                  console.error(
+                    `Error fetching metrics for student ${student.id}:`,
+                    error
+                  );
                   return {
                     id: student.id,
                     name: `${student.first_name} ${student.last_name}`,
                     grade: student.grade_level,
                     email: student.email,
                     profile_image: student.user_info?.profile_image,
-                    error: true
+                    error: true,
                   };
                 }
               })
             );
             setStudentMetrics(studentsData);
-            
+
             // Update overall metrics
-            const totalAssignments = studentsData.reduce((sum, student) => 
-              sum + (student.assignments?.length || 0), 0);
-            const totalTests = studentsData.reduce((sum, student) => 
-              sum + (student.upcoming_tests?.length || 0), 0);
-            const avgAttendance = studentsData.reduce((sum, student) => 
-              sum + (student.attendance_rate || 0), 0) / studentsData.length;
-            
-            setMetrics(prevMetrics => ({
+            const totalAssignments = studentsData.reduce(
+              (sum, student) => sum + (student.assignments?.length || 0),
+              0
+            );
+            const totalTests = studentsData.reduce(
+              (sum, student) => sum + (student.upcoming_tests?.length || 0),
+              0
+            );
+            const avgAttendance =
+              studentsData.reduce(
+                (sum, student) => sum + (student.attendance_rate || 0),
+                0
+              ) / studentsData.length;
+
+            setMetrics((prevMetrics) => ({
               ...prevMetrics,
               totalStudents: profile.student_info.length,
               totalAssignments,
               upcomingTests: totalTests,
-              attendanceRate: Math.round(avgAttendance || 0)
+              attendanceRate: Math.round(avgAttendance || 0),
             }));
           }
         }
       } catch (error) {
-        console.error('Error fetching parent data:', error);
+        console.error("Error fetching parent data:", error);
       }
     };
 
@@ -318,24 +442,25 @@ const ParentDashboard = ({ darkMode }) => {
   // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
-    visible: { 
+    visible: {
       opacity: 1,
-      transition: { staggerChildren: 0.1 }
-    }
+      transition: { staggerChildren: 0.1 },
+    },
   };
 
   const itemVariants = {
     hidden: { y: 20, opacity: 0 },
-    visible: { 
+    visible: {
       y: 0,
       opacity: 1,
-      transition: { duration: 0.5 }
-    }
+      transition: { duration: 0.5 },
+    },
   };
 
   return (
     <div className="p-3 sm:p-6 min-h-screen">
-      <motion.div 
+      <HideScrollbar />
+      <motion.div
         className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-8"
         variants={containerVariants}
         initial="hidden"
@@ -344,7 +469,7 @@ const ParentDashboard = ({ darkMode }) => {
         {/* Main Content Area */}
         <div className="lg:col-span-3 space-y-4 sm:space-y-8">
           {/* Banner Section */}
-          <motion.div 
+          <motion.div
             variants={itemVariants}
             className={`rounded-xl shadow-lg overflow-hidden ${
               darkMode ? "bg-gray-800 bg-opacity-50" : "bg-white"
@@ -353,13 +478,27 @@ const ParentDashboard = ({ darkMode }) => {
             <div className="relative">
               {/* Background Pattern */}
               <div className="absolute inset-0 opacity-10">
-                <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                <svg
+                  className="w-full h-full"
+                  viewBox="0 0 100 100"
+                  preserveAspectRatio="none"
+                >
                   <defs>
-                    <pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse">
-                      <path d="M 10 0 L 0 0 0 10" fill="none" stroke="currentColor" strokeWidth="0.5"/>
+                    <pattern
+                      id="grid"
+                      width="10"
+                      height="10"
+                      patternUnits="userSpaceOnUse"
+                    >
+                      <path
+                        d="M 10 0 L 0 0 0 10"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="0.5"
+                      />
                     </pattern>
                   </defs>
-                  <rect width="100" height="100" fill="url(#grid)"/>
+                  <rect width="100" height="100" fill="url(#grid)" />
                 </svg>
               </div>
 
@@ -373,9 +512,11 @@ const ParentDashboard = ({ darkMode }) => {
                         {greeting}
                       </span>
                     </h1>
-                    <p className={`text-sm sm:text-base ${
-                      darkMode ? "text-gray-400" : "text-gray-600"
-                    }`}>
+                    <p
+                      className={`text-sm sm:text-base ${
+                        darkMode ? "text-gray-400" : "text-gray-600"
+                      }`}
+                    >
                       {new Date().toLocaleDateString("en-US", {
                         weekday: "long",
                         month: "long",
@@ -390,8 +531,8 @@ const ParentDashboard = ({ darkMode }) => {
                     <div className="relative w-full h-full">
                       <DailyIllustration day={currentDay} darkMode={darkMode} />
                       {/* Decorative Elements */}
-                      <div className="absolute -top-2 -right-2 w-4 h-4 bg-yellow-400 rounded-full animate-pulse"/>
-                      <div className="absolute -bottom-2 -left-2 w-3 h-3 bg-blue-400 rounded-full animate-pulse delay-75"/>
+                      <div className="absolute -top-2 -right-2 w-4 h-4 bg-yellow-400 rounded-full animate-pulse" />
+                      <div className="absolute -bottom-2 -left-2 w-3 h-3 bg-blue-400 rounded-full animate-pulse delay-75" />
                     </div>
                   </div>
                 </div>
@@ -400,58 +541,90 @@ const ParentDashboard = ({ darkMode }) => {
           </motion.div>
 
           {/* Updated Metrics Grid */}
-          <motion.div 
+          <motion.div
             variants={itemVariants}
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
           >
             {/* Children Count */}
-            <div className={`rounded-xl p-4 ${darkMode ? "bg-gray-800 bg-opacity-50" : "bg-white"} shadow-lg`}>
+            <div
+              className={`rounded-xl p-4 ${
+                darkMode ? "bg-gray-800 bg-opacity-50" : "bg-white"
+              } shadow-lg`}
+            >
               <div className="flex items-center">
                 <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
                   <FaUserGraduate className="h-6 w-6 text-blue-600 dark:text-blue-300" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm text-gray-500 dark:text-gray-400">My Children</p>
-                  <h3 className="text-xl font-semibold">{metrics.totalStudents}</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    My Children
+                  </p>
+                  <h3 className="text-xl font-semibold">
+                    {metrics.totalStudents}
+                  </h3>
                 </div>
               </div>
             </div>
 
             {/* Total Assignments */}
-            <div className={`rounded-xl p-4 ${darkMode ? "bg-gray-800 bg-opacity-50" : "bg-white"} shadow-lg`}>
+            <div
+              className={`rounded-xl p-4 ${
+                darkMode ? "bg-gray-800 bg-opacity-50" : "bg-white"
+              } shadow-lg`}
+            >
               <div className="flex items-center">
                 <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
                   <FaClipboardCheck className="h-6 w-6 text-green-600 dark:text-green-300" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Pending Assignments</p>
-                  <h3 className="text-xl font-semibold">{metrics.totalAssignments}</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Pending Assignments
+                  </p>
+                  <h3 className="text-xl font-semibold">
+                    {metrics.totalAssignments}
+                  </h3>
                 </div>
               </div>
             </div>
 
             {/* Upcoming Tests */}
-            <div className={`rounded-xl p-4 ${darkMode ? "bg-gray-800 bg-opacity-50" : "bg-white"} shadow-lg`}>
+            <div
+              className={`rounded-xl p-4 ${
+                darkMode ? "bg-gray-800 bg-opacity-50" : "bg-white"
+              } shadow-lg`}
+            >
               <div className="flex items-center">
                 <div className="p-2 bg-yellow-100 dark:bg-yellow-900 rounded-lg">
                   <FaBookReader className="h-6 w-6 text-yellow-600 dark:text-yellow-300" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Upcoming Tests</p>
-                  <h3 className="text-xl font-semibold">{metrics.upcomingTests}</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Upcoming Tests
+                  </p>
+                  <h3 className="text-xl font-semibold">
+                    {metrics.upcomingTests}
+                  </h3>
                 </div>
               </div>
             </div>
 
             {/* Average Attendance */}
-            <div className={`rounded-xl p-4 ${darkMode ? "bg-gray-800 bg-opacity-50" : "bg-white"} shadow-lg`}>
+            <div
+              className={`rounded-xl p-4 ${
+                darkMode ? "bg-gray-800 bg-opacity-50" : "bg-white"
+              } shadow-lg`}
+            >
               <div className="flex items-center">
                 <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
                   <FaCalendarCheck className="h-6 w-6 text-purple-600 dark:text-purple-300" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Attendance Rate</p>
-                  <h3 className="text-xl font-semibold">{metrics.attendanceRate}%</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Attendance Rate
+                  </p>
+                  <h3 className="text-xl font-semibold">
+                    {metrics.attendanceRate}%
+                  </h3>
                 </div>
               </div>
             </div>
@@ -459,55 +632,50 @@ const ParentDashboard = ({ darkMode }) => {
 
           {/* Student Details Section */}
 
-
           {/* Charts Section */}
-          <motion.div 
+          <motion.div
             variants={itemVariants}
             className="grid grid-cols-1 lg:grid-cols-2 gap-4"
           >
-            {/* Grade Trends Chart */}
-            <div className={`rounded-xl p-6 ${
-              darkMode ? "bg-gray-800 bg-opacity-50" : "bg-white"
-            } shadow-lg`}>
-              <HighchartsReact
-                highcharts={Highcharts}
-                options={createGradeChartOptions(studentMetrics, darkMode)}
-              />
-            </div>
-
-            {/* Attendance Chart */}
-            <div className={`rounded-xl p-6 ${
-              darkMode ? "bg-gray-800 bg-opacity-50" : "bg-white"
-            } shadow-lg`}>
-              <HighchartsReact
-                highcharts={Highcharts}
-                options={createAttendanceChartOptions(studentMetrics, darkMode)}
-              />
-            </div>
+            {quizScores.length > 0 && (
+              <>
+                <QuizScoreDonutChart
+                  quizScores={quizScores}
+                  darkMode={darkMode}
+                />
+                <QuizScoreLineChart
+                  quizScores={quizScores}
+                  darkMode={darkMode}
+                />
+              </>
+            )}
           </motion.div>
         </div>
 
         {/* Sidebar */}
-        <motion.div 
-          variants={itemVariants}
-          className="lg:col-span-1 space-y-4"
-        >
+        <motion.div variants={itemVariants} className="lg:col-span-1 space-y-4">
           {/* Calendar Card */}
-          <div className={`rounded-xl shadow-lg p-4 sm:p-6 ${
-            darkMode ? "bg-gray-800 bg-opacity-50" : "bg-white"
-          }`}>
+          <div
+            className={`rounded-xl shadow-lg p-4 sm:p-6 ${
+              darkMode ? "bg-gray-800 bg-opacity-50" : "bg-white"
+            }`}
+          >
             <h2 className="text-xl font-semibold mb-4">Calendar</h2>
             <Calendar
               onChange={setDate}
               value={date}
-              className={`w-full rounded-lg ${darkMode ? "bg-gray-800" : "bg-white"}`}
+              className={`w-full rounded-lg ${
+                darkMode ? "bg-gray-800" : "bg-white"
+              }`}
             />
           </div>
 
           {/* Insights Card */}
-          <div className={`rounded-xl shadow-lg p-4 sm:p-6 ${
-            darkMode ? "bg-gray-800 bg-opacity-50" : "bg-white"
-          }`}>
+          <div
+            className={`rounded-xl shadow-lg p-4 sm:p-6 ${
+              darkMode ? "bg-gray-800 bg-opacity-50" : "bg-white"
+            }`}
+          >
             <h2 className="text-xl font-semibold mb-4">Student Insights</h2>
             {/* Add your insights components here */}
           </div>
