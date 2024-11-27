@@ -1,50 +1,95 @@
 from django.http.response import JsonResponse
 from rest_framework import generics, status
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from user_teacher.serializers.classroom.materials_manage_serializers import *
 from user_teacher.models.classroom_models import *
-import cloudinary
 import cloudinary.uploader
 
-class EducationMaterialUploadView(generics.CreateAPIView):
+class EducationMaterialUploadView(APIView):
     permission_classes = [IsAuthenticated]
-    serializer_class = EducationMaterialUploadSerializer
-    queryset = EducationMaterial.objects.all()
 
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid():
-            # The CloudinaryField will handle the upload automatically
-            self.perform_create(serializer)
+    def post(self, request, *args, **kwargs):
+        try:
+            file = request.FILES.get('file')
+            classroom_id = request.data.get('classroom')  
+
+            if not file:
+                return Response({
+                    'status': 'error',
+                    'message': 'No file provided'
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            if not classroom_id:
+                return Response({
+                    'status': 'error',
+                    'message': 'Classroom ID is required'
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            # Verify classroom exists
+            try:
+                classroom = Classroom.objects.get(id=classroom_id)
+            except Classroom.DoesNotExist:
+                return Response({
+                    'status': 'error',
+                    'message': 'Invalid classroom ID'
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            # Upload to Cloudinary with the original filename
+            upload_result = cloudinary.uploader.upload(
+                file,
+                resource_type="auto",
+                public_id=f"materials/{file.name}",
+                use_filename=True,
+                unique_filename=True
+            )
+
+            # Create material record with all required fields
+            material = EducationMaterial.objects.create(
+                classroom=classroom,  # Use the classroom object
+                title=request.data.get('title', file.name),
+                description=request.data.get('description', ''),
+                material_type=request.data.get('material_type'),
+                original_filename=file.name,
+                file=upload_result['secure_url'],
+                cloudinary_url=upload_result['secure_url']
+            )
+
             return Response({
                 'status': 'success',
-                'message': 'Education material uploaded successfully',
-                'education_material': serializer.data
+                'message': 'File uploaded successfully',
+                'data': {
+                    'id': material.id,
+                    'title': material.title,
+                    'original_filename': material.original_filename,
+                    'file_url': material.cloudinary_url,
+                    'classroom_id': classroom.id
+                }
             }, status=status.HTTP_201_CREATED)
-        return Response({
-            'status': 'error',
-            'message': 'Failed to upload education material',
-            'errors': serializer.errors
-        }, status=status.HTTP_400_BAD_REQUEST)
 
+        except Exception as e:
+            return Response({
+                'status': 'error',
+                'message': str(e)
+            }, status=status.HTTP_400_BAD_REQUEST)
 
-class EducationMaterialEditView(generics.UpdateAPIView):
-    permission_classes = [IsAuthenticated]
-    serializer_class = EducationMaterialsEditSerializer
-    queryset = EducationMaterial.objects.all()
+# class EducationMaterialEditView(generics.UpdateAPIView):
+#     permission_classes = [IsAuthenticated]
+#     serializer_class = EducationMaterialsEditSerializer
+#     queryset = EducationMaterial.objects.all()
 
-    def partial_update(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
+#     def partial_update(self, request, *args, **kwargs):
+#         instance = self.get_object()
+#         serializer = self.get_serializer(instance, data=request.data, partial=True)
+#         serializer.is_valid(raise_exception=True)
+#         self.perform_update(serializer)
 
-        return Response({
-            'status': 'success',
-            'message': 'Education material updated successfully',
-            'material': serializer.data
-        })
+#         return Response({
+#             'status': 'success',
+#             'message': 'Education material updated successfully',
+#             'material': serializer.data
+#         })
 
 
 class EducationMaterialDeleteView(generics.DestroyAPIView):

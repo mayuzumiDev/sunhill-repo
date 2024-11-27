@@ -27,6 +27,7 @@ const UploadMaterialModal = ({
   });
   const [fileName, setFileName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -39,6 +40,12 @@ const UploadMaterialModal = ({
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      // Validate file size (max 5MB)
+      if (file.size > 100 * 1024 * 1024) {
+        onError("File size should not exceed 5MB");
+        return;
+      }
+
       setFormData((prev) => ({
         ...prev,
         file,
@@ -49,31 +56,53 @@ const UploadMaterialModal = ({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!formData.file) {
+      onError("Please select a file");
+      return;
+    }
 
-    const formDataToSubmit = new FormData();
-    const dataToSubmit = { ...formData, classroom: classroomId };
+    if (!classroomId) {
+      onError("Classroom ID is required");
+      return;
+    }
 
-    Object.entries(dataToSubmit).forEach(([key, value]) => {
-      if (value !== null && value !== "") {
-        formDataToSubmit.append(key, value);
-      }
-    });
     setIsLoading(true);
+    setUploadProgress(0);
+
     try {
+      const formDataToSubmit = new FormData();
+      formDataToSubmit.append("file", formData.file);
+      formDataToSubmit.append("title", formData.title || formData.file.name);
+      formDataToSubmit.append("description", formData.description);
+      formDataToSubmit.append("material_type", formData.material_type);
+      formDataToSubmit.append("classroom", classroomId); // Make sure this is included
+
       const response = await axiosInstance.post(
         `/user-teacher/materials/upload/`,
-        formDataToSubmit
+        formDataToSubmit,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          onUploadProgress: (progressEvent) => {
+            const percentCompleted = Math.round(
+              (progressEvent.loaded * 100) / progressEvent.total
+            );
+            setUploadProgress(percentCompleted);
+          },
+        }
       );
 
       if (response.status === 201) {
-        onSuccess(response.data?.message);
+        onSuccess(response.data?.message || "Material uploaded successfully");
         handleClose();
       }
     } catch (error) {
-      console.error("An error occured with uploading the material.", error);
-      onError(error.response?.data?.message);
+      console.error("Error uploading material:", error);
+      onError(error.response?.data?.message || "Failed to upload material");
     } finally {
       setIsLoading(false);
+      setUploadProgress(0);
     }
   };
 
@@ -85,6 +114,7 @@ const UploadMaterialModal = ({
       file: null,
     });
     setFileName("");
+    setUploadProgress(0);
     onClose();
   };
 
@@ -172,14 +202,27 @@ const UploadMaterialModal = ({
                           type="file"
                           className="sr-only"
                           onChange={handleFileChange}
+                          accept=".pdf,.doc,.docx,.ppt,.pptx,.jpg,.jpeg,.png,.mp4,.avi"
                           required
                         />
                       </label>
                     </div>
                     <p className="text-xs text-gray-500">
-                      Click to select a file
+                      Max file size: 100MB
                     </p>
                   </div>
+                </div>
+              </div>
+            )}
+
+            {uploadProgress > 0 && (
+              <div className="w-full bg-gray-200 rounded-full h-2.5 mt-4">
+                <div
+                  className="bg-blue-600 h-2.5 rounded-full transition-all duration-300"
+                  style={{ width: `${uploadProgress}%` }}
+                />
+                <div className="text-center text-sm text-gray-600 mt-1">
+                  {uploadProgress}% uploaded
                 </div>
               </div>
             )}
@@ -193,6 +236,7 @@ const UploadMaterialModal = ({
               >
                 Upload
               </button>
+
               <button
                 type="button"
                 onClick={handleClose}
