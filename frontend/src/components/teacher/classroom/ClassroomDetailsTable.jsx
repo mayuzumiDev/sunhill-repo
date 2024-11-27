@@ -2,12 +2,34 @@ import React, { useState, useEffect } from "react";
 import { axiosInstance } from "../../../utils/axiosInstance";
 import ConfirmDeleteModal from "../../modal/teacher/ConfirmDeleteModal";
 import { HiTrash } from "react-icons/hi";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faChevronLeft,
+  faChevronRight,
+} from "@fortawesome/free-solid-svg-icons";
 
 const ClassroomDetailsTable = ({ classroom }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   const [classroomStudents, setClassroomStudents] = useState([]);
   const [selectedStudentId, setSelectedStudentId] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const rowsPerPage = 10;
+
+  // Calculate pagination values
+  const indexOfLastRow = currentPage * rowsPerPage;
+  const indexOfFirstRow = indexOfLastRow - rowsPerPage;
+  const currentRows = classroomStudents.slice(indexOfFirstRow, indexOfLastRow);
+  const totalPages = Math.ceil(classroomStudents.length / rowsPerPage);
+
+  // Handle page navigation
+  const handlePrevPage = () => {
+    setCurrentPage((prev) => Math.max(prev - 1, 1));
+  };
+
+  const handleNextPage = () => {
+    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+  };
 
   useEffect(() => {
     if (classroom?.id) {
@@ -117,7 +139,7 @@ const ClassroomDetailsTable = ({ classroom }) => {
                 </td>
               </tr>
             ) : (
-              classroomStudents.map((student) => (
+              currentRows.map((student) => (
                 <tr
                   key={student.id}
                   className="hover:bg-green-50 transition-colors"
@@ -150,6 +172,53 @@ const ClassroomDetailsTable = ({ classroom }) => {
           </tbody>
         </table>
       </div>
+
+      {/* Pagination Controls */}
+      {!isLoading && classroomStudents.length > 0 && (
+        <div className="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200 sm:px-6 rounded-b-lg">
+          <div className="flex items-center">
+            <span className="text-sm text-gray-700">
+              Showing{" "}
+              <span className="font-medium">
+                {classroomStudents.length > 0 ? indexOfFirstRow + 1 : 0}
+              </span>{" "}
+              to{" "}
+              <span className="font-medium">
+                {Math.min(indexOfLastRow, classroomStudents.length)}
+              </span>{" "}
+              of <span className="font-medium">{classroomStudents.length}</span>{" "}
+              students
+            </span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={handlePrevPage}
+              disabled={currentPage === 1}
+              className={`p-2 rounded-md ${
+                currentPage === 1
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-green-600 hover:bg-green-50"
+              }`}
+            >
+              <FontAwesomeIcon icon={faChevronLeft} className="w-4 h-4" />
+            </button>
+            <span className="text-sm text-gray-700">
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              onClick={handleNextPage}
+              disabled={currentPage === totalPages}
+              className={`p-2 rounded-md ${
+                currentPage === totalPages
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-green-600 hover:bg-green-50"
+              }`}
+            >
+              <FontAwesomeIcon icon={faChevronRight} className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Confirm Delete Modal */}
       <ConfirmDeleteModal

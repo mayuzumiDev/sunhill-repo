@@ -19,7 +19,8 @@ class StudentQuizListSerializer(serializers.ModelSerializer):
             'classroom_details',
             'subject_name',
             'subject_display',
-            'has_submitted'
+            'has_submitted',
+            'due_date'
         ]
 
     def get_classroom_details(self, obj):

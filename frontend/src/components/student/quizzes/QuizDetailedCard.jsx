@@ -14,7 +14,9 @@ const QuizDetailCard = ({
   onStartQuiz,
   onBack,
   isQuizStarted,
+  setIsQuizStarted,
   onQuizComplete,
+  onQuizScoreChange,
 }) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [questions, setQuestions] = useState();
@@ -25,12 +27,20 @@ const QuizDetailCard = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
+  const [shouldSubmit, setShouldSubmit] = useState(false);
 
   useEffect(() => {
     if (isQuizStarted && !questions) {
       fetchQuizQuestions();
     }
   }, [isQuizStarted]);
+
+  useEffect(() => {
+    if (shouldSubmit) {
+      submitQuizResponses();
+      setShouldSubmit(false);
+    }
+  }, [shouldSubmit, responses]);
 
   useEffect(() => {
     if (alertMessage) {
@@ -131,6 +141,8 @@ const QuizDetailCard = ({
           status: data.status,
         });
 
+        onQuizScoreChange?.(true);
+
         console.log("Server Response:", {
           data,
           formattedResponses,
@@ -158,9 +170,11 @@ const QuizDetailCard = ({
       [response.questionId]: response,
     }));
 
-    if (currentQuestionIndex === questions.length - 1) {
-      // If this is the last question, submit the quiz
-      submitQuizResponses();
+    const isLastQuestion = currentQuestionIndex === questions.length - 1;
+
+    if (isLastQuestion) {
+      // If this is the last question, trigger submission
+      setShouldSubmit(true);
     } else {
       // Otherwise, move to next question
       setCurrentQuestionIndex((prev) => prev + 1);
@@ -265,6 +279,7 @@ const QuizDetailCard = ({
               totalQuestions={questions.length}
               onNext={handleNext}
               onPrev={handlePrev}
+              onBack={onBack}
             />
           </div>
         );
