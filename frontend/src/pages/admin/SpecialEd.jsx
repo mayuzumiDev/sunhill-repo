@@ -130,7 +130,7 @@ import HideScrollbar from "../../components/misc/HideScrollBar";
           {/* Footer */}
           <div className="border-t-2 border-gray-200 pt-2">
             <div className="bg-yellow-50 border border-yellow-200 rounded p-1.5 mb-1">
-              <p className="text-xs text-yellow-700">Confidential educational document protected under FERPA. For professional use only.</p>
+              <p className="text-xs text-yellow-700">This document contains confidential student information. Authorized personnel only.</p>
             </div>
             <p className="text-xs text-gray-600">
               Generated: {new Date().toLocaleString()} | Report ID: SE-{assessmentNumber}-{selectedStudent?.id}
