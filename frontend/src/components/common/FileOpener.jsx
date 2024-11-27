@@ -88,6 +88,7 @@ const FileOpener = ({
     // Try opening files with multiple strategies
     const tryOpenFile = (urls) => {
       if (urls.length === 0) {
+        console.log(fileUrl);
         console.error("Unable to open file");
         return;
       }

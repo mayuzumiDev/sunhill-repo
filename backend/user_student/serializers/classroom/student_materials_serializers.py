@@ -11,7 +11,7 @@ class StudentEducationMaterialListSerializer(serializers.ModelSerializer):
     class Meta:
         model = EducationMaterial
         fields = ['id', 'classroom', 'classroom_info', 'title', 'description', 
-                 'material_type', 'material_type_display', 'file', 'file_url', 
+                 'material_type', 'material_type_display', 'file', 'file_url', 'cloudinary_url', 
                  'uploaded_at', 'updated_at']
     
     def get_file_url(self, obj):
