@@ -6,6 +6,7 @@ import {
   FaGraduationCap,
   FaBars,
   FaEdit,
+  FaUserCircle,
 } from "react-icons/fa";
 import SunhillLogo from "../../assets/img/home/sunhill.jpg";
 import userThree from "../../assets/img/home/unknown.jpg";
@@ -50,9 +51,39 @@ const TopNav = ({ studentData, onLogout, onProfileUpdate }) => {
             alt="Sunhill LMS Logo"
             className="w-6 h-6 sm:w-8 sm:h-8 lg:w-10 lg:h-10 mr-2 rounded-full shadow-lg hover:scale-110 transition-transform duration-200"
           /> */}
-          <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-white">
-            Sunhill LMS
-          </h1>
+          <div className="relative font-arial font-bold text-[20px] sm:text-[25px] flex justify-center gap-[3px]">
+            {["S", "u", "n", "h", "i", "l", "l"].map((letter, index) => (
+              <span
+                key={index}
+                className="drop-shadow-[1px_1px_1px_rgba(0,0,0,0.3)]"
+                style={{
+                  background: [
+                    "#f26025", // Orange
+                    "#f68920", // Orange gradient transition
+                    "#81c244", // Green
+                    "#47b5e4", // Blue
+                    "#1875ba", // Dark Blue
+                    "#653093", // Purple
+                    "#d91c5e", // Red-Purple
+                  ][index % 7],
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                }}
+              >
+                {letter}
+              </span>
+            ))}
+            <span
+              className="drop-shadow-[1px_1px_1px_rgba(0,0,0,0.3)]"
+              style={{
+                background: "linear-gradient(135deg, #f68920 0%, #47b5e4 100%)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+              }}
+            >
+              LMS
+            </span>
+          </div>
         </div>
 
         {/* Student Profile and Notifications */}
@@ -84,15 +115,17 @@ const TopNav = ({ studentData, onLogout, onProfileUpdate }) => {
             {({ open }) => (
               <>
                 <Menu.Button className="flex items-center space-x-1 lg:space-x-2 bg-white rounded-full p-1 hover:bg-yellow-300 transition-all duration-200">
-                  <img
-                    src={studentData?.profilePicture}
-                    alt={`${studentData?.name}'s profile`}
-                    className="w-6 h-6 sm:w-8 sm:h-8 lg:w-9 lg:h-9 rounded-full object-cover border-2 border-purple-300"
-                    onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.src = userThree;
-                    }}
-                  />
+                  {studentData?.profilePicture ? (
+                    <img
+                      src={studentData?.profilePicture}
+                      alt={`${studentData?.name}'s profile`}
+                      className="w-6 h-6 sm:w-8 sm:h-8 lg:w-9 lg:h-9 rounded-full object-cover border-2 border-purple-300"
+                    />
+                  ) : (
+                    <div className="w-6 h-6 sm:w-8 sm:h-8 lg:w-9 lg:h-9 rounded-full border-2 border-purple-300 bg-gray-100 flex items-center justify-center">
+                      <FaUserCircle className="w-5 h-5 sm:w-7 sm:h-7 lg:w-8 lg:h-8 text-gray-400" />
+                    </div>
+                  )}
                   <FaChevronDown className="text-purple-600 hidden sm:block" />
                   <FaBars className="text-purple-600 sm:hidden" />
                 </Menu.Button>

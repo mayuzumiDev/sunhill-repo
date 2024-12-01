@@ -196,13 +196,19 @@ LOGGING = {
     },
 }
 
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
+
+# Profile Images Storage (Local)
+PROFILE_IMAGES_STORAGE = 'django.core.files.storage.FileSystemStorage'
+PROFILE_IMAGES_LOCATION = os.path.join(MEDIA_ROOT, 'profile_images')
 
 # File Storage Settings
-if not DEBUG:
-    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-else:
-    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-    MEDIA_URL = '/media/'
+# if not DEBUG:
+#     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+# else:
+#     MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+#     MEDIA_URL = '/media/'
 
 # # File Upload Settings
 # FILE_UPLOAD_PERMISSIONS = 0o644
@@ -213,13 +219,15 @@ else:
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-ALLOWED_HOSTS = ["localhost", '127.0.0.1',]
+ALLOWED_HOSTS = ["localhost", '127.0.0.1', '31.170.165.140', 'sunhilllms.online']
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:5173',
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "http://127.0.0.1:5173",
+    'http://31.170.165.140',
+    'http://sunhilllms.online',
 ]
 
 CORS_ALLOW_CREDENTIALS = True

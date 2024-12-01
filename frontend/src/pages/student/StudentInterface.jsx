@@ -175,7 +175,7 @@ const StudentDashboard = () => {
           opacity: 0.3,
         }}
       ></div>
-      <div className="font-comic relative z-10 h-screen overflow-y-auto scrollbar-hide">
+      <div className="font-sans md:font-comic relative z-10 h-screen overflow-y-auto scrollbar-hide">
         <TopNav
           studentData={studentData}
           onLogout={handleLogout}

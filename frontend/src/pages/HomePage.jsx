@@ -25,7 +25,7 @@ import Programs from "../components/home/Programs";
 import LoginModal from "../components/home/LoginModal";
 import StepperComponent from "../components/home/Stepper";
 import Btn from "../components/home/Button";
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from "framer-motion";
 
 const branches = [
   {
@@ -64,7 +64,8 @@ const branches = [
     fbPageName: "Sunhill Montessori Casa-Metro Tagaytay",
     mapSrc:
       "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d838.1638972888367!2d121.11830807386876!3d13.742318369192658!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x33bd05aeeeee250f%3A0x4bc4bfb66572ae61!2sSunhill%20Developmental%20Education%20Batangas!5e1!3m2!1sen!2sph!4v1732509328373!5m2!1sen!2sph",
-}];
+  },
+];
 
 const Home = () => {
   const [darkMode, setDarkMode] = useState(
@@ -75,7 +76,7 @@ const Home = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isScrollToTopVisible, setIsScrollToTopVisible] = useState(false);
   const [hoveredCard, setHoveredCard] = useState(null);
-  const [activeSection, setActiveSection] = useState('home');
+  const [activeSection, setActiveSection] = useState("home");
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -84,10 +85,10 @@ const Home = () => {
 
     const handleScroll = () => {
       setIsScrollToTopVisible(window.scrollY > 300);
-      
+
       // Update active section based on scroll position
-      const sections = ['home', 'about', 'special-identification', 'contact'];
-      const currentSection = sections.find(section => {
+      const sections = ["home", "about", "special-identification", "contact"];
+      const currentSection = sections.find((section) => {
         const element = document.getElementById(section);
         if (element) {
           const rect = element.getBoundingClientRect();
@@ -100,19 +101,19 @@ const Home = () => {
 
     const handleParallax = () => {
       const scrolled = window.scrollY;
-      const parallaxElements = document.querySelectorAll('.parallax');
-      parallaxElements.forEach(element => {
+      const parallaxElements = document.querySelectorAll(".parallax");
+      parallaxElements.forEach((element) => {
         const speed = element.dataset.speed || 0.5;
         const yPos = -(scrolled * speed);
         element.style.transform = `translateY(${yPos}px)`;
       });
     };
 
-    window.addEventListener('scroll', handleScroll);
-    window.addEventListener('scroll', handleParallax);
+    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleParallax);
     return () => {
-      window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('scroll', handleParallax);
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("scroll", handleParallax);
     };
   }, []);
 
@@ -135,7 +136,9 @@ const Home = () => {
   };
 
   return (
-    <div className={`min-h-screen ${darkMode ? "dark bg-gray-900" : "bg-white"}`}>
+    <div
+      className={`min-h-screen ${darkMode ? "dark bg-gray-900" : "bg-white"}`}
+    >
       {isLoading ? (
         <div className="fixed inset-0 bg-gradient-to-br from-white to-orange-50 dark:from-gray-900 dark:to-gray-800 z-50 flex flex-col items-center justify-center">
           <div className="relative">
@@ -168,11 +171,11 @@ const Home = () => {
           <Element name="home" className="relative h-screen" id="home">
             <div className="relative h-full w-full top-19 overflow-hidden">
               {/* Video Background with Enhanced Parallax */}
-              <div 
-                className="absolute inset-0 z-0 parallax transform scale-110" 
+              <div
+                className="absolute inset-0 z-0 parallax transform scale-110"
                 data-speed="0.3"
                 style={{
-                  filter: darkMode ? 'brightness(70%)' : 'brightness(90%)'
+                  filter: darkMode ? "brightness(70%)" : "brightness(90%)",
                 }}
               >
                 <video
@@ -192,14 +195,16 @@ const Home = () => {
                     <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 tracking-tight leading-tight">
                       Welcome to
                       <span className="bg-gradient-to-r from-yellow-300 via-yellow-400 to-orange-500 text-transparent bg-clip-text animate-gradient">
-                        {" "}Sunhill
+                        {" "}
+                        Sunhill
                       </span>
                       <span className="text-white"> Montessori Casa</span>
                     </h1>
                   </AttentionSeeker>
                   <Fade triggerOnce={false} delay={300}>
                     <p className="text-lg md:text-xl lg:text-2xl mb-8 font-light leading-relaxed">
-                      We are an institution driven by our ultimate goal of bringing each child closer to God.
+                      We are an institution driven by our ultimate goal of
+                      bringing each child closer to God.
                     </p>
                   </Fade>
 
@@ -215,7 +220,11 @@ const Home = () => {
 
               {/* Enhanced Wave Effect */}
               <div className="absolute bottom-0 left-0 right-0 wave-container opacity-70">
-                <svg className="w-full waves-svg" viewBox="0 24 150 28" preserveAspectRatio="none">
+                <svg
+                  className="w-full waves-svg"
+                  viewBox="0 24 150 28"
+                  preserveAspectRatio="none"
+                >
                   <defs>
                     <path
                       id="gentle-wave"
@@ -223,10 +232,30 @@ const Home = () => {
                     />
                   </defs>
                   <g className="waves">
-                    <use href="#gentle-wave" x="78" y="0" className="wave wave1" />
-                    <use href="#gentle-wave" x="78" y="3" className="wave wave2" />
-                    <use href="#gentle-wave" x="78" y="5" className="wave wave3" />
-                    <use href="#gentle-wave" x="78" y="7" className="wave wave4" />
+                    <use
+                      href="#gentle-wave"
+                      x="78"
+                      y="0"
+                      className="wave wave1"
+                    />
+                    <use
+                      href="#gentle-wave"
+                      x="78"
+                      y="3"
+                      className="wave wave2"
+                    />
+                    <use
+                      href="#gentle-wave"
+                      x="78"
+                      y="5"
+                      className="wave wave3"
+                    />
+                    <use
+                      href="#gentle-wave"
+                      x="78"
+                      y="7"
+                      className="wave wave4"
+                    />
                   </g>
                 </svg>
               </div>
@@ -239,7 +268,11 @@ const Home = () => {
           </section>
 
           {/* About Section with Interactive Cards */}
-          <Element name="about" className="section-transition border-t border-gray-200 py-40 relative overflow-hidden" id="about">
+          <Element
+            name="about"
+            className="section-transition border-t border-gray-200 py-40 relative overflow-hidden"
+            id="about"
+          >
             <div className="absolute inset-0 bg-gradient-to-b from-blue-50/50 to-white pointer-events-none"></div>
             <div className="container mx-auto px-7 relative z-10">
               <AttentionSeeker effect="bounce">
@@ -256,37 +289,50 @@ const Home = () => {
                   {
                     // img: "/src/assets/img/home/resources.gif",
                     title: "Easy access to learning modules",
-                    description: "Students can study ahead, review past lessons, and watch instructional videos with a click or a tap.",
+                    description:
+                      "Students can study ahead, review past lessons, and watch instructional videos with a click or a tap.",
                     delay: 50,
-                    color: "blue"
+                    color: "blue",
                   },
                   {
                     // img: "/src/assets/img/home/interactive.gif",
                     title: "Interactive activities and assessments",
-                    description: "Students can test their knowledge and skills through interactive polls, quizzes, and debates.",
+                    description:
+                      "Students can test their knowledge and skills through interactive polls, quizzes, and debates.",
                     delay: 100,
-                    color: "green"
+                    color: "green",
                   },
                   {
                     // img: "/src/assets/img/home/progress.gif",
                     title: "Progress monitoring",
-                    description: "Track student progress with comprehensive reports and analytics, helping educators personalize learning.",
+                    description:
+                      "Track student progress with comprehensive reports and analytics, helping educators personalize learning.",
                     delay: 150,
-                    color: "orange"
+                    color: "orange",
                   },
                   {
                     // img: "/src/assets/img/home/collab.gif",
                     title: "Collaborate with classmates",
-                    description: "Chat with classmates, join forum discussions, write blogs, and facilitate group work activities.",
+                    description:
+                      "Chat with classmates, join forum discussions, write blogs, and facilitate group work activities.",
                     delay: 200,
-                    color: "purple"
+                    color: "purple",
                   },
                 ].map((card, index) => (
-                  <Slide direction="up" triggerOnce={true} delay={card.delay} key={index}>
+                  <Slide
+                    direction="up"
+                    triggerOnce={true}
+                    delay={card.delay}
+                    key={index}
+                  >
                     <div
                       className={`bg-white dark:bg-gray-800 rounded-xl shadow-md p-5 transform transition-all duration-500
                         hover:-translate-y-2 hover:shadow-xl hover:scale-105 cursor-pointer
-                        ${hoveredCard === index ? `ring-2 ring-${card.color}-400 ring-opacity-50` : ''}`}
+                        ${
+                          hoveredCard === index
+                            ? `ring-2 ring-${card.color}-400 ring-opacity-50`
+                            : ""
+                        }`}
                       onMouseEnter={() => setHoveredCard(index)}
                       onMouseLeave={() => setHoveredCard(null)}
                     >
@@ -312,7 +358,11 @@ const Home = () => {
           </Element>
 
           {/* Special Identification Section */}
-          <Element name="special-identification" className="section-transition py-20 border-t border-gray-200" id="tool">
+          <Element
+            name="special-identification"
+            className="section-transition py-20 border-t border-gray-200"
+            id="tool"
+          >
             <div className="container mx-auto px-4 relative z-10">
               <Fade>
                 <h2 className="text-3xl md:text-4xl font-bold text-center mb-10 bg-gradient-to-r from-orange-400 to-orange-600 text-transparent bg-clip-text">
@@ -324,26 +374,42 @@ const Home = () => {
                 <div className="w-full md:w-1/2">
                   <Slide direction="left" triggerOnce={true}>
                     <p className="text-xl text-primary mb-6 font-light italic leading-relaxed">
-                      "Empowering Educators and Parents to Identify and Support Students with Special Needs"
+                      "Empowering Educators and Parents to Identify and Support
+                      Students with Special Needs"
                     </p>
                     <ul className="space-y-4">
                       <li className="flex items-center text-base text-primary transform hover:translate-x-2 transition-all duration-300 p-3 rounded-lg hover:bg-blue-50 dark:hover:bg-gray-700/50">
                         <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-4">
-                          <FontAwesomeIcon icon={faSchool} className="text-blue-500  text-lg" />
+                          <FontAwesomeIcon
+                            icon={faSchool}
+                            className="text-blue-500  text-lg"
+                          />
                         </div>
-                        <span className="font-medium">Comprehensive assessment toolkit</span>
+                        <span className="font-medium">
+                          Comprehensive assessment toolkit
+                        </span>
                       </li>
                       <li className="flex items-center text-base text-primary transform hover:translate-x-2 transition-all duration-300 p-3 rounded-lg hover:bg-blue-50 dark:hover:bg-gray-700/50">
                         <div className="w-10 h-10 rounded-full bg-blue-100  flex items-center justify-center mr-4">
-                          <FontAwesomeIcon icon={faBook} className="text-green-500  text-lg" />
+                          <FontAwesomeIcon
+                            icon={faBook}
+                            className="text-green-500  text-lg"
+                          />
                         </div>
-                        <span className="font-medium">Individualized education plans</span>
+                        <span className="font-medium">
+                          Individualized education plans
+                        </span>
                       </li>
                       <li className="flex items-center text-base text-primary transform hover:translate-x-2 transition-all duration-300 p-3 rounded-lg hover:bg-blue-50 dark:hover:bg-gray-700/50">
                         <div className="w-10 h-10 rounded-full bg-blue-100  flex items-center justify-center mr-4">
-                          <FontAwesomeIcon icon={faChild} className="text-orange-500  text-lg" />
+                          <FontAwesomeIcon
+                            icon={faChild}
+                            className="text-orange-500  text-lg"
+                          />
                         </div>
-                        <span className="font-medium">Professional development resources</span>
+                        <span className="font-medium">
+                          Professional development resources
+                        </span>
                       </li>
                     </ul>
                     <div className="mt-8">
@@ -353,16 +419,18 @@ const Home = () => {
                           hover:from-blue-600 hover:to-blue-700 dark:hover:from-orange-600 dark:hover:to-red-600 transition-all duration-300 
                           flex items-center justify-center transform hover:scale-105 shadow-md w-full sm:w-auto"
                       >
-                        <span className="font-medium text-base">Get Started</span>
-                        <FontAwesomeIcon 
-                          icon={faArrowRight} 
-                          className="ml-2 transform group-hover:translate-x-1 transition-transform duration-300" 
+                        <span className="font-medium text-base">
+                          Get Started
+                        </span>
+                        <FontAwesomeIcon
+                          icon={faArrowRight}
+                          className="ml-2 transform group-hover:translate-x-1 transition-transform duration-300"
                         />
                       </button>
                     </div>
                   </Slide>
                 </div>
-                
+
                 <div className="w-full md:w-1/2">
                   <Zoom triggerOnce={true}>
                     <div className="relative">
@@ -383,24 +451,33 @@ const Home = () => {
           <Programs />
 
           {/* Testimonials Section */}
-              
+
           {/* Statistics Section */}
-          <Element name="stats" className="section-transition py-16 bg-gradient-to-r from-orange-500 to-yellow-500 dark:from-orange-600 dark:to-yellow-600">
+          <Element
+            name="stats"
+            className="section-transition py-16 bg-gradient-to-r from-orange-500 to-yellow-500 dark:from-orange-600 dark:to-yellow-600"
+          >
             <div className="container mx-auto px-4">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-6xl mx-auto">
                 {[
                   { number: "500+", label: "Students", icon: faGraduationCap },
-                  { number: "50+", label: "Teachers", icon: faChalkboardTeacher },
+                  {
+                    number: "50+",
+                    label: "Teachers",
+                    icon: faChalkboardTeacher,
+                  },
                   { number: "18+", label: "Years Experience", icon: faClock },
-                  { number: "4", label: "Branches", icon: faSchool }
+                  { number: "4", label: "Branches", icon: faSchool },
                 ].map((stat, index) => (
                   <Fade delay={index * 100} key={index}>
                     <div className="text-center text-white">
-                      <FontAwesomeIcon 
-                        icon={stat.icon} 
+                      <FontAwesomeIcon
+                        icon={stat.icon}
                         className="text-4xl mb-4 opacity-90"
                       />
-                      <h3 className="text-3xl md:text-4xl font-bold mb-2">{stat.number}</h3>
+                      <h3 className="text-3xl md:text-4xl font-bold mb-2">
+                        {stat.number}
+                      </h3>
                       <p className="text-lg opacity-90">{stat.label}</p>
                     </div>
                   </Fade>
@@ -410,7 +487,11 @@ const Home = () => {
           </Element>
 
           {/* Contact Section */}
-          <Element name="contact" className="section-transition py-12" id="contact">
+          <Element
+            name="contact"
+            className="section-transition py-12"
+            id="contact"
+          >
             <div className="container mx-auto px-4 relative z-10">
               <Fade triggerOnce={false} direction="up">
                 <h2 className="text-3xl md:text-4xl font-bold text-center text-primary mb-8">
@@ -421,18 +502,29 @@ const Home = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl mx-auto">
                 <Slide direction="left" triggerOnce={true}>
                   <div className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-all duration-300">
-                    <h3 className="text-lg font-bold text-gray-800 mb-4">Contact Details</h3>
+                    <h3 className="text-lg font-bold text-gray-800 mb-4">
+                      Contact Details
+                    </h3>
                     <div className="space-y-3">
                       <p className="flex items-center text-xs sm:text-sm text-gray-600 hover:bg-gray-50 p-2 rounded-lg transition-colors duration-200">
-                        <FontAwesomeIcon icon={faMapMarkerAlt} className="mr-3 text-red-500" />
+                        <FontAwesomeIcon
+                          icon={faMapMarkerAlt}
+                          className="mr-3 text-red-500"
+                        />
                         {branches[currentBranchIndex].address}
                       </p>
                       <p className="flex items-center text-xs sm:text-sm text-gray-600 hover:bg-gray-50 p-2 rounded-lg transition-colors duration-200">
-                        <FontAwesomeIcon icon={faPhone} className="mr-3 text-green-500" />
+                        <FontAwesomeIcon
+                          icon={faPhone}
+                          className="mr-3 text-green-500"
+                        />
                         {branches[currentBranchIndex].phone}
                       </p>
                       <p className="flex items-center text-xs sm:text-sm text-gray-600 hover:bg-gray-50 p-2 rounded-lg transition-colors duration-200">
-                        <FontAwesomeIcon icon={faEnvelope} className="mr-3 text-blue-500" />
+                        <FontAwesomeIcon
+                          icon={faEnvelope}
+                          className="mr-3 text-blue-500"
+                        />
                         {branches[currentBranchIndex].email}
                       </p>
                       <a
@@ -441,20 +533,32 @@ const Home = () => {
                         rel="noopener noreferrer"
                         className="flex items-center text-xs sm:text-sm text-gray-600 hover:bg-blue-50 p-2 rounded-lg transition-colors duration-200"
                       >
-                        <FontAwesomeIcon icon={faFacebook} className="mr-3 text-[#4267B2]" />
-                        <span className="text-blue-600 font-medium hover:text-blue-700">{branches[currentBranchIndex].fbPageName}</span>
+                        <FontAwesomeIcon
+                          icon={faFacebook}
+                          className="mr-3 text-[#4267B2]"
+                        />
+                        <span className="text-blue-600 font-medium hover:text-blue-700">
+                          {branches[currentBranchIndex].fbPageName}
+                        </span>
                       </a>
                     </div>
 
                     <div className="mt-6 grid grid-cols-2 gap-2">
-                      {["Batangas", "Rosario", "Bauan", "Sunhill Developmental Education"].map((branchName, index) => (
+                      {[
+                        "Batangas",
+                        "Rosario",
+                        "Bauan",
+                        "Sunhill Developmental Education",
+                      ].map((branchName, index) => (
                         <button
                           key={index}
                           onClick={() => handleBranchChange(index)}
                           className={`py-2 px-4 rounded-lg transition-all duration-300 text-sm font-medium
-                            ${currentBranchIndex === index 
-                              ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-white shadow-md'
-                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                            ${
+                              currentBranchIndex === index
+                                ? "bg-gradient-to-r from-yellow-400 to-orange-500 text-white shadow-md"
+                                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                            }`}
                         >
                           {branchName}
                         </button>
@@ -487,25 +591,22 @@ const Home = () => {
                   shadow-lg hover:shadow-xl transition-all duration-300
                   backdrop-blur-sm"
                 initial={{ opacity: 0, y: 20 }}
-                animate={{ 
-                  opacity: 1, 
+                animate={{
+                  opacity: 1,
                   y: [0, -15, 0],
                   transition: {
                     y: {
                       repeat: Infinity,
                       duration: 1,
-                      ease: "easeInOut"
-                    }
-                  }
+                      ease: "easeInOut",
+                    },
+                  },
                 }}
                 exit={{ opacity: 0, y: 20 }}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
               >
-                <FontAwesomeIcon 
-                  icon={faArrowUp} 
-                  className="text-xl" 
-                />
+                <FontAwesomeIcon icon={faArrowUp} className="text-xl" />
               </motion.button>
             )}
           </AnimatePresence>
