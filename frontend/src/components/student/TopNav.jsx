@@ -45,11 +45,11 @@ const TopNav = ({ studentData, onLogout, onProfileUpdate }) => {
       <div className="container mx-auto flex justify-between items-center p-2 lg:p-3">
         {/* Sunhill LMS Logo */}
         <div className="flex items-center">
-          <img
+          {/* <img
             src={SunhillLogo}
             alt="Sunhill LMS Logo"
             className="w-6 h-6 sm:w-8 sm:h-8 lg:w-10 lg:h-10 mr-2 rounded-full shadow-lg hover:scale-110 transition-transform duration-200"
-          />
+          /> */}
           <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-white">
             Sunhill LMS
           </h1>

@@ -40,11 +40,11 @@ function TeacherLogin() {
         <div className="absolute top-0 left-0 w-full h-1/4 bg-gradient-to-r from-green-600 to-yellow-400 transform skew-y-6 z-10"></div>
         <div className="relative w-full max-w-md bg-white shadow-lg rounded-lg p-6 sm:p-8 z-20 mt-16 mx-4 sm:mx-8">
           <div className="flex justify-center mb-6">
-            <img
+            {/* <img
               src={sunhillLogo}
               alt="Sunhill Logo"
               className="w-16 h-16 rounded-full object-cover shadow-lg border border-gray-300"
-            />
+            /> */}
           </div>
           <h2 className="text-xl sm:text-2xl font-extrabold text-center text-green-800 mb-4">
             Welcome Teachers!

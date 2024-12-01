@@ -49,11 +49,11 @@ function ParentLogin() {
 
         <div className="relative w-full max-w-md bg-white shadow-lg rounded-lg p-6 sm:p-8 z-10 mt-16 mx-4 sm:mx-8">
           <div className="flex justify-center mb-6">
-            <img
+            {/* <img
               src={sunhillLogo}
               alt="Sunhill Logo"
               className="w-16 h-16 rounded-full object-cover shadow-lg border border-gray-300"
-            />
+            /> */}
           </div>
           <h2 className="text-xl sm:text-2xl font-extrabold text-center text-orange-800 mb-4">
             Welcome Parents!

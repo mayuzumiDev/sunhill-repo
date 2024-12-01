@@ -17,8 +17,8 @@ import {
 import { faFacebook } from "@fortawesome/free-brands-svg-icons";
 import { Link, Element } from "react-scroll";
 import { Fade, Slide, Zoom, AttentionSeeker } from "react-awesome-reveal";
-import Sunvid from '../assets/img/home/sunvid.mp4';
-import Sunhill from '../assets/img/home/sunhill.jpg';
+// import Sunvid from '../assets/img/home/sunvid.mp4';
+// import Sunhill from '../assets/img/home/sunhill.jpg';
 import Navbar from "../components/home/Navbar";
 import Footer from "../components/home/Footer";
 import Programs from "../components/home/Programs";
@@ -147,11 +147,11 @@ const Home = () => {
             </div>
             {/* Centered smaller logo with pulse animation */}
             <div className="absolute inset-0 flex items-center justify-center">
-              <img 
-                src={Sunhill} 
+              {/* <img 
+                // src={Sunhill} 
                 alt="Sunhill Logo" 
                 className="w-16 h-16 rounded-full object-cover animate-pulse"
-              />
+              /> */}
             </div>
           </div>
         </div>
@@ -176,7 +176,7 @@ const Home = () => {
                 }}
               >
                 <video
-                  src={Sunvid}
+                  // src={Sunvid}
                   autoPlay
                   loop
                   muted
@@ -254,28 +254,28 @@ const Home = () => {
                 {/* Enhanced Feature Cards */}
                 {[
                   {
-                    img: "/src/assets/img/home/resources.gif",
+                    // img: "/src/assets/img/home/resources.gif",
                     title: "Easy access to learning modules",
                     description: "Students can study ahead, review past lessons, and watch instructional videos with a click or a tap.",
                     delay: 50,
                     color: "blue"
                   },
                   {
-                    img: "/src/assets/img/home/interactive.gif",
+                    // img: "/src/assets/img/home/interactive.gif",
                     title: "Interactive activities and assessments",
                     description: "Students can test their knowledge and skills through interactive polls, quizzes, and debates.",
                     delay: 100,
                     color: "green"
                   },
                   {
-                    img: "/src/assets/img/home/progress.gif",
+                    // img: "/src/assets/img/home/progress.gif",
                     title: "Progress monitoring",
                     description: "Track student progress with comprehensive reports and analytics, helping educators personalize learning.",
                     delay: 150,
                     color: "orange"
                   },
                   {
-                    img: "/src/assets/img/home/collab.gif",
+                    // img: "/src/assets/img/home/collab.gif",
                     title: "Collaborate with classmates",
                     description: "Chat with classmates, join forum discussions, write blogs, and facilitate group work activities.",
                     delay: 200,
@@ -291,12 +291,12 @@ const Home = () => {
                       onMouseLeave={() => setHoveredCard(null)}
                     >
                       <div className="relative overflow-hidden rounded-lg mb-4">
-                        <img
+                        {/* <img
                           src={card.img}
                           alt={card.title}
                           className="w-full max-w-[160px] mx-auto transform transition-transform duration-500
                             hover:scale-110"
-                        />
+                        /> */}
                       </div>
                       <h3 className="text-base md:text-lg font-semibold mb-2 dark:text-white">
                         {card.title}
@@ -367,11 +367,11 @@ const Home = () => {
                   <Zoom triggerOnce={true}>
                     <div className="relative">
                       <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 to-blue-500/20 dark:from-blue-500/30 dark:to-purple-600/30 rounded-2xl transform rotate-2"></div>
-                      <img
+                      {/* <img
                         src="/src/assets/img/home/stu.png"
                         alt="Special Education"
                         className="w-full max-w-md mx-auto relative rounded-xl shadow-xl transform hover:scale-102 transition-transform duration-300"
-                      />
+                      /> */}
                     </div>
                   </Zoom>
                 </div>

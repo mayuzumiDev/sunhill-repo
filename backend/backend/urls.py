@@ -1,9 +1,10 @@
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.static import serve
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from django.views.generic import TemplateView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -18,8 +19,13 @@ urlpatterns = [
 
     # Serve media files in both development and production
     path('media/<path:path>', serve, {'document_root': settings.MEDIA_ROOT}),
-]
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)  # Serve static files
+
+# This should be last - it catches all other URLs and sends them to React
+urlpatterns += [re_path(r'^.*', TemplateView.as_view(template_name='index.html'))]
 
 # Serve media files in development
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+    

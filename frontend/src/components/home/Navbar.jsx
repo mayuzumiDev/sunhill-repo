@@ -72,7 +72,7 @@ const Navbar = ({ darkMode, toggleDarkMode, buttonPosition }) => {
     <div className={`navbar ${navbarSolid ? "solid" : ""}`}>
       <Fade triggerOnce={true} direction="up">
         <RouterLink to="/" className="logo">
-          <img src="/src/assets/img/home/sunhilllogo.png" alt="Logo" />
+          {/* <img src="/src/assets/img/home/sunhilllogo.png" alt="Logo" /> */}
         </RouterLink>
       </Fade>
       <Fade triggerOnce={true} delay={200} direction="up">

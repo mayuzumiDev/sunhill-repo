@@ -31,20 +31,21 @@ const Footer = () => {
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [activeTooltip, setActiveTooltip] = useState(null);
 
-  useEffect(() => {
-    const checkAndUpdateVisitor = () => {
-      const lastVisit = localStorage.getItem('lastVisit');
-      const today = new Date().toDateString();
-      const totalVisitors = parseInt(localStorage.getItem('totalVisitors') || '0');
-      
-      if (lastVisit !== today) {
-        localStorage.setItem('lastVisit', today);
-        localStorage.setItem('totalVisitors', (totalVisitors + 1).toString());
-        setVisitorCount(totalVisitors + 1);
-      } else {
-        setVisitorCount(totalVisitors);
-      }
-    };
+// Logic to handle visitor count and last visit tracking
+useEffect(() => {
+  const updateVisitorCount = () => {
+    const today = new Date().toDateString();
+    const lastVisit = localStorage.getItem("lastVisit");
+    const totalVisitors = parseInt(localStorage.getItem("totalVisitors") || "0");
+
+    if (lastVisit !== today) {
+      localStorage.setItem("lastVisit", today);
+      localStorage.setItem("totalVisitors", totalVisitors + 1);
+      setVisitorCount(totalVisitors + 1);
+    } else {
+      setVisitorCount(totalVisitors);
+    }
+  };
 
     const handleScroll = () => {
       setShowScrollTop(window.scrollY > 300);
@@ -54,7 +55,7 @@ const Footer = () => {
       setCurrentTime(new Date());
     }, 1000);
 
-    checkAndUpdateVisitor();
+    updateVisitorCount();
     window.addEventListener('scroll', handleScroll);
 
     return () => {

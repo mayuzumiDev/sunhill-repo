@@ -98,13 +98,13 @@ const SideNavbar = ({
     >
       <div className="flex items-center justify-between p-6 border-b">
         <div className="flex items-center p4">
-          <img
+          {/* <img
             src={SunhillLogo}
             alt="Sunhill LMS"
             className={`rounded-full transition-all duration-300 ${
               isSidebarOpen ? "w-12 h-12 mr-3" : "w-8 h-8"
             }`}
-          />
+          /> */}
           {isSidebarOpen && (
             <div className="flex flex-col">
               <div className="relative">

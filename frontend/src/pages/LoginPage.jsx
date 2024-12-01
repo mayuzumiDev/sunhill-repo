@@ -35,6 +35,7 @@ const LoginPageContent = () => {
             minHeight: "100vh",
             minWidth: "100%",
             display: "flex",
+            height: "150vh",
             flexDirection: "column",
           }}
         >
@@ -48,19 +49,21 @@ const LoginPageContent = () => {
               justifyContent: "center",
               position: "relative",
               p: 2,
-              "&::before": {
-                content: '""',
-                position: "absolute",
-                top: 0,
-                left: 0,
-                width: "100%",
-                height: "100%",
-                backgroundImage: "url(/src/assets/img/home/supplies.png)",
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-                opacity: 0.4,
-                zIndex: -1,
-              },
+              // background: "linear-gradient(135deg, rgba(90, 255, 20, 0.4) 0%, rgba(0, 255, 255, 0.4) 33%, rgba(128, 0, 128, 0.4) 66%, rgba(255, 165, 0, 0.4) 100%)",
+
+              // "&::before": {
+              //   content: '""',
+              //   position: "absolute",
+              //   top: 0,
+              //   left: 0,
+              //   width: "100%",
+              //   height: "100%",
+              //   // backgroundImage: "url(/src/assets/img/home/supplies.png)",
+              //   backgroundSize: "cover",
+              //   backgroundPosition: "center",
+              //   opacity: 0.4,
+              //   zIndex: -1,
+              // },
             }}
           >
             <Navbar
@@ -68,13 +71,58 @@ const LoginPageContent = () => {
               toggleDarkMode={toggleDarkMode}
               buttonPosition={buttonPosition}
             />
-
-            <Box sx={{ position: "relative", textAlign: "center", mb: 3 }}>
-              <img
+            <Box sx={{ position: "relative", textAlign: "center", mb: 3, mt: { xs: 30, sm: 40 } }}>
+              {/* <img
                 src="/src/assets/img/home/sunhilllogo.png"
                 alt="LMS Logo"
                 style={{ maxWidth: "100%" }}
-              />
+              /> */}
+            <Typography
+                variant="h1"
+                sx={{
+                  position: "relative",
+                  bottom: { xs: "100px", sm: "160px" },
+                  fontFamily: "Arial, sans-serif",
+                  fontWeight: "bold",
+                  fontSize: { xs: "35px", sm: "60px" },
+                  display: "flex",
+                  justifyContent: "center",
+                  gap: "5px",
+                }}
+              >
+                {["S", "u", "n", "h", "i", "l", "l"].map((letter, index) => (
+                  <span
+                    key={index}
+                    style={{
+                      background: [
+                        "#f26025", // Orange
+                        "#f68920", // Orange gradient transition
+                        "#81c244", // Green
+                        "#47b5e4", // Blue
+                        "#1875ba", // Dark Blue
+                        "#653093", // Purple
+                        "#d91c5e", // Red-Purple
+                      ][index % 7], // Cycle through colors for each letter
+                      WebkitBackgroundClip: "text",
+                      WebkitTextFillColor: "transparent",
+                      textShadow: "2px 2px 2px rgba(0, 0, 0, 0.3)",
+                    }}
+                  >
+                    {letter}
+                  </span>
+                ))}
+                <span
+                  style={{
+                    background: "linear-gradient(135deg, #f68920 0%, #47b5e4 100%)",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    textShadow: "2px 2px 2px rgba(0, 0, 0, 0.3)",
+                  }}
+                >
+                  LMS
+                </span>
+              </Typography>
+
               <Typography
                 variant="body2"
                 className="branch-p"

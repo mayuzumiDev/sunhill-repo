@@ -993,11 +993,11 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
               </div>
               {/* Adjust illustration size for mobile */}
               <div className="flex-shrink-0 w-32 h-32 sm:w-40 sm:h-40 lg:w-56 lg:h-56 p-2 sm:p-4">
-                <img
+                {/* <img
                   src={illustrations}
                   alt="Teacher Illustration"
                   className="w-full h-full object-contain rounded-lg"
-                />
+                /> */}
               </div>
             </div>
           </motion.div>

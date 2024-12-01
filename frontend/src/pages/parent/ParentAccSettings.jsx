@@ -195,8 +195,8 @@ const ParentSettings = ({
         <div className="col-span-5 xl:col-span-3">
           <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
             <div className="border-b border-stroke py-4 px-7 dark:border-strokedark">
-              <h3 className="font-medium text-black dark:text-white">
-                Parent Information
+              <h3 className="font-medium text-black">
+                Parent Information  
               </h3>
             </div>
             <div className="p-7">
@@ -256,12 +256,12 @@ const ParentSettings = ({
               <form onSubmit={handleSubmit}>
                 <div className="mb-5.5 flex flex-col gap-5.5 sm:flex-row">
                   <div className="w-full sm:w-1/2">
-                    <label className="mb-3 block text-sm font-medium text-black dark:text-white">
+                    <label className="mb-3 block text-sm font-medium text-black ">
                       First Name
                     </label>
                     <div className="relative">
                       <input
-                        className="w-full rounded border border-stroke bg-gray py-3 px-5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                        className="w-full rounded border border-stroke bg-gray py-3 px-5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:focus:border-primary"
                         type="text"
                         name="first_name"
                         value={formData.first_name}
@@ -272,12 +272,12 @@ const ParentSettings = ({
                   </div>
 
                   <div className="w-full sm:w-1/2">
-                    <label className="mb-3 block text-sm font-medium text-black dark:text-white">
+                    <label className="mb-3 block text-sm font-medium text-black ">
                       Last Name
                     </label>
                     <div className="relative">
                       <input
-                        className="w-full rounded border border-stroke bg-gray py-3 px-5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                        className="w-full rounded border border-stroke bg-gray py-3 px-5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:focus:border-primary"
                         type="text"
                         name="last_name"
                         value={formData.last_name}
@@ -289,12 +289,12 @@ const ParentSettings = ({
                 </div>
 
                 <div className="mb-5.5 mt-5">
-                  <label className="mb-3 block text-sm font-medium text-black dark:text-white">
+                  <label className="mb-3 block text-sm font-medium text-black ">
                     Username
                   </label>
                   <div className="relative">
                     <input
-                      className="w-full rounded border border-stroke bg-gray py-3 px-5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                      className="w-full rounded border border-stroke bg-gray py-3 px-5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:focus:border-primary"
                       type="text"
                       name="username"
                       value={formData.username}
@@ -305,12 +305,12 @@ const ParentSettings = ({
                 </div>
 
                 <div className="mb-5.5 mt-5">
-                  <label className="mb-3 block text-sm font-medium text-black dark:text-white">
+                  <label className="mb-3 block text-sm font-medium text-black ">
                     Email
                   </label>
                   <div className="relative">
                     <input
-                      className="w-full rounded border border-stroke bg-gray py-3 px-5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                      className="w-full rounded border border-stroke bg-gray py-3 px-5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:focus:border-primary"
                       type="email"
                       name="email"
                       value={formData.email}
@@ -321,12 +321,12 @@ const ParentSettings = ({
                 </div>
 
                 <div className="mb-5.5 mt-5">
-                  <label className="mb-3 block text-sm font-medium text-black dark:text-white">
+                  <label className="mb-3 block text-sm font-medium text-black ">
                     Contact Number
                   </label>
                   <div className="relative">
                     <input
-                      className="w-full rounded border border-stroke bg-gray py-3 px-5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                      className="w-full rounded border border-stroke bg-gray py-3 px-5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:focus:border-primary"
                       type="text"
                       name="contact_no"
                       value={formData.contact_no}
@@ -338,7 +338,7 @@ const ParentSettings = ({
 
                 <div className="flex justify-end gap-7 mt-10">
                   <button
-                    className="flex justify-center rounded border border-stroke py-2 px-6 font-medium text-black hover:shadow-1 dark:border-strokedark dark:text-white"
+                    className="flex justify-center rounded border border-stroke py-2 px-6 font-medium text-black hover:shadow-1 dark:border-strokedark "
                     onClick={() => setCurrentTab(previousTab)}
                     type="button"
                   >
@@ -377,7 +377,7 @@ const ParentSettings = ({
           <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
             <div className="border-b border-stroke py-4 px-7 dark:border-strokedark">
               <div className="flex items-center justify-between">
-                <h3 className="font-medium text-black dark:text-white">
+                <h3 className="font-medium text-black ">
                   Connected Students
                 </h3>
                 <span className="inline-flex items-center justify-center rounded-full bg-blue-100 px-3 py-1 text-xs  truncate font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-200">
@@ -421,7 +421,7 @@ const ParentSettings = ({
                             )}
                           </div>
                           <div className="flex-grow min-w-0">
-                            <h4 className="text-lg sm:text-xl lg:text-2xl font-semibold text-black dark:text-white truncate">
+                            <h4 className="text-lg sm:text-lg lg:text-xl font-semibold text-black truncate">
                               {student.first_name} {student.last_name}
                             </h4>
                             <div className="mt-2 sm:mt-3 flex flex-col space-y-2">
@@ -474,7 +474,7 @@ const ParentSettings = ({
                       />
                     </svg>
                   </div>
-                  <h3 className="mt-4 text-lg font-medium text-gray-900 dark:text-white">
+                  <h3 className="mt-4 text-lg font-medium text-gray-900 ">
                     No Students Connected
                   </h3>
                   <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">

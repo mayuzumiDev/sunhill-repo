@@ -124,11 +124,11 @@ const OTPVerification = () => {
     <div className="flex justify-center items-center min-h-screen bg-gray-100 relative p-4 sm:p-6 lg:p-8">
       <div className="bg-white shadow-md rounded-lg p-6 sm:p-8 w-full max-w-md relative mx-4 sm:mx-6 lg:mx-8">
         <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-          <img
+          {/* <img
             src={sunhilllogo}
             alt="Logo"
             className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover shadow-lg border border-gray-300"
-          />
+          /> */}
         </div>
         <div className="text-center mt-16 sm:">
           <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2">

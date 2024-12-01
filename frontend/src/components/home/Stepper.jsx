@@ -8,7 +8,7 @@ const steps = [
     meaning:
       "Ensuring a nurturing and supportive space for children to thrive emotionally, socially, and academically, where every child feels valued and safe to express their individuality.",
     color: "#1976d2",
-    image: "/src/assets/img/home/c.png",
+    // image: "/src/assets/img/home/c.png",
   },
   {
     label: "H",
@@ -17,7 +17,7 @@ const steps = [
     meaning:
       "Fostering intellectual, emotional, social, and physical development using cutting-edge technology, creating well-rounded individuals prepared for future challenges in various domains of life.",
     color: "#8e24aa",
-    image: "/src/assets/img/home/h.png",
+    // image: "/src/assets/img/home/h.png",
   },
   {
     label: "O",
@@ -25,7 +25,7 @@ const steps = [
     meaning:
       "Connecting students to different cultures around the world through virtual classrooms and platforms, promoting understanding, tolerance, and a global mindset that embraces diversity and inclusion.",
     color: "#43a047",
-    image: "/src/assets/img/home/o.png",
+    // image: "/src/assets/img/home/o.png",
   },
   {
     label: "I",
@@ -33,7 +33,7 @@ const steps = [
     meaning:
       "Collaborating with global educational institutions to enhance curriculum quality, offer new perspectives, and provide students with opportunities for cross-border learning and international exposure.",
     color: "#fdd835",
-    image: "/src/assets/img/home/i.png",
+    // image: "/src/assets/img/home/i.png",
   },
   {
     label: "C",
@@ -41,7 +41,7 @@ const steps = [
     meaning:
       "Encouraging students to push their limits through carefully designed challenges that enhance critical thinking, problem-solving, and resilience, preparing them to excel in both academics and life.",
     color: "#e91e63",
-    image: "/src/assets/img/home/ch.png",
+    // image: "/src/assets/img/home/ch.png",
   },
   {
     label: "E",
@@ -49,7 +49,7 @@ const steps = [
     meaning:
       "Providing an immersive English-speaking setting where language is not just a subject but a living, breathing tool for communication, allowing students to build proficiency and confidence in a global language.",
     color: "#1e88e5",
-    image: "/src/assets/img/home/e.png",
+    // image: "/src/assets/img/home/e.png",
   },
 ];
 
@@ -150,7 +150,7 @@ const StepperComponent = () => {
                 maxWidth: "90%",
               }}
             >
-              <Box
+              {/* <Box
                 component="img"
                 src={step.image}
                 alt={step.label}
@@ -165,7 +165,7 @@ const StepperComponent = () => {
                     boxShadow: "0 12px 24px rgba(0, 0, 0, 0.2)",
                   },
                 }}
-              />
+              /> */}
               <Box sx={{ textAlign: "center", maxWidth: "400px" }}>
                 <Box
                   sx={{

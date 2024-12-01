@@ -3,7 +3,7 @@ import { Dialog, Transition } from "@headlessui/react";
 import { Fragment } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import { renderAsync } from "docx-preview";
-import * as PptxPreview from "pptx-preview";
+import * as pptxPreview from "pptx-preview";
 import DotLoaderSpinner from "../../../components/loaders/DotLoaderSpinner";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -12,6 +12,7 @@ import {
   faSearchMinus,
   faRotateLeft,
 } from "@fortawesome/free-solid-svg-icons";
+
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
@@ -227,7 +228,7 @@ const FilePreviewModal = ({ isOpen, onClose, file }) => {
           console.log("Attempting to render PPTX slides");
 
           // Render PowerPoint with enhanced options
-          const slides = await PptxPreview.renderSlides(pptxData, {
+          const slides = await pptxPreview.renderSlides(pptxData, {
             container: pptxContainerRef.current,
             slideMode: true,
             renderOptions: {

@@ -102,11 +102,11 @@ const SideNavbar = ({ currentTab, setCurrentTab, toggleSidebar, isSidebarOpen })
       >
         <div className="flex flex-col items-center justify-center mt-4 mb-5 h-20 border-b border-gray-200">
           <div className="flex items-center p-4">
-            <img
+            {/* <img
               src={sunhillLogo}
               alt="Sunhill Logo"
               className={`rounded-full shadow-md ${isSidebarOpen ? "h-12 w-12" : "h-8 w-8"}`}
-            />
+            /> */}
             {isSidebarOpen && (
               <div className="flex flex-col ml-2">
                 <h1 className="font-semibold text-lg">

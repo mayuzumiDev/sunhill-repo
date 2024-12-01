@@ -6,6 +6,7 @@ import SpecialEducationTool from "../../assets/img/home/specialed.png";
 import {
   FaHome,
   FaChalkboardTeacher,
+  FaSearch,
   FaUserGraduate,
   FaClipboardList,
   FaCog,
@@ -80,13 +81,14 @@ const Sidebar = ({
     // { name: "Quizzes", icon: <FaClipboardList /> },
     {
       name: "SpecialED",
-      icon: (
-        <img
-          src={SpecialEducationTool}
-          alt="Special Education Tool"
-          className="w-5 h-5"
-        />
-      ),
+      icon: <FaSearch/>,
+      // (
+      // //   <img
+      //     src={SpecialEducationTool}
+      //     alt="Special Education Tool"
+      //     className="w-5 h-5"
+      //   />
+      // ),
     },
   ];
 
@@ -132,11 +134,11 @@ const Sidebar = ({
         {/* Fixed Logo and title */}
         <div className="flex flex-col items-center justify-center mt-4 mb-7 h-20 border-b border-gray-200">
           <div className="flex items-center p-4">
-            <img
+            {/* <img
               src={sunhillLogo}
               alt="Sunhill Logo"
               className="h-12 w-12 rounded-full shadow-md"
-            />
+            /> */}
             {isSidebarOpen && (
               <div className="flex flex-col ml-2">
                 <h1 className="font-semibold text-lg">

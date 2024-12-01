@@ -9,11 +9,11 @@ const NotFound = () => {
       {/* Adjusting the Image Size and Removing the Box */}
       <div className="flex flex-col items-center relative z-10 text-center">
         <div className="flex justify-center mb-8 ">
-          <img
+          {/* <img
             src={NotFoundImage}
             alt="Not Found Illustration"
             className="w-3/4 sm:w-2/3 md:w-1/2 lg:w-1/3 " 
-          />
+          /> */}
         </div>
         <h1 className="text-5xl sm:text-6xl md:text-7xl font-extrabold text-red-600">404</h1> 
         <p className="mt-4 text-lg sm:text-xl md:text-2xl font-semibold text-gray-800 dark:text-gray-300"> 
