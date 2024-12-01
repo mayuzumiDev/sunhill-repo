@@ -94,7 +94,7 @@ body {
   z-index: -1;
 }
 
-.dark .login-main {
+/* .dark .login-main {
   background-image: url("/src/assets/img/home/supplies.png"),
     linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.5));
   background-size: cover;
@@ -102,7 +102,7 @@ body {
   background-blend-mode: darken;
   flex: 1 1;
   height: 100vh;
-}
+} */
 
 .dark .wave-background .waves {
   position: relative;
