@@ -95,8 +95,7 @@ const ManageLessons = () => {
     }
   };
 
-  const handleClassroomCreated = (newClassroom) => {
-    console.log("New classroom data:", newClassroom);
+  const handleClassroomCreated = async (newClassroom) => {
     if (!newClassroom) return;
 
     // Format classroom data to match the list structure
@@ -109,8 +108,10 @@ const ManageLessons = () => {
       student_count: 0, // Initialize student count to 0
     };
 
+    await fetchClassroom();
+    /* 
     setClassrooms((prevClassrooms) => [...prevClassrooms, formattedClassroom]);
-    setShowModal(false);
+    setShowModal(false); */
   };
 
   return (

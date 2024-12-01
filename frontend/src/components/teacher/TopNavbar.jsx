@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaCaretDown } from "react-icons/fa";
+import { FaCaretDown, FaUserCircle } from "react-icons/fa";
 import Button from "../LogoutButton";
 import Switch from "../Switch";
 import unknown from "../../assets/img/home/unknown.jpg";
@@ -17,7 +17,7 @@ const TopNavbar = ({
   toggleDarkMode,
 }) => {
   const [teacherData, setTeacherData] = useState(null);
-  const [profileImage, setProfileImage] = useState(unknown);
+  const [profileImage, setProfileImage] = useState(null);
   const [isNotifDropdownOpen, setIsNotifDropdownOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const notifDropdownRef = useRef(null);
@@ -26,17 +26,22 @@ const TopNavbar = ({
 
   const fetchTeacherData = async () => {
     try {
-      const response = await axiosInstance.get("/user-teacher/current-teacher/");
+      const response = await axiosInstance.get(
+        "/user-teacher/current-teacher/"
+      );
       if (response.data?.teacher_profile) {
         const profile = response.data.teacher_profile;
         setTeacherData(profile);
-        
+
         // Store role and branch in localStorage
-        localStorage.setItem('userRole', profile.user_info?.role || 'teacher');
-        localStorage.setItem('userBranch', profile.user_info?.branch_name || '');
+        localStorage.setItem("userRole", profile.user_info?.role || "teacher");
+        localStorage.setItem(
+          "userBranch",
+          profile.user_info?.branch_name || ""
+        );
       }
     } catch (error) {
-      console.error('Error fetching teacher data:', error);
+      console.error("Error fetching teacher data:", error);
     }
   };
 
@@ -46,22 +51,26 @@ const TopNavbar = ({
 
   useEffect(() => {
     if (teacherData?.user_info?.profile_image) {
-      console.log('Setting profile image:', teacherData.user_info.profile_image);
+      console.log(
+        "Setting profile image:",
+        teacherData.user_info.profile_image
+      );
       setProfileImage(teacherData.user_info.profile_image);
     } else {
-      console.log('Setting default image');
+      console.log("Setting default image");
       setProfileImage(unknown);
     }
   }, [teacherData]);
 
   useEffect(() => {
     const handleProfileUpdate = () => {
-      console.log('Profile update detected, refreshing data...');
+      console.log("Profile update detected, refreshing data...");
       fetchTeacherData();
     };
 
-    window.addEventListener('profileUpdated', handleProfileUpdate);
-    return () => window.removeEventListener('profileUpdated', handleProfileUpdate);
+    window.addEventListener("profileUpdated", handleProfileUpdate);
+    return () =>
+      window.removeEventListener("profileUpdated", handleProfileUpdate);
   }, []);
 
   const toggleNotifDropdown = () => setIsNotifDropdownOpen((prev) => !prev);
@@ -121,10 +130,10 @@ const TopNavbar = ({
         </button>
 
         {/* Notification Button */}
-        <NotificationButton 
-          userRole={localStorage.getItem('userRole')}
-          userBranch={localStorage.getItem('userBranch')}
-          notifications={notifications} 
+        <NotificationButton
+          userRole={localStorage.getItem("userRole")}
+          userBranch={localStorage.getItem("userBranch")}
+          notifications={notifications}
         />
 
         {/* Profile Dropdown */}
@@ -133,18 +142,23 @@ const TopNavbar = ({
             onClick={toggleProfileDropdown}
             className="flex items-center text-green-700 focus:outline-none"
           >
-            <img
-              src={profileImage}
-              alt="Profile"
-              className={`w-10 h-10 rounded-full border-2 object-cover ${
-                darkMode ? "border-gray-700" : "border-green-500"
-              }`}
-              onError={(e) => {
-                console.error('Image failed to load:', e);
-                setProfileImage(unknown);
-                e.target.src = unknown;
-              }}
-            />
+            {profileImage ? (
+              <img
+                src={profileImage}
+                alt="Profile"
+                className={`w-10 h-10 rounded-full border-2 object-cover ${
+                  darkMode ? "border-gray-700" : "border-green-500"
+                }`}
+              />
+            ) : (
+              <div
+                className={`w-10 h-10 rounded-full border-2 flex items-center justify-center bg-gray-100 ${
+                  darkMode ? "border-gray-700" : "border-green-500"
+                }`}
+              >
+                <FaUserCircle className="w-8 h-8 text-gray-400" />
+              </div>
+            )}
 
             {/* Profile Details (Shown only on medium screens and up) */}
             <div className="hidden sm:flex flex-col ml-2 items-start">
@@ -154,13 +168,13 @@ const TopNavbar = ({
                 }`}
                 style={{ maxWidth: "150px" }}
               >
-                {teacherData?.first_name || ''} {teacherData?.last_name || ''}
+                {teacherData?.first_name || ""} {teacherData?.last_name || ""}
               </span>
               <span className="text-gray-400 text-xs">
-                {teacherData?.role || 'Teacher'}
+                {teacherData?.role || "Teacher"}
               </span>
               <span className="text-green-500 font-bold text-xs">
-                {teacherData?.branch_name || ''}
+                {teacherData?.branch_name || ""}
               </span>
             </div>
 
@@ -191,13 +205,13 @@ const TopNavbar = ({
                     darkMode ? "text-white" : "text-green-700"
                   }`}
                 >
-                  {teacherData?.first_name || ''} {teacherData?.last_name || ''}
+                  {teacherData?.first_name || ""} {teacherData?.last_name || ""}
                 </span>
                 <p className="text-gray-400 text-xs px-2 ">
-                  {teacherData?.role || 'Teacher'}
+                  {teacherData?.role || "Teacher"}
                 </p>
                 <p className="text-green-500 font-bold text-xs px-2 ">
-                  {teacherData?.branch_name || ''}
+                  {teacherData?.branch_name || ""}
                 </p>
               </div>
               <ul className="mt-2">

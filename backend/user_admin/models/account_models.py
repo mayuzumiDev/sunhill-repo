@@ -1,6 +1,8 @@
 from django.db import models
 from django.forms import ImageField
 from api.models import CustomUser
+from django.core.files.storage import FileSystemStorage
+from django.conf import settings
 
 GRADE_LEVEL_CHOICES = [
     ('Nursery', 'Nursery'),
@@ -14,11 +16,16 @@ GRADE_LEVEL_CHOICES = [
     ('Grade 6', 'Grade 6'),
 ]
 
+profile_storage = FileSystemStorage(
+    location=settings.PROFILE_IMAGES_LOCATION,
+    base_url=settings.MEDIA_URL + 'profile_images/'
+)
+
 # Create your models here.
 class UserInfo(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name="user_info")
     contact_no = models.CharField(max_length=20, null=True)
-    profile_image = models.ImageField(upload_to='profile_images/', blank=True, null=True)
+    profile_image = models.ImageField(upload_to='profile_images/', storage=profile_storage, blank=True, null=True)
 
 class TeacherInfo(models.Model):
     teacher_info = models.OneToOneField(UserInfo, on_delete=models.CASCADE, related_name="teacher_info")

@@ -185,7 +185,6 @@ const AddStudentModal = ({ isOpen, onClose, onAdd }) => {
                       className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                     />
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"></th>
                   <th
                     scope="col"
                     className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
