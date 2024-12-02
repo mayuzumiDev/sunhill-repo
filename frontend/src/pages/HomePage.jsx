@@ -25,6 +25,8 @@ import Programs from "../components/home/Programs";
 import LoginModal from "../components/home/LoginModal";
 import StepperComponent from "../components/home/Stepper";
 import Btn from "../components/home/Button";
+import Loader from "../components/loaders/HomeLoader";
+import BG from "../components/home/BG";
 import { motion, AnimatePresence } from "framer-motion";
 
 const branches = [
@@ -140,22 +142,24 @@ const Home = () => {
       className={`min-h-screen ${darkMode ? "dark bg-gray-900" : "bg-white"}`}
     >
       {isLoading ? (
+  
         <div className="fixed inset-0 bg-gradient-to-br from-white to-orange-50 dark:from-gray-900 dark:to-gray-800 z-50 flex flex-col items-center justify-center">
           <div className="relative">
+          <Loader/>
             {/* Main spinner */}
-            <div className="w-40 h-40">
+            {/* <div className="w-40 h-40">
               <div className="absolute inset-0 border-8 border-t-orange-500 border-r-orange-500 border-b-transparent border-l-transparent rounded-full animate-spin"></div>
               <div className="absolute inset-4 border-6 border-t-blue-500 border-r-blue-500 border-b-transparent border-l-transparent rounded-full animate-spin-reverse"></div>
               <div className="absolute inset-8 border-4 border-t-yellow-500 border-r-yellow-500 border-b-transparent border-l-transparent rounded-full animate-spin"></div>
-            </div>
+            </div> */}
             {/* Centered smaller logo with pulse animation */}
-            <div className="absolute inset-0 flex items-center justify-center">
+            {/* <div className="absolute inset-0 flex items-center justify-center">
               {/* <img 
                 // src={Sunhill} 
                 alt="Sunhill Logo" 
                 className="w-16 h-16 rounded-full object-cover animate-pulse"
               /> */}
-            </div>
+            {/* </div>  */}
           </div>
         </div>
       ) : (
@@ -175,17 +179,18 @@ const Home = () => {
                 className="absolute inset-0 z-0 parallax transform scale-110"
                 data-speed="0.3"
                 style={{
-                  filter: darkMode ? "brightness(70%)" : "brightness(90%)",
+                  filter: darkMode ? "brightness(85%)" : "brightness(100%)",
                 }}
               >
-                <video
+                <BG/>
+                {/* <video
                   // src={Sunvid}
                   autoPlay
                   loop
                   muted
                   playsInline
                   className="h-full w-full object-cover"
-                />
+                /> */}
               </div>
 
               {/* Enhanced Content Overlay */}
@@ -268,94 +273,150 @@ const Home = () => {
           </section>
 
           {/* About Section with Interactive Cards */}
-          <Element
-            name="about"
-            className="section-transition border-t border-gray-200 py-40 relative overflow-hidden"
-            id="about"
-          >
-            <div className="absolute inset-0 bg-gradient-to-b from-blue-50/50 to-white pointer-events-none"></div>
-            <div className="container mx-auto px-7 relative z-10">
-              <AttentionSeeker effect="bounce">
-                <h2 className="text-4xl md:text-5xl font-bold text-center mb-16 tracking-tight">
-                  <span className="bg-gradient-to-r from-blue-600 to-blue-400 text-transparent bg-clip-text animate-gradient">
-                    Sunhill LMS
-                  </span>
-                </h2>
-              </AttentionSeeker>
+            <Element
+              name="about"
+              className="section-transition border-t border-gray-200 py-40 relative overflow-hidden"
+              id="about"
+            >
+              <div className="absolute inset-0 bg-gradient-to-b from-blue-50/50 to-white pointer-events-none"></div>
+              <div className="container mx-auto px-7 relative z-10">
+                <AttentionSeeker effect="bounce">
+                  <h2 className="text-4xl md:text-5xl font-bold text-center mb-16 tracking-tight">
+                    <span className="bg-gradient-to-r from-blue-600 to-blue-400 text-transparent bg-clip-text animate-gradient">
+                      Sunhill LMS
+                    </span>
+                  </h2>
+                </AttentionSeeker>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
-                {/* Enhanced Feature Cards */}
-                {[
-                  {
-                    // img: "/src/assets/img/home/resources.gif",
-                    title: "Easy access to learning modules",
-                    description:
-                      "Students can study ahead, review past lessons, and watch instructional videos with a click or a tap.",
-                    delay: 50,
-                    color: "blue",
-                  },
-                  {
-                    // img: "/src/assets/img/home/interactive.gif",
-                    title: "Interactive activities and assessments",
-                    description:
-                      "Students can test their knowledge and skills through interactive polls, quizzes, and debates.",
-                    delay: 100,
-                    color: "green",
-                  },
-                  {
-                    // img: "/src/assets/img/home/progress.gif",
-                    title: "Progress monitoring",
-                    description:
-                      "Track student progress with comprehensive reports and analytics, helping educators personalize learning.",
-                    delay: 150,
-                    color: "orange",
-                  },
-                  {
-                    // img: "/src/assets/img/home/collab.gif",
-                    title: "Collaborate with classmates",
-                    description:
-                      "Chat with classmates, join forum discussions, write blogs, and facilitate group work activities.",
-                    delay: 200,
-                    color: "purple",
-                  },
-                ].map((card, index) => (
-                  <Slide
-                    direction="up"
-                    triggerOnce={true}
-                    delay={card.delay}
-                    key={index}
-                  >
-                    <div
-                      className={`bg-white dark:bg-gray-800 rounded-xl shadow-md p-5 transform transition-all duration-500
-                        hover:-translate-y-2 hover:shadow-xl hover:scale-105 cursor-pointer
-                        ${
-                          hoveredCard === index
-                            ? `ring-2 ring-${card.color}-400 ring-opacity-50`
-                            : ""
-                        }`}
-                      onMouseEnter={() => setHoveredCard(index)}
-                      onMouseLeave={() => setHoveredCard(null)}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+                  {/* Enhanced Feature Cards */}
+                  {[
+                    {
+                      icon: (
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          strokeWidth="1.5"
+                          stroke="currentColor"
+                          className="w-12 h-12 text-blue-500 mx-auto"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M12 6.75V17.25M9 3.75H15M8.25 3.75C8.25 2.50736 9.50736 1.25 10.75 1.25H13.25C14.4926 1.25 15.75 2.50736 15.75 3.75H8.25zM8.25 20.25H15.75M12 17.25V20.25M5.25 7.25H18.75C19.9926 7.25 21.25 8.50736 21.25 9.75V17.25C21.25 18.4926 19.9926 19.75 18.75 19.75H5.25C4.00736 19.75 2.75 18.4926 2.75 17.25V9.75C2.75 8.50736 4.00736 7.25 5.25 7.25Z"
+                          />
+                        </svg>
+                      ),
+                      title: "Easy access to learning modules",
+                      description:
+                        "Students can study ahead, review past lessons, and see the learning materials with a click or a tap.",
+                      delay: 50,
+                      color: "blue",
+                    },
+                    {
+                      icon: (
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          strokeWidth="1.5"
+                          stroke="currentColor"
+                          className="w-12 h-12 text-green-500 mx-auto"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M3.75 6.75H20.25M3.75 12H20.25M3.75 17.25H14.25"
+                          />
+                        </svg>
+                      ),
+                      title: "Interactive activities and assessments",
+                      description:
+                        "Students can test their knowledge and skills through activities, quizzes, and etc.",
+                      delay: 100,
+                      color: "green",
+                    },
+                    {
+                      icon: (
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          strokeWidth="1.5"
+                          stroke="currentColor"
+                          className="w-12 h-12 text-orange-500 mx-auto"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M6.75 12L10.5 15.75 17.25 9"
+                          />
+                        </svg>
+                      ),
+                      title: "Progress monitoring",
+                      description:
+                        "Track student progress with comprehensive reports and analytics, helping educators personalize learning.",
+                      delay: 150,
+                      color: "orange",
+                    },
+                    {
+                      icon: (
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          strokeWidth="1.5"
+                          stroke="currentColor"
+                          className="w-12 h-12 text-purple-500 mx-auto"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M7.75 6.75H17.25M7.75 12H12M7.75 17.25H14.25"
+                          />
+                        </svg>
+                      ),
+                      title: "Parents can monitor their child's progress",
+                      description:
+                        "Parents can track their child's academic performance, scores, and participation through detailed analytics.",
+                      delay: 200,
+                      color: "purple",
+                    },
+                  ].map((card, index) => (
+                    <Slide
+                      direction="up"
+                      triggerOnce={true}
+                      delay={card.delay}
+                      key={index}
                     >
-                      <div className="relative overflow-hidden rounded-lg mb-4">
-                        {/* <img
-                          src={card.img}
-                          alt={card.title}
-                          className="w-full max-w-[160px] mx-auto transform transition-transform duration-500
-                            hover:scale-110"
-                        /> */}
+                      <div
+                        className={`bg-white dark:bg-gray-800 rounded-xl shadow-md p-5 transform transition-all duration-500
+                          hover:-translate-y-2 hover:shadow-xl hover:scale-105 cursor-pointer
+                          ${
+                            hoveredCard === index
+                              ? `ring-2 ring-${card.color}-400 ring-opacity-50`
+                              : ""
+                          }`}
+                        onMouseEnter={() => setHoveredCard(index)}
+                        onMouseLeave={() => setHoveredCard(null)}
+                      >
+                        <div className="relative overflow-hidden rounded-lg mb-4">
+                          {card.icon}
+                        </div>
+                        <h3 className="text-base md:text-lg font-semibold mb-2 dark:text-white">
+                          {card.title}
+                        </h3>
+                        <p className="text-sm text-gray-600 dark:text-gray-300">
+                          {card.description}
+                        </p>
                       </div>
-                      <h3 className="text-base md:text-lg font-semibold mb-2 dark:text-white">
-                        {card.title}
-                      </h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-300">
-                        {card.description}
-                      </p>
-                    </div>
-                  </Slide>
-                ))}
+                    </Slide>
+                  ))}
+                </div>
               </div>
-            </div>
-          </Element>
+            </Element>
+
 
           {/* Special Identification Section */}
           <Element
@@ -397,7 +458,7 @@ const Home = () => {
                           />
                         </div>
                         <span className="font-medium">
-                          Individualized education plans
+                        Evaluation of assessment based on responses
                         </span>
                       </li>
                       <li className="flex items-center text-base text-primary transform hover:translate-x-2 transition-all duration-300 p-3 rounded-lg hover:bg-blue-50 dark:hover:bg-gray-700/50">
@@ -408,7 +469,7 @@ const Home = () => {
                           />
                         </div>
                         <span className="font-medium">
-                          Professional development resources
+                        To help them initially identify the needs
                         </span>
                       </li>
                     </ul>
@@ -435,6 +496,113 @@ const Home = () => {
                   <Zoom triggerOnce={true}>
                     <div className="relative">
                       <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 to-blue-500/20 dark:from-blue-500/30 dark:to-purple-600/30 rounded-2xl transform rotate-2"></div>
+                      <div className="relative flex justify-center items-center rounded-xl shadow-xl transform hover:scale-102 transition-transform duration-300 bg-gradient-to-r from-purple-500 via-blue-500 to-indigo-600 p-6 sm:p-8 lg:p-12 overflow-visible">
+                        {/* Overflowing Circles */}
+
+                        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 -z-10">
+                          <div className="h-36 w-36 sm:h-48 sm:w-48 lg:h-64 lg:w-64 rounded-full bg-gradient-to-r from-indigo-400 to-teal-400 shadow-xl"></div>
+                        </div>
+
+                        {/* SVG Illustration */}
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 100 100"
+                          fill="none"
+                          className="w-3/4 max-w-xs sm:max-w-md lg:max-w-lg mx-auto relative"
+                          role="img"
+                          aria-label="Special Education Illustration"
+                        >
+                          {/* Outer Circle with Gradient */}
+                          <circle
+                            cx="50"
+                            cy="50"
+                            r="48"
+                            stroke="url(#gradientOuter)"
+                            strokeWidth="4"
+                            fill="url(#gradientBackground)"
+                            className="animate-pulse-circle"
+                          />
+                          {/* Blob Shape */}
+                          <path
+                            d="M30 50c0-11 9-20 20-20s20 9 20 20-9 20-20 20-20-9-20-20z"
+                            fill="url(#gradientBlob)"
+                            filter="url(#shadow)"
+                            className="animate-blob"
+                          />
+                          {/* Inner Circle */}
+                          <circle
+                            cx="50"
+                            cy="50"
+                            r="12"
+                            fill="url(#gradientInner)"
+                            className="animate-pulse-inner"
+                          />
+
+                          {/* Gradient Definitions */}
+                          <defs>
+                            <linearGradient id="gradientOuter" x1="0" y1="0" x2="1" y2="1">
+                              <stop offset="0%" stopColor="#60a5fa" />
+                              <stop offset="100%" stopColor="#2563eb" />
+                            </linearGradient>
+                            <linearGradient id="gradientBackground" x1="0" y1="0" x2="1" y2="1">
+                              <stop offset="0%" stopColor="#eff6ff" />
+                              <stop offset="100%" stopColor="#dbeafe" />
+                            </linearGradient>
+                            <linearGradient id="gradientBlob" x1="0" y1="0" x2="1" y2="1">
+                              <stop offset="0%" stopColor="#93c5fd" />
+                              <stop offset="100%" stopColor="#3b82f6" />
+                            </linearGradient>
+                            <linearGradient id="gradientInner" x1="0" y1="0" x2="1" y2="1">
+                              <stop offset="0%" stopColor="#9333ea" />
+                              <stop offset="100%" stopColor="#3b82f6" />
+                            </linearGradient>
+                            {/* Drop Shadow Filter */}
+                            <filter id="shadow" x="-10" y="-10" width="120" height="120" filterUnits="userSpaceOnUse">
+                              <feDropShadow dx="0" dy="4" stdDeviation="4" floodColor="#2563eb" floodOpacity="0.2" />
+                            </filter>
+                          </defs>
+                        </svg>
+
+                        {/* CSS Animations */}
+                        <style jsx>{`
+                          .animate-pulse-circle {
+                            animation: pulse-circle 3s infinite ease-in-out;
+                          }
+                          .animate-blob {
+                            animation: blob-expand 2.5s infinite ease-in-out;
+                          }
+                          .animate-pulse-inner {
+                            animation: pulse-inner 2s infinite ease-in-out;
+                          }
+
+                          @keyframes pulse-circle {
+                            0%, 100% {
+                              transform: scale(1);
+                            }
+                            50% {
+                              transform: scale(1.05);
+                            }
+                          }
+
+                          @keyframes blob-expand {
+                            0%, 100% {
+                              transform: scale(1);
+                            }
+                            50% {
+                              transform: scale(1.1);
+                            }
+                          }
+
+                          @keyframes pulse-inner {
+                            0%, 100% {
+                              transform: scale(1);
+                            }
+                            50% {
+                              transform: scale(1.2);
+                            }
+                          }
+                        `}</style>
+                      </div>
                       {/* <img
                         src="/src/assets/img/home/stu.png"
                         alt="Special Education"

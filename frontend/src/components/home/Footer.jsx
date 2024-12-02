@@ -27,46 +27,48 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const Footer = () => {
   const [visitorCount, setVisitorCount] = useState(0);
+  const [totalVisitors, setTotalVisitors] = useState(0);
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [showScrollTop, setShowScrollTop] = useState(false);
-  const [activeTooltip, setActiveTooltip] = useState(null);
 
+// Logic to handle visitor count and last visit tracking
 // Logic to handle visitor count and last visit tracking
 useEffect(() => {
   const updateVisitorCount = () => {
-    const today = new Date().toDateString();
-    const lastVisit = localStorage.getItem("lastVisit");
-    const totalVisitors = parseInt(localStorage.getItem("totalVisitors") || "0");
+    const today = new Date().toDateString();  // Current date
+    const lastVisit = localStorage.getItem("lastVisit");  // Get last visit date
+    const storedVisitorCount = parseInt(localStorage.getItem("visitorCount") || "0"); // Get stored visitor count for today
+    const storedTotalVisitors = parseInt(localStorage.getItem("totalVisitors") || "0");  // Get total visitors count
 
+    // If the user has visited today
     if (lastVisit !== today) {
-      localStorage.setItem("lastVisit", today);
-      localStorage.setItem("totalVisitors", totalVisitors + 1);
-      setVisitorCount(totalVisitors + 1);
+      localStorage.setItem("lastVisit", today);  // Update last visit date
+      localStorage.setItem("visitorCount", storedVisitorCount + 1); // Increment today's visitor count
+      localStorage.setItem("totalVisitors", storedTotalVisitors + 1);  // Increment total visitor count
+      setVisitorCount(storedVisitorCount + 1);  // Update state for today's count
+      setTotalVisitors(storedTotalVisitors + 1);  // Update state for total count
     } else {
-      setVisitorCount(totalVisitors);
+      setVisitorCount(storedVisitorCount);  // Today's visitors are the same if it's not a new day
+      setTotalVisitors(storedTotalVisitors);  // Total visitors remain unchanged
     }
   };
+// // Clear all data from localStorage
+// localStorage.clear();
 
-    const handleScroll = () => {
-      setShowScrollTop(window.scrollY > 300);
-    };
+  updateVisitorCount(); 
 
     const timeInterval = setInterval(() => {
       setCurrentTime(new Date());
     }, 1000);
 
-    updateVisitorCount();
-    window.addEventListener('scroll', handleScroll);
 
     return () => {
-      window.removeEventListener('scroll', handleScroll);
       clearInterval(timeInterval);
     };
   }, []);
 
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  // const scrollToTop = () => {
+  //   window.scrollTo({ top: 0, behavior: 'smooth' });
+  // };
 
   const footerLinks = {
     about: [
@@ -87,14 +89,14 @@ useEffect(() => {
     ],
   };
 
-  const socialLinks = [
-    { icon: faFacebook, url: "https://facebook.com", name: "Facebook", color: "#1877f2" },
-    { icon: faTwitter, url: "https://twitter.com", name: "Twitter", color: "#1da1f2" },
-    { icon: faInstagram, url: "https://instagram.com", name: "Instagram", color: "#e4405f" },
-    { icon: faLinkedin, url: "https://linkedin.com", name: "LinkedIn", color: "#0077b5" },
-    { icon: faYoutube, url: "https://youtube.com", name: "YouTube", color: "#ff0000" },
-    { icon: faWhatsapp, url: "https://wa.me/09602715298", name: "WhatsApp", color: "#25d366" },
-  ];
+  // const socialLinks = [
+  //   { icon: faFacebook, url: "https://facebook.com", name: "Facebook", color: "#1877f2" },
+  //   { icon: faTwitter, url: "https://twitter.com", name: "Twitter", color: "#1da1f2" },
+  //   { icon: faInstagram, url: "https://instagram.com", name: "Instagram", color: "#e4405f" },
+  //   { icon: faLinkedin, url: "https://linkedin.com", name: "LinkedIn", color: "#0077b5" },
+  //   { icon: faYoutube, url: "https://youtube.com", name: "YouTube", color: "#ff0000" },
+  //   { icon: faWhatsapp, url: "https://wa.me/09602715298", name: "WhatsApp", color: "#25d366" },
+  // ];
 
   return (
     <footer className="bg-gray-800 pt-16 pb-8 relative">
@@ -144,11 +146,18 @@ useEffect(() => {
                   <span>smcbatangascity@sunhilledu.com</span>
                 </motion.a>
                 <Zoom>
+                  <div className="flex items-center gap-2 text-sm bg-gray-700 p-3 rounded-lg shadow-lg mt-2">
+                    <FontAwesomeIcon icon={faUsers} className="text-orange-500" />
+                    <span className="font-semibold">Today's Visitors:</span>
+                    <span className="bg-orange-500 px-2 py-1 rounded text-white">
+                      {visitorCount}
+                    </span>
+                  </div>
                   <div className="flex items-center gap-2 text-sm bg-gray-700 p-3 rounded-lg shadow-lg">
                     <FontAwesomeIcon icon={faUsers} className="text-orange-500" />
                     <span className="font-semibold">Total Visitors:</span>
                     <span className="bg-orange-500 px-2 py-1 rounded text-white">
-                      {visitorCount}
+                      {totalVisitors}
                     </span>
                   </div>
                 </Zoom>
@@ -189,7 +198,7 @@ useEffect(() => {
         <div className="border-t border-gray-700 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="flex space-x-6">
-              {socialLinks.map((social, index) => (
+              {/* {socialLinks.map((social, index) => (
                 <motion.div
                   key={index}
                   className="relative"
@@ -219,7 +228,7 @@ useEffect(() => {
                     )}
                   </AnimatePresence>
                 </motion.div>
-              ))}
+              ))} */}
             </div>
 
             <div className="text-center md:text-right text-sm text-gray-400">

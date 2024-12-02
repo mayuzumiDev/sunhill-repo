@@ -3,6 +3,7 @@ import { Button, Box, Typography } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 import Navbar from "../components/home/Navbar"; // MUI AppBar version
 import Footer from "../components/home/Footer"; // MUI styled Footer
+import BG from "../components/home/BG"; // Background Component
 
 const LoginPageContent = () => {
   const [darkMode, setDarkMode] = useState(() => {
@@ -35,10 +36,30 @@ const LoginPageContent = () => {
             minHeight: "100vh",
             minWidth: "100%",
             display: "flex",
-            height: "150vh",
             flexDirection: "column",
+            zIndex: 1,
           }}
         >
+          {/* Add BG component for background blur effect */}
+          <Box
+            sx={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              zIndex: -1,
+              filter: "blur(25px)", // Apply the blur effect
+              backgroundColor: darkMode ? "#121212" : "#f0f0f0", // Conditional background color
+            }}
+          >
+            <BG />
+          </Box>
+          <Navbar
+            darkMode={darkMode}
+            toggleDarkMode={toggleDarkMode}
+            buttonPosition={buttonPosition}
+          />
           <Box
             className="login-main"
             sx={{
@@ -49,35 +70,18 @@ const LoginPageContent = () => {
               justifyContent: "center",
               position: "relative",
               p: 2,
-              // background: "linear-gradient(135deg, rgba(90, 255, 20, 0.4) 0%, rgba(0, 255, 255, 0.4) 33%, rgba(128, 0, 128, 0.4) 66%, rgba(255, 165, 0, 0.4) 100%)",
-
-              // "&::before": {
-              //   content: '""',
-              //   position: "absolute",
-              //   top: 0,
-              //   left: 0,
-              //   width: "100%",
-              //   height: "100%",
-              //   // backgroundImage: "url(/src/assets/img/home/supplies.png)",
-              //   backgroundSize: "cover",
-              //   backgroundPosition: "center",
-              //   opacity: 0.4,
-              //   zIndex: -1,
-              // },
+              opacity: 2.5,
             }}
           >
-            <Navbar
-              darkMode={darkMode}
-              toggleDarkMode={toggleDarkMode}
-              buttonPosition={buttonPosition}
-            />
-            <Box sx={{ position: "relative", textAlign: "center", mb: 3, mt: { xs: 30, sm: 40 } }}>
-              {/* <img
-                src="/src/assets/img/home/sunhilllogo.png"
-                alt="LMS Logo"
-                style={{ maxWidth: "100%" }}
-              /> */}
-            <Typography
+            <Box
+              sx={{
+                position: "relative",
+                textAlign: "center",
+                mb: 3,
+                mt: { xs: 30, sm: 40 },
+              }}
+            >
+              <Typography
                 variant="h1"
                 sx={{
                   position: "relative",
@@ -163,6 +167,7 @@ const LoginPageContent = () => {
                 bottom: { xs: "100px", md: "130px" },
               }}
             >
+              {/* Buttons for Teacher, Student, Parent portals */}
               <Button
                 component={RouterLink}
                 to="/login/teacher/"
@@ -172,20 +177,14 @@ const LoginPageContent = () => {
                 sx={{
                   py: 2,
                   display: "flex",
-                  flexDirection: "column", // Stacks the title and subtext
+                  flexDirection: "column",
                   textAlign: "center",
                 }}
               >
-                <Typography
-                  variant="h6"
-                  sx={{ fontWeight: "bold", textTransform: "none" }}
-                >
+                <Typography variant="h6" sx={{ fontWeight: "bold", textTransform: "none" }}>
                   Teacher Portal
                 </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{ mt: 0.5, opacity: 0.8, textTransform: "none" }}
-                >
+                <Typography variant="body2" sx={{ mt: 0.5, opacity: 0.8, textTransform: "none" }}>
                   Access your Teacher Account.
                 </Typography>
               </Button>
@@ -203,16 +202,10 @@ const LoginPageContent = () => {
                   textAlign: "center",
                 }}
               >
-                <Typography
-                  variant="h6"
-                  sx={{ fontWeight: "bold", textTransform: "none" }}
-                >
+                <Typography variant="h6" sx={{ fontWeight: "bold", textTransform: "none" }}>
                   Student Portal
                 </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{ mt: 0.5, opacity: 0.8, textTransform: "none" }}
-                >
+                <Typography variant="body2" sx={{ mt: 0.5, opacity: 0.8, textTransform: "none" }}>
                   Sign in to your Student account
                 </Typography>
               </Button>
@@ -230,16 +223,10 @@ const LoginPageContent = () => {
                   textAlign: "center",
                 }}
               >
-                <Typography
-                  variant="h6"
-                  sx={{ fontWeight: "bold", textTransform: "none" }}
-                >
+                <Typography variant="h6" sx={{ fontWeight: "bold", textTransform: "none" }}>
                   Parent/Guardian Portal
                 </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{ mt: 0.5, opacity: 0.8, textTransform: "none" }}
-                >
+                <Typography variant="body2" sx={{ mt: 0.5, opacity: 0.8, textTransform: "none" }}>
                   Access your Parent or Guardian account.
                 </Typography>
               </Button>

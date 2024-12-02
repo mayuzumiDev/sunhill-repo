@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { FaChevronDown, FaChevronUp, FaSearch, FaTimes } from 'react-icons/fa';
-import HideScrollbar from "../../components/misc/HideScrollBar";
+// import HideScrollbar from "../../components/misc/HideScrollBar";
 
 const Faqs = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -286,7 +286,7 @@ const Faqs = () => {
           </div>
         </div>
       </div>
-      <HideScrollbar/>
+      {/* <HideScrollbar/> */}
     </div>
   );
 };
