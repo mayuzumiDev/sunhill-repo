@@ -118,11 +118,11 @@ const TopNavbar = ({
           const imageUrl = response.data.profile_image;
           setProfileImage(imageUrl);
         } else {
-          setProfileImage(userThree);
+          setProfileImage(null);
         }
       } catch (error) {
         console.error("Error fetching profile image:", error);
-        setProfileImage(userThree);
+        setProfileImage(null);
       } finally {
         setIsLoading(false);
       }

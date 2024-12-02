@@ -7,6 +7,7 @@ from .views.classroom.materials_manage_views import *
 from .views.quizzes.quiz_views import *
 from .views.quizzes.question_views import *
 from .views.quizzes.quiz_response_views import *
+from .views.analytics.analytics import *
 
 urlpatterns = [
     path('current-teacher/', GetCurrentTeacherView.as_view(), name="get_current_teacher"),
@@ -37,5 +38,8 @@ urlpatterns = [
     path('questions/<int:pk>/', QuestionDetailView.as_view(), name='question-detail'),
 
     path('quiz-responses/create/', QuizResponseCreateView.as_view(), name='quiz-response-create'),
-    path('quiz-scores/list/', QuizScoreListView.as_view(), name='quiz-scores-list')
+    path('quiz-scores/list/', QuizScoreListView.as_view(), name='quiz-scores-list'),
+
+    path('analytics/question-type-distribution/', question_type_distribution, name='question-type-distribution'),
+    path('analytics/question-type-performance/', question_type_performance, name='question_type_performance'),
 ]

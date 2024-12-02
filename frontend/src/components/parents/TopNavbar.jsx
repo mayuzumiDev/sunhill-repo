@@ -50,7 +50,7 @@ const TopNavbar = ({
                   ? `${profile.first_name} ${profile.last_name}`
                   : "Loading...",
               role: profile.role || "Parent",
-              image: profile.user_info?.profile_image || userThree,
+              image: profile.user_info?.profile_image || null,
             });
           }
         }

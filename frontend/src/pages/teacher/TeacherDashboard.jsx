@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import Highcharts from 'highcharts';
-import HighchartsReact from 'highcharts-react-official';
+import Highcharts from "highcharts";
+import HighchartsReact from "highcharts-react-official";
 import teachingIllusMon from "../../assets/img/home/illustrationMon.png";
 import teachingIllusTue from "../../assets/img/home/illustrationTue.png";
 import teachingIllusWed from "../../assets/img/home/illustrationWed.png";
@@ -11,10 +11,12 @@ import teachingIllusSun from "../../assets/img/home/illustrationSun.png";
 import { axiosInstance } from "../../utils/axiosInstance";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
+import QuestionTypeChart from "../../components/teacher/charts/QuestonTypeChart";
+import QuestionTypePerformance from "../../components/teacher/charts/QuestionTypePerformance";
 
-import { motion } from 'framer-motion';
-import { IoStatsChart, IoTrendingUp } from 'react-icons/io5';
-import { useNavigate } from 'react-router-dom';
+import { motion } from "framer-motion";
+import { IoStatsChart, IoTrendingUp } from "react-icons/io5";
+import { useNavigate } from "react-router-dom";
 import DotLoaderSpinner from "../../components/loaders/DotLoaderSpinner";
 
 const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
@@ -27,15 +29,15 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
     totalClassrooms: 0,
     totalStudents: 0,
     totalMaterials: 0,
-    upcomingQuizzes: 0
+    upcomingQuizzes: 0,
   });
   const [assignmentData, setAssignmentData] = useState({
     labels: [],
-    values: []
+    values: [],
   });
   const [performanceData, setPerformanceData] = useState({
     labels: [],
-    values: []
+    values: [],
   });
   const [chartsLoading, setChartsLoading] = useState(false);
   const navigate = useNavigate();
@@ -48,30 +50,30 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
 
   // Animation variants
   const containerVariants = {
-    hidden: { 
-      opacity: 0 
+    hidden: {
+      opacity: 0,
     },
-    visible: { 
+    visible: {
       opacity: 1,
-      transition: { 
+      transition: {
         staggerChildren: 0.1,
-        duration: 0.5 
-      }
-    }
+        duration: 0.5,
+      },
+    },
   };
 
   const itemVariants = {
-    hidden: { 
-      y: 20, 
-      opacity: 0 
+    hidden: {
+      y: 20,
+      opacity: 0,
     },
-    visible: { 
+    visible: {
       y: 0,
       opacity: 1,
-      transition: { 
-        duration: 0.5 
-      }
-    }
+      transition: {
+        duration: 0.5,
+      },
+    },
   };
 
   // Setting greeting message and daily illustration
@@ -83,7 +85,7 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
 
       if (currentHour < 12) {
         greetingMessage = "Good Morning";
-      } else if (currentHour < 18) {  
+      } else if (currentHour < 18) {
         greetingMessage = "Good Afternoon";
       } else {
         greetingMessage = "Good Evening";
@@ -156,9 +158,11 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
       setMetricsLoading(true);
       try {
         // Fetch classrooms
-        const classroomsResponse = await axiosInstance.get('/user-teacher/classroom/list/');
+        const classroomsResponse = await axiosInstance.get(
+          "/user-teacher/classroom/list/"
+        );
         const classrooms = classroomsResponse.data.classroom_list;
-        
+
         // Initialize counters
         let totalStudents = 0;
         let totalMaterials = 0;
@@ -167,19 +171,27 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
         // Fetch student count, materials, and quizzes for each classroom
         for (const classroom of classrooms) {
           // Get students
-          const studentsResponse = await axiosInstance.get('/user-teacher/classroom/list-student/', {
-            params: { classroom_id: classroom.id }
-          });
+          const studentsResponse = await axiosInstance.get(
+            "/user-teacher/classroom/list-student/",
+            {
+              params: { classroom_id: classroom.id },
+            }
+          );
           totalStudents += studentsResponse.data.classroom_student_list.length;
 
           // Get materials
-          const materialsResponse = await axiosInstance.get('/user-teacher/materials/list/', {
-            params: { classroom: classroom.id }
-          });
+          const materialsResponse = await axiosInstance.get(
+            "/user-teacher/materials/list/",
+            {
+              params: { classroom: classroom.id },
+            }
+          );
           totalMaterials += materialsResponse.data.materials_list.length;
 
           // Get quizzes
-          const quizzesResponse = await axiosInstance.get(`/user-teacher/quiz/list/?classroom_id=${classroom.id}`);
+          const quizzesResponse = await axiosInstance.get(
+            `/user-teacher/quiz/list/?classroom_id=${classroom.id}`
+          );
           totalQuizzes += quizzesResponse.data.quizzes.length;
         }
 
@@ -187,7 +199,7 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
           totalClassrooms: classrooms.length,
           totalStudents: totalStudents,
           totalMaterials: totalMaterials,
-          upcomingQuizzes: totalQuizzes
+          upcomingQuizzes: totalQuizzes,
         });
       } catch (error) {
         console.error("Error fetching classroom metrics:", error);
@@ -205,7 +217,9 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
       setChartsLoading(true);
       try {
         // Fetch all classrooms first
-        const classroomsResponse = await axiosInstance.get('/user-teacher/classroom/list/');
+        const classroomsResponse = await axiosInstance.get(
+          "/user-teacher/classroom/list/"
+        );
         const classrooms = classroomsResponse.data.classroom_list;
 
         let allQuizScores = [];
@@ -222,7 +236,7 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
           // For each quiz, get scores
           for (const quiz of quizzes) {
             const scoresResponse = await axiosInstance.get(
-              '/user-teacher/quiz-scores/list/',
+              "/user-teacher/quiz-scores/list/",
               {
                 params: {
                   classroom: classroom.id,
@@ -232,28 +246,37 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
             );
 
             const scores = scoresResponse.data.quiz_scores;
-            
+
             // Track individual student performance
-            scores.forEach(score => {
+            scores.forEach((score) => {
               if (!studentScores[score.student_name]) {
                 studentScores[score.student_name] = {
                   totalScore: 0,
                   quizCount: 0,
-                  scores: []
+                  scores: [],
                 };
               }
               if (score.total_score !== null) {
-                studentScores[score.student_name].totalScore += score.total_score;
+                studentScores[score.student_name].totalScore +=
+                  score.total_score;
                 studentScores[score.student_name].quizCount += 1;
-                studentScores[score.student_name].scores.push(score.total_score);
+                studentScores[score.student_name].scores.push(
+                  score.total_score
+                );
               }
             });
 
             // Calculate quiz completion data
             const totalStudents = scores.length;
-            const submittedCount = scores.filter(score => score.total_score !== null).length;
-            const totalScore = scores.reduce((sum, score) => sum + (score.total_score || 0), 0);
-            const averageScore = submittedCount > 0 ? totalScore / submittedCount : 0;
+            const submittedCount = scores.filter(
+              (score) => score.total_score !== null
+            ).length;
+            const totalScore = scores.reduce(
+              (sum, score) => sum + (score.total_score || 0),
+              0
+            );
+            const averageScore =
+              submittedCount > 0 ? totalScore / submittedCount : 0;
 
             allQuizScores.push({
               quiz_id: quiz.id,
@@ -268,56 +291,63 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
 
         if (allQuizScores.length === 0) {
           setAssignmentData({
-            labels: ['No Data Available'],
-            values: [0]
+            labels: ["No Data Available"],
+            values: [0],
           });
           setPerformanceData({
-            labels: ['No Data Available'],
-            values: [0]
+            labels: ["No Data Available"],
+            values: [0],
           });
           return;
         }
 
         // Sort by date and take last 5 quizzes for completion rates
-        allQuizScores.sort((a, b) => new Date(a.date_created) - new Date(b.date_created));
+        allQuizScores.sort(
+          (a, b) => new Date(a.date_created) - new Date(b.date_created)
+        );
         const recentQuizzes = allQuizScores.slice(-5);
 
         // Process data for bar chart (completion rates)
         setAssignmentData({
-          labels: recentQuizzes.map(item => item.quiz_title || `Quiz ${item.quiz_id}`),
-          values: recentQuizzes.map(item => {
-            const completionRate = (item.submitted_count / item.total_students) * 100;
+          labels: recentQuizzes.map(
+            (item) => item.quiz_title || `Quiz ${item.quiz_id}`
+          ),
+          values: recentQuizzes.map((item) => {
+            const completionRate =
+              (item.submitted_count / item.total_students) * 100;
             return Math.round(completionRate);
-          })
+          }),
         });
 
         // Process top 5 students by average score for line chart
         const studentAverages = Object.entries(studentScores)
           .map(([name, data]) => ({
             name,
-            averageScore: data.quizCount > 0 ? data.totalScore / data.quizCount : 0
+            averageScore:
+              data.quizCount > 0 ? data.totalScore / data.quizCount : 0,
           }))
           .sort((a, b) => b.averageScore - a.averageScore)
           .slice(0, 5);
 
         // Set performance data for top students
         setPerformanceData({
-          labels: studentAverages.map(student => student.name),
-          values: studentAverages.map(student => Math.round(student.averageScore))
+          labels: studentAverages.map((student) => student.name),
+          values: studentAverages.map((student) =>
+            Math.round(student.averageScore)
+          ),
         });
 
         // Add this function to analyze student performance and generate warnings/suggestions
         analyzeStudentPerformance(studentScores);
-
       } catch (error) {
         console.error("Error fetching chart data:", error);
         setAssignmentData({
-          labels: ['Error Loading Data'],
-          values: [0]
+          labels: ["Error Loading Data"],
+          values: [0],
         });
         setPerformanceData({
-          labels: ['Error Loading Data'],
-          values: [0]
+          labels: ["Error Loading Data"],
+          values: [0],
         });
       } finally {
         setChartsLoading(false);
@@ -326,11 +356,10 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
 
     // Initial fetch
     fetchChartData();
-    
+
     // Optional: If you need periodic updates, use a longer interval
     // const intervalId = setInterval(fetchChartData, 300000); // 5 minutes
     // return () => clearInterval(intervalId);
-    
   }, []); // Empty dependency array for single execution
 
   // Add new useEffect for generating insights
@@ -340,17 +369,36 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
 
       // Student Engagement Insight (based on quiz completion rates)
       if (assignmentData.values.length > 0) {
-        const averageCompletion = assignmentData.values.reduce((a, b) => a + b, 0) / assignmentData.values.length;
+        const averageCompletion =
+          assignmentData.values.reduce((a, b) => a + b, 0) /
+          assignmentData.values.length;
         insights.push({
           title: "Student Engagement",
           metric: `${Math.round(averageCompletion)}%`,
-          trend: averageCompletion > 75 ? "up" : averageCompletion > 50 ? "warning" : "down",
-          recommendation: averageCompletion < 75 
-            ? "Consider interactive activities to boost quiz completion rates"
-            : "Maintain current engagement strategies",
-          
-          icon: <IoTrendingUp className={`${averageCompletion > 75 ? "text-green-500" : "text-yellow-500"}`} />,
-          priority: averageCompletion < 50 ? "high" : averageCompletion < 75 ? "medium" : "low"
+          trend:
+            averageCompletion > 75
+              ? "up"
+              : averageCompletion > 50
+              ? "warning"
+              : "down",
+          recommendation:
+            averageCompletion < 75
+              ? "Consider interactive activities to boost quiz completion rates"
+              : "Maintain current engagement strategies",
+
+          icon: (
+            <IoTrendingUp
+              className={`${
+                averageCompletion > 75 ? "text-green-500" : "text-yellow-500"
+              }`}
+            />
+          ),
+          priority:
+            averageCompletion < 50
+              ? "high"
+              : averageCompletion < 75
+              ? "medium"
+              : "low",
         });
       }
 
@@ -358,15 +406,15 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
       // if (performanceData.values.length > 0) {
       //   const averageScore = performanceData.values.reduce((a, b) => a + b, 0) / performanceData.values.length;
       //   const lowPerformingCount = performanceData.values.filter(score => score < 60).length;
-        
+
       //   insights.push({
       //     title: "Learning Gaps",
       //     metric: `${lowPerformingCount} subjects`,
       //     trend: lowPerformingCount > 2 ? "down" : "up",
-      //     recommendation: lowPerformingCount > 0 
+      //     recommendation: lowPerformingCount > 0
       //       ? `Review needed in ${lowPerformingCount} subjects with scores below 60%`
       //       : "All subjects performing well",
-          
+
       //     icon: <FaBook className={`${lowPerformingCount > 2 ? "text-red-500" : "text-green-500"}`} />,
       //     priority: lowPerformingCount > 2 ? "high" : lowPerformingCount > 0 ? "medium" : "low"
       //   });
@@ -382,26 +430,41 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
       //     recommendation: atRiskCount > 0
       //       ? `Schedule support sessions for ${atRiskCount} students below 50%`
       //       : "No students currently at risk",
-       
+
       //     icon: <FaUserGraduate className={`${atRiskCount > 0 ? "text-red-500" : "text-green-500"}`} />,
       //     priority: atRiskCount > 2 ? "high" : atRiskCount > 0 ? "medium" : "low"
       //   });
       // }
 
       // Class Progress Insight (based on materials and quizzes)
-      const materialsPerStudent = classroomData.totalStudents > 0 
-        ? classroomData.totalMaterials / classroomData.totalStudents 
-        : 0;
+      const materialsPerStudent =
+        classroomData.totalStudents > 0
+          ? classroomData.totalMaterials / classroomData.totalStudents
+          : 0;
       insights.push({
         title: "Class Progress",
-        metric: `${Math.round(materialsPerStudent * 10) / 10} materials/student`,
+        metric: `${
+          Math.round(materialsPerStudent * 10) / 10
+        } materials/student`,
         trend: materialsPerStudent > 2 ? "up" : "warning",
-        recommendation: materialsPerStudent < 2 
-          ? "Consider adding more learning materials"
-          : "Good material distribution",
-        
-        icon: <IoStatsChart className={`${materialsPerStudent > 2 ? "text-blue-500" : "text-yellow-500"}`} />,
-        priority: materialsPerStudent < 1 ? "high" : materialsPerStudent < 2 ? "medium" : "low"
+        recommendation:
+          materialsPerStudent < 2
+            ? "Consider adding more learning materials"
+            : "Good material distribution",
+
+        icon: (
+          <IoStatsChart
+            className={`${
+              materialsPerStudent > 2 ? "text-blue-500" : "text-yellow-500"
+            }`}
+          />
+        ),
+        priority:
+          materialsPerStudent < 1
+            ? "high"
+            : materialsPerStudent < 2
+            ? "medium"
+            : "low",
       });
 
       setTeacherInsights(insights);
@@ -412,119 +475,123 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
 
   // Remove individual loading states from metrics array
   const metrics = [
-    { 
-      title: "Total Classrooms", 
-      value: classroomData.totalClassrooms || 0, 
-      color: "bg-blue-600"
+    {
+      title: "Total Classrooms",
+      value: classroomData.totalClassrooms || 0,
+      color: "bg-blue-600",
     },
-    { 
-      title: "Total Students", 
-      value: classroomData.totalStudents || 0, 
-      color: "bg-green-600"
+    {
+      title: "Total Students",
+      value: classroomData.totalStudents || 0,
+      color: "bg-green-600",
     },
-    { 
-      title: "Learning Materials", 
-      value: classroomData.totalMaterials || 0, 
-      color: "bg-yellow-400"
+    {
+      title: "Learning Materials",
+      value: classroomData.totalMaterials || 0,
+      color: "bg-yellow-400",
     },
-    { 
-      title: "Total Quizzes", 
-      value: classroomData.upcomingQuizzes || 0, 
-      color: "bg-red-600"
-    }
+    {
+      title: "Total Quizzes",
+      value: classroomData.upcomingQuizzes || 0,
+      color: "bg-red-600",
+    },
   ];
 
   // Update the recommendation functions
   const getCompletionRateRecommendation = (values) => {
-    if (!values || values.length === 0) return {
-      title: 'No Data Available',
-      points: ['Start creating quizzes to see completion insights'],
-      priority: 'medium'
-    };
-    
+    if (!values || values.length === 0)
+      return {
+        title: "No Data Available",
+        points: ["Start creating quizzes to see completion insights"],
+        priority: "medium",
+      };
+
     const averageCompletion = values.reduce((a, b) => a + b, 0) / values.length;
     const lowestCompletion = Math.min(...values);
-    
+
     if (averageCompletion < 50) {
       return {
-        title: 'Low Completion Rate',
+        title: "Low Completion Rate",
         points: [
-          'Send automated reminders before quiz deadlines',
+          "Send automated reminders before quiz deadlines",
           `Focus on ${lowestCompletion}% completion areas first`,
-          'Consider extending deadlines for complex topics',
-          'Implement mobile-friendly quiz formats'
+          "Consider extending deadlines for complex topics",
+          "Implement mobile-friendly quiz formats",
         ],
-        priority: 'high'
+        priority: "high",
       };
     } else if (averageCompletion < 75) {
       return {
-        title: 'Moderate Completion Rate',
+        title: "Moderate Completion Rate",
         points: [
           `Improve from current ${Math.round(averageCompletion)}% average`,
-          'Create bite-sized practice quizzes',
-          'Enable partial submissions to track progress',
-          'Use class announcements to boost participation'
+          "Create bite-sized practice quizzes",
+          "Enable partial submissions to track progress",
+          "Use class announcements to boost participation",
         ],
-        priority: 'medium'
+        priority: "medium",
       };
     } else {
       return {
-        title: 'Strong Completion Rate',
+        title: "Strong Completion Rate",
         points: [
           `Maintain excellent ${Math.round(averageCompletion)}% rate`,
-          'Introduce bonus challenges for early completion',
-          'Share completion statistics with the class',
-          'Consider peer review opportunities'
+          "Introduce bonus challenges for early completion",
+          "Share completion statistics with the class",
+          "Consider peer review opportunities",
         ],
-        priority: 'low'
+        priority: "low",
       };
     }
   };
 
   const getPerformanceRecommendation = (values) => {
-    if (!values || values.length === 0) return {
-      title: 'No Data Available',
-      points: ['Start adding student scores to see performance insights'],
-      priority: 'medium'
-    };
-    
+    if (!values || values.length === 0)
+      return {
+        title: "No Data Available",
+        points: ["Start adding student scores to see performance insights"],
+        priority: "medium",
+      };
+
     const averageScore = values.reduce((a, b) => a + b, 0) / values.length;
     const lowestScore = Math.min(...values);
     const highestScore = Math.max(...values);
     const scoreSpread = highestScore - lowestScore;
-    
+
     if (averageScore < 70) {
       return {
-        title: 'Performance Needs Attention',
+        title: "Performance Needs Attention",
         points: [
           `Current average: ${Math.round(averageScore)}%`,
-          'Schedule targeted review sessions',
-          'Create concept-specific practice materials',
-          'Consider prerequisite topic review'
+          "Schedule targeted review sessions",
+          "Create concept-specific practice materials",
+          "Consider prerequisite topic review",
         ],
-        priority: 'high'
+        priority: "high",
       };
     } else if (scoreSpread > 20) {
       return {
-        title: 'Wide Performance Gap',
+        title: "Wide Performance Gap",
         points: [
-          `Score range: ${Math.round(lowestScore)}% - ${Math.round(highestScore)}%`,
-          'Implement differentiated learning paths',
-          'Create peer study groups',
-          'Provide additional support materials'
+          `Score range: ${Math.round(lowestScore)}% - ${Math.round(
+            highestScore
+          )}%`,
+          "Implement differentiated learning paths",
+          "Create peer study groups",
+          "Provide additional support materials",
         ],
-        priority: 'medium'
+        priority: "medium",
       };
     } else {
       return {
-        title: 'Consistent Performance',
+        title: "Consistent Performance",
         points: [
           `Strong average: ${Math.round(averageScore)}%`,
-          'Introduce advanced topics',
-          'Consider group projects',
-          'Share success strategies'
+          "Introduce advanced topics",
+          "Consider group projects",
+          "Share success strategies",
         ],
-        priority: 'low'
+        priority: "low",
       };
     }
   };
@@ -532,158 +599,166 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
   // Update chart options to better display multi-line recommendations
   const barChartOptions = {
     chart: {
-      type: 'column',
-      backgroundColor: darkMode ? '#1f2937' : '#ffffff',
+      type: "column",
+      backgroundColor: darkMode ? "#1f2937" : "#ffffff",
       style: {
-        fontFamily: 'Inter, system-ui, sans-serif'
+        fontFamily: "Inter, system-ui, sans-serif",
       },
-      height: '300',
-      spacing: [10, 10, 15, 10] // Adjust spacing for mobile
+      height: "300",
+      spacing: [10, 10, 15, 10], // Adjust spacing for mobile
     },
     title: {
-      text: 'Recent Quiz Completion Rates',
-      align: 'left',
+      text: "Recent Quiz Completion Rates",
+      align: "left",
       style: {
-        color: darkMode ? '#ffffff' : '#000000'
-      }
+        color: darkMode ? "#ffffff" : "#000000",
+      },
     },
     xAxis: {
       categories: assignmentData.labels,
       labels: {
         style: {
-          color: darkMode ? '#ffffff' : '#000000'
-        }
-      }
+          color: darkMode ? "#ffffff" : "#000000",
+        },
+      },
     },
     yAxis: {
       title: {
-        text: 'Completion Rate (%)',
+        text: "Completion Rate (%)",
         style: {
-          color: darkMode ? '#ffffff' : '#000000'
-        }
+          color: darkMode ? "#ffffff" : "#000000",
+        },
       },
       labels: {
         style: {
-          color: darkMode ? '#ffffff' : '#000000'
-        }
+          color: darkMode ? "#ffffff" : "#000000",
+        },
       },
       min: 0,
-      max: 100
+      max: 100,
     },
-    series: [{
-      name: 'Completion Rate',
-      data: assignmentData.values,
-      color: 'rgba(75, 192, 192, 0.6)'
-    }],
+    series: [
+      {
+        name: "Completion Rate",
+        data: assignmentData.values,
+        color: "rgba(75, 192, 192, 0.6)",
+      },
+    ],
     tooltip: {
-      formatter: function() {
+      formatter: function () {
         return `<b>${this.x}</b><br/>
                 Completion Rate: ${this.y.toFixed(1)}%<br/>`;
-      }
+      },
     },
     plotOptions: {
       column: {
-        borderRadius: 5
-      }
+        borderRadius: 5,
+      },
     },
     responsive: {
-      rules: [{
-        condition: {
-          maxWidth: 500
-        },
-        chartOptions: {
-          legend: {
-            enabled: false
+      rules: [
+        {
+          condition: {
+            maxWidth: 500,
           },
-          xAxis: {
-            labels: {
-              rotation: -45,
-              style: {
-                fontSize: '10px'
-              }
-            }
-          }
-        }
-      }]
-    }
+          chartOptions: {
+            legend: {
+              enabled: false,
+            },
+            xAxis: {
+              labels: {
+                rotation: -45,
+                style: {
+                  fontSize: "10px",
+                },
+              },
+            },
+          },
+        },
+      ],
+    },
   };
 
   const lineChartOptions = {
     chart: {
-      type: 'line',
-      backgroundColor: darkMode ? '#1f2937' : '#ffffff',
-      height: '300',
-      spacing: [10, 10, 15, 10] // Adjust spacing for mobile
+      type: "line",
+      backgroundColor: darkMode ? "#1f2937" : "#ffffff",
+      height: "300",
+      spacing: [10, 10, 15, 10], // Adjust spacing for mobile
     },
     title: {
-      text: 'Top 5 Students by Average Score',
-      align: 'left',
+      text: "Top 5 Students by Average Score",
+      align: "left",
       style: {
-        color: darkMode ? '#ffffff' : '#000000'
-      }
+        color: darkMode ? "#ffffff" : "#000000",
+      },
     },
     xAxis: {
       categories: performanceData.labels,
       labels: {
         style: {
-          color: darkMode ? '#ffffff' : '#000000'
+          color: darkMode ? "#ffffff" : "#000000",
         },
-        rotation: -45 // Angle the student names for better readability
-      }
+        rotation: -45, // Angle the student names for better readability
+      },
     },
     yAxis: {
       title: {
-        text: 'Average Score (%)',
+        text: "Average Score (%)",
         style: {
-          color: darkMode ? '#ffffff' : '#000000'
-        }
+          color: darkMode ? "#ffffff" : "#000000",
+        },
       },
       labels: {
         style: {
-          color: darkMode ? '#ffffff' : '#000000'
-        }
+          color: darkMode ? "#ffffff" : "#000000",
+        },
       },
       min: 0,
-      max: 100
+      max: 100,
     },
-    series: [{
-      name: 'Average Score',
-      data: performanceData.values,
-      color: 'rgba(255, 99, 132, 1)'
-    }],
+    series: [
+      {
+        name: "Average Score",
+        data: performanceData.values,
+        color: "rgba(255, 99, 132, 1)",
+      },
+    ],
     tooltip: {
-      formatter: function() {
+      formatter: function () {
         return `<b>${this.x}</b><br/>
                 Average Score: ${this.y.toFixed(1)}%<br/>`;
-      }
+      },
     },
     plotOptions: {
       line: {
         marker: {
-          enabled: true
-        }
-      }
+          enabled: true,
+        },
+      },
     },
     responsive: {
-      rules: [{
-        condition: {
-          maxWidth: 500
-        },
-        chartOptions: {
-          legend: {
-            enabled: false
+      rules: [
+        {
+          condition: {
+            maxWidth: 500,
           },
-          xAxis: {
-            labels: {
-              rotation: -45,
-              style: {
-                fontSize: '10px'
-              }
-            }
-          }
-        }
-      }]
-    }
+          chartOptions: {
+            legend: {
+              enabled: false,
+            },
+            xAxis: {
+              labels: {
+                rotation: -45,
+                style: {
+                  fontSize: "10px",
+                },
+              },
+            },
+          },
+        },
+      ],
+    },
   };
 
   const currentDate = new Date();
@@ -726,13 +801,13 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
     background: `
       linear-gradient(
         90deg,
-        ${darkMode ? '#1f2937' : '#f3f4f6'} 0%,
-        ${darkMode ? '#374151' : '#e5e7eb'} 50%,
-        ${darkMode ? '#1f2937' : '#f3f4f6'} 100%
+        ${darkMode ? "#1f2937" : "#f3f4f6"} 0%,
+        ${darkMode ? "#374151" : "#e5e7eb"} 50%,
+        ${darkMode ? "#1f2937" : "#f3f4f6"} 100%
       )
     `,
-    backgroundSize: '200% 100%',
-    animation: 'shimmer 1.5s infinite',
+    backgroundSize: "200% 100%",
+    animation: "shimmer 1.5s infinite",
   };
 
   // Add this to your CSS
@@ -763,7 +838,7 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
 
   // Add click handler for recommendation button
   const toggleRecommendation = (type) => {
-    if (type === 'completion') {
+    if (type === "completion") {
       setShowCompletionRec(!showCompletionRec);
       setShowPerformanceRec(false); // Close other recommendation
     } else {
@@ -776,23 +851,25 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
   const analyzeStudentPerformance = (studentScores) => {
     const AT_RISK_THRESHOLD = 60; // Students below 60% are considered at risk
     const IMPROVEMENT_THRESHOLD = 75; // Students below 75% need improvement
-    
+
     const atRiskList = [];
     const suggestions = {};
 
     Object.entries(studentScores).forEach(([studentName, data]) => {
-      const averageScore = data.quizCount > 0 
-        ? data.totalScore / data.quizCount 
-        : 0;
-      
+      const averageScore =
+        data.quizCount > 0 ? data.totalScore / data.quizCount : 0;
+
       const recentScores = data.scores.slice(-3); // Last 3 scores
-      const recentAverage = recentScores.length > 0 
-        ? recentScores.reduce((a, b) => a + b, 0) / recentScores.length 
-        : 0;
-      
-      const scoreTrend = recentScores.length >= 2 
-        ? recentScores[recentScores.length - 1] - recentScores[recentScores.length - 2]
-        : 0;
+      const recentAverage =
+        recentScores.length > 0
+          ? recentScores.reduce((a, b) => a + b, 0) / recentScores.length
+          : 0;
+
+      const scoreTrend =
+        recentScores.length >= 2
+          ? recentScores[recentScores.length - 1] -
+            recentScores[recentScores.length - 2]
+          : 0;
 
       // Generate suggestions based on performance patterns
       if (averageScore < AT_RISK_THRESHOLD) {
@@ -801,8 +878,8 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
           average: averageScore,
           trend: scoreTrend,
           lastScore: recentScores[recentScores.length - 1] || 0,
-          riskLevel: 'high',
-          warning: `Immediate attention needed - Consistently performing below ${AT_RISK_THRESHOLD}%`
+          riskLevel: "high",
+          warning: `Immediate attention needed - Consistently performing below ${AT_RISK_THRESHOLD}%`,
         });
       }
 
@@ -812,33 +889,37 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
           trend: scoreTrend,
           suggestions: [
             {
-              area: 'Performance',
+              area: "Performance",
               details: `Current average: ${Math.round(averageScore)}%`,
               actions: [
-                scoreTrend < 0 ? 'Schedule immediate review session' : 'Continue with regular check-ins',
-                'Create personalized study plan',
-                'Set up weekly progress tracking'
-              ]
+                scoreTrend < 0
+                  ? "Schedule immediate review session"
+                  : "Continue with regular check-ins",
+                "Create personalized study plan",
+                "Set up weekly progress tracking",
+              ],
             },
             {
-              area: 'Study Habits',
-              details: `Recent trend: ${scoreTrend > 0 ? 'Improving' : 'Declining'}`,
+              area: "Study Habits",
+              details: `Recent trend: ${
+                scoreTrend > 0 ? "Improving" : "Declining"
+              }`,
               actions: [
-                'Implement structured study schedule',
-                'Use active recall techniques',
-                'Join study groups for peer support'
-              ]
+                "Implement structured study schedule",
+                "Use active recall techniques",
+                "Join study groups for peer support",
+              ],
             },
             {
-              area: 'Support Needed',
-              details: 'Additional resources recommended',
+              area: "Support Needed",
+              details: "Additional resources recommended",
               actions: [
-                'Provide supplementary learning materials',
-                'Consider one-on-one tutoring',
-                'Regular progress check-ins'
-              ]
-            }
-          ]
+                "Provide supplementary learning materials",
+                "Consider one-on-one tutoring",
+                "Regular progress check-ins",
+              ],
+            },
+          ],
         };
       }
     });
@@ -849,7 +930,7 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
 
   // Add new components to display warnings and suggestions
   const AtRiskWarnings = () => (
-    <motion.div 
+    <motion.div
       variants={itemVariants}
       className={`rounded-xl shadow-lg p-4 sm:p-6 ${
         darkMode ? "bg-gray-800 bg-opacity-50" : "bg-white"
@@ -880,12 +961,16 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
                   <div className="mt-2 flex items-center space-x-4 text-sm">
                     <span>Average: {Math.round(student.average)}%</span>
                     <span>Last Score: {Math.round(student.lastScore)}%</span>
-                    <span className={student.trend >= 0 ? "text-green-500" : "text-red-500"}>
-                      {student.trend > 0 ? "↑" : "↓"} {Math.abs(Math.round(student.trend))}%
+                    <span
+                      className={
+                        student.trend >= 0 ? "text-green-500" : "text-red-500"
+                      }
+                    >
+                      {student.trend > 0 ? "↑" : "↓"}{" "}
+                      {Math.abs(Math.round(student.trend))}%
                     </span>
                   </div>
                 </div>
-           
               </div>
             </motion.div>
           ))
@@ -899,7 +984,7 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
   );
 
   const ImprovementSuggestions = () => (
-    <motion.div 
+    <motion.div
       variants={itemVariants}
       className={`rounded-xl shadow-lg p-4 sm:p-6 ${
         darkMode ? "bg-gray-800 bg-opacity-50" : "bg-white"
@@ -910,47 +995,49 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
         Improvement Suggestions
       </h2>
       <div className="space-y-4">
-        {Object.entries(improvementSuggestions).map(([studentName, data], index) => (
-          <motion.div
-            key={studentName}
-            initial={{ x: -20, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ delay: index * 0.1 }}
-            className="p-4 rounded-lg border border-yellow-200 bg-yellow-50 dark:bg-yellow-900/20 dark:border-yellow-800"
-          >
-            <div className="flex justify-between items-start">
-              <div className="space-y-3 w-full">
-                <div className="flex justify-between">
-                  <h3 className="font-semibold text-yellow-700 dark:text-yellow-400">
-                    {studentName}
-                  </h3>
-                  <span className="text-sm text-yellow-600 dark:text-yellow-300">
-                    Average: {Math.round(data.currentAverage)}%
-                  </span>
-                </div>
-                <div className="space-y-2">
-                  {data.suggestions.map((suggestion, idx) => (
-                    <div key={idx} className="text-sm">
-                      <h4 className="font-medium text-yellow-700 dark:text-yellow-400">
-                        {suggestion.area}
-                      </h4>
-                      <p className="text-yellow-600 dark:text-yellow-300 mb-1">
-                        {suggestion.details}
-                      </p>
-                      <ul className="list-disc list-inside text-yellow-600 dark:text-yellow-300 pl-2">
-                        {suggestion.actions.map((action, actionIdx) => (
-                          <li key={actionIdx} className="text-sm">
-                            {action}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
+        {Object.entries(improvementSuggestions).map(
+          ([studentName, data], index) => (
+            <motion.div
+              key={studentName}
+              initial={{ x: -20, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ delay: index * 0.1 }}
+              className="p-4 rounded-lg border border-yellow-200 bg-yellow-50 dark:bg-yellow-900/20 dark:border-yellow-800"
+            >
+              <div className="flex justify-between items-start">
+                <div className="space-y-3 w-full">
+                  <div className="flex justify-between">
+                    <h3 className="font-semibold text-yellow-700 dark:text-yellow-400">
+                      {studentName}
+                    </h3>
+                    <span className="text-sm text-yellow-600 dark:text-yellow-300">
+                      Average: {Math.round(data.currentAverage)}%
+                    </span>
+                  </div>
+                  <div className="space-y-2">
+                    {data.suggestions.map((suggestion, idx) => (
+                      <div key={idx} className="text-sm">
+                        <h4 className="font-medium text-yellow-700 dark:text-yellow-400">
+                          {suggestion.area}
+                        </h4>
+                        <p className="text-yellow-600 dark:text-yellow-300 mb-1">
+                          {suggestion.details}
+                        </p>
+                        <ul className="list-disc list-inside text-yellow-600 dark:text-yellow-300 pl-2">
+                          {suggestion.actions.map((action, actionIdx) => (
+                            <li key={actionIdx} className="text-sm">
+                              {action}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
-          </motion.div>
-        ))}
+            </motion.div>
+          )
+        )}
       </div>
     </motion.div>
   );
@@ -958,7 +1045,7 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
   return (
     <div className=" min-h-screen">
       {/* Main Grid Container - adjust gap for mobile */}
-      <motion.div 
+      <motion.div
         className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-8"
         variants={containerVariants}
         initial="hidden"
@@ -967,7 +1054,7 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
         {/* Main Content Area */}
         <div className="lg:col-span-3 space-y-4 sm:space-y-8">
           {/* Header Section - improve mobile layout */}
-          <motion.div 
+          <motion.div
             variants={itemVariants}
             className={`rounded-xl shadow-lg p-4 sm:p-6 ${
               darkMode ? "bg-gray-800 bg-opacity-50" : "bg-white"
@@ -978,12 +1065,21 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
                 {teacherData ? (
                   <>
                     <h1 className="text-2xl sm:text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-transparent bg-clip-text">
-                      {greeting.split(",")[0]}, Teacher {teacherData.first_name}!
+                      {greeting.split(",")[0]}, Teacher {teacherData.first_name}
+                      !
                     </h1>
-                    <p className={`text-base sm:text-lg ${darkMode ? "text-gray-300" : "text-gray-600"}`}>
+                    <p
+                      className={`text-base sm:text-lg ${
+                        darkMode ? "text-gray-300" : "text-gray-600"
+                      }`}
+                    >
                       {greeting.split(",").slice(1).join(",").trim()}
                     </p>
-                    <p className={`text-xs sm:text-sm ${darkMode ? "text-gray-400" : "text-gray-500"}`}>
+                    <p
+                      className={`text-xs sm:text-sm ${
+                        darkMode ? "text-gray-400" : "text-gray-500"
+                      }`}
+                    >
                       {formattedDate}
                     </p>
                   </>
@@ -1003,7 +1099,7 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
           </motion.div>
 
           {/* Metrics Grid - adjust for mobile */}
-          <motion.div 
+          <motion.div
             variants={itemVariants}
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6"
           >
@@ -1016,11 +1112,17 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
                 className="p-6 rounded-xl shadow-lg bg-blue-600 bg-opacity-90 backdrop-blur-lg"
               >
                 <div className="flex flex-col space-y-2">
-                  <h2 className="text-white text-sm font-medium">Total Classrooms</h2>
-                  <p className="text-white text-3xl font-bold">{classroomData.totalClassrooms || 0}</p>
+                  <h2 className="text-white text-sm font-medium">
+                    Total Classrooms
+                  </h2>
+                  <p className="text-white text-3xl font-bold">
+                    {classroomData.totalClassrooms || 0}
+                  </p>
                   <div className="flex items-center text-white text-xs">
                     <IoTrendingUp className="mr-1" />
-                    <span>+{classroomData.totalClassrooms || 0}% this period</span>
+                    <span>
+                      +{classroomData.totalClassrooms || 0}% this period
+                    </span>
                   </div>
                 </div>
               </motion.div>
@@ -1035,11 +1137,17 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
                 className="p-6 rounded-xl shadow-lg bg-green-600 bg-opacity-90 backdrop-blur-lg"
               >
                 <div className="flex flex-col space-y-2">
-                  <h2 className="text-white text-sm font-medium">Total Students</h2>
-                  <p className="text-white text-3xl font-bold">{classroomData.totalStudents || 0}</p>
+                  <h2 className="text-white text-sm font-medium">
+                    Total Students
+                  </h2>
+                  <p className="text-white text-3xl font-bold">
+                    {classroomData.totalStudents || 0}
+                  </p>
                   <div className="flex items-center text-white text-xs">
                     <IoTrendingUp className="mr-1" />
-                    <span>+{classroomData.totalStudents || 0}% this period</span>
+                    <span>
+                      +{classroomData.totalStudents || 0}% this period
+                    </span>
                   </div>
                 </div>
               </motion.div>
@@ -1054,11 +1162,17 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
                 className="p-6 rounded-xl shadow-lg bg-yellow-400 bg-opacity-90 backdrop-blur-lg"
               >
                 <div className="flex flex-col space-y-2">
-                  <h2 className="text-white text-sm font-medium">Learning Materials</h2>
-                  <p className="text-white text-3xl font-bold">{classroomData.totalMaterials || 0}</p>
+                  <h2 className="text-white text-sm font-medium">
+                    Learning Materials
+                  </h2>
+                  <p className="text-white text-3xl font-bold">
+                    {classroomData.totalMaterials || 0}
+                  </p>
                   <div className="flex items-center text-white text-xs">
                     <IoTrendingUp className="mr-1" />
-                    <span>+{classroomData.totalMaterials || 0}% this period</span>
+                    <span>
+                      +{classroomData.totalMaterials || 0}% this period
+                    </span>
                   </div>
                 </div>
               </motion.div>
@@ -1073,11 +1187,17 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
                 className="p-6 rounded-xl shadow-lg bg-red-600 bg-opacity-90 backdrop-blur-lg"
               >
                 <div className="flex flex-col space-y-2">
-                  <h2 className="text-white text-sm font-medium">Total Quizzes</h2>
-                  <p className="text-white text-3xl font-bold">{classroomData.upcomingQuizzes || 0}</p>
+                  <h2 className="text-white text-sm font-medium">
+                    Total Quizzes
+                  </h2>
+                  <p className="text-white text-3xl font-bold">
+                    {classroomData.upcomingQuizzes || 0}
+                  </p>
                   <div className="flex items-center text-white text-xs">
                     <IoTrendingUp className="mr-1" />
-                    <span>+{classroomData.upcomingQuizzes || 0}% this period</span>
+                    <span>
+                      +{classroomData.upcomingQuizzes || 0}% this period
+                    </span>
                   </div>
                 </div>
               </motion.div>
@@ -1085,28 +1205,32 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
           </motion.div>
 
           {/* Charts Section - stack on mobile */}
-          <motion.div 
-            variants={itemVariants} 
+          <motion.div
+            variants={itemVariants}
             className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6"
           >
             {/* Completion Rates Chart */}
-            <div className={`rounded-xl shadow-lg p-4 sm:p-6 h-full flex flex-col relative ${
-              darkMode ? "bg-gray-800 bg-opacity-50" : "bg-white"
-            }`}>
+            <div
+              className={`rounded-xl shadow-lg p-4 sm:p-6 h-full flex flex-col relative ${
+                darkMode ? "bg-gray-800 bg-opacity-50" : "bg-white"
+              }`}
+            >
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold">Recent Quiz Completion Rates</h3>
+                <h3 className="text-lg font-semibold">
+                  Recent Quiz Completion Rates
+                </h3>
                 <button
-                  onClick={() => toggleRecommendation('completion')}
+                  onClick={() => toggleRecommendation("completion")}
                   className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                     showCompletionRec
-                      ? 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300'
+                      ? "bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300"
                   }`}
                 >
-                  {showCompletionRec ? 'Hide Insights' : 'View Insights'}
+                  {showCompletionRec ? "Hide Insights" : "View Insights"}
                 </button>
               </div>
-              
+
               <div className="flex-1 min-h-0">
                 {chartsLoading ? (
                   <div className="flex justify-center items-center h-[300px]">
@@ -1114,34 +1238,42 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
                   </div>
                 ) : (
                   <div className="relative">
-                    <HighchartsReact 
-                      highcharts={Highcharts} 
+                    <HighchartsReact
+                      highcharts={Highcharts}
                       options={barChartOptions}
-                      containerProps={{ className: 'h-full' }}
+                      containerProps={{ className: "h-full" }}
                     />
-                    
+
                     {/* Recommendation Panel - Slides in from right */}
                     <motion.div
-                      initial={{ x: '100%', opacity: 0 }}
-                      animate={{ 
-                        x: showCompletionRec ? 0 : '100%',
-                        opacity: showCompletionRec ? 1 : 0
+                      initial={{ x: "100%", opacity: 0 }}
+                      animate={{
+                        x: showCompletionRec ? 0 : "100%",
+                        opacity: showCompletionRec ? 1 : 0,
                       }}
-                      transition={{ type: 'spring', damping: 20 }}
+                      transition={{ type: "spring", damping: 20 }}
                       className={`absolute top-0 right-0 w-full sm:w-80 h-full p-4 bg-white dark:bg-gray-800 
                         rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-y-auto`}
                     >
                       {(() => {
-                        const rec = getCompletionRateRecommendation(assignmentData.values);
+                        const rec = getCompletionRateRecommendation(
+                          assignmentData.values
+                        );
                         return (
                           <div className="space-y-4">
                             <div className="flex items-center justify-between">
-                              <h3 className="font-semibold text-lg">{rec.title}</h3>
-                              <span className={`px-2 py-1 rounded-full text-xs ${
-                                rec.priority === 'high' ? 'bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-300' :
-                                rec.priority === 'medium' ? 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900 dark:text-yellow-300' :
-                                'bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300'
-                              }`}>
+                              <h3 className="font-semibold text-lg">
+                                {rec.title}
+                              </h3>
+                              <span
+                                className={`px-2 py-1 rounded-full text-xs ${
+                                  rec.priority === "high"
+                                    ? "bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-300"
+                                    : rec.priority === "medium"
+                                    ? "bg-yellow-100 text-yellow-600 dark:bg-yellow-900 dark:text-yellow-300"
+                                    : "bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300"
+                                }`}
+                              >
                                 {rec.priority} priority
                               </span>
                             </div>
@@ -1163,8 +1295,18 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
                               onClick={() => setShowCompletionRec(false)}
                               className="absolute top-2 right-2 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
                             >
-                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                              <svg
+                                className="w-5 h-5"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M6 18L18 6M6 6l12 12"
+                                />
                               </svg>
                             </button>
                           </div>
@@ -1175,22 +1317,26 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
                 )}
               </div>
             </div>
-            
+
             {/* Performance Trends Chart */}
-            <div className={`rounded-xl shadow-lg p-4 sm:p-6 h-full flex flex-col relative ${
-              darkMode ? "bg-gray-800 bg-opacity-50" : "bg-white"
-            }`}>
+            <div
+              className={`rounded-xl shadow-lg p-4 sm:p-6 h-full flex flex-col relative ${
+                darkMode ? "bg-gray-800 bg-opacity-50" : "bg-white"
+              }`}
+            >
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold">Top 5 Students by Average Score</h3>
+                <h3 className="text-lg font-semibold">
+                  Top 5 Students by Average Score
+                </h3>
                 <button
-                  onClick={() => toggleRecommendation('performance')}
+                  onClick={() => toggleRecommendation("performance")}
                   className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                     showPerformanceRec
-                      ? 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300'
+                      ? "bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300"
                   }`}
                 >
-                  {showPerformanceRec ? 'Hide Insights' : 'View Insights'}
+                  {showPerformanceRec ? "Hide Insights" : "View Insights"}
                 </button>
               </div>
 
@@ -1201,34 +1347,42 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
                   </div>
                 ) : (
                   <div className="relative">
-                    <HighchartsReact 
-                      highcharts={Highcharts} 
+                    <HighchartsReact
+                      highcharts={Highcharts}
                       options={lineChartOptions}
-                      containerProps={{ className: 'h-full' }}
+                      containerProps={{ className: "h-full" }}
                     />
-                    
+
                     {/* Performance Recommendation Panel */}
                     <motion.div
-                      initial={{ x: '100%', opacity: 0 }}
-                      animate={{ 
-                        x: showPerformanceRec ? 0 : '100%',
-                        opacity: showPerformanceRec ? 1 : 0
+                      initial={{ x: "100%", opacity: 0 }}
+                      animate={{
+                        x: showPerformanceRec ? 0 : "100%",
+                        opacity: showPerformanceRec ? 1 : 0,
                       }}
-                      transition={{ type: 'spring', damping: 20 }}
+                      transition={{ type: "spring", damping: 20 }}
                       className={`absolute top-0 right-0 w-full sm:w-80 h-full p-4 bg-white dark:bg-gray-800 
                         rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-y-auto`}
                     >
                       {(() => {
-                        const rec = getPerformanceRecommendation(performanceData.values);
+                        const rec = getPerformanceRecommendation(
+                          performanceData.values
+                        );
                         return (
                           <div className="space-y-4">
                             <div className="flex items-center justify-between">
-                              <h3 className="font-semibold text-lg">{rec.title}</h3>
-                              <span className={`px-2 py-1 rounded-full text-xs ${
-                                rec.priority === 'high' ? 'bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-300' :
-                                rec.priority === 'medium' ? 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900 dark:text-yellow-300' :
-                                'bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300'
-                              }`}>
+                              <h3 className="font-semibold text-lg">
+                                {rec.title}
+                              </h3>
+                              <span
+                                className={`px-2 py-1 rounded-full text-xs ${
+                                  rec.priority === "high"
+                                    ? "bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-300"
+                                    : rec.priority === "medium"
+                                    ? "bg-yellow-100 text-yellow-600 dark:bg-yellow-900 dark:text-yellow-300"
+                                    : "bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300"
+                                }`}
+                              >
                                 {rec.priority} priority
                               </span>
                             </div>
@@ -1250,8 +1404,18 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
                               onClick={() => setShowPerformanceRec(false)}
                               className="absolute top-2 right-2 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
                             >
-                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                              <svg
+                                className="w-5 h-5"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M6 18L18 6M6 6l12 12"
+                                />
                               </svg>
                             </button>
                           </div>
@@ -1264,32 +1428,53 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
             </div>
           </motion.div>
 
+          <motion.div variants={itemVariants}>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="w-full transition-all duration-300 hover:scale-[1.02]">
+                <div className="shadow-lg hover:shadow-xl rounded-lg">
+                  <QuestionTypeChart />
+                </div>
+              </div>
+              <div className="w-full transition-all duration-300 hover:scale-[1.02]">
+                <div className="shadow-lg hover:shadow-xl rounded-lg">
+                  <QuestionTypePerformance />
+                </div>
+              </div>
+            </div>
+          </motion.div>
+
           {/* Add the new components */}
           <AtRiskWarnings />
           <ImprovementSuggestions />
         </div>
 
         {/* Sidebar - full width on mobile */}
-        <motion.div 
+        <motion.div
           variants={itemVariants}
           className="lg:col-span-1 space-y-4 sm:space-y-6"
         >
           {/* Calendar Card */}
-          <div className={`rounded-xl shadow-lg p-4 sm:p-6 ${
-            darkMode ? "bg-gray-800 bg-opacity-50" : "bg-white"
-          }`}>
+          <div
+            className={`rounded-xl shadow-lg p-4 sm:p-6 ${
+              darkMode ? "bg-gray-800 bg-opacity-50" : "bg-white"
+            }`}
+          >
             <h2 className="text-xl font-semibold mb-4">Calendar</h2>
             <Calendar
               onChange={setDate}
               value={date}
-              className={`w-full rounded-lg ${darkMode ? "bg-gray-800" : "bg-white"}`}
+              className={`w-full rounded-lg ${
+                darkMode ? "bg-gray-800" : "bg-white"
+              }`}
             />
           </div>
 
           {/* Teaching Insights Card */}
-          <div className={`rounded-xl shadow-lg p-4 sm:p-6 ${
-            darkMode ? "bg-gray-800 bg-opacity-50" : "bg-white"
-          }`}>
+          <div
+            className={`rounded-xl shadow-lg p-4 sm:p-6 ${
+              darkMode ? "bg-gray-800 bg-opacity-50" : "bg-white"
+            }`}
+          >
             <h2 className="text-xl font-semibold mb-4">Teaching Insights</h2>
             <div className="space-y-4">
               {teacherInsights.map((insight, index) => (
@@ -1309,18 +1494,26 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
                       </div>
                       <div className="mt-2">
                         <div className="flex items-center space-x-2">
-                          <span className="text-lg font-bold">{insight.metric}</span>
-                          <span className={`text-sm px-2 py-1 rounded-full ${
-                            insight.priority === 'high' ? 'bg-red-100 text-red-600' :
-                            insight.priority === 'medium' ? 'bg-yellow-100 text-yellow-600' :
-                            'bg-green-100 text-green-600'
-                          }`}>
+                          <span className="text-lg font-bold">
+                            {insight.metric}
+                          </span>
+                          <span
+                            className={`text-sm px-2 py-1 rounded-full ${
+                              insight.priority === "high"
+                                ? "bg-red-100 text-red-600"
+                                : insight.priority === "medium"
+                                ? "bg-yellow-100 text-yellow-600"
+                                : "bg-green-100 text-green-600"
+                            }`}
+                          >
                             {insight.priority} priority
                           </span>
                         </div>
-                        <p className={`text-sm mt-1 ${
-                          darkMode ? "text-gray-400" : "text-gray-600"
-                        }`}>
+                        <p
+                          className={`text-sm mt-1 ${
+                            darkMode ? "text-gray-400" : "text-gray-600"
+                          }`}
+                        >
                           {insight.recommendation}
                         </p>
                       </div>

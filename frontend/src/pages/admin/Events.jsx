@@ -66,7 +66,7 @@ const Events = () => {
       const response = await axiosInstance.get("/user-admin/event/list/");
       if (response.status === 200) {
         const eventData = response.data.events;
-        console.log("Fetched events with branch data:", eventData);
+        // console.log("Fetched events with branch data:", eventData);
         if (eventData.length === 0) {
           setIsEmpty(true);
         }
@@ -81,7 +81,7 @@ const Events = () => {
   };
 
   const handleEditEvent = async (event) => {
-    console.log('Opening edit form with event data:', event);
+    // console.log('Opening edit form with event data:', event);
     setIsEditEvent({
       show: true,
       eventData: event,

@@ -18,6 +18,22 @@ const EditQuiz = ({
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [dateError, setDateError] = useState("");
+
+  const validateDueDate = (dateValue) => {
+    if (!dateValue) return true; // Optional field
+
+    const selectedDate = new Date(dateValue);
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+
+    if (selectedDate < now) {
+      setDateError("Due date cannot be in the past");
+      return false;
+    }
+    setDateError("");
+    return true;
+  };
 
   const questionTypes = [
     { value: "single", label: "Single Choice" },
@@ -104,6 +120,13 @@ const EditQuiz = ({
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    if (name === "dueDate") {
+      if (!validateDueDate(value)) {
+        return;
+      }
+    }
+
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -275,6 +298,12 @@ const EditQuiz = ({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (formData.dueDate && !validateDueDate(formData.dueDate)) {
+      onError({ message: "Cannot submit quiz with a past due date" });
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       // Update the quiz details
@@ -382,9 +411,17 @@ const EditQuiz = ({
               name="dueDate"
               value={formData.dueDate}
               onChange={handleChange}
+              min={new Date().toISOString().slice(0, 16)}
               placeholder="Select a due date (optional)"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-green-500"
+              className={`w-full px-3 py-2 border ${
+                dateError ? "border-red-500" : "border-gray-300"
+              } rounded-md focus:outline-none focus:ring-1 ${
+                dateError ? "focus:ring-red-500" : "focus:ring-green-500"
+              }`}
             />
+            {dateError && (
+              <p className="mt-1 text-sm text-red-600">{dateError}</p>
+            )}
           </div>
 
           {/* Questions List */}

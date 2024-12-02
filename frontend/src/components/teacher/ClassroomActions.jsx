@@ -36,7 +36,7 @@ const ClassroomActions = ({ onClose, classroomData }) => {
 
       if (response.status === 200) {
         const quizList = response.data.quizzes;
-        console.log(quizList);
+        // console.log(quizList);
         setQuizzes(response.data.quizzes);
       }
     } catch (error) {
@@ -78,9 +78,7 @@ const ClassroomActions = ({ onClose, classroomData }) => {
       );
 
       if (response.status === 204) {
-        setQuizzes((prevQuizzes) =>
-          prevQuizzes.filter((quiz) => quiz.id !== quizToDelete)
-        );
+        await fetchQuizzes();
       }
     } catch (error) {
       console.error("Error deleting quiz:", error);

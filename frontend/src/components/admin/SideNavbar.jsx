@@ -7,13 +7,13 @@ import {
   AcademicCapIcon as TeacherOutline,
   UsersIcon as UsersOutline,
   UserIcon as UserOutline,
-  BuildingOfficeIcon as BuildingOutline, 
-  DocumentCheckIcon as ClipboardOutline, 
+  BuildingOfficeIcon as BuildingOutline,
+  DocumentCheckIcon as ClipboardOutline,
   BellIcon as BellOutline,
-  EnvelopeIcon as MailOutline, 
-  MagnifyingGlassIcon as SearchOutline, 
+  EnvelopeIcon as MailOutline,
+  MagnifyingGlassIcon as SearchOutline,
   QuestionMarkCircleIcon as QuestionOutline,
-} from '@heroicons/react/24/outline';
+} from "@heroicons/react/24/outline";
 
 // Tooltip component
 function Tooltip({ name, position, isVisible }) {
@@ -37,7 +37,12 @@ function Tooltip({ name, position, isVisible }) {
   );
 }
 
-const SideNavbar = ({ currentTab, setCurrentTab, toggleSidebar, isSidebarOpen }) => {
+const SideNavbar = ({
+  currentTab,
+  setCurrentTab,
+  toggleSidebar,
+  isSidebarOpen,
+}) => {
   const [tooltip, setTooltip] = useState("");
   const [tooltipPosition, setTooltipPosition] = useState({ top: 0, left: 0 });
 
@@ -59,7 +64,7 @@ const SideNavbar = ({ currentTab, setCurrentTab, toggleSidebar, isSidebarOpen })
     { name: "Students", icon: <TeacherOutline className="h-5 w-5" /> },
     { name: "Parents", icon: <UsersOutline className="h-5 w-5" /> },
     { name: "Public", icon: <BuildingOutline className="h-5 w-5" /> },
-    { name: "Branches", icon: <ClipboardOutline className="h-5 w-5" /> },
+    // { name: "Branches", icon: <ClipboardOutline className="h-5 w-5" /> },
     { name: "Events", icon: <BellOutline className="h-5 w-5" /> },
   ];
 
@@ -98,7 +103,11 @@ const SideNavbar = ({ currentTab, setCurrentTab, toggleSidebar, isSidebarOpen })
       </style>
 
       <div
-        className={`fixed top-0 left-0 h-full ${isSidebarOpen ? "w-64" : "w-16"} ${window.innerWidth < 1024 && !isSidebarOpen ? "hidden" : ""} bg-[#1B2430] transition-width duration-300 text-white shadow-lg`}
+        className={`fixed top-0 left-0 h-full ${
+          isSidebarOpen ? "w-64" : "w-16"
+        } ${
+          window.innerWidth < 1024 && !isSidebarOpen ? "hidden" : ""
+        } bg-[#1B2430] transition-width duration-300 text-white shadow-lg`}
       >
         <div className="flex flex-col items-center justify-center mt-4 mb-5 h-20 border-b border-gray-200">
           <div className="flex items-center p-4">
@@ -119,7 +128,9 @@ const SideNavbar = ({ currentTab, setCurrentTab, toggleSidebar, isSidebarOpen })
                   <span className="text-orange-400">l</span>
                   <span className="text-white-500"> LMS</span>
                 </h1>
-                <p className="text-xs italic">Educating the Leaders of the Future...Today!</p>
+                <p className="text-xs italic">
+                  Educating the Leaders of the Future...Today!
+                </p>
               </div>
             )}
           </div>
@@ -148,12 +159,18 @@ const SideNavbar = ({ currentTab, setCurrentTab, toggleSidebar, isSidebarOpen })
                       setTooltip(name);
                     }}
                     onMouseLeave={() => setTooltip("")}
-                    className={`link-hover flex items-center py-3 mx-2 rounded-2xl transition-all duration-200 ease-in-out ${currentTab === name ? "bg-blue-600 font-bold" : "text-white"} text-xs  md:text-xs sm:text-base`}
+                    className={`link-hover flex items-center py-3 mx-2 rounded-2xl transition-all duration-200 ease-in-out ${
+                      currentTab === name
+                        ? "bg-blue-600 font-bold"
+                        : "text-white"
+                    } text-xs  md:text-xs sm:text-base`}
                     style={{ width: "calc(100% - 1rem)" }}
                     aria-label={name}
                     role="menuitem"
                   >
-                    <span className="mr-4 ml-3.5 sm:mr-2 bounce-on-hover scale-on-hover rotate-on-hover">{icon}</span>
+                    <span className="mr-4 ml-3.5 sm:mr-2 bounce-on-hover scale-on-hover rotate-on-hover">
+                      {icon}
+                    </span>
                     {isSidebarOpen && <span>{name}</span>}
                   </Link>
                 </li>
@@ -179,12 +196,18 @@ const SideNavbar = ({ currentTab, setCurrentTab, toggleSidebar, isSidebarOpen })
                       setTooltip(name);
                     }}
                     onMouseLeave={() => setTooltip("")}
-                    className={`link-hover flex items-center py-3 mx-2 rounded-2xl transition-all duration-200 ease-in-out ${currentTab === name ? "bg-blue-600 font-bold" : "text-white"} text-xs md:text-xs sm:text-base`}
+                    className={`link-hover flex items-center py-3 mx-2 rounded-2xl transition-all duration-200 ease-in-out ${
+                      currentTab === name
+                        ? "bg-blue-600 font-bold"
+                        : "text-white"
+                    } text-xs md:text-xs sm:text-base`}
                     style={{ width: "calc(100% - 1rem)" }}
                     aria-label={name}
                     role="menuitem"
                   >
-                    <span className="mr-4 ml-3.5 sm:mr-2 rotate-on-hover">{icon}</span>
+                    <span className="mr-4 ml-3.5 sm:mr-2 rotate-on-hover">
+                      {icon}
+                    </span>
                     {isSidebarOpen && <span>{name}</span>}
                   </Link>
                 </li>
@@ -193,7 +216,11 @@ const SideNavbar = ({ currentTab, setCurrentTab, toggleSidebar, isSidebarOpen })
           </nav>
         </div>
       </div>
-      <Tooltip name={tooltip} position={tooltipPosition} isVisible={!isSidebarOpen && tooltip !== ""} />
+      <Tooltip
+        name={tooltip}
+        position={tooltipPosition}
+        isVisible={!isSidebarOpen && tooltip !== ""}
+      />
     </div>
   );
 };

@@ -93,7 +93,9 @@ function AdminInterface() {
 
   return (
     <div
-      className={`font-montserrat flex h-screen overflow-hidden ${darkMode ? "bg-gray-800" : "bg-opacity-50"}`}
+      className={`font-montserrat flex h-screen overflow-hidden ${
+        darkMode ? "bg-gray-800" : "bg-opacity-50"
+      }`}
     >
       {/* Sidebar */}
       <div className="print:hidden">
@@ -148,7 +150,7 @@ function AdminInterface() {
           {currentTab === "Students" && <Student />}
           {currentTab === "Parents" && <Parent />}
           {currentTab === "Public" && <Public />}
-          {currentTab === "Branches" && <Branches />}
+          {/* {currentTab === "Branches" && <Branches />} */}
           {currentTab === "Events" && <Events />}
           {currentTab === "Settings" && (
             <AdminSettings

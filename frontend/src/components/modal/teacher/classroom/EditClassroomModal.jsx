@@ -26,7 +26,7 @@ const EditClassroomModal = ({ isOpen, onClose, onSave, classroomData }) => {
   };
 
   const handleSave = () => {
-    console.log("Edit Data: ", formData);
+    // console.log("Edit Data: ", formData);
     onSave(formData);
     onClose();
   };
@@ -71,6 +71,7 @@ const EditClassroomModal = ({ isOpen, onClose, onSave, classroomData }) => {
             onChange={handleInputChange}
             className="border border-gray-300 rounded w-full py-2 px-4 mb-4"
             placeholder="Section (e.g. A, B, C)"
+            maxLength={20}
           />
 
           {/* Subject Dropdown Menu */}

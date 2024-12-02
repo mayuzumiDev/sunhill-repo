@@ -10,6 +10,7 @@ const CreateQuiz = ({ classroomId, onQuizCreated, onError, onCancel }) => {
     dueDate: "",
   });
 
+  const [dateError, setDateError] = useState("");
   const [questions, setQuestions] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -20,8 +21,30 @@ const CreateQuiz = ({ classroomId, onQuizCreated, onError, onCancel }) => {
     { value: "true_false", label: "True or False" },
   ];
 
+  const validateDueDate = (dateValue) => {
+    if (!dateValue) return true; // Optional field
+
+    const selectedDate = new Date(dateValue);
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+
+    if (selectedDate < now) {
+      setDateError("Due date cannot be in the past");
+      return false;
+    }
+    setDateError("");
+    return true;
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    if (name === "dueDate") {
+      if (!validateDueDate(value)) {
+        return;
+      }
+    }
+
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -158,6 +181,12 @@ const CreateQuiz = ({ classroomId, onQuizCreated, onError, onCancel }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (formData.dueDate && !validateDueDate(formData.dueDate)) {
+      onError({ message: "Cannot create quiz with a past due date" });
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       // First create the quiz
@@ -244,9 +273,17 @@ const CreateQuiz = ({ classroomId, onQuizCreated, onError, onCancel }) => {
               name="dueDate"
               value={formData.dueDate}
               onChange={handleChange}
+              min={new Date().toISOString().slice(0, 16)}
               placeholder="Select a due date (optional)"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-green-500"
+              className={`w-full px-3 py-2 border ${
+                dateError ? "border-red-500" : "border-gray-300"
+              } rounded-md focus:outline-none focus:ring-1 ${
+                dateError ? "focus:ring-red-500" : "focus:ring-green-500"
+              }`}
             />
+            {dateError && (
+              <p className="mt-1 text-sm text-red-600">{dateError}</p>
+            )}
           </div>
 
           {/* Questions List */}

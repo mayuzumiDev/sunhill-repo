@@ -81,6 +81,7 @@ const AddClassroomModal = ({ isOpen, isClose, onSuccess }) => {
           onChange={handleChange}
           className="border border-gray-300 rounded w-full py-2 px-4 mb-4"
           placeholder="Section (e.g. A, B, C)"
+          maxLength={20}
         />
 
         {/* Subject Dropdown Menu */}

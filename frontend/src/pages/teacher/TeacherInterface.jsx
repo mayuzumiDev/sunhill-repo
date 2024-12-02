@@ -11,6 +11,7 @@ import SpecialEd from "../admin/SpecialEd";
 // import TeacherSettings from "./TeacherSettings";
 import AccountSettings from "./AccountSettings";
 import Logout from "../../components/Logout";
+import HideScrollbar from "../../components/misc/HideScrollBar";
 
 function TeacherInterface() {
   const [currentTab, setCurrentTab] = useState("Dashboard");
@@ -43,6 +44,7 @@ function TeacherInterface() {
         darkMode ? "bg-gray-800" : "bg-opacity-50"
       }`}
     >
+      <HideScrollbar />
       {/* Sidebar */}
       <div className="print-hidden">
         <div
@@ -103,7 +105,10 @@ function TeacherInterface() {
           {/* {currentTab === "Messages" && <Messages darkMode={darkMode} />} */}
           {/* {currentTab === "Settings" && <TeacherSettings darkMode={darkMode} />} */}
           {currentTab === "Account Settings" && (
-            <AccountSettings darkMode={darkMode} />
+            <AccountSettings
+              setCurrentTab={setCurrentTab}
+              darkMode={darkMode}
+            />
           )}
         </div>
       </div>

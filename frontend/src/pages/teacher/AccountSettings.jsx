@@ -1,79 +1,91 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import { axiosInstance } from "../../utils/axiosInstance";
-import userThree from '../../assets/img/home/unknown.jpg';
-import { useNavigate } from 'react-router-dom';
+import userThree from "../../assets/img/home/unknown.jpg";
+import { useNavigate } from "react-router-dom";
+import { FaUserCircle } from "react-icons/fa";
+import HideScrollbar from "../../components/misc/HideScrollBar";
 
-const AccountSettings = () => {
+const AccountSettings = ({ setCurrentTab }) => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
   const [profileImage, setProfileImage] = useState(userThree);
   const [imageError, setImageError] = useState(false);
 
   const [formData, setFormData] = useState({
-    fullName: '',
-    phoneNumber: '',
-    emailAddress: '',
-    username: '',
-    branch_name: ''
+    fullName: "",
+    phoneNumber: "",
+    emailAddress: "",
+    username: "",
+    branch_name: "",
   });
 
   const fetchTeacherData = async () => {
     try {
       setLoading(true);
-      setError('');
-      
-      console.log('Fetching teacher data...');
-      const response = await axiosInstance.get("/user-teacher/current-teacher/");
-      console.log('Teacher API Response:', response.data);
-      
+      setError("");
+
+      // console.log('Fetching teacher data...');
+      const response = await axiosInstance.get(
+        "/user-teacher/current-teacher/"
+      );
+      // console.log('Teacher API Response:', response.data);
+
       if (!response.data || !response.data.teacher_profile) {
-        throw new Error('No teacher profile data received');
+        throw new Error("No teacher profile data received");
       }
-      
+
       const userData = response.data.teacher_profile;
-      console.log('Teacher Profile Data:', userData);
-      
+      // console.log('Teacher Profile Data:', userData);
+
       // Update form data with user information
       const updatedFormData = {
-        fullName: `${userData.first_name || ''} ${userData.last_name || ''}`.trim(),
-        phoneNumber: userData.user_info?.contact_no || '',
-        emailAddress: userData.email || '',
-        username: userData.username || '',
-        branch_name: userData.branch_name || ''
+        fullName: `${userData.first_name || ""} ${
+          userData.last_name || ""
+        }`.trim(),
+        phoneNumber: userData.user_info?.contact_no || "",
+        emailAddress: userData.email || "",
+        username: userData.username || "",
+        branch_name: userData.branch_name || "",
       };
-      
-      console.log('Updated Form Data:', updatedFormData);
+
+      // console.log('Updated Form Data:', updatedFormData);
       setFormData(updatedFormData);
-      
+
       // Handle profile image
       if (userData.user_info?.profile_image) {
         const imageUrl = userData.user_info.profile_image;
-        console.log('Profile Image URL:', imageUrl);
-        
+        // console.log('Profile Image URL:', imageUrl);
+
         let fullImageUrl;
-        if (imageUrl.startsWith('http')) {
+        if (imageUrl.startsWith("http")) {
           fullImageUrl = imageUrl;
         } else {
-          const baseUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
-          fullImageUrl = `${baseUrl}${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`;
+          const baseUrl =
+            import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+          fullImageUrl = `${baseUrl}${
+            imageUrl.startsWith("/") ? "" : "/"
+          }${imageUrl}`;
         }
-        
-        console.log('Full Image URL:', fullImageUrl);
+
+        // console.log('Full Image URL:', fullImageUrl);
         setProfileImage(fullImageUrl);
         setImageError(false);
       } else {
-        console.log('No profile image found, using default');
+        // console.log('No profile image found, using default');
         setProfileImage(userThree);
       }
     } catch (err) {
-      console.error('Error fetching teacher data:', err);
-      const errorMessage = err.response?.data?.error || err.message || 'Failed to load profile data';
+      console.error("Error fetching teacher data:", err);
+      const errorMessage =
+        err.response?.data?.error ||
+        err.message ||
+        "Failed to load profile data";
       setError(errorMessage);
-      
+
       if (err.response?.status === 401) {
-        navigate('/login');
+        navigate("/login");
       }
     } finally {
       setLoading(false);
@@ -82,23 +94,23 @@ const AccountSettings = () => {
 
   // Fetch teacher data when component mounts
   useEffect(() => {
-    console.log('Component mounted, fetching teacher data...');
+    // console.log('Component mounted, fetching teacher data...');
     fetchTeacherData();
   }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage('');
-    setError('');
+    setMessage("");
+    setError("");
 
     try {
-      const [firstName, ...lastNameParts] = formData.fullName.split(' ');
-      const lastName = lastNameParts.join(' ');
+      const [firstName, ...lastNameParts] = formData.fullName.split(" ");
+      const lastName = lastNameParts.join(" ");
 
       const updateData = {
         first_name: firstName,
@@ -106,24 +118,24 @@ const AccountSettings = () => {
         phone_number: formData.phoneNumber,
         email: formData.emailAddress,
         username: formData.username,
-        branch_name: formData.branch_name
+        branch_name: formData.branch_name,
       };
 
-      console.log('Updating profile with data:', updateData);
-      await axiosInstance.patch('/user-teacher/profile/update/', updateData);
-      setMessage('Profile updated successfully!');
-      
+      // console.log('Updating profile with data:', updateData);
+      await axiosInstance.patch("/user-teacher/profile/update/", updateData);
+      setMessage("Profile updated successfully!");
+
       // Dispatch event to notify TopNavbar
-      window.dispatchEvent(new Event('profileUpdated'));
-      
+      window.dispatchEvent(new Event("profileUpdated"));
+
       setTimeout(() => {
-        setMessage('');
+        setMessage("");
       }, 3000);
-      
+
       await fetchTeacherData();
     } catch (err) {
-      console.error('Error updating profile:', err);
-      setError(err.response?.data?.error || 'Failed to update profile');
+      console.error("Error updating profile:", err);
+      setError(err.response?.data?.error || "Failed to update profile");
     }
   };
 
@@ -131,58 +143,68 @@ const AccountSettings = () => {
     const file = e.target.files[0];
     if (file) {
       try {
-        setError('');
+        setError("");
         const formData = new FormData();
-        formData.append('profile_image', file);
+        formData.append("profile_image", file);
 
-        const response = await axiosInstance.post('/user-teacher/profile/image/', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        });
+        const response = await axiosInstance.post(
+          "/user-teacher/profile/image/",
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
 
         if (response.data.image_url) {
           setProfileImage(response.data.image_url);
-          setMessage('Profile image updated successfully!');
-          
+          setMessage("Profile image updated successfully!");
+
           // Dispatch event to notify TopNavbar
-          window.dispatchEvent(new Event('profileUpdated'));
-          
+          window.dispatchEvent(new Event("profileUpdated"));
+
           setTimeout(() => {
-            setMessage('');
+            setMessage("");
           }, 3000);
-          
+
           await fetchTeacherData();
         }
       } catch (err) {
-        console.error('Error uploading image:', err);
-        setError(err.response?.data?.error || 'Failed to upload image');
+        console.error("Error uploading image:", err);
+        setError(err.response?.data?.error || "Failed to upload image");
       }
     }
   };
 
   const handleDeleteImage = async () => {
     try {
-      setError('');
-      const response = await axiosInstance.delete('/user-teacher/profile/image/');
-      
+      setError("");
+      const response = await axiosInstance.delete(
+        "/user-teacher/profile/image/"
+      );
+
       if (response.status === 200) {
         setProfileImage(userThree);
-        setMessage('Profile image deleted successfully!');
-        
+        setMessage("Profile image deleted successfully!");
+
         // Dispatch event to notify TopNavbar
-        window.dispatchEvent(new Event('profileUpdated'));
-        
+        window.dispatchEvent(new Event("profileUpdated"));
+
         setTimeout(() => {
-          setMessage('');
+          setMessage("");
         }, 3000);
-        
+
         await fetchTeacherData();
       }
     } catch (err) {
-      console.error('Error deleting image:', err);
-      setError(err.response?.data?.error || 'Failed to delete image');
+      console.error("Error deleting image:", err);
+      setError(err.response?.data?.error || "Failed to delete image");
     }
+  };
+
+  const handleCancel = () => {
+    setCurrentTab("Dashboard");
   };
 
   if (loading) {
@@ -195,6 +217,7 @@ const AccountSettings = () => {
 
   return (
     <div className="p-4 mx-auto max-w-270 z-index-40">
+      <HideScrollbar />
       <div className="grid grid-cols-5 gap-8">
         <div className="col-span-5 xl:col-span-3">
           <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
@@ -208,7 +231,10 @@ const AccountSettings = () => {
                 {/* Full Name Field */}
                 <div className="mb-5 flex flex-col gap-5.5 sm:flex-row">
                   <div className="w-full sm:w-1/2">
-                    <label className="mb-3 block text-sm font-medium text-gray-500" htmlFor="fullName">
+                    <label
+                      className="mb-3 block text-sm font-medium text-gray-500"
+                      htmlFor="fullName"
+                    >
                       Full Name
                     </label>
                     <input
@@ -225,7 +251,10 @@ const AccountSettings = () => {
 
                   {/* Phone Number Field */}
                   <div className="w-full sm:w-1/2">
-                    <label className="mb-3 block text-sm text-gray-500 font-medium  " htmlFor="phoneNumber">
+                    <label
+                      className="mb-3 block text-sm text-gray-500 font-medium  "
+                      htmlFor="phoneNumber"
+                    >
                       Phone Number
                     </label>
                     <input
@@ -243,7 +272,10 @@ const AccountSettings = () => {
 
                 {/* Email Address Field */}
                 <div className="mb-5">
-                  <label className="mb-3 block text-sm font-medium text-gray-500" htmlFor="emailAddress">
+                  <label
+                    className="mb-3 block text-sm font-medium text-gray-500"
+                    htmlFor="emailAddress"
+                  >
                     Email Address
                   </label>
                   <input
@@ -260,7 +292,10 @@ const AccountSettings = () => {
 
                 {/* Username Field */}
                 <div className="mb-5  ">
-                  <label className="mb-3 block text-sm font-medium text-gray-500" htmlFor="username">
+                  <label
+                    className="mb-3 block text-sm font-medium text-gray-500"
+                    htmlFor="username"
+                  >
                     Username
                   </label>
                   <input
@@ -277,7 +312,10 @@ const AccountSettings = () => {
 
                 {/* Branch Name Field */}
                 <div className="mb-5.5">
-                  <label className="mb-3 block text-sm font-medium text-gray-500" htmlFor="branch_name">
+                  <label
+                    className="mb-3 block text-sm font-medium text-gray-500"
+                    htmlFor="branch_name"
+                  >
                     Branch Name
                   </label>
                   <input
@@ -295,10 +333,14 @@ const AccountSettings = () => {
                   <button
                     className="flex justify-center rounded border border-gray-400 py-2 px-4 md:px-6 font-medium text-black hover:shadow-md hover:bg-gray-200 transition-colors duration-200 text-sm md:text-base"
                     type="button"
+                    onClick={handleCancel}
                   >
                     Cancel
                   </button>
-                  <button type="submit" className="flex justify-center rounded bg-blue-600 py-2 px-4 md:px-6 font-medium text-white hover:bg-blue-700 transition-colors duration-200 text-sm md:text-base">
+                  <button
+                    type="submit"
+                    className="flex justify-center rounded bg-blue-600 py-2 px-4 md:px-6 font-medium text-white hover:bg-blue-700 transition-colors duration-200 text-sm md:text-base"
+                  >
                     Save
                   </button>
                 </div>
@@ -315,17 +357,21 @@ const AccountSettings = () => {
             <div className="p-7">
               <form action="#">
                 <div className="mb-4 flex items-center gap-3">
-                  <div className="h-10 w-10 sm:h-20 sm:w-20 rounded-full overflow-hidden border-2 border-gray-300">
-                    <img 
-                      src={profileImage} 
-                      alt="User" 
-                      className="h-full w-full object-cover"
-                      onError={(e) => {
-                        console.error('Image failed to load:', e);
-                        setImageError(true);
-                        e.target.src = userThree;
-                      }}
-                    />
+                  <div className="h-10 w-10 sm:h-20 sm:w-20 rounded-full overflow-hidden border-2 border-gray-300 flex items-center justify-center bg-gray-200">
+                    {!imageError && profileImage !== userThree ? (
+                      <img
+                        src={profileImage}
+                        alt="User"
+                        className="h-full w-full object-cover"
+                        onError={(e) => {
+                          // console.error("Image failed to load:", e);
+                          setImageError(true);
+                          // e.target.src = userThree;
+                        }}
+                      />
+                    ) : (
+                      <FaUserCircle className="w-full h-full text-gray-400" />
+                    )}
                   </div>
                   <div>
                     <span className="mb-1.5 text-black">Edit your photo</span>
@@ -393,11 +439,14 @@ const AccountSettings = () => {
                         />
                       </svg>
                     </span>
-                    <span className="text-sm font-medium">Upload your photo</span>
-                    <span className="text-xs">Supported formats: JPEG, PNG, GIF</span>
+                    <span className="text-sm font-medium">
+                      Upload your photo
+                    </span>
+                    <span className="text-xs">
+                      Supported formats: JPEG, PNG, GIF
+                    </span>
                   </div>
                 </div>
-
               </form>
             </div>
           </div>

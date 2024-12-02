@@ -11,6 +11,7 @@ import {
   FaPhone,
   FaTree,
   FaTrash,
+  FaUserCircle,
 } from "react-icons/fa";
 
 const StudentSettings = ({ onProfileUpdate }) => {
@@ -18,7 +19,7 @@ const StudentSettings = ({ onProfileUpdate }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
-  const [profileImage, setProfileImage] = useState(userThree);
+  const [profileImage, setProfileImage] = useState(null);
   const fileInputRef = useRef(null);
   const messageTimerRef = useRef(null);
   const errorTimerRef = useRef(null);
@@ -63,15 +64,15 @@ const StudentSettings = ({ onProfileUpdate }) => {
     try {
       setIsLoading(true);
       setError("");
-      console.log("Fetching student data...");
+      // console.log("Fetching student data...");
       const response = await axiosInstance.get("/api/user-student/profile/");
-      console.log("API Response:", response.data);
+      // console.log("API Response:", response.data);
 
       if (response.status === 200) {
         const data = response.data.student_profile;
-        console.log("Full API response:", response.data);
-        console.log("Student profile data:", data);
-        console.log("Student info:", data.student_info);
+        // console.log("Full API response:", response.data);
+        // console.log("Student profile data:", data);
+        // console.log("Student info:", data.student_info);
         setStudentData(data);
 
         setFormData({
@@ -139,7 +140,7 @@ const StudentSettings = ({ onProfileUpdate }) => {
       );
 
       if (response.status === 200) {
-        console.log("Profile image updated successfully");
+        // console.log("Profile image updated successfully");
         const imageUrl = URL.createObjectURL(file);
         setProfileImage(imageUrl);
         setMessage("Yay! Your new profile picture looks awesome! 🌟");
@@ -200,7 +201,7 @@ const StudentSettings = ({ onProfileUpdate }) => {
         branch_name: formData.branch_name,
       };
 
-      console.log("Updating profile with data:", updateData);
+      // console.log("Updating profile with data:", updateData);
 
       const response = await axiosInstance.patch(
         "/api/user-student/profile/update/",

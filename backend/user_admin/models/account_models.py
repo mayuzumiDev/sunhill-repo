@@ -25,7 +25,7 @@ profile_storage = FileSystemStorage(
 class UserInfo(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name="user_info")
     contact_no = models.CharField(max_length=20, null=True)
-    profile_image = models.ImageField(upload_to='profile_images/', storage=profile_storage, blank=True, null=True)
+    profile_image = models.ImageField(upload_to='', storage=profile_storage, blank=True, null=True)
 
 class TeacherInfo(models.Model):
     teacher_info = models.OneToOneField(UserInfo, on_delete=models.CASCADE, related_name="teacher_info")

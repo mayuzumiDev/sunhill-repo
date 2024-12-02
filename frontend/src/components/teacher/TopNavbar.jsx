@@ -51,20 +51,20 @@ const TopNavbar = ({
 
   useEffect(() => {
     if (teacherData?.user_info?.profile_image) {
-      console.log(
-        "Setting profile image:",
-        teacherData.user_info.profile_image
-      );
+      // console.log(
+      //   "Setting profile image:",
+      //   teacherData.user_info.profile_image
+      // );
       setProfileImage(teacherData.user_info.profile_image);
     } else {
-      console.log("Setting default image");
-      setProfileImage(unknown);
+      // console.log("Setting default image");
+      setProfileImage(null);
     }
   }, [teacherData]);
 
   useEffect(() => {
     const handleProfileUpdate = () => {
-      console.log("Profile update detected, refreshing data...");
+      // console.log("Profile update detected, refreshing data...");
       fetchTeacherData();
     };
 
@@ -152,11 +152,13 @@ const TopNavbar = ({
               />
             ) : (
               <div
-                className={`w-10 h-10 rounded-full border-2 flex items-center justify-center bg-gray-100 ${
-                  darkMode ? "border-gray-700" : "border-green-500"
+                className={`w-10 h-10 rounded-full border-2 flex items-center justify-center ${
+                  darkMode
+                    ? "border-gray-700 bg-gray-700"
+                    : "border-green-500 bg-gray-200"
                 }`}
               >
-                <FaUserCircle className="w-8 h-8 text-gray-400" />
+                <FaUserCircle className="w-full h-full text-gray-400" />
               </div>
             )}
 
