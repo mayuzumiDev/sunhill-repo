@@ -58,14 +58,17 @@ const QuestionCard = ({
 
     if (question.question_type === "identification") {
       return (
-        <input
-          type="text"
-          value={answer}
-          onChange={(e) => setAnswer(e.target.value)}
-          className="text-xl font-bold w-full p-4 rounded-xl border-2 border-purple-100 max-w-[300px] mx-auto
-                   focus:border-purple-500 focus:outline-none"
-          placeholder="Type your answer here..."
-        />
+        <div className="flex justify-center items-center w-full">
+          <input
+            type="text"
+            value={answer}
+            onChange={(e) => setAnswer(e.target.value.toUpperCase())}
+            style={{ textTransform: "uppercase" }}
+            className="text-xl font-bold w-full p-4 rounded-xl border-2 border-purple-100 max-w-[400px] text-center
+                     focus:border-purple-500 focus:outline-none"
+            placeholder="TYPE YOUR ANSWER HERE..."
+          />
+        </div>
       );
     }
 

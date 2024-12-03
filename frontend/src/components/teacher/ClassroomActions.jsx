@@ -30,11 +30,14 @@ const ClassroomActions = ({ onClose, classroomData }) => {
   const fetchQuizzes = async () => {
     try {
       setIsLoading(true);
+      // console.log("Fetching quizzes for classroom:", classroomData?.id);
+
       const response = await axiosInstance.get("/user-teacher/quiz/list/", {
-        params: { classroom: classroomData.id },
+        params: { classroom_id: classroomData?.id },
       });
 
       if (response.status === 200) {
+        // console.log("Received quizzes:", response.data.quizzes);
         const quizList = response.data.quizzes;
         // console.log(quizList);
         setQuizzes(response.data.quizzes);
@@ -109,12 +112,14 @@ const ClassroomActions = ({ onClose, classroomData }) => {
   };
 
   useEffect(() => {
+    if (!classroomData?.id || !selectedAction) return;
+
     if (selectedAction === "scores") {
       fetchQuizScores();
     } else if (selectedAction === "quizzes") {
       fetchQuizzes();
     }
-  }, [selectedAction]);
+  }, [selectedAction, classroomData?.id]);
 
   const actions = [
     {
@@ -129,7 +134,10 @@ const ClassroomActions = ({ onClose, classroomData }) => {
       id: "scores",
       title: "Scores",
       icon: <HiAcademicCap className="w-8 h-8" />,
-      onClick: () => setSelectedAction("scores"),
+      onClick: () => {
+        setSelectedAction("scores");
+        fetchQuizScores();
+      },
       bgColor: "bg-green-500",
       hoverColor: "hover:bg-green-600",
     },
@@ -137,7 +145,12 @@ const ClassroomActions = ({ onClose, classroomData }) => {
       id: "quizzes",
       title: "Quizzes",
       icon: <HiClipboardList className="w-8 h-8" />,
-      onClick: () => setSelectedAction("quizzes"),
+      onClick: () => {
+        // console.log("Quiz action clicked. Classroom:", classroomData);
+        setSelectedAction("quizzes");
+        setQuizzes([]);
+        fetchQuizzes();
+      },
       bgColor: "bg-green-500",
       hoverColor: "hover:bg-green-600",
     },
@@ -252,7 +265,8 @@ const ClassroomActions = ({ onClose, classroomData }) => {
     <div className="h-full flex flex-col">
       <div className="flex justify-between items-center mb-4 sm:mb-6 md:mb-8 lg:mb-10">
         <h2 className="text-2xl font-bold text-gray-700">
-          {classroomData.grade_level} - {classroomData.class_section}
+          {classroomData.grade_level} - {classroomData.class_section} -{" "}
+          {classroomData.subject_name_display}
         </h2>
         <button
           onClick={onClose}

@@ -2,7 +2,11 @@ from django.db.models import Count
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from rest_framework.decorators import api_view
+from rest_framework.views import APIView
+from rest_framework import status
 from user_teacher.models.quizzes_models import *
+from django.db.models import Q
+from rest_framework.permissions import IsAuthenticated
 
 @require_http_methods(["GET"])
 def question_type_distribution(request):
@@ -99,3 +103,53 @@ def question_type_performance(request):
             {'error': str(e)},
             status=500
         )
+
+class QuizPassFailRatioView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            # Get the teacher info from the authenticated user
+            teacher = request.user.user_info.teacher_info
+
+            # Get all quizzes created by this teacher
+            quizzes = Quiz.objects.filter(created_by=teacher).order_by('-created_at')
+            
+            # Initialize the response data
+            quiz_statistics = []
+            
+            for quiz in quizzes:
+                # Get pass/fail counts for this quiz
+                scores = QuizScore.objects.filter(quiz=quiz)
+                passed = scores.filter(status='passed').count()
+                failed = scores.filter(status='failed').count()
+                
+                # Group by classroom
+                classroom_stats = (QuizScore.objects
+                    .filter(quiz=quiz)
+                    .values('classroom__grade_level', 'classroom__class_section')
+                    .annotate(
+                        passed=Count('id', filter=Q(status='passed')),
+                        failed=Count('id', filter=Q(status='failed'))
+                    ))
+                
+                # Format classroom stats with combined name
+                formatted_classroom_stats = []
+                for stat in classroom_stats:
+                    formatted_classroom_stats.append({
+                        'classroom_name': f"{stat['classroom__grade_level']} - {stat['classroom__class_section']}",
+                        'passed': stat['passed'],
+                        'failed': stat['failed']
+                    })
+                
+                quiz_statistics.append({
+                    'quiz_id': quiz.id,
+                    'quiz_title': quiz.title,
+                    'total_passed': passed,
+                    'total_failed': failed,
+                    'classroom_breakdown': formatted_classroom_stats
+                })
+            
+            return JsonResponse(quiz_statistics, safe=False)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)

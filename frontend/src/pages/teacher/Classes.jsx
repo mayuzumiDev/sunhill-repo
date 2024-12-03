@@ -120,6 +120,7 @@ const ManageLessons = () => {
       <h1 className="text-2xl font-bold mb-4 text-gray-500">Classroom</h1>
       {showActions && selectedClassroom ? (
         <ClassroomActions
+          key={selectedClassroom.id}
           classroomData={selectedClassroom}
           onClose={() => {
             setShowActions(false);
@@ -168,6 +169,7 @@ const ManageLessons = () => {
                     setSelectedClassroom(classroom.id);
                   }}
                   onView={() => {
+                    console.log("Selecting classroom:", classroom);
                     setSelectedClassroom(classroom);
                     setShowActions(true);
                   }}

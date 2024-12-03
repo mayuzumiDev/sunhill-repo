@@ -59,11 +59,11 @@ const AccountSettings = ({ setCurrentTab }) => {
         // console.log('Profile Image URL:', imageUrl);
 
         let fullImageUrl;
-        if (imageUrl.startsWith("http")) {
+        if (imageUrl.startsWith("https")) {
           fullImageUrl = imageUrl;
         } else {
           const baseUrl =
-            import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+            import.meta.env.VITE_API_URL || "https://sunhilllms.online";
           fullImageUrl = `${baseUrl}${
             imageUrl.startsWith("/") ? "" : "/"
           }${imageUrl}`;

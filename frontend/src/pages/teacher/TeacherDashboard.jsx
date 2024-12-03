@@ -13,6 +13,7 @@ import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import QuestionTypeChart from "../../components/teacher/charts/QuestonTypeChart";
 import QuestionTypePerformance from "../../components/teacher/charts/QuestionTypePerformance";
+import QuizStatisticsChart from "../../components/teacher/charts/QuizStatisticsChart";
 
 import { motion } from "framer-motion";
 import { IoStatsChart, IoTrendingUp } from "react-icons/io5";
@@ -451,13 +452,14 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
           materialsPerStudent < 2
             ? "Consider adding more learning materials"
             : "Good material distribution",
-
         icon: (
-          <IoStatsChart
-            className={`${
-              materialsPerStudent > 2 ? "text-blue-500" : "text-yellow-500"
-            }`}
-          />
+          <div className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10">
+            <IoStatsChart
+              className={`w-6 h-6 sm:w-8 sm:h-8 ${
+                materialsPerStudent > 2 ? "text-blue-500" : "text-yellow-500"
+              }`}
+            />
+          </div>
         ),
         priority:
           materialsPerStudent < 1
@@ -1443,6 +1445,14 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
             </div>
           </motion.div>
 
+          <motion.div variants={itemVariants} className="mt-4">
+            <div className="w-full transition-all duration-300 hover:scale-[1.02]">
+              <div className="shadow-lg hover:shadow-xl rounded-lg p-6 bg-white">
+                <QuizStatisticsChart />
+              </div>
+            </div>
+          </motion.div>
+
           {/* Add the new components */}
           <AtRiskWarnings />
           <ImprovementSuggestions />
@@ -1471,34 +1481,40 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
 
           {/* Teaching Insights Card */}
           <div
-            className={`rounded-xl shadow-lg p-4 sm:p-6 ${
+            className={`rounded-xl shadow-lg p-3 sm:p-6 ${
               darkMode ? "bg-gray-800 bg-opacity-50" : "bg-white"
             }`}
           >
-            <h2 className="text-xl font-semibold mb-4">Teaching Insights</h2>
-            <div className="space-y-4">
+            <h2 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">
+              Teaching Insights
+            </h2>
+            <div className="space-y-3 sm:space-y-4">
               {teacherInsights.map((insight, index) => (
                 <motion.div
                   key={index}
                   whileHover={{ scale: 1.02 }}
-                  className={`p-4 rounded-lg border ${
+                  className={`p-3 sm:p-4 rounded-lg border ${
                     darkMode ? "border-gray-700" : "border-gray-200"
-                  } cursor-pointer`}
+                  } cursor-pointer transition-all duration-200`}
                   onClick={insight.action}
                 >
                   <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-2">
-                        <span className="text-xl">{insight.icon}</span>
-                        <h3 className="font-semibold">{insight.title}</h3>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <span className="text-lg sm:text-xl flex-shrink-0">
+                          {insight.icon}
+                        </span>
+                        <h3 className="text-sm sm:text-base font-semibold truncate">
+                          {insight.title}
+                        </h3>
                       </div>
-                      <div className="mt-2">
-                        <div className="flex items-center space-x-2">
-                          <span className="text-lg font-bold">
+                      <div className="space-y-2">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="text-base sm:text-lg font-bold">
                             {insight.metric}
                           </span>
                           <span
-                            className={`text-sm px-2 py-1 rounded-full ${
+                            className={`text-xs sm:text-sm px-2 py-0.5 sm:py-1 rounded-full ${
                               insight.priority === "high"
                                 ? "bg-red-100 text-red-600"
                                 : insight.priority === "medium"
@@ -1510,7 +1526,7 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
                           </span>
                         </div>
                         <p
-                          className={`text-sm mt-1 ${
+                          className={`text-xs sm:text-sm ${
                             darkMode ? "text-gray-400" : "text-gray-600"
                           }`}
                         >

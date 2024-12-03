@@ -42,4 +42,5 @@ urlpatterns = [
 
     path('analytics/question-type-distribution/', question_type_distribution, name='question-type-distribution'),
     path('analytics/question-type-performance/', question_type_performance, name='question_type_performance'),
+    path('analytics/quiz-statistics/', QuizPassFailRatioView.as_view(), name='quiz-statistics'),
 ]
