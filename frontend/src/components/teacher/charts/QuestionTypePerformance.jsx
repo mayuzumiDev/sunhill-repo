@@ -1,38 +1,22 @@
 import React, { useState, useEffect } from "react";
-import { Bar } from "react-chartjs-2";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-} from "chart.js";
 import { axiosInstance } from "../../../utils/axiosInstance";
 import DotLoaderSpinner from "../../loaders/DotLoaderSpinner";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLightbulb, faChartBar } from "@fortawesome/free-solid-svg-icons";
-
-// Register ChartJS components
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend
-);
+import Highcharts from "highcharts";
+import HighchartsReact from "highcharts-react-official";
 
 const QuestionTypePerformance = () => {
   const [chartData, setChartData] = useState({
-    labels: [],
-    datasets: [],
+    categories: [],
+    series: [],
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [insights, setInsights] = useState(null);
   const [generatingInsights, setGeneratingInsights] = useState(false);
+  const [showInsights, setShowInsights] = useState(false);
+
 
   const questionTypeLabels = {
     single: "Single Choice",
@@ -49,27 +33,16 @@ const QuestionTypePerformance = () => {
           "/user-teacher/analytics/question-type-performance/"
         );
 
-        // Transform the data with green color palette
+        // Transform the data for Highcharts
         const transformedData = {
-          labels: response.data.labels.map(
+          categories: response.data.labels.map(
             (label) => questionTypeLabels[label] || label
           ),
-          datasets: [
+          series: [
             {
-              ...response.data.datasets[0],
-              backgroundColor: [
-                "rgba(34, 197, 94, 0.8)", // green-500
-                "rgba(21, 128, 61, 0.8)", // green-700
-                "rgba(74, 222, 128, 0.8)", // green-400
-                "rgba(16, 185, 129, 0.8)", // green-600
-              ],
-              borderColor: [
-                "rgb(34, 197, 94)", // green-500
-                "rgb(21, 128, 61)", // green-700
-                "rgb(74, 222, 128)", // green-400
-                "rgb(16, 185, 129)", // green-600
-              ],
-              borderWidth: 2,
+              name: "Performance",
+              data: response.data.datasets[0].data,
+              color: "rgba(34, 197, 94, 0.8)", // Example color
             },
           ],
         };
@@ -88,41 +61,36 @@ const QuestionTypePerformance = () => {
   }, []);
 
   const options = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: "top",
-      },
+    chart: {
+      type: 'column',
+      height: '400px',
+    },
+    title: {
+      text: 'Performance by Question Type',
+    },
+    xAxis: {
+      categories: chartData.categories,
       title: {
-        display: true,
-        text: "Performance by Question Type",
-        font: {
-          size: 16,
-        },
+        text: 'Question Type',
       },
     },
-    scales: {
-      y: {
-        beginAtZero: true,
-        max: 100,
-        ticks: {
-          stepSize: 25,
-        },
-        title: {
-          display: true,
-          text: "Success Rate (%)",
-        },
+    yAxis: {
+      min: 0,
+      max: 100,
+      title: {
+        text: 'Success Rate (%)',
       },
+      tickInterval: 25,
     },
-    maintainAspectRatio: false,
+    series: chartData.series,
   };
 
   const generateInsights = () => {
     setGeneratingInsights(true);
     try {
       const insights = [];
-      const performanceData = chartData.datasets[0].data;
-      const labels = chartData.labels;
+      const performanceData = chartData.series[0].data;
+      const labels = chartData.categories;
 
       // Find best and worst performing types
       const maxPerf = Math.max(...performanceData);
@@ -149,6 +117,7 @@ const QuestionTypePerformance = () => {
       }
 
       setInsights(insights);
+      setShowInsights(true);
     } catch (error) {
       console.error("Error generating insights:", error);
       setInsights(["Unable to generate insights at this time."]);
@@ -170,10 +139,7 @@ const QuestionTypePerformance = () => {
   }
 
   return (
-    <div
-      className="bg-white rounded-lg shadow-md p-6 flex flex-col"
-      style={{ minHeight: "400px", width: "100%", maxWidth: "600px" }}
-    >
+    <div className="bg-white rounded-lg shadow-md p-6 flex flex-col" style={{ minHeight: "400px", width: "100%", maxWidth: "600px" }}>
       <div className="flex-1" style={{ minHeight: "300px" }}>
         {loading ? (
           <div className="flex items-center justify-center h-full">
@@ -183,8 +149,8 @@ const QuestionTypePerformance = () => {
           <div className="flex items-center justify-center h-full">
             <div className="text-red-500">{error}</div>
           </div>
-        ) : chartData.labels.length > 0 ? (
-          <Bar data={chartData} options={options} />
+        ) : chartData.categories.length > 0 ? (
+          <HighchartsReact highcharts={Highcharts} options={options} />
         ) : (
           <div className="flex flex-col items-center justify-center min-h-[300px]">
             <FontAwesomeIcon
@@ -196,18 +162,21 @@ const QuestionTypePerformance = () => {
         )}
       </div>
 
-      {!loading && !error && chartData.labels.length > 0 && (
+      {!loading && !error && chartData.categories.length > 0 && (
         <div className="mt-4 border-t pt-4">
           <button
-            onClick={generateInsights}
+             onClick={() => {
+              generateInsights();
+              setShowInsights(!showInsights);
+            }}
             disabled={generatingInsights}
             className="inline-flex items-center px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded transition-colors disabled:bg-green-400"
           >
             <FontAwesomeIcon icon={faLightbulb} className="mr-2" />
-            {generatingInsights ? "Analyzing..." : "Show Insights"}
+            {generatingInsights ? "Analyzing..." : showInsights ? "Hide Insights" : "Show Insights"}
           </button>
 
-          {insights && (
+          {showInsights && insights && (
             <div className="mt-4 p-4 bg-gradient-to-br from-white to-green-50 border border-green-100 rounded-lg shadow-sm">
               <div className="flex items-center mb-3">
                 <FontAwesomeIcon

@@ -1009,23 +1009,23 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
               <div className="flex justify-between items-start">
                 <div className="space-y-3 w-full">
                   <div className="flex justify-between">
-                    <h3 className="font-semibold text-yellow-700 dark:text-yellow-400">
+                    <h3 className="font-semibold text-white dark:text-yellow-400">
                       {studentName}
                     </h3>
-                    <span className="text-sm text-yellow-600 dark:text-yellow-300">
+                    <span className="text-sm text-white dark:text-yellow-300">
                       Average: {Math.round(data.currentAverage)}%
                     </span>
                   </div>
                   <div className="space-y-2">
                     {data.suggestions.map((suggestion, idx) => (
                       <div key={idx} className="text-sm">
-                        <h4 className="font-medium text-yellow-700 dark:text-yellow-400">
+                        <h4 className="font-medium text-white dark:text-yellow-400">
                           {suggestion.area}
                         </h4>
-                        <p className="text-yellow-600 dark:text-yellow-300 mb-1">
+                        <p className="text-white dark:text-yellow-300 mb-1">
                           {suggestion.details}
                         </p>
-                        <ul className="list-disc list-inside text-yellow-600 dark:text-yellow-300 pl-2">
+                        <ul className="list-disc list-inside text-white dark:text-yellow-300 pl-2">
                           {suggestion.actions.map((action, actionIdx) => (
                             <li key={actionIdx} className="text-sm">
                               {action}
@@ -1218,9 +1218,9 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
               }`}
             >
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold">
+                {/* <h3 className="text-lg font-semibold">
                   Recent Quiz Completion Rates
-                </h3>
+                </h3> */}
                 <button
                   onClick={() => toggleRecommendation("completion")}
                   className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
@@ -1255,7 +1255,7 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
                       }}
                       transition={{ type: "spring", damping: 20 }}
                       className={`absolute top-0 right-0 w-full sm:w-80 h-full p-4 bg-white dark:bg-gray-800 
-                        rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-y-auto`}
+                        rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 text-white overflow-y-auto`}
                     >
                       {(() => {
                         const rec = getCompletionRateRecommendation(
@@ -1327,9 +1327,9 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
               }`}
             >
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold">
+                {/* <h3 className="text-lg font-semibold">
                   Top 5 Students by Average Score
-                </h3>
+                </h3> */}
                 <button
                   onClick={() => toggleRecommendation("performance")}
                   className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
@@ -1364,7 +1364,7 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
                       }}
                       transition={{ type: "spring", damping: 20 }}
                       className={`absolute top-0 right-0 w-full sm:w-80 h-full p-4 bg-white dark:bg-gray-800 
-                        rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-y-auto`}
+                        rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 text-white overflow-y-auto`}
                     >
                       {(() => {
                         const rec = getPerformanceRecommendation(
@@ -1431,7 +1431,7 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
           </motion.div>
 
           <motion.div variants={itemVariants}>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <div className="w-full transition-all duration-300 hover:scale-[1.02]">
                 <div className="shadow-lg hover:shadow-xl rounded-lg">
                   <QuestionTypeChart />

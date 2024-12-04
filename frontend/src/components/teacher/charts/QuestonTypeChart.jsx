@@ -1,13 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Pie } from "react-chartjs-2";
-import { Chart as ChartJS, ArcElement, Tooltip, Legend, Title } from "chart.js";
+import Highcharts from "highcharts";
+import HighchartsReact from "highcharts-react-official";
 import { axiosInstance } from "../../../utils/axiosInstance";
 import DotLoaderSpinner from "../../loaders/DotLoaderSpinner";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLightbulb, faChartBar } from "@fortawesome/free-solid-svg-icons";
-
-// Register ChartJS components
-ChartJS.register(ArcElement, Tooltip, Legend, Title);
 
 const QuestionTypeChart = () => {
   const [chartData, setChartData] = useState({
@@ -18,6 +15,7 @@ const QuestionTypeChart = () => {
   const [error, setError] = useState(null);
   const [insights, setInsights] = useState(null);
   const [generatingInsights, setGeneratingInsights] = useState(false);
+  const [showInsights, setShowInsights] = useState(false);
 
   const questionTypeLabels = {
     single: "Single Choice",
@@ -68,20 +66,22 @@ const QuestionTypeChart = () => {
   }, []);
 
   const options = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: "top",
-      },
-      title: {
-        display: true,
-        text: "Question Type Distribution",
-        font: {
-          size: 16,
-        },
-      },
+    chart: {
+      type: 'pie',
     },
-    maintainAspectRatio: false,
+    title: {
+      text: 'Question Type Distribution',
+    },
+    series: [
+      {
+        name: 'Questions',
+        data: chartData.labels.map((label, index) => ({
+          name: label,
+          y: chartData.datasets[0].data[index],
+        })),
+        colorByPoint: true,
+      },
+    ],
   };
 
   const generateInsights = () => {
@@ -126,6 +126,7 @@ const QuestionTypeChart = () => {
       }
 
       setInsights(insights);
+      setShowInsights(true);
     } catch (error) {
       console.error("Error generating insights:", error);
       setInsights(["Unable to generate insights at this time."]);
@@ -161,7 +162,10 @@ const QuestionTypeChart = () => {
             <div className="text-red-500">{error}</div>
           </div>
         ) : chartData.labels.length > 0 ? (
-          <Pie data={chartData} options={options} />
+          <HighchartsReact
+            highcharts={Highcharts}
+            options={options}
+          />
         ) : (
           <div className="flex flex-col items-center justify-center min-h-[300px]">
             <FontAwesomeIcon
@@ -176,15 +180,18 @@ const QuestionTypeChart = () => {
       {!loading && !error && chartData.labels.length > 0 && (
         <div className="mt-4 border-t pt-4">
           <button
-            onClick={generateInsights}
+            onClick={() => {
+              generateInsights();
+              setShowInsights(!showInsights);
+            }}
             disabled={generatingInsights}
             className="inline-flex items-center px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded transition-colors disabled:bg-green-400"
           >
             <FontAwesomeIcon icon={faLightbulb} className="mr-2" />
-            {generatingInsights ? "Analyzing..." : "Show Insights"}
+            {generatingInsights ? "Analyzing..." : showInsights ? "Hide Insights" : "Show Insights"}
           </button>
 
-          {insights && (
+          {showInsights && insights && (
             <div className="mt-4 p-4 bg-gradient-to-br from-white to-green-50 border border-green-100 rounded-lg shadow-sm">
               <div className="flex items-center mb-3">
                 <FontAwesomeIcon
