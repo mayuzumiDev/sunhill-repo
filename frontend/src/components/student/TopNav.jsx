@@ -115,7 +115,7 @@ const TopNav = ({ studentData, onLogout, onProfileUpdate }) => {
             {({ open }) => (
               <>
                 <Menu.Button className="flex items-center space-x-1 lg:space-x-2 bg-white rounded-full p-1 hover:bg-yellow-300 transition-all duration-200">
-                  {studentData?.profilePicture ? (
+                  {studentData?.profilePicture !== null ? (
                     <img
                       src={studentData?.profilePicture}
                       alt={`${studentData?.name}'s profile`}

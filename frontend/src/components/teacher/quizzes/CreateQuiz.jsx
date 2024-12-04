@@ -140,6 +140,27 @@ const CreateQuiz = ({ classroomId, onQuizCreated, onError, onCancel }) => {
 
   const createQuestion = async (quizId, questionData) => {
     try {
+      // Handle true/false questions separately
+      if (questionData.question_type === "true_false") {
+        const response = await axiosInstance.post(
+          "/user-teacher/questions/create/",
+          {
+            quiz: quizId,
+            text: questionData.text,
+            question_type: questionData.question_type,
+            correct_answer: questionData.correct_answer,
+          }
+        );
+        if (response.status === 201) {
+          console.log(
+            "True/False question created successfully:",
+            response.data
+          );
+          return response.data;
+        }
+        return null;
+      }
+
       let choices;
 
       if (questionData.question_type === "identification") {
