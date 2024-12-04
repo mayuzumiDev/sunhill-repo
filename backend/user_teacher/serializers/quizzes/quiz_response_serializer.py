@@ -102,9 +102,13 @@ class QuizResponseSerializer(serializers.ModelSerializer):
         """Check if the answer is correct based on question type"""
         if question.question_type == 'true_false':
             # Convert both answers to lowercase strings for comparison
-            student_answer = str(answer).lower().strip()
-            correct_answer = str(question.correct_answer).lower().strip()
-            return student_answer == correct_answer
+            try:
+                # Handle various true values: 'true', '1', 1, True
+                student_bool = str(answer).lower().strip() in ['true', '1', 'yes']
+                correct_bool = str(question.correct_answer).lower().strip() in ['true', '1', 'yes']
+                return student_bool == correct_bool
+            except (ValueError, TypeError):
+                return False
         elif question.question_type == 'single':
             # For single choice, check both by ID and text
             try:
