@@ -135,7 +135,7 @@ const PrivacyPolicy = () => {
           6. Contact Us
         </Typography>
         <Typography variant="body1" paragraph>
-          If you have any questions or concerns about our Privacy Policy or data practices, please contact us at privacy@sunhillmontessori.com.
+          If you have any questions or concerns about our Privacy Policy or data practices, please contact us at smcbatangascity@sunhilledu.com.
         </Typography>
 
         <Box mt={3}>

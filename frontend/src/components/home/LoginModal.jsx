@@ -10,6 +10,7 @@ import {
   Divider,
   IconButton,
   Box,
+  Checkbox,
   Modal,
   CircularProgress,
   useTheme,
@@ -27,6 +28,7 @@ const LoginModal = ({ isVisible, onClose }) => {
   const [successMessage, setSuccessMessage] = useState("");
   const [hasAccount, setHasAccount] = useState(true);
   const theme = useTheme();
+  const [consentChecked, setConsentChecked] = useState(false);
   const navigate = useNavigate();
   const { handleLogin, errorMessage, showAlert } = useLogin();
 
@@ -40,6 +42,12 @@ const LoginModal = ({ isVisible, onClose }) => {
 
   const handleSignUp = async (e) => {
     e.preventDefault();
+  
+    if (!consentChecked) {
+      alert("You must agree to the terms and conditions to proceed.");
+      return;
+    }
+  
     try {
       const response = await axiosInstanceNoAuthHeader.post(
         "/api/public/sign-up/",
@@ -51,22 +59,21 @@ const LoginModal = ({ isVisible, onClose }) => {
           last_name: lastName,
         }
       );
-
+  
       if (response.status === 201) {
         setUsername("");
         setPassword("");
         setEmail("");
         setFirstName("");
         setLastName("");
-
+  
         setSuccessMessage("Account created successfully! Please sign in.");
         setHasAccount(true);
       }
     } catch (error) {
-      console.error("An error occured creating the account.", error);
+      console.error("An error occurred while creating the account.", error);
     }
   };
-
   return (
     <Modal
       open={isVisible}
@@ -162,7 +169,8 @@ const LoginModal = ({ isVisible, onClose }) => {
           <form onSubmit={hasAccount ? handleSignIn : handleSignUp}>
             {!hasAccount && (
               <>
-                <Box sx={{ mb: 3, display: "flex", gap: 2 }}>
+                <Box sx={{ mb: { xs: 1, sm: 3 },
+                   display: "flex", gap: 2 }}>
                   <TextField
                     label="First Name"
                     variant="outlined"
@@ -206,7 +214,7 @@ const LoginModal = ({ isVisible, onClose }) => {
                 </Box>
               </>
             )}
-            <Box sx={{ mb: 3 }}>
+            <Box sx={{ mb: { xs: 1, sm: 3 }}}>
               <TextField
                 label="Username"
                 variant="outlined"
@@ -230,7 +238,7 @@ const LoginModal = ({ isVisible, onClose }) => {
               />
             </Box>
             {!hasAccount && (
-              <Box sx={{ mb: 3 }}>
+              <Box sx={{ mb: { xs: 1, sm: 3 }}}>
                 <TextField
                   label="Email"
                   type="email"
@@ -253,7 +261,7 @@ const LoginModal = ({ isVisible, onClose }) => {
                 />
               </Box>
             )}
-            <Box sx={{ mb: 3 }}>
+            <Box sx={{ mb: { xs: 1, sm: 3 }}}>
               <TextField
                 label="Password"
                 type="password"
@@ -277,10 +285,43 @@ const LoginModal = ({ isVisible, onClose }) => {
                 }}
               />
             </Box>
+            {!hasAccount && (
+
+            <Box sx={{ display: "flex", alignItems: "center", mt: { xs: 1, sm: 3 }, mb: { xs: 1, sm: 3 } }}>
+            <Checkbox
+              id="consent-checkbox"
+              checked={consentChecked}
+              onChange={(e) => setConsentChecked(e.target.checked)}
+              sx={{ marginRight: "8px", transform: "scale(1.2)" }}
+            />
+            <label htmlFor="consent-checkbox" style={{ fontSize: '0.75rem' }}> {/* Adjusted font size here */}
+              I agree to the{" "}
+              <a
+                href="/privacy-policy"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: theme.palette.primary.main, textDecoration: "underline" }}
+              >
+                Privacy Policy
+              </a>{" "}
+              and{" "}
+              <a
+                href="/terms"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: theme.palette.primary.main, textDecoration: "underline" }}
+              >
+                Terms of Service
+              </a>
+            </label>
+            </Box>
+            )}
+            
             <Button
               type="submit"
               variant="contained"
               color="primary"
+                disabled={!hasAccount && !consentChecked} 
               fullWidth
               sx={{
                 borderRadius: 20,
