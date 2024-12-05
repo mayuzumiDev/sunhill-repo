@@ -28,5 +28,13 @@ class QuestionSerializer(serializers.ModelSerializer):
             else:
                 # Normalize the boolean answer to string
                 data['correct_answer'] = str(correct_answer).lower()
+        elif question_type == 'identification':
+            # Ensure correct_answer is provided for identification questions
+            if not correct_answer:
+                raise serializers.ValidationError({"correct_answer": "Correct answer is required for identification questions"})
+            # Store answer in correct_answer field
+            data['correct_answer'] = str(correct_answer).strip().upper()
+
+        return data
 
         return data

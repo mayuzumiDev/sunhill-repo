@@ -68,13 +68,21 @@ class QuizScoreListView(generics.ListAPIView):
     def get_queryset(self):
         teacher_info = self.request.user.user_info.teacher_info
         classroom_id = self.request.query_params.get('classroom')
+        quiz_id = self.request.query_params.get('quiz')
         
         if not classroom_id:
             return QuizScore.objects.none()
             
+        filters = {
+            'quiz__classroom__class_instructor': teacher_info,
+            'classroom_id': classroom_id
+        }
+        
+        if quiz_id:
+            filters['quiz_id'] = quiz_id
+            
         return QuizScore.objects.filter(
-            quiz__classroom__class_instructor=teacher_info,
-            classroom_id=classroom_id
+            **filters
         ).select_related(
             'student__student_info__user',
             'quiz',

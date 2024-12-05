@@ -140,65 +140,157 @@ const CreateQuiz = ({ classroomId, onQuizCreated, onError, onCancel }) => {
 
   const createQuestion = async (quizId, questionData) => {
     try {
-      // Handle true/false questions separately
-      if (questionData.question_type === "true_false") {
+      // Common question data
+      const baseQuestionData = {
+        quiz: quizId,
+        text: questionData.text,
+        question_type: questionData.question_type,
+      };
+
+      // Handle identification questions
+      if (questionData.question_type === "identification") {
         const response = await axiosInstance.post(
           "/user-teacher/questions/create/",
           {
-            quiz: quizId,
-            text: questionData.text,
-            question_type: questionData.question_type,
+            ...baseQuestionData,
             correct_answer: questionData.correct_answer,
           }
         );
+
         if (response.status === 201) {
-          console.log(
-            "True/False question created successfully:",
-            response.data
-          );
+          console.log("Identification question created:", response.data);
           return response.data;
         }
         return null;
       }
 
-      let choices;
+      // Handle true/false questions
+      if (questionData.question_type === "true_false") {
+        const response = await axiosInstance.post(
+          "/user-teacher/questions/create/",
+          {
+            ...baseQuestionData,
+            correct_answer: questionData.correct_answer,
+          }
+        );
 
-      if (questionData.question_type === "identification") {
-        choices = [{ text: questionData.correct_answer, is_correct: true }];
-      } else if (questionData.question_type === "multi") {
-        choices = questionData.options.map((text, index) => ({
-          text,
-          is_correct: (questionData.correct_answers || []).includes(
-            index.toString()
-          ),
-        }));
-      } else {
-        // single choice
-        choices = questionData.options.map((text, index) => ({
-          text,
-          is_correct: index.toString() === questionData.correct_answer,
-        }));
-      }
-
-      const response = await axiosInstance.post(
-        "/user-teacher/questions/create/",
-        {
-          quiz: quizId,
-          text: questionData.text,
-          question_type: questionData.question_type,
-          choices: choices,
+        if (response.status === 201) {
+          console.log("True/False question created:", response.data);
+          return response.data;
         }
-      );
-
-      if (response.status === 201) {
-        console.log("Question created successfully:", response.data);
-        return response.data;
+        return null;
       }
+
+      // Handle single and multiple choice questions
+      if (
+        questionData.question_type === "single" ||
+        questionData.question_type === "multi"
+      ) {
+        let choices;
+
+        if (questionData.question_type === "multi") {
+          choices = questionData.options.map((text, index) => ({
+            text,
+            is_correct: (questionData.correct_answers || []).includes(
+              index.toString()
+            ),
+          }));
+        } else {
+          // single choice
+          choices = questionData.options.map((text, index) => ({
+            text,
+            is_correct: index.toString() === questionData.correct_answer,
+          }));
+        }
+
+        const response = await axiosInstance.post(
+          "/user-teacher/questions/create/",
+          {
+            ...baseQuestionData,
+            choices: choices,
+          }
+        );
+
+        if (response.status === 201) {
+          console.log("Choice question created:", response.data);
+          return response.data;
+        }
+        return null;
+      }
+
+      throw new Error(
+        `Unsupported question type: ${questionData.question_type}`
+      );
     } catch (error) {
       console.error("Error creating question:", error);
       throw error;
     }
   };
+
+  // const createQuestion = async (quizId, questionData) => {
+  //   try {
+  //     // Handle true/false and identification questions separately
+  //     if (
+  //       questionData.question_type === "true_false" ||
+  //       questionData.question_type === "identification"
+  //     ) {
+  //       const response = await axiosInstance.post(
+  //         "/user-teacher/questions/create/",
+  //         {
+  //           quiz: quizId,
+  //           text: questionData.text,
+  //           question_type: questionData.question_type,
+  //           correct_answer: questionData.correct_answer,
+  //         }
+  //       );
+  //       if (response.status === 201) {
+  //         console.log(
+  //           `${questionData.question_type} question created successfully:`,
+  //           response.data
+  //         );
+  //         return response.data;
+  //       }
+  //       return null;
+  //     }
+
+  //     let choices;
+
+  //     if (questionData.question_type === "identification") {
+  //       choices = [{ text: questionData.correct_answer, is_correct: true }];
+  //     } else if (questionData.question_type === "multi") {
+  //       choices = questionData.options.map((text, index) => ({
+  //         text,
+  //         is_correct: (questionData.correct_answers || []).includes(
+  //           index.toString()
+  //         ),
+  //       }));
+  //     } else {
+  //       // single choice
+  //       choices = questionData.options.map((text, index) => ({
+  //         text,
+  //         is_correct: index.toString() === questionData.correct_answer,
+  //       }));
+  //     }
+
+  //     const response = await axiosInstance.post(
+  //       "/user-teacher/questions/create/",
+  //       {
+  //         quiz: quizId,
+  //         text: questionData.text,
+  //         question_type: questionData.question_type,
+  //         choices: choices,
+  //       }
+  //     );
+
+  //     if (response.status === 201) {
+  //       console.log("Question created successfully:", response.data);
+  //       return response.data;
+  //     }
+  //   } catch (error) {
+  //     console.error("Error creating question:", error);
+  //     throw error;
+  //   }
+  // };
 
   const handleSubmit = async (e) => {
     e.preventDefault();

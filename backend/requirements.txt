@@ -14,3 +14,4 @@ Pillow
 reportlab
 cloudinary
 django-cloudinary-storage
+Faker

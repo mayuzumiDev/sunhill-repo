@@ -1,10 +1,45 @@
 import React from "react";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { Doughnut } from "react-chartjs-2";
+import DotLoaderSpinner from "../../loaders/DotLoaderSpinner";
+import { FaChartPie } from "react-icons/fa";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-const QuizScoreDonutChart = ({ quizScores, darkMode }) => {
+const QuizScoreDonutChart = ({ quizScores, darkMode, isLoading }) => {
+  if (isLoading) {
+    return (
+      <div
+        className={`p-4 rounded-lg ${
+          darkMode ? "bg-gray-800" : "bg-white"
+        } shadow-md h-64 flex items-center justify-center`}
+      >
+        <DotLoaderSpinner color="rgb(255, 159, 64)" />
+      </div>
+    );
+  }
+
+  if (!quizScores || quizScores.length === 0) {
+    return (
+      <div
+        className={`p-4 rounded-lg ${
+          darkMode ? "bg-gray-800" : "bg-white"
+        } shadow-md h-64 flex items-center justify-center`}
+      >
+        <div className="text-center">
+          <FaChartPie 
+            className={`text-4xl mb-3 ${darkMode ? "text-gray-300" : "text-gray-600"}`}
+          />
+          <p className={`text-lg ${darkMode ? "text-gray-300" : "text-gray-600"}`}>
+            Your child hasn't taken any quizzes yet.
+            <br />
+            Check back later to view their performance!
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   // Calculate average scores
   const totalScores = quizScores.reduce(
     (acc, quiz) => acc + parseFloat(quiz.total_score),

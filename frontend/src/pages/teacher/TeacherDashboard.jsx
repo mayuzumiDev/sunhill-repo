@@ -849,79 +849,254 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
     }
   };
 
-  // Add this function to analyze student performance and generate warnings/suggestions
+  // // Add this function to analyze student performance and generate warnings/suggestions
+  // const analyzeStudentPerformance = (studentScores) => {
+  //   const AT_RISK_THRESHOLD = 60; // Students below 60% are considered at risk
+  //   const IMPROVEMENT_THRESHOLD = 75; // Students below 75% need improvement
+
+  //   const atRiskList = [];
+  //   const suggestions = {};
+
+  //   Object.entries(studentScores).forEach(([studentName, data]) => {
+  //     const averageScore =
+  //       data.quizCount > 0 ? data.totalScore / data.quizCount : 0;
+
+  //     const recentScores = data.scores.slice(-3); // Last 3 scores
+  //     const recentAverage =
+  //       recentScores.length > 0
+  //         ? recentScores.reduce((a, b) => a + b, 0) / recentScores.length
+  //         : 0;
+
+  //     const scoreTrend =
+  //       recentScores.length >= 2
+  //         ? recentScores[recentScores.length - 1] -
+  //           recentScores[recentScores.length - 2]
+  //         : 0;
+
+  //     // Generate suggestions based on performance patterns
+  //     if (averageScore < AT_RISK_THRESHOLD) {
+  //       atRiskList.push({
+  //         name: studentName,
+  //         average: averageScore,
+  //         trend: scoreTrend,
+  //         lastScore: recentScores[recentScores.length - 1] || 0,
+  //         riskLevel: "high",
+  //         warning: `Immediate attention needed - Consistently performing below ${AT_RISK_THRESHOLD}%`,
+  //       });
+  //     }
+
+  //     if (averageScore < IMPROVEMENT_THRESHOLD) {
+  //       suggestions[studentName] = {
+  //         currentAverage: averageScore,
+  //         trend: scoreTrend,
+  //         suggestions: [
+  //           {
+  //             area: "Performance",
+  //             details: `Current average: ${Math.round(averageScore)}%`,
+  //             actions: [
+  //               scoreTrend < 0
+  //                 ? "Schedule immediate review session"
+  //                 : "Continue with regular check-ins",
+  //               "Create personalized study plan",
+  //               "Set up weekly progress tracking",
+  //             ],
+  //           },
+  //           {
+  //             area: "Study Habits",
+  //             details: `Recent trend: ${
+  //               scoreTrend > 0 ? "Improving" : "Declining"
+  //             }`,
+  //             actions: [
+  //               "Implement structured study schedule",
+  //               "Use active recall techniques",
+  //               "Join study groups for peer support",
+  //             ],
+  //           },
+  //           {
+  //             area: "Support Needed",
+  //             details: "Additional resources recommended",
+  //             actions: [
+  //               "Provide supplementary learning materials",
+  //               "Consider one-on-one tutoring",
+  //               "Regular progress check-ins",
+  //             ],
+  //           },
+  //         ],
+  //       };
+  //     }
+  //   });
+
+  //   setAtRiskStudents(atRiskList);
+  //   setImprovementSuggestions(suggestions);
+  // };
+
+  // const fetchAndAnalyzeStudentScores = async () => {
+  //   try {
+  //     const response = await axiosInstance.get("/api/scores/");
+  //     analyzeStudentPerformance(response.data);
+  //   } catch (error) {
+  //     console.error("Error fetching student scores:", error);
+  //   }
+  // };
+
+  // // Call this function when component mounts
+  // useEffect(() => {
+  //   fetchAndAnalyzeStudentScores();
+  // }, []);
+
+  // Enhanced Student Performance Analysis Function
   const analyzeStudentPerformance = (studentScores) => {
-    const AT_RISK_THRESHOLD = 60; // Students below 60% are considered at risk
-    const IMPROVEMENT_THRESHOLD = 75; // Students below 75% need improvement
+    // Base thresholds and minimum quiz requirements
+    const BASE_AT_RISK_THRESHOLD = 0.6;
+    const BASE_IMPROVEMENT_THRESHOLD = 0.75;
+    const MIN_QUIZZES_FOR_BASIC = 3;
+    const MIN_QUIZZES_FOR_FULL = 5;
 
     const atRiskList = [];
     const suggestions = {};
 
     Object.entries(studentScores).forEach(([studentName, data]) => {
-      const averageScore =
-        data.quizCount > 0 ? data.totalScore / data.quizCount : 0;
+      // Skip analysis if minimum quiz requirement not met
+      if (data.quizCount < MIN_QUIZZES_FOR_BASIC) {
+        return;
+      }
 
-      const recentScores = data.scores.slice(-3); // Last 3 scores
+      // Normalize scores to be between 0 and 1
+      const normalizeScore = (score) => score / 5;
+      const normalizedTotalScore = normalizeScore(data.totalScore);
+      const normalizedScores = data.scores.map(normalizeScore);
+
+      // const normalizedTotalScore = data.totalScore;
+      // const normalizedScores = data.scores;
+
+      // Calculate weighted average (recent scores have more weight)
+      const weights = normalizedScores.map((_, index) =>
+        Math.pow(1.2, normalizedScores.length - 1 - index)
+      );
+      const weightedSum = normalizedScores.reduce(
+        (sum, score, index) => sum + score * weights[index],
+        0
+      );
+      const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
+      const weightedAverage = weightedSum / totalWeight;
+
+      // Adjust thresholds based on number of quizzes taken
+      const quizCountFactor = Math.min(
+        data.quizCount / MIN_QUIZZES_FOR_FULL,
+        1
+      );
+      const atRiskThreshold =
+        BASE_AT_RISK_THRESHOLD * (0.9 + 0.1 * quizCountFactor);
+      const improvementThreshold =
+        BASE_IMPROVEMENT_THRESHOLD * (0.9 + 0.1 * quizCountFactor);
+
+      // Get recent scores for trend analysis
+      const recentScores = normalizedScores.slice(-Math.min(5, data.quizCount));
       const recentAverage =
-        recentScores.length > 0
-          ? recentScores.reduce((a, b) => a + b, 0) / recentScores.length
-          : 0;
+        recentScores.reduce((a, b) => a + b, 0) / recentScores.length;
 
+      // Calculate trend using last 3 scores or all if less than 3
+      const lastThreeScores = recentScores.slice(-3);
       const scoreTrend =
-        recentScores.length >= 2
-          ? recentScores[recentScores.length - 1] -
-            recentScores[recentScores.length - 2]
+        lastThreeScores.length >= 2
+          ? lastThreeScores[lastThreeScores.length - 1] -
+            lastThreeScores[lastThreeScores.length - 2]
           : 0;
 
-      // Generate suggestions based on performance patterns
-      if (averageScore < AT_RISK_THRESHOLD) {
+      // Calculate performance stability
+      const scoreVariance =
+        recentScores.reduce(
+          (variance, score) => variance + Math.pow(score - recentAverage, 2),
+          0
+        ) / recentScores.length;
+      const scoreStability = Math.sqrt(scoreVariance);
+
+      // Determine analysis level based on quiz count
+      const analysisLevel =
+        data.quizCount >= MIN_QUIZZES_FOR_FULL ? "full" : "basic";
+
+      // Check if student is at risk
+      if (weightedAverage < atRiskThreshold) {
         atRiskList.push({
           name: studentName,
-          average: averageScore,
-          trend: scoreTrend,
-          lastScore: recentScores[recentScores.length - 1] || 0,
+          average: Math.round(weightedAverage * 100),
+          trend: Math.round(scoreTrend * 100),
+          lastScore: Math.round(recentScores[recentScores.length - 1] * 100),
+          stability: Math.round((1 - scoreStability) * 100),
           riskLevel: "high",
-          warning: `Immediate attention needed - Consistently performing below ${AT_RISK_THRESHOLD}%`,
+          analysisLevel,
+          quizzesTaken: data.quizCount,
+          warning: `${
+            analysisLevel === "basic" ? "Early Warning: " : ""
+          }Immediate attention needed - ${
+            analysisLevel === "full"
+              ? `Consistently performing below ${Math.round(
+                  atRiskThreshold * 100
+                )}%`
+              : `Based on initial ${data.quizCount} quizzes`
+          }`,
         });
       }
 
-      if (averageScore < IMPROVEMENT_THRESHOLD) {
+      // Generate improvement suggestions if needed
+      if (weightedAverage < improvementThreshold) {
+        const suggestionsList = [
+          {
+            area: "Performance",
+            details: `Weighted average: ${Math.round(
+              weightedAverage * 100
+            )}% | Stability: ${Math.round((1 - scoreStability) * 100)}%`,
+            actions: [
+              scoreTrend < 0
+                ? "Schedule immediate review session"
+                : "Continue with regular check-ins",
+              scoreStability > 0.2
+                ? "Focus on consistent study habits"
+                : "Maintain current study routine",
+              data.quizCount < MIN_QUIZZES_FOR_FULL
+                ? `Complete ${
+                    MIN_QUIZZES_FOR_FULL - data.quizCount
+                  } more quizzes for full analysis`
+                : "Review comprehensive performance data",
+            ],
+          },
+          {
+            area: "Study Habits",
+            details: `Recent trend: ${
+              scoreTrend > 0 ? "Improving" : "Declining"
+            } | Recent average: ${Math.round(recentAverage * 100)}%`,
+            actions: [
+              "Implement structured study schedule",
+              scoreStability > 0.15
+                ? "Focus on consistency in study routine"
+                : "Maintain current study pattern",
+              data.quizCount >= MIN_QUIZZES_FOR_FULL
+                ? "Join study groups for peer support"
+                : "Build foundational study habits",
+            ],
+          },
+        ];
+
+        // Add detailed support suggestions for full analysis
+        if (analysisLevel === "full") {
+          suggestionsList.push({
+            area: "Support Needed",
+            details: "Comprehensive support recommendations",
+            actions: [
+              "Provide supplementary learning materials",
+              "Consider one-on-one tutoring",
+              "Regular progress check-ins",
+            ],
+          });
+        }
+
         suggestions[studentName] = {
-          currentAverage: averageScore,
-          trend: scoreTrend,
-          suggestions: [
-            {
-              area: "Performance",
-              details: `Current average: ${Math.round(averageScore)}%`,
-              actions: [
-                scoreTrend < 0
-                  ? "Schedule immediate review session"
-                  : "Continue with regular check-ins",
-                "Create personalized study plan",
-                "Set up weekly progress tracking",
-              ],
-            },
-            {
-              area: "Study Habits",
-              details: `Recent trend: ${
-                scoreTrend > 0 ? "Improving" : "Declining"
-              }`,
-              actions: [
-                "Implement structured study schedule",
-                "Use active recall techniques",
-                "Join study groups for peer support",
-              ],
-            },
-            {
-              area: "Support Needed",
-              details: "Additional resources recommended",
-              actions: [
-                "Provide supplementary learning materials",
-                "Consider one-on-one tutoring",
-                "Regular progress check-ins",
-              ],
-            },
-          ],
+          currentAverage: Math.round(weightedAverage * 100),
+          trend: Math.round(scoreTrend * 100),
+          stability: Math.round((1 - scoreStability) * 100),
+          analysisLevel,
+          quizzesTaken: data.quizCount,
+          suggestions: suggestionsList,
         };
       }
     });
@@ -930,7 +1105,7 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
     setImprovementSuggestions(suggestions);
   };
 
-  // Add new components to display warnings and suggestions
+  // Updated AtRiskWarnings Component
   const AtRiskWarnings = () => (
     <motion.div
       variants={itemVariants}
@@ -953,23 +1128,35 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
               className={`p-4 rounded-lg border border-red-200 bg-red-50 dark:bg-red-900/20 dark:border-red-800`}
             >
               <div className="flex justify-between items-start">
-                <div>
-                  <h3 className="font-semibold text-red-700 dark:text-red-400">
-                    {student.name}
-                  </h3>
+                <div className="w-full">
+                  <div className="flex justify-between items-center mb-2">
+                    <h3 className="font-semibold text-red-700 dark:text-red-400">
+                      {student.name}
+                    </h3>
+                    <span className="text-sm text-blue-600 dark:text-blue-400 ml-2">
+                      {student.analysisLevel === "full"
+                        ? "Full Analysis"
+                        : "Basic Analysis"}{" "}
+                      ({student.quizzesTaken} quizzes)
+                    </span>
+                  </div>
                   <p className="text-sm text-red-600 dark:text-red-300 mt-1">
                     {student.warning}
                   </p>
-                  <div className="mt-2 flex items-center space-x-4 text-sm">
-                    <span>Average: {Math.round(student.average)}%</span>
-                    <span>Last Score: {Math.round(student.lastScore)}%</span>
+                  <div className="mt-3 flex items-center gap-4 text-sm flex-wrap">
+                    <span className="font-medium">
+                      Average: {student.average}%
+                    </span>
+                    <span>Last Score: {student.lastScore}%</span>
                     <span
                       className={
                         student.trend >= 0 ? "text-green-500" : "text-red-500"
                       }
                     >
-                      {student.trend > 0 ? "↑" : "↓"}{" "}
-                      {Math.abs(Math.round(student.trend))}%
+                      {student.trend > 0 ? "↑" : "↓"} {Math.abs(student.trend)}%
+                    </span>
+                    <span className="text-purple-600 dark:text-purple-400">
+                      Stability: {student.stability}%
                     </span>
                   </div>
                 </div>
@@ -1004,28 +1191,28 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
               initial={{ x: -20, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               transition={{ delay: index * 0.1 }}
-              className="p-4 rounded-lg border border-yellow-200 bg-yellow-50 dark:bg-yellow-900/20 dark:border-yellow-800"
+              className="p-4 rounded-lg border border-gray-200 bg-gray-50"
             >
               <div className="flex justify-between items-start">
                 <div className="space-y-3 w-full">
                   <div className="flex justify-between">
-                    <h3 className="font-semibold text-white dark:text-yellow-400">
+                    <h3 className="font-semibold text-yellow-500">
                       {studentName}
                     </h3>
-                    <span className="text-sm text-white dark:text-yellow-300">
+                    <span className="text-sm text-gray-700">
                       Average: {Math.round(data.currentAverage)}%
                     </span>
                   </div>
                   <div className="space-y-2">
                     {data.suggestions.map((suggestion, idx) => (
                       <div key={idx} className="text-sm">
-                        <h4 className="font-medium text-white dark:text-yellow-400">
+                        <h4 className="font-medium text-yellow-500">
                           {suggestion.area}
                         </h4>
-                        <p className="text-white dark:text-yellow-300 mb-1">
+                        <p className="text-gray-700 mb-1">
                           {suggestion.details}
                         </p>
-                        <ul className="list-disc list-inside text-white dark:text-yellow-300 pl-2">
+                        <ul className="list-disc list-inside text-gray-700 pl-2">
                           {suggestion.actions.map((action, actionIdx) => (
                             <li key={actionIdx} className="text-sm">
                               {action}
@@ -1433,12 +1620,12 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
           <motion.div variants={itemVariants}>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <div className="w-full transition-all duration-300 hover:scale-[1.02]">
-                <div className="shadow-lg hover:shadow-xl rounded-lg">
+                <div className="shadow-lg hover:shadow-xl rounded-lg p-6 bg-white">
                   <QuestionTypeChart />
                 </div>
               </div>
               <div className="w-full transition-all duration-300 hover:scale-[1.02]">
-                <div className="shadow-lg hover:shadow-xl rounded-lg">
+                <div className="shadow-lg hover:shadow-xl rounded-lg p-6 bg-white">
                   <QuestionTypePerformance />
                 </div>
               </div>

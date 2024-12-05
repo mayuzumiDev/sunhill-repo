@@ -85,8 +85,11 @@ const EditQuiz = ({
 
           if (q.question_type === "identification") {
             formattedQuestion.correct_answer =
-              q.choices.find((c) => c.is_correct)?.text || "";
+              q.correct_answer ||
+              q.choices.find((c) => c.is_correct)?.text ||
+              "";
             formattedQuestion.correct_answers = [];
+            formattedQuestion.options = [];
           } else if (q.question_type === "multi") {
             formattedQuestion.correct_answers = q.choices
               .map((c, idx) => (c.is_correct ? idx.toString() : null))
@@ -216,36 +219,53 @@ const EditQuiz = ({
 
   const updateQuestion = async (questionId, questionData) => {
     try {
-      let choices;
+      const baseQuestionData = {
+        quiz: quizId,
+        text: questionData.text,
+        question_type: questionData.question_type,
+      };
 
-      if (questionData.question_type === "identification") {
-        choices = [{ text: questionData.correct_answer, is_correct: true }];
-      } else if (questionData.question_type === "multi") {
-        choices = questionData.options.map((text, index) => ({
-          text,
-          is_correct: questionData.correct_answers.includes(index.toString()),
-        }));
-      } else {
-        // single choice
-        choices = questionData.options.map((text, index) => ({
-          text,
-          is_correct: index.toString() === questionData.correct_answer,
-        }));
+      if (
+        questionData.question_type === "identification" ||
+        questionData.question_type === "true_false"
+      ) {
+        const response = await axiosInstance.put(
+          `/user-teacher/questions/${questionId}/`,
+          {
+            ...baseQuestionData,
+            correct_answer: questionData.correct_answer,
+          }
+        );
+        console.log(
+          `${questionData.question_type} question updated:`,
+          response.data
+        );
+        return response.data.question;
       }
+
+      // Handle single and multiple choice questions
+      const choices =
+        questionData.question_type === "multi"
+          ? questionData.options.map((text, index) => ({
+              text,
+              is_correct: (questionData.correct_answers || []).includes(
+                index.toString()
+              ),
+            }))
+          : questionData.options.map((text, index) => ({
+              text,
+              is_correct: index.toString() === questionData.correct_answer,
+            }));
 
       const response = await axiosInstance.put(
         `/user-teacher/questions/${questionId}/`,
         {
-          quiz: quizId,
-          text: questionData.text,
-          question_type: questionData.question_type,
+          ...baseQuestionData,
           choices: choices,
         }
       );
-
-      if (response.status === 200) {
-        return response.data.question;
-      }
+      console.log("Choice question updated:", response.data);
+      return response.data.question;
     } catch (error) {
       console.error("Error updating question:", error);
       throw error;
@@ -254,42 +274,53 @@ const EditQuiz = ({
 
   const createQuestion = async (questionData) => {
     try {
-      let choices;
+      const baseQuestionData = {
+        quiz: quizId,
+        text: questionData.text,
+        question_type: questionData.question_type,
+      };
 
-      if (questionData.question_type === "identification") {
-        choices = [{ text: questionData.correct_answer, is_correct: true }];
-      } else if (questionData.question_type === "multi") {
-        choices = questionData.options.map((text, index) => ({
-          text,
-          is_correct: questionData.correct_answers.includes(index.toString()),
-        }));
-      } else if (questionData.question_type === "true_false") {
-        choices = []; // No choices needed for true/false
-      } else {
-        // single choice
-        choices = questionData.options.map((text, index) => ({
-          text,
-          is_correct: index.toString() === questionData.correct_answer,
-        }));
+      if (
+        questionData.question_type === "identification" ||
+        questionData.question_type === "true_false"
+      ) {
+        const response = await axiosInstance.post(
+          "/user-teacher/questions/create/",
+          {
+            ...baseQuestionData,
+            correct_answer: questionData.correct_answer,
+          }
+        );
+        console.log(
+          `${questionData.question_type} question created:`,
+          response.data
+        );
+        return response.data.question;
       }
+
+      // Handle single and multiple choice questions
+      const choices =
+        questionData.question_type === "multi"
+          ? questionData.options.map((text, index) => ({
+              text,
+              is_correct: (questionData.correct_answers || []).includes(
+                index.toString()
+              ),
+            }))
+          : questionData.options.map((text, index) => ({
+              text,
+              is_correct: index.toString() === questionData.correct_answer,
+            }));
 
       const response = await axiosInstance.post(
         "/user-teacher/questions/create/",
         {
-          quiz: quizId,
-          text: questionData.text,
-          question_type: questionData.question_type,
+          ...baseQuestionData,
           choices: choices,
-          correct_answer:
-            questionData.question_type === "true_false"
-              ? questionData.correct_answer
-              : undefined,
         }
       );
-
-      if (response.status === 201) {
-        return response.data.question;
-      }
+      console.log("Choice question created:", response.data);
+      return response.data.question;
     } catch (error) {
       console.error("Error creating question:", error);
       throw error;

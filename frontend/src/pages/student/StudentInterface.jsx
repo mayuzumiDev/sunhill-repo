@@ -15,7 +15,7 @@ import {
 } from "../../components/student/dashboard/TodoTiles";
 import DotLoaderSpinner from "../../components/loaders/DotLoaderSpinner";
 import SpaceBG from "../../assets/img/home/space.png";
-import userThree from "../../assets/img/home/unknown.jpg";
+// import userThree from "../../assets/img/home/unknown.jpg";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faBook,
@@ -39,7 +39,7 @@ const StudentDashboard = () => {
 
   const [studentData, setStudentData] = useState({
     name: "Loading...",
-    profilePicture: userThree,
+    profilePicture: null,
     role: "student",
   });
 
@@ -70,7 +70,7 @@ const StudentDashboard = () => {
       setStudentData({
         first_name: data.first_name,
         name: `${data.first_name} ${data.last_name}`.trim() || "Student",
-        profilePicture: data.user_info?.profile_image || userThree,
+        profilePicture: data.user_info?.profile_image || null,
         role: data.role || "student",
         email: data.email,
         branch: data.branch_name,

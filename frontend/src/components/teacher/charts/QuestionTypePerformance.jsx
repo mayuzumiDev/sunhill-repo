@@ -17,7 +17,6 @@ const QuestionTypePerformance = () => {
   const [generatingInsights, setGeneratingInsights] = useState(false);
   const [showInsights, setShowInsights] = useState(false);
 
-
   const questionTypeLabels = {
     single: "Single Choice",
     multi: "Multiple Choice",
@@ -33,6 +32,10 @@ const QuestionTypePerformance = () => {
           "/user-teacher/analytics/question-type-performance/"
         );
 
+        // console.log("Raw API Response:", response.data);
+        // console.log("Labels:", response.data.labels);
+        // console.log("Datasets:", response.data.datasets);
+
         // Transform the data for Highcharts
         const transformedData = {
           categories: response.data.labels.map(
@@ -46,6 +49,8 @@ const QuestionTypePerformance = () => {
             },
           ],
         };
+
+        // console.log("Transformed Data:", transformedData);
 
         setChartData(transformedData);
         setError(null);
@@ -62,23 +67,23 @@ const QuestionTypePerformance = () => {
 
   const options = {
     chart: {
-      type: 'column',
-      height: '400px',
+      type: "column",
+      height: "400px",
     },
     title: {
-      text: 'Performance by Question Type',
+      text: "Performance by Question Type",
     },
     xAxis: {
       categories: chartData.categories,
       title: {
-        text: 'Question Type',
+        text: "Question Type",
       },
     },
     yAxis: {
       min: 0,
       max: 100,
       title: {
-        text: 'Success Rate (%)',
+        text: "Success Rate (%)",
       },
       tickInterval: 25,
     },
@@ -139,7 +144,10 @@ const QuestionTypePerformance = () => {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 flex flex-col" style={{ minHeight: "400px", width: "100%", maxWidth: "600px" }}>
+    <div
+      className="bg-white rounded-lg shadow-md p-6 flex flex-col"
+      style={{ minHeight: "400px", width: "100%", maxWidth: "600px" }}
+    >
       <div className="flex-1" style={{ minHeight: "300px" }}>
         {loading ? (
           <div className="flex items-center justify-center h-full">
@@ -165,7 +173,7 @@ const QuestionTypePerformance = () => {
       {!loading && !error && chartData.categories.length > 0 && (
         <div className="mt-4 border-t pt-4">
           <button
-             onClick={() => {
+            onClick={() => {
               generateInsights();
               setShowInsights(!showInsights);
             }}
@@ -173,7 +181,11 @@ const QuestionTypePerformance = () => {
             className="inline-flex items-center px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded transition-colors disabled:bg-green-400"
           >
             <FontAwesomeIcon icon={faLightbulb} className="mr-2" />
-            {generatingInsights ? "Analyzing..." : showInsights ? "Hide Insights" : "Show Insights"}
+            {generatingInsights
+              ? "Analyzing..."
+              : showInsights
+              ? "Hide Insights"
+              : "Show Insights"}
           </button>
 
           {showInsights && insights && (

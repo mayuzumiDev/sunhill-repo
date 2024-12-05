@@ -80,7 +80,7 @@ const ClassroomActions = ({ onClose, classroomData }) => {
         `/user-teacher/quiz/delete/${quizToDelete}/`
       );
 
-      if (response.status === 204) {
+      if (response.status === 200) {
         await fetchQuizzes();
       }
     } catch (error) {

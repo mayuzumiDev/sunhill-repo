@@ -292,9 +292,11 @@ const createAttendanceChartOptions = (studentData, darkMode) => ({
 
 const ParentDashboard = ({ darkMode }) => {
   const [quizScores, setQuizScores] = useState([]);
+  const [isQuizScoresLoading, setIsQuizScoresLoading] = useState(true);
 
   const fetchQuizScores = async () => {
     try {
+      setIsQuizScoresLoading(true);
       const response = await axiosInstance.get(
         "/api/user-parent/students/scores/"
       );
@@ -306,6 +308,8 @@ const ParentDashboard = ({ darkMode }) => {
       }
     } catch (error) {
       console.error("Error fetching quiz scores:", error);
+    } finally {
+      setIsQuizScoresLoading(false);
     }
   };
 
@@ -642,10 +646,12 @@ const ParentDashboard = ({ darkMode }) => {
                 <QuizScoreDonutChart
                   quizScores={quizScores}
                   darkMode={darkMode}
+                  isLoading={isQuizScoresLoading}
                 />
                 <QuizScoreLineChart
                   quizScores={quizScores}
                   darkMode={darkMode}
+                  isLoading={isQuizScoresLoading}
                 />
               </>
             )}
@@ -671,14 +677,14 @@ const ParentDashboard = ({ darkMode }) => {
           </div>
 
           {/* Insights Card */}
-          <div
+          {/* <div
             className={`rounded-xl shadow-lg p-4 sm:p-6 ${
               darkMode ? "bg-gray-800 bg-opacity-50" : "bg-white"
             }`}
           >
             <h2 className="text-xl font-semibold mb-4">Student Insights</h2>
-            {/* Add your insights components here */}
-          </div>
+            Add your insights components here
+          </div> */}
         </motion.div>
       </motion.div>
     </div>

@@ -10,6 +10,8 @@ import {
   Legend,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
+import DotLoaderSpinner from "../../loaders/DotLoaderSpinner";
+import { FaChartLine } from "react-icons/fa";
 
 ChartJS.register(
   CategoryScale,
@@ -21,7 +23,46 @@ ChartJS.register(
   Legend
 );
 
-const QuizScoreLineChart = ({ quizScores, darkMode }) => {
+const QuizScoreLineChart = ({ quizScores, darkMode, isLoading }) => {
+  if (isLoading) {
+    return (
+      <div
+        className={`p-4 rounded-lg ${
+          darkMode ? "bg-gray-800" : "bg-white"
+        } shadow-md h-64 flex items-center justify-center`}
+      >
+        <DotLoaderSpinner color="rgb(255, 159, 64)" />
+      </div>
+    );
+  }
+
+  if (!quizScores || quizScores.length === 0) {
+    return (
+      <div
+        className={`p-4 rounded-lg ${
+          darkMode ? "bg-gray-800" : "bg-white"
+        } shadow-md h-64 flex items-center justify-center`}
+      >
+        <div className="text-center">
+          <FaChartLine
+            className={`text-4xl mb-3 ${
+              darkMode ? "text-gray-300" : "text-gray-600"
+            }`}
+          />
+          <p
+            className={`text-lg ${
+              darkMode ? "text-gray-300" : "text-gray-600"
+            }`}
+          >
+            Your child hasn't taken any quizzes yet.
+            <br />
+            Check back later to view their progress!
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   // Group scores by month and calculate average
   const groupedScores = quizScores.reduce((acc, score) => {
     const date = new Date(score.created_at);
