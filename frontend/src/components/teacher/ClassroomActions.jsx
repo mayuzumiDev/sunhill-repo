@@ -265,8 +265,13 @@ const ClassroomActions = ({ onClose, classroomData }) => {
     <div className="h-full flex flex-col">
       <div className="flex justify-between items-center mb-4 sm:mb-6 md:mb-8 lg:mb-10">
         <h2 className="text-2xl font-bold text-gray-700">
-          {classroomData.grade_level} - {classroomData.class_section} -{" "}
-          {classroomData.subject_name_display}
+          <span className="text-green-600">
+            {classroomData.subject_name_display}
+          </span>
+          <span className="mx-3 text-gray-600">|</span>
+          <span className="text-gray-600">
+            {classroomData.grade_level} - {classroomData.class_section}
+          </span>
         </h2>
         <button
           onClick={onClose}

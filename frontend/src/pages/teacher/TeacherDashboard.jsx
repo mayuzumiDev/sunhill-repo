@@ -12,7 +12,6 @@ import { axiosInstance } from "../../utils/axiosInstance";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import QuestionTypeChart from "../../components/teacher/charts/QuestonTypeChart";
-import QuestionTypePerformance from "../../components/teacher/charts/QuestionTypePerformance";
 import QuizStatisticsChart from "../../components/teacher/charts/QuizStatisticsChart";
 
 import { motion } from "framer-motion";
@@ -1626,7 +1625,7 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
               </div>
               <div className="w-full transition-all duration-300 hover:scale-[1.02]">
                 <div className="shadow-lg hover:shadow-xl rounded-lg p-6 bg-white">
-                  <QuestionTypePerformance />
+                  TBA
                 </div>
               </div>
             </div>
