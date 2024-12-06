@@ -306,7 +306,7 @@ const LoginModal = ({ isVisible, onClose }) => {
               </a>{" "}
               and{" "}
               <a
-                href="/terms"
+                href="/terms-of-service"
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{ color: theme.palette.primary.main, textDecoration: "underline" }}

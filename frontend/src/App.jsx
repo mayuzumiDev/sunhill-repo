@@ -57,7 +57,9 @@ const App = () => {
       "/create-new-password/": "Create New Password | Sunhill LMS",
       "/password-changed/": "Password Changed | Sunhill LMS",
       "/terms-of-service/": "Terms of Service | Sunhill LMS",
+      "/terms-of-service": "Terms of Service | Sunhill LMS",
       "/privacy-policy/": "Privacy Policy | Sunhill LMS",
+      "/privacy-policy": "Privacy Policy | Sunhill LMS",
     };
 
     document.title = titleMap[path] || "Sunhill LMS"; // Default title if not found

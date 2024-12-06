@@ -41,9 +41,9 @@ const ClassroomCard = ({ classroomData, onSelect }) => {
           }}
         ></div>
 
-        <div className="relative z-10 flex flex-col h-full">
+        <div className="relative z-10 flex flex-col ml-3 h-full">
           <div className="flex-grow">
-            <h2 className="font-bold text-2xl md:text-3xl text-white mb-4">
+            <h2 className="font-bold text-xl md:text-3xl text-white mb-4">
               {`${classroomData.grade_level} - ${classroomData.class_section}`}
             </h2>
 

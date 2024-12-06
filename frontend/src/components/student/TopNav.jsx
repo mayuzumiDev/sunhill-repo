@@ -8,8 +8,8 @@ import {
   FaEdit,
   FaUserCircle,
 } from "react-icons/fa";
-import SunhillLogo from "../../assets/img/home/sunhill.jpg";
-import userThree from "../../assets/img/home/unknown.jpg";
+// import SunhillLogo from "../../assets/img/home/sunhill.jpg";
+// import userThree from "../../assets/img/home/unknown.jpg";
 import "./student.css";
 import StudentSettings from "../../pages/student/StudentSettings";
 import Logout from "./Logout";
@@ -51,7 +51,7 @@ const TopNav = ({ studentData, onLogout, onProfileUpdate }) => {
             alt="Sunhill LMS Logo"
             className="w-6 h-6 sm:w-8 sm:h-8 lg:w-10 lg:h-10 mr-2 rounded-full shadow-lg hover:scale-110 transition-transform duration-200"
           /> */}
-          <div className="relative font-arial font-bold text-[20px] sm:text-[25px] flex justify-center gap-[3px]">
+          <div className="relative font-arial font-bold text-[20px] sm:text-[25px] flex ml-1 sm:ml-5 justify-center gap-[3px]">
             {["S", "u", "n", "h", "i", "l", "l"].map((letter, index) => (
               <span
                 key={index}
@@ -87,13 +87,14 @@ const TopNav = ({ studentData, onLogout, onProfileUpdate }) => {
         </div>
 
         {/* Student Profile and Notifications */}
-        <div className="flex items-center">
+        <div className="flex items-center ">
           {/* Notification Button */}
+          <div className="mr-3">
           <NotificationButton
             userRole={studentData?.role}
             userBranch={studentData?.branch}
           />
-
+          </div>
           {/* Student Info */}
           <div className="hidden sm:block text-white text-right mr-2 lg:mr-3">
             <p className="text-sm lg:text-base font-semibold">
@@ -114,7 +115,7 @@ const TopNav = ({ studentData, onLogout, onProfileUpdate }) => {
           <Menu as="div" className="relative">
             {({ open }) => (
               <>
-                <Menu.Button className="flex items-center space-x-1 lg:space-x-2 bg-white rounded-full p-1 hover:bg-yellow-300 transition-all duration-200">
+                <Menu.Button className="flex items-center space-x-1 lg:space-x-2 bg-white rounded-full p-1 hover:bg-yellow-300 mr-1 sm:m5-5 transition-all duration-200">
                   {studentData?.profilePicture !== null ? (
                     <img
                       src={studentData?.profilePicture}

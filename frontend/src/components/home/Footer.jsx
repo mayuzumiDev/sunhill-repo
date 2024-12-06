@@ -145,7 +145,7 @@ useEffect(() => {
                   <FontAwesomeIcon icon={faEnvelope} className="text-orange-500" />
                   <span>smcbatangascity@sunhilledu.com</span>
                 </motion.a>
-                <Zoom>
+                {/* <Zoom>
                   <div className="flex items-center gap-2 text-sm bg-gray-700 p-3 rounded-lg shadow-lg mt-2">
                     <FontAwesomeIcon icon={faUsers} className="text-orange-500" />
                     <span className="font-semibold">Today's Visitors:</span>
@@ -160,7 +160,7 @@ useEffect(() => {
                       {totalVisitors}
                     </span>
                   </div>
-                </Zoom>
+                </Zoom> */}
               </div>
             </div>
 

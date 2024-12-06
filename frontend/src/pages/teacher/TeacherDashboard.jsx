@@ -1442,7 +1442,7 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
                       }}
                       transition={{ type: "spring", damping: 20 }}
                       className={`absolute top-0 right-0 w-full sm:w-80 h-full p-4 bg-white dark:bg-gray-800 
-                        rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 text-white overflow-y-auto`}
+                        rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 text-gray-500 overflow-y-auto`}
                     >
                       {(() => {
                         const rec = getCompletionRateRecommendation(
@@ -1551,7 +1551,7 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
                       }}
                       transition={{ type: "spring", damping: 20 }}
                       className={`absolute top-0 right-0 w-full sm:w-80 h-full p-4 bg-white dark:bg-gray-800 
-                        rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 text-white overflow-y-auto`}
+                        rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 text-gray-500 overflow-y-auto`}
                     >
                       {(() => {
                         const rec = getPerformanceRecommendation(

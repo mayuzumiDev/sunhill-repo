@@ -156,19 +156,74 @@ const ProgramsSection = () => {
                       backgroundColor: isDarkMode ? "#333" : "#fff",
                       textAlign: "center",
                       transition: "transform 0.3s ease-in-out",
+                      "&:hover": {
+                        transform: "scale(1.05)", // Add hover effect
+                      },
                     }}
                   >
-                    {/* <img
-                      src={program.image}
-                      alt={program.level}
-                      style={{
-                        width: "100%",
-                        height: "auto",
-                        objectFit: "cover",
-                        borderRadius: "8px",
-                        marginBottom: "16px",
-                      }}
-                    /> */}
+                    {/* Unique SVG for each program */}
+                    {program.level === "Lego Education Robotics" && (
+                      <svg
+                        width="100%"
+                        height="auto"
+                        viewBox="0 0 100 100"
+                        style={{ marginBottom: "16px" }}
+                      >
+                        <rect width="100" height="100" fill="#ffcc00" />
+                        <polygon points="50,15 90,85 10,85" fill="#ff7043" />
+                      </svg>
+                    )}
+                    {program.level === "English Computerized Learning Program (ECLP)" && (
+                      <svg
+                        width="100%"
+                        height="auto"
+                        viewBox="0 0 100 100"
+                        style={{ marginBottom: "16px" }}
+                      >
+                        <circle cx="50" cy="50" r="40" fill="#4caf50" />
+                        {/* <text x="50%" y="50%" textAnchor="middle" fill="#fff" fontSize="20">
+                          ECLP
+                        </text> */}
+                      </svg>
+                    )}
+                    {program.level === "Reading Comprehension Program" && (
+                      <svg
+                        width="100%"
+                        height="auto"
+                        viewBox="0 0 100 100"
+                        style={{ marginBottom: "16px" }}
+                      >
+                        <path d="M10 10 H 90 V 90 H 10 Z" fill="#2196f3" />
+                        {/* <text x="50%" y="50%" textAnchor="middle" fill="#fff" fontSize="20">
+                          Read
+                        </text> */}
+                      </svg>
+                    )}
+                    {program.level === "Faithbook" && (
+                      <svg
+                        width="100%"
+                        height="auto"
+                        viewBox="0 0 100 100"
+                        style={{ marginBottom: "16px" }}
+                      >
+                        <ellipse cx="50" cy="50" rx="40" ry="20" fill="#9c27b0" />
+                        {/* <text x="50%" y="50%" textAnchor="middle" fill="#fff" fontSize="20">
+                          Faith
+                        </text> */}
+                      </svg>
+                    )}
+                    {program.level === "Abacus Mental Math" && (
+                      <svg
+                        width="100%"
+                        height="auto"
+                        viewBox="0 0 100 100"
+                        style={{ marginBottom: "16px" }}
+                      >
+                        <line x1="10" y1="50" x2="90" y2="50" stroke="#ff9800" strokeWidth="10" />
+                        <circle cx="20" cy="50" r="5" fill="#ff5722" />
+                        <circle cx="80" cy="50" r="5" fill="#ff5722" />
+                      </svg>
+                    )}
                     <Typography variant="h5" component="h3" gutterBottom>
                       {program.level}
                     </Typography>

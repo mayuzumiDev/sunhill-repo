@@ -203,7 +203,7 @@ const StudentDashboard = () => {
                           <div className="absolute -left-4 -bottom-4 w-16 h-16 bg-white rounded-full opacity-10" />
 
                           <h2 className="text-2xl font-bold text-white mb-2 relative">
-                            My To Do List
+                            My To-Do List
                           </h2>
                           <p className="text-purple-100 text-sm relative">
                             Keep track of your learning journey!
@@ -355,21 +355,20 @@ const StudentDashboard = () => {
                     )}
                   </div>
                 )}
-
+             
                 {showQuizzes && (
-                  <div className="bg-white p-6 rounded-lg shadow-lg overflow-hidden scrollbar-hide lg:max-w-[1000px] xl:max-w-[1200px] mx-auto">
-                    <h2 className="text-3xl font-bold text-purple-800 mb-4">
+                  <div className="bg-white p-4 sm:p-6 rounded-lg shadow-lg overflow-hidden scrollbar-hide lg:max-w-[1000px] xl:max-w-[1200px] mx-auto">
+                    <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-purple-800 mb-4 truncate">
                       {selectedQuiz ? selectedQuiz.title : "Your Quiz Journey"}
                     </h2>
                     {!selectedQuiz && (
-                      <p className="text-gray-600 text-lg mb-6">
-                        Here you can see all your quizzes - both the ones you
-                        need to take and the ones you've completed!
+                      <p className="text-gray-600 text-sm sm:text-base lg:text-lg mb-6">
+                        Here you can see all your quizzes - both the ones you need to take and the ones you've completed!
                       </p>
                     )}
-                    <div className="flex flex-col space-y-2 px-4 overflow-hidden scrollbar-hide">
+                    <div className="flex flex-col space-y-2 px-2 sm:px-4 overflow-hidden scrollbar-hide">
                       {isLoadingQuizzes ? (
-                        <div className="col-span-3 flex justify-center items-center min-h-[300px]">
+                        <div className="col-span-3 flex justify-center items-center min-h-[200px] sm:min-h-[300px]">
                           <DotLoaderSpinner color="#6B21A8" />
                         </div>
                       ) : selectedQuiz ? (
@@ -409,14 +408,14 @@ const StudentDashboard = () => {
                             ))}
 
                           {/* Pagination Controls */}
-                          <div className="mt-8 border-t border-purple-200"></div>
-                          <div className="flex justify-center items-center space-x-4 mt-8 mb-6">
+                          <div className="mt-6 sm:mt-8 border-t border-purple-200"></div>
+                          <div className="flex justify-between sm:justify-center items-center space-x-4 mt-6 sm:mt-8 mb-4 sm:mb-6">
                             <button
                               onClick={() =>
                                 setCurrentPage((prev) => Math.max(1, prev - 1))
                               }
                               disabled={currentPage === 1}
-                              className={`px-4 py-2 rounded-md transition-all duration-300 ${
+                              className={`px-3 py-1 sm:px-4 sm:py-2 rounded-md text-sm sm:text-base transition-all duration-300 ${
                                 currentPage === 1
                                   ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                                   : "bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:shadow-lg transform hover:scale-105"
@@ -424,7 +423,7 @@ const StudentDashboard = () => {
                             >
                               Previous
                             </button>
-                            <span className="text-gray-600 font-medium">
+                            <span className="text-gray-600 text-sm sm:text-base font-medium">
                               Page {currentPage} of{" "}
                               {Math.ceil(quizzes.length / itemsPerPage)}
                             </span>
@@ -438,12 +437,10 @@ const StudentDashboard = () => {
                                 )
                               }
                               disabled={
-                                currentPage >=
-                                Math.ceil(quizzes.length / itemsPerPage)
+                                currentPage >= Math.ceil(quizzes.length / itemsPerPage)
                               }
-                              className={`px-4 py-2 rounded-md transition-all duration-300 ${
-                                currentPage >=
-                                Math.ceil(quizzes.length / itemsPerPage)
+                              className={`px-3 py-1 sm:px-4 sm:py-2 rounded-md text-sm sm:text-base transition-all duration-300 ${
+                                currentPage >= Math.ceil(quizzes.length / itemsPerPage)
                                   ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                                   : "bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:shadow-lg transform hover:scale-105"
                               }`}
@@ -454,18 +451,18 @@ const StudentDashboard = () => {
                         </>
                       ) : (
                         <>
-                          <p className="text-gray-500 col-span-3 text-center">
+                          <p className="text-gray-500 text-center text-sm sm:text-base">
                             No Quizzes Right Now!
                           </p>
-                          <p className="text-gray-600 col-span-3 text-center">
-                            Time to take a break and come back later for some
-                            fun quiz challenges!
+                          <p className="text-gray-600 text-center text-sm sm:text-base">
+                            Time to take a break and come back later for some fun quiz challenges!
                           </p>
                         </>
                       )}
                     </div>
                   </div>
                 )}
+
               </div>
             )}
           </div>
