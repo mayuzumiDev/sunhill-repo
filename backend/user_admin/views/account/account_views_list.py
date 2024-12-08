@@ -62,10 +62,13 @@ class StudentListView(generics.ListAPIView):
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['id', 'first_name', 'last_name']
     ordering_fields = ['date_joined', 'first_name']
-    filterset_fields = ['branch_name']
+    filterset_fields = ['branch_name',]
 
     def get_queryset(self):
-        queryset = CustomUser.objects.filter(role='student')
+        queryset = CustomUser.objects.select_related(
+            'user_info',
+            'user_info__student_info'
+        ).filter(role='student')
 
         params = {
             'ordering': self.request.query_params.get('ordering'),
@@ -74,7 +77,28 @@ class StudentListView(generics.ListAPIView):
         }
 
         queryset = filter_queryset(queryset, params)
-        return queryset
+
+        # Handle grade level filtering separately
+        grade_level = self.request.query_params.get('grade_level')
+        if grade_level:
+             queryset = queryset.filter(user_info__student_info__grade_level=grade_level)
+
+        # Handle special needs filtering
+        has_special_needs = self.request.query_params.get('has_special_needs')
+        if has_special_needs is not None:
+            has_special_needs = has_special_needs.lower() == 'true'
+            queryset = queryset.filter(user_info__student_info__has_special_needs=has_special_needs)
+
+        return queryset.only(
+            'id', 
+            'first_name', 
+            'last_name',
+            'email',
+            'date_joined',
+            'user_info__student_info__grade_level',
+            'user_info__student_info__has_special_needs',
+            'branch_name'
+        )
     
     def list(self, request):
         queryset = self.filter_queryset(self.get_queryset())
