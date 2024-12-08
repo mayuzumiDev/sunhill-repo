@@ -45,10 +45,49 @@ class StudentInfoEditView(generics.UpdateAPIView):
     queryset = StudentInfo.objects.all()
     http_method_names = ['patch']
 
-    def partial_update(self, request,  pk=None, *args, **kwargs):
-        response = super().partial_update(request, pk, *args, **kwargs)
-
-        return JsonResponse ({'message': 'Student Info updated successfully.'}, status=status.HTTP_200_OK)
+    def partial_update(self, request, pk=None, *args, **kwargs):
+        # print("\n" + "="*50)
+        # print("DEBUGGING STUDENT INFO UPDATE")
+        # print("="*50)
+        # print(f"REQUEST DATA: {request.data}")
+        # print(f"has_special_needs type: {type(request.data.get('has_special_needs'))}")
+        # print(f"has_special_needs value: {request.data.get('has_special_needs')}")
+        
+        instance = self.get_object()
+        # print(f"\nBEFORE UPDATE:")
+        # print(f"has_special_needs: {instance.has_special_needs}")
+        # print(f"special_needs_details: {instance.special_needs_details}")
+        
+        # Explicitly handle the boolean conversion
+        if 'has_special_needs' in request.data:
+            has_special_needs = request.data['has_special_needs']
+            if isinstance(has_special_needs, str):
+                has_special_needs = has_special_needs.lower() == 'true'
+            instance.has_special_needs = bool(has_special_needs)
+            
+        if 'special_needs_details' in request.data:
+            instance.special_needs_details = request.data['special_needs_details']
+            
+        if 'grade_level' in request.data:
+            instance.grade_level = request.data['grade_level']
+            
+        instance.save()
+        
+        # Verify the update
+        updated_instance = StudentInfo.objects.get(pk=pk)
+        # print(f"\nAFTER UPDATE:")
+        # print(f"has_special_needs: {updated_instance.has_special_needs}")
+        # print(f"special_needs_details: {updated_instance.special_needs_details}")
+        # print("="*50 + "\n")
+        
+        return JsonResponse({
+            'message': 'Student Info updated successfully.',
+            'updated_data': {
+                'has_special_needs': updated_instance.has_special_needs,
+                'special_needs_details': updated_instance.special_needs_details,
+                'grade_level': updated_instance.grade_level
+            }
+        }, status=status.HTTP_200_OK)
     
 class ParentInfoEditView(generics.UpdateAPIView):
     permission_classes = [IsAuthenticated]

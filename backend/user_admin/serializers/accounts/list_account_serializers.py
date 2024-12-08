@@ -2,6 +2,10 @@ from rest_framework import serializers
 from api.models import CustomUser
 from ...models.account_models import *
 
+import logging
+
+# logger = logging.getLogger(__name__)
+
 class TeacherListSerializer(serializers.ModelSerializer):
     user_info = serializers.SerializerMethodField()
     teacher_info = serializers.SerializerMethodField()
@@ -37,12 +41,22 @@ class StudentListSerializer(serializers.ModelSerializer):
         }
     
     def get_student_info(self, instance):
-        user_info = instance.user_info
-        student_info = user_info.student_info
-        return {
-            'id': user_info.student_info.id,
-            'grade_level': student_info.grade_level,
-        }
+        # logger.info("Starting get_student_info method")
+        try:
+            user_info = instance.user_info
+            student_info = user_info.student_info
+            # logger.info(f"Student Info: ID={student_info.id}, Grade={student_info.grade_level}, Has Special Needs={student_info.has_special_needs}, Details={student_info.special_needs_details}")
+            data = {
+                'id': student_info.id,
+                'grade_level': student_info.grade_level,
+                'has_special_needs': student_info.has_special_needs,
+                'special_needs_details': student_info.special_needs_details
+            }
+            # logger.info(f"Returning data: {data}")
+            return data
+        except Exception as e:
+            # logger.error(f"Error in get_student_info: {str(e)}")
+            raise
 
     class Meta:
         model = CustomUser

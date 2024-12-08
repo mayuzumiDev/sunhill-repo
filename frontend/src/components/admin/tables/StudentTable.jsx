@@ -74,7 +74,15 @@ const StudentTable = ({
       contact_no,
       grade_level,
       branch_name,
+      has_special_needs,
+      special_needs_details,
     } = studentData;
+
+    console.log("Processing student data:", {
+      has_special_needs,
+      type: typeof has_special_needs,
+      special_needs_details,
+    });
 
     try {
       setIsLoading(true);
@@ -98,9 +106,17 @@ const StudentTable = ({
           `/user-admin/student-info/edit/${student_info_id}/`,
           {
             grade_level: grade_level,
+            has_special_needs: Boolean(has_special_needs), // Ensure it's a boolean
+            special_needs_details: special_needs_details || "",
           }
         ),
       ]);
+
+      console.log("API Responses:", {
+        customUser: customUserDataResponse.data,
+        userInfo: userInfoDataResponse.data,
+        studentInfo: studentInfoDataResponse.data,
+      });
 
       // Check if both API responses are successful
       if (
@@ -108,10 +124,10 @@ const StudentTable = ({
         userInfoDataResponse.status === 200 &&
         studentInfoDataResponse.status === 200
       ) {
+        await fetchData();
         setIsLoading(false);
         setIsEditing(false);
         setSuccessAlert(true);
-        fetchData();
       }
     } catch (error) {
       console.error("An occured while saving the data.", error);
@@ -148,6 +164,12 @@ const StudentTable = ({
                 </th>
                 <th className="py-4 px-4 text-center font-bold text-gray-600 border-r border-gray-300">
                   Grade Level
+                </th>
+                <th className="py-4 px-4 text-center font-bold text-gray-600 border-r border-gray-300">
+                  Special Needs
+                </th>
+                <th className="py-4 px-4 text-center font-bold text-gray-600 border-r border-gray-300">
+                  Special Needs Details
                 </th>
                 <th className="py-4 px-4 text-center font-bold text-gray-600">
                   Branch
@@ -190,6 +212,12 @@ const StudentTable = ({
                   </td>
                   <td className="py-3 px-4 text-center text-gray-700 font-medium">
                     {student_list.student_info.grade_level || "-"}
+                  </td>
+                  <td className="py-3 px-4 text-center text-gray-700 font-medium">
+                    {student_list.student_info.has_special_needs ? "Yes" : "No"}
+                  </td>
+                  <td className="py-3 px-4 text-center text-gray-700 font-medium">
+                    {student_list.student_info.special_needs_details || "-"}
                   </td>
                   <td className="py-3 px-4 text-center text-gray-700 font-medium">
                     {student_list.branch_name || "-"}

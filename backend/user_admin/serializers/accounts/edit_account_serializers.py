@@ -19,9 +19,16 @@ class TeacherInfoEditSerializer(serializers.ModelSerializer):
         fields = ['id', 'staff_position']
 
 class StudentInfoEditSerializer(serializers.ModelSerializer):
+    has_special_needs = serializers.BooleanField(required=False)
+    special_needs_details = serializers.CharField(required=False, allow_blank=True)
+    
     class Meta:
         model = StudentInfo
-        fields = ['id', 'grade_level']
+        fields = ['id', 'grade_level', 'has_special_needs', 'special_needs_details']
+
+    def update(self, instance, validated_data):
+        print(f"Updating with data: {validated_data}")  # Log the data being used for update
+        return super().update(instance, validated_data)
 
 class ParentInfoEditSerializer(serializers.ModelSerializer):
     student_info = serializers.PrimaryKeyRelatedField(many=True, queryset=StudentInfo.objects.all())
