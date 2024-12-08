@@ -120,7 +120,7 @@ const AddStudentModal = ({ isOpen, onClose, onAdd }) => {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg w-full max-w-2xl shadow-xl transform transition-all">
+      <div className="bg-white rounded-lg w-full max-w-[90rem] shadow-xl transform transition-all">
         <div className="bg-gradient-to-r from-green-700 to-green-400 p-6 rounded-t-lg flex justify-between items-center">
           <h2 className="text-2xl font-bold text-white">
             Add Students to Classroom
@@ -296,6 +296,12 @@ const AddStudentModal = ({ isOpen, onClose, onAdd }) => {
                     <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
                       Branch
                     </th>
+                    <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                      Has Special Needs
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                      Special Needs Details
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -314,6 +320,12 @@ const AddStudentModal = ({ isOpen, onClose, onAdd }) => {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="inline-block h-4 w-16 bg-gray-400/30 animate-pulse rounded"></div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="inline-block h-4 w-4 bg-gray-400/30 animate-pulse rounded"></div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="inline-block h-4 w-40 bg-gray-400/30 animate-pulse rounded"></div>
                           </td>
                         </tr>
                       ))}
@@ -350,6 +362,14 @@ const AddStudentModal = ({ isOpen, onClose, onAdd }) => {
                           />
                         </td>
                         <td className="px-6 py-4">{getFullName(student)}</td>
+                        <td className="px-6 py-4">
+                          {student.student_info.has_special_needs
+                            ? "Yes"
+                            : "No"}
+                        </td>
+                        <td className="px-6 py-4">
+                          {student.student_info.special_needs_details || "-"}
+                        </td>
                         <td className="px-6 py-4">
                           {student.student_info.grade_level}
                         </td>

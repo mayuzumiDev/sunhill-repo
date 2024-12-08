@@ -53,6 +53,7 @@ const Student = () => {
   const [filters, setFilters] = useState({
     branch: "",
     grade: "",
+    specialNeeds: "",
   });
   const [orderBy, setOrderBy] = useState("");
   const [selectedStudents, setSelectedStudents] = useState("");
@@ -207,6 +208,9 @@ const Student = () => {
         ...(searchTerm && { search: searchTerm }),
         ...(filters.branch && { branch_name: filters.branch }),
         ...(filters.grade && { grade_level: filters.grade }),
+        ...(filters.specialNeeds !== "" && {
+          has_special_needs: filters.specialNeeds,
+        }),
         ...(orderBy && { ordering: orderBy }),
       };
 
@@ -396,6 +400,18 @@ const Student = () => {
             onSelect={handleFilterChange}
             resetSelection={resetSelection}
             filterType={"grade"}
+          />
+          <SortBox
+            options={["Yes", "No"]}
+            label="Special Needs"
+            onSelect={(_, value) =>
+              handleFilterChange(
+                "specialNeeds",
+                value === "Yes" ? "true" : "false"
+              )
+            }
+            resetSelection={resetSelection}
+            filterType={"specialNeeds"}
           />
           <SortBox
             options={["Newest", "Oldest", "A-Z", "Z-A"]}

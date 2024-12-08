@@ -177,7 +177,13 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
               params: { classroom_id: classroom.id },
             }
           );
-          totalStudents += studentsResponse.data.classroom_student_list.length;
+          const classroomStudents =
+            studentsResponse.data.classroom_student_list.length;
+          totalStudents += classroomStudents;
+          console.log(
+            `Classroom ${classroom.id} - Students:`,
+            classroomStudents
+          );
 
           // Get materials
           const materialsResponse = await axiosInstance.get(
@@ -186,7 +192,13 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
               params: { classroom: classroom.id },
             }
           );
-          totalMaterials += materialsResponse.data.materials_list.length;
+          const classroomMaterials =
+            materialsResponse.data.materials_list.length;
+          totalMaterials += classroomMaterials;
+          console.log(
+            `Classroom ${classroom.id} - Materials:`,
+            classroomMaterials
+          );
 
           // Get quizzes
           const quizzesResponse = await axiosInstance.get(
@@ -201,6 +213,13 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
           totalMaterials: totalMaterials,
           upcomingQuizzes: totalQuizzes,
         });
+
+        console.log(
+          "Final counts - Total Students:",
+          totalStudents,
+          "Total Materials:",
+          totalMaterials
+        );
       } catch (error) {
         console.error("Error fetching classroom metrics:", error);
         console.error("Error details:", {
@@ -447,29 +466,45 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
           : 0;
       insights.push({
         title: "Class Progress",
-        metric: `${
-          Math.round(materialsPerStudent * 100) / 100
-        } materials/student`,
-        trend: materialsPerStudent > 0.05 ? "up" : "warning",
-        recommendation:
-          materialsPerStudent < 2
-            ? "Consider adding more learning materials"
-            : "Good material distribution",
+        metric: metricsLoading ? (
+          <div className="animate-pulse h-4 w-24 bg-gray-200 rounded"></div>
+        ) : (
+          `${Math.round(materialsPerStudent * 100) / 100} materials/student`
+        ),
+        trend: metricsLoading ? (
+          <div className="animate-pulse h-4 w-16 bg-gray-200 rounded"></div>
+        ) : materialsPerStudent > 0.05 ? (
+          "up"
+        ) : (
+          "warning"
+        ),
+        recommendation: metricsLoading ? (
+          <div className="animate-pulse h-4 w-48 bg-gray-200 rounded"></div>
+        ) : materialsPerStudent < 2 ? (
+          "Consider adding more learning materials"
+        ) : (
+          "Good material distribution"
+        ),
         icon: (
           <div className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10">
             <IoStatsChart
               className={`w-6 h-6 sm:w-8 sm:h-8 ${
-                materialsPerStudent > 2 ? "text-blue-500" : "text-yellow-500"
+                metricsLoading
+                  ? "text-gray-200"
+                  : materialsPerStudent > 2
+                  ? "text-blue-500"
+                  : "text-yellow-500"
               }`}
             />
           </div>
         ),
-        priority:
-          materialsPerStudent < 0.02
-            ? "high"
-            : materialsPerStudent < 0.05
-            ? "medium"
-            : "low",
+        priority: metricsLoading
+          ? ""
+          : materialsPerStudent < 0.02
+          ? "high"
+          : materialsPerStudent < 0.05
+          ? "medium"
+          : "low",
       });
 
       setTeacherInsights(insights);

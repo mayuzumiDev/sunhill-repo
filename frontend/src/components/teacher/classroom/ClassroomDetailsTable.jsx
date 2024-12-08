@@ -100,13 +100,25 @@ const ClassroomDetailsTable = ({ classroom }) => {
               </th>
               <th
                 scope="col"
-                className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-b-2 border-green-500/20"
+                className="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider border-b-2 border-green-500/20"
               >
                 Name
               </th>
               <th
                 scope="col"
-                className="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider w-20 border-b-2 border-green-500/20"
+                className="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider border-b-2 border-green-500/20"
+              >
+                Special Needs
+              </th>
+              <th
+                scope="col"
+                className="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider border-b-2 border-green-500/20"
+              >
+                Details
+              </th>
+              <th
+                scope="col"
+                className="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider w-20 border-b-2 border-green-500/20"
               ></th>
             </tr>
           </thead>
@@ -120,6 +132,12 @@ const ClassroomDetailsTable = ({ classroom }) => {
                     </td>
                     <td className="px-6 py-4">
                       <div className="h-4 bg-green-100 rounded w-48"></div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="h-4 bg-green-100 rounded w-24 mx-auto"></div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="h-4 bg-green-100 rounded w-32"></div>
                     </td>
                     <td className="px-6 py-4">
                       <div className="h-4 bg-green-100 rounded w-16 ml-auto"></div>
@@ -145,13 +163,29 @@ const ClassroomDetailsTable = ({ classroom }) => {
                   className="hover:bg-green-50 transition-colors"
                 >
                   <td className="px-6 py-4 whitespace-nowrap text-center">
-                    <span className="text-sm font-medium text-gray-900">
+                    <span className="text-sm font-medium text-gray-900 items-center">
                       {student.student.id}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="text-sm font-medium text-gray-900">
+                    <span className="text-sm font-medium text-gray-900 items-center">
                       {student.student.first_name} {student.student.last_name}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-center">
+                    <span
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        student.student.has_special_needs
+                          ? "bg-yellow-100 text-yellow-800"
+                          : "bg-gray-100 text-gray-800"
+                      }`}
+                    >
+                      {student.student.has_special_needs ? "Yes" : "No"}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-center">
+                    <span className="text-sm text-gray-500">
+                      {student.student.special_needs_details || "-"}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right">
