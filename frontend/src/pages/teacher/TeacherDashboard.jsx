@@ -203,6 +203,10 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
         });
       } catch (error) {
         console.error("Error fetching classroom metrics:", error);
+        console.error("Error details:", {
+          message: error.message,
+          response: error.response?.data,
+        });
       } finally {
         setMetricsLoading(false);
       }
@@ -444,9 +448,9 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
       insights.push({
         title: "Class Progress",
         metric: `${
-          Math.round(materialsPerStudent * 10) / 10
+          Math.round(materialsPerStudent * 100) / 100
         } materials/student`,
-        trend: materialsPerStudent > 2 ? "up" : "warning",
+        trend: materialsPerStudent > 0.05 ? "up" : "warning",
         recommendation:
           materialsPerStudent < 2
             ? "Consider adding more learning materials"
@@ -461,9 +465,9 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
           </div>
         ),
         priority:
-          materialsPerStudent < 1
+          materialsPerStudent < 0.02
             ? "high"
-            : materialsPerStudent < 2
+            : materialsPerStudent < 0.05
             ? "medium"
             : "low",
       });
@@ -1623,11 +1627,11 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
                   <QuestionTypeChart />
                 </div>
               </div>
-              <div className="w-full transition-all duration-300 hover:scale-[1.02]">
+              {/* <div className="w-full transition-all duration-300 hover:scale-[1.02]">
                 <div className="shadow-lg hover:shadow-xl rounded-lg p-6 bg-white">
                   TBA
                 </div>
-              </div>
+              </div> */}
             </div>
           </motion.div>
 
