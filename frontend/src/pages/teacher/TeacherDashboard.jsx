@@ -18,6 +18,7 @@ import { motion } from "framer-motion";
 import { IoStatsChart, IoTrendingUp } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import DotLoaderSpinner from "../../components/loaders/DotLoaderSpinner";
+import QuizTimeAnalytics from "../../components/teacher/charts/QuizTimeChart";
 
 const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
   const [greeting, setGreeting] = useState("");
@@ -180,10 +181,10 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
           const classroomStudents =
             studentsResponse.data.classroom_student_list.length;
           totalStudents += classroomStudents;
-          console.log(
-            `Classroom ${classroom.id} - Students:`,
-            classroomStudents
-          );
+          // console.log(
+          //   `Classroom ${classroom.id} - Students:`,
+          //   classroomStudents
+          // );
 
           // Get materials
           const materialsResponse = await axiosInstance.get(
@@ -195,10 +196,10 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
           const classroomMaterials =
             materialsResponse.data.materials_list.length;
           totalMaterials += classroomMaterials;
-          console.log(
-            `Classroom ${classroom.id} - Materials:`,
-            classroomMaterials
-          );
+          // console.log(
+          //   `Classroom ${classroom.id} - Materials:`,
+          //   classroomMaterials
+          // );
 
           // Get quizzes
           const quizzesResponse = await axiosInstance.get(
@@ -214,12 +215,12 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
           upcomingQuizzes: totalQuizzes,
         });
 
-        console.log(
-          "Final counts - Total Students:",
-          totalStudents,
-          "Total Materials:",
-          totalMaterials
-        );
+        // console.log(
+        //   "Final counts - Total Students:",
+        //   totalStudents,
+        //   "Total Materials:",
+        //   totalMaterials
+        // );
       } catch (error) {
         console.error("Error fetching classroom metrics:", error);
         console.error("Error details:", {
@@ -1662,11 +1663,19 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
                   <QuestionTypeChart />
                 </div>
               </div>
-              {/* <div className="w-full transition-all duration-300 hover:scale-[1.02]">
+              <div className="w-full transition-all duration-300 hover:scale-[1.02]">
                 <div className="shadow-lg hover:shadow-xl rounded-lg p-6 bg-white">
                   TBA
                 </div>
-              </div> */}
+              </div>
+            </div>
+          </motion.div>
+
+          <motion.div variants={itemVariants} className="mt-4">
+            <div className="w-full transition-all duration-300 hover:scale-[1.02]">
+              <div className="shadow-lg hover:shadow-xl rounded-lg p-6 bg-white">
+                <QuizTimeAnalytics isTestMode={false} />
+              </div>
             </div>
           </motion.div>
 

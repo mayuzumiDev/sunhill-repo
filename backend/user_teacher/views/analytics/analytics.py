@@ -7,6 +7,9 @@ from rest_framework import status
 from user_teacher.models.quizzes_models import *
 from django.db.models import Q
 from rest_framework.permissions import IsAuthenticated
+from django.db.models.functions import TruncDate
+from rest_framework.viewsets import ViewSet
+from rest_framework.response import Response
 
 import logging
 logger = logging.getLogger(__name__)
@@ -214,3 +217,22 @@ class QuizPassFailRatioView(APIView):
             return JsonResponse(quiz_statistics, safe=False)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
+
+
+class QuizTimeAnalyticsView(ViewSet):
+    def list(self, request):
+        quiz_id = request.query_params.get('quiz_id')
+        quiz = Quiz.objects.get(id=quiz_id)
+        
+        # Get submission patterns
+        submissions = StudentResponse.objects.filter(quiz=quiz)\
+            .annotate(submission_date=TruncDate('submitted_at'))\
+            .values('submission_date')\
+            .annotate(submission_count=Count('id'))\
+            .order_by('submission_date')
+        
+        return Response({
+            'quiz_title': quiz.title,
+            'due_date': quiz.due_date,
+            'submissions': submissions
+        })
