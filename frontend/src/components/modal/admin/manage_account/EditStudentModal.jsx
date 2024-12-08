@@ -12,17 +12,28 @@ function EditStudentModal({ isOpen, onClose, onSave, userData, userRole }) {
     contact_no: userData.user_info.contact_no || "",
     branch_name: userData.branch_name || "",
     grade_level: userData.student_info.grade_level || "",
+    has_special_needs: userData.student_info.has_special_needs === true,
+    special_needs_details: userData.student_info.special_needs_details || "",
   });
 
   const [errorMessage, setErrorMessage] = useState("");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    console.log(`Handling change for ${name}:`, value, typeof value);
+
+    if (name === "has_special_needs") {
+      const boolValue = value === "true";
+      console.log("Converting to boolean:", boolValue);
+      setFormData((prev) => ({ ...prev, [name]: boolValue }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
     setErrorMessage("");
   };
 
   const handleSave = () => {
+    console.log("Saving form data:", formData);
     // Check if the username is not empty and follows the required format
     if (!formData.username) {
       setErrorMessage("Username cannot be empty.");
@@ -139,6 +150,40 @@ function EditStudentModal({ isOpen, onClose, onSave, userData, userRole }) {
               name="grade_level"
               value={formData.grade_level}
               onChange={handleChange}
+              className="w-full mt-1 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </label>
+        </div>
+
+        <div className="flex">
+          {/* Has Special Needs */}
+          <label className="block mb-2 mr-2 w-1/2">
+            <span className="text-gray-700 font-semibold">
+              Has Special Needs
+            </span>
+            <select
+              name="has_special_needs"
+              value={String(formData.has_special_needs)}
+              onChange={handleChange}
+              className="w-full mt-1 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value={false}>No</option>
+              <option value={true}>Yes</option>
+            </select>
+          </label>
+
+          {/* Special Needs Details */}
+          <label className="block mb-2 w-1/2">
+            <span className="text-gray-700 font-semibold">
+              Special Needs Details
+            </span>
+            <input
+              type="text"
+              name="special_needs_details"
+              value={formData.special_needs_details}
+              onChange={handleChange}
+              maxLength="50"
+              placeholder="Enter details if applicable"
               className="w-full mt-1 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </label>

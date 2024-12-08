@@ -34,10 +34,13 @@ class TeacherInfo(models.Model):
 class StudentInfo(models.Model):
     student_info = models.OneToOneField(UserInfo, on_delete=models.CASCADE, related_name="student_info") 
     grade_level = models.CharField(max_length=20, choices=GRADE_LEVEL_CHOICES, null=True)
+    has_special_needs = models.BooleanField(default=False)
+    special_needs_details = models.TextField(blank=True, null=True, help_text="Details of any special needs conditions") 
 
 class ParentInfo(models.Model):
     parent_info = models.OneToOneField(UserInfo, on_delete=models.CASCADE, related_name='parent_info') 
-    student_info = models.ManyToManyField(StudentInfo, related_name='parent_student') 
+    student_info = models.ManyToManyField(StudentInfo, related_name='parent_student')
+
 
 class PublicInfo(models.Model):
     user_info = models.OneToOneField(UserInfo, on_delete=models.CASCADE, related_name='public_info')

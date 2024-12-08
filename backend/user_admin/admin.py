@@ -14,9 +14,10 @@ class TeacherInfoAdmin(UserInfoAdmin):
     )
 
 class StudentInfoAdmin(UserInfoAdmin):
-    list_display = ('id', 'student_info', 'grade_level',)
+    list_display = ('id', 'student_info', 'grade_level', 'has_special_needs', 'special_needs_details')
     fieldsets = (
-        ('Student', {'fields': ('grade_level',)}),
+        ('Student', {'fields': ('student_info', 'grade_level')}),
+        ('Special Needs', {'fields': ('has_special_needs', 'special_needs_details')}),
     )
 
 class ParentInfoAdmin(UserInfoAdmin):

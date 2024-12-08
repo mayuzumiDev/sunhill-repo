@@ -216,6 +216,7 @@ const Student = () => {
 
       if (response.status === 200) {
         const student_list = response.data.student_list;
+        console.log(student_list);
         setStudents(student_list);
 
         if (student_list.length === 0 && !isOperationRunning) {
