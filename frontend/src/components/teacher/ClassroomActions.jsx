@@ -143,7 +143,7 @@ const ClassroomActions = ({ onClose, classroomData }) => {
     },
     {
       id: "quizzes",
-      title: "Quizzes",
+      title: "Quiz/Activity",
       icon: <HiClipboardList className="w-8 h-8" />,
       onClick: () => {
         // console.log("Quiz action clicked. Classroom:", classroomData);
@@ -189,7 +189,7 @@ const ClassroomActions = ({ onClose, classroomData }) => {
           <div className="mt-6 w-full bg-white rounded-lg shadow p-6">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-xl font-semibold text-gray-700">
-                Quiz Scores
+                Quiz/Activity Scores
               </h3>
               <button
                 onClick={() => setSelectedAction(null)}
@@ -208,7 +208,9 @@ const ClassroomActions = ({ onClose, classroomData }) => {
         return (
           <div className="mt-6 w-full bg-white rounded-lg shadow p-6">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-semibold text-gray-700">Quizzes</h3>
+              <h3 className="text-xl font-semibold text-gray-700">
+                Quizzes/Activities
+              </h3>
               <button
                 onClick={() => setSelectedAction(null)}
                 className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-green-500 border border-transparent rounded-md shadow-sm hover:bg-green-600 transition-all duration-300 ease-in-out transform hover:scale-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
@@ -305,8 +307,8 @@ const ClassroomActions = ({ onClose, classroomData }) => {
             setQuizToDelete(null);
           }}
           onConfirm={handleDeleteQuiz}
-          title="Delete Quiz"
-          message="Are you sure you want to delete this quiz? This action cannot be undone."
+          title="Delete Quiz/Activity"
+          message="Are you sure you want to delete this quiz/activity? This action cannot be undone."
         />
       </div>
     </div>

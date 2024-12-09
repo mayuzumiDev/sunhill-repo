@@ -59,17 +59,20 @@ const QuizStatisticsChart = () => {
     try {
       const insights = [];
 
-      // Calculate total quizzes
+      // Calculate total quizzes and participation
       const totalQuizzes = quizStats.length;
-      insights.push(`Total Quizzes Analyzed: ${totalQuizzes}`);
-
-      // Calculate overall pass rate
-      const totalPassed = quizStats.reduce(
-        (sum, quiz) => sum + quiz.total_passed,
-        0
-      );
       const totalStudents = quizStats.reduce(
         (sum, quiz) => sum + quiz.total_passed + quiz.total_failed,
+        0
+      );
+      const averageParticipation = (totalStudents / totalQuizzes).toFixed(1);
+      insights.push(
+        `Average Student Participation: ${averageParticipation} students per quiz/activity`
+      );
+
+      // Calculate overall pass rate and trend
+      const totalPassed = quizStats.reduce(
+        (sum, quiz) => sum + quiz.total_passed,
         0
       );
       const overallPassRate =
@@ -78,7 +81,31 @@ const QuizStatisticsChart = () => {
           : 0;
       insights.push(`Overall Pass Rate: ${overallPassRate}%`);
 
-      // Find best and worst performing quizzes
+      // Analyze performance trend
+      if (quizStats.length >= 2) {
+        const passRates = quizStats.map((quiz) => ({
+          title: quiz.quiz_title,
+          passRate:
+            (quiz.total_passed / (quiz.total_passed + quiz.total_failed)) * 100,
+        }));
+
+        const trend =
+          passRates[passRates.length - 1].passRate -
+          passRates[passRates.length - 2].passRate;
+        const trendMessage =
+          trend > 0
+            ? `Performance is improving (${trend.toFixed(
+                1
+              )}% increase in latest quiz/activity)`
+            : trend < 0
+            ? `Performance has declined (${Math.abs(trend).toFixed(
+                1
+              )}% decrease in latest quiz/activity)`
+            : "Performance is stable";
+        insights.push(trendMessage);
+      }
+
+      // Find challenging areas
       if (quizStats.length > 0) {
         const quizPassRates = quizStats.map((quiz) => ({
           title: quiz.quiz_title,
@@ -86,8 +113,10 @@ const QuizStatisticsChart = () => {
             (quiz.total_passed / (quiz.total_passed + quiz.total_failed)) *
             100
           ).toFixed(1),
+          totalStudents: quiz.total_passed + quiz.total_failed,
         }));
 
+        // Best and worst performing quizzes
         const bestQuiz = quizPassRates.reduce((prev, current) =>
           parseFloat(current.passRate) > parseFloat(prev.passRate)
             ? current
@@ -101,10 +130,41 @@ const QuizStatisticsChart = () => {
         );
 
         insights.push(
-          `Best Performing Quiz: ${bestQuiz.title} (${bestQuiz.passRate}% pass rate)`
+          `Strongest Topic: ${bestQuiz.title} (${bestQuiz.passRate}% success rate)`
         );
         insights.push(
-          `Lowest Performing Quiz: ${worstQuiz.title} (${worstQuiz.passRate}% pass rate)`
+          `Area Needing Focus: ${worstQuiz.title} (${worstQuiz.passRate}% success rate)`
+        );
+
+        // Participation trend
+        const participationTrend = quizPassRates.slice(-2);
+        if (participationTrend.length === 2) {
+          const participationChange =
+            participationTrend[1].totalStudents -
+            participationTrend[0].totalStudents;
+          if (Math.abs(participationChange) > 2) {
+            insights.push(
+              participationChange > 0
+                ? `Student engagement is increasing (+${participationChange} students in latest quiz/activity)`
+                : `Student participation has decreased (${participationChange} students in latest quiz/activity)`
+            );
+          }
+        }
+
+        // Performance distribution
+        const averagePassRate =
+          quizPassRates.reduce(
+            (sum, quiz) => sum + parseFloat(quiz.passRate),
+            0
+          ) / quizPassRates.length;
+        const consistencyScore = quizPassRates.every(
+          (quiz) => Math.abs(parseFloat(quiz.passRate) - averagePassRate) < 15
+        );
+
+        insights.push(
+          consistencyScore
+            ? "Performance is consistent across all quizzes/activities"
+            : "Performance varies significantly between quizzes/activities - consider standardizing difficulty levels"
         );
       }
 
@@ -143,7 +203,7 @@ const QuizStatisticsChart = () => {
       },
       title: {
         display: true,
-        text: "Recent Quiz Pass/Fail Distribution",
+        text: "Distribution of Pass/Fail Grades on Recent Quiz/Activity",
         font: {
           size: 16,
         },
@@ -160,14 +220,31 @@ const QuizStatisticsChart = () => {
     scales: {
       x: {
         stacked: true,
+        title: {
+          display: true,
+          text: "Quizzes/Activity",
+          font: {
+            size: 14,
+            weight: "bold",
+          },
+        },
       },
       y: {
         stacked: true,
         beginAtZero: true,
+        title: {
+          display: true,
+          text: "Number of Students",
+          font: {
+            size: 14,
+            weight: "bold",
+          },
+        },
         ticks: {
-          precision: 0, // Show whole numbers but don't force them
+          stepSize: 5,
+          precision: 0,
           callback: function (value) {
-            return value + " students"; // Add 'students' label to y-axis
+            return value;
           },
         },
       },
@@ -202,7 +279,7 @@ const QuizStatisticsChart = () => {
               className="text-green-600 text-4xl mb-2"
             />
             <div className="text-green-600 font-medium">
-              No quiz data available
+              No quiz/activity data available
             </div>
           </div>
         )}

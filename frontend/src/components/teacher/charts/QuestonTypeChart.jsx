@@ -67,14 +67,14 @@ const QuestionTypeChart = () => {
 
   const options = {
     chart: {
-      type: 'pie',
+      type: "pie",
     },
     title: {
-      text: 'Question Type Distribution',
+      text: "Question Type Distribution from Quiz/Activity",
     },
     series: [
       {
-        name: 'Questions',
+        name: "Questions",
         data: chartData.labels.map((label, index) => ({
           name: label,
           y: chartData.datasets[0].data[index],
@@ -162,10 +162,7 @@ const QuestionTypeChart = () => {
             <div className="text-red-500">{error}</div>
           </div>
         ) : chartData.labels.length > 0 ? (
-          <HighchartsReact
-            highcharts={Highcharts}
-            options={options}
-          />
+          <HighchartsReact highcharts={Highcharts} options={options} />
         ) : (
           <div className="flex flex-col items-center justify-center min-h-[300px]">
             <FontAwesomeIcon
@@ -188,7 +185,11 @@ const QuestionTypeChart = () => {
             className="inline-flex items-center px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded transition-colors disabled:bg-green-400"
           >
             <FontAwesomeIcon icon={faLightbulb} className="mr-2" />
-            {generatingInsights ? "Analyzing..." : showInsights ? "Hide Insights" : "Show Insights"}
+            {generatingInsights
+              ? "Analyzing..."
+              : showInsights
+              ? "Hide Insights"
+              : "Show Insights"}
           </button>
 
           {showInsights && insights && (

@@ -51,7 +51,7 @@ const QuizList = ({
           onClick={() => onSetShowCreateQuiz(true)}
           className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 font-bold mb-6"
         >
-          Create Quiz
+          Create Quiz/Activity
         </button>
       )}
 
@@ -65,7 +65,7 @@ const QuizList = ({
           classroomId={selectedClassroom?.id}
           onQuizCreated={(quiz) => {
             onQuizCreated(quiz);
-            handleSuccess("Quiz created successfully!");
+            handleSuccess("Quiz/Activity created successfully!");
           }}
           onError={(error) => {
             onCreateQuizError(error);
@@ -79,7 +79,7 @@ const QuizList = ({
           classroomId={selectedClassroom?.id}
           onQuizUpdated={(quiz) => {
             onQuizUpdated(quiz);
-            handleSuccess("Quiz updated successfully!");
+            handleSuccess("Quiz/Activity updated successfully!");
           }}
           onError={(error) => {
             onCreateQuizError(error);
@@ -91,7 +91,9 @@ const QuizList = ({
           }}
         />
       ) : Array.isArray(quizzes) && quizzes.length === 0 ? (
-        <p className="text-gray-600 text-center">No quizzes created yet.</p>
+        <p className="text-gray-600 text-center">
+          No quizzes/activities created yet.
+        </p>
       ) : (
         <div className="flex flex-col gap-6">
           {quizzes?.map((quiz, index) => (

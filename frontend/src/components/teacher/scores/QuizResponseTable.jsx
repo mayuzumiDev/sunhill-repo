@@ -58,7 +58,7 @@ const QuizResponseTable = ({ responses, isLoading = false }) => {
                 Student Name
               </th>
               <th className="px-6 py-3 text-center text-xs font-bold text-white uppercase tracking-wider">
-                Quiz Title
+                Quiz/Activity Title
               </th>
               <th className="px-6 py-3 text-center text-xs font-bold text-white uppercase tracking-wider">
                 Total Score
@@ -105,10 +105,10 @@ const QuizResponseTable = ({ responses, isLoading = false }) => {
           className="text-green-500 text-5xl mb-4"
         />
         <p className="text-gray-600 text-lg font-semibold">
-          No quiz scores available
+          No quiz/activity scores available
         </p>
         <p className="text-gray-700 text-sm mt-2">
-          Select a classroom to view quiz scores
+          Select a classroom to view quiz/activity scores
         </p>
       </div>
     );
@@ -145,7 +145,9 @@ const QuizResponseTable = ({ responses, isLoading = false }) => {
           >
             <Listbox.Button className="relative w-full cursor-pointer rounded-lg bg-white py-2 pl-4 pr-10 text-left border border-gray-300 focus:outline-none focus:border-green-400 focus:ring-2 focus:ring-green-200">
               <span className="block truncate text-sm text-gray-700">
-                {selectedQuiz === "all" ? "All Quizzes" : selectedQuiz}
+                {selectedQuiz === "all"
+                  ? "All Quizzes/Activities"
+                  : selectedQuiz}
               </span>
               <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
                 <ChevronUpDownIcon
@@ -172,7 +174,7 @@ const QuizResponseTable = ({ responses, isLoading = false }) => {
                     }`
                   }
                 >
-                  All Quizzes
+                  All Quizzes/Activities
                 </Listbox.Option>
                 {getUniqueQuizTitles().map((title) => (
                   <Listbox.Option
@@ -200,7 +202,7 @@ const QuizResponseTable = ({ responses, isLoading = false }) => {
                 Student Name
               </th>
               <th className="px-6 py-3 text-center text-xs font-bold text-white uppercase tracking-wider">
-                Quiz Title
+                Quiz/Activity Title
               </th>
               <th className="px-6 py-3 text-center text-xs font-bold text-white uppercase tracking-wider">
                 Total Score

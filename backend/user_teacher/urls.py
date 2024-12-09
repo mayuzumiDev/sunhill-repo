@@ -45,6 +45,7 @@ urlpatterns = [
     path('analytics/question-type-performance/', question_type_performance, name='question_type_performance'),
     path('analytics/quiz-statistics/', QuizPassFailRatioView.as_view(), name='quiz-statistics'),
     path('analytics/quiz-time/', QuizTimeAnalyticsView.as_view({'get': 'list'})),
+    path('analytics/knowledge-gap/', KnowledgeGapAnalyticsView.as_view(), name='knowledge-gap-analytics'),
 
     # path('scores/', QuizScoreListView.as_view(), name='quiz-scores-list'),
     # path('scores/<int:pk>/', QuizScoreDetailView.as_view(), name='quiz-score-detail'),

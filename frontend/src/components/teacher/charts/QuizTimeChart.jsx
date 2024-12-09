@@ -308,23 +308,24 @@ const QuizTimeAnalytics = ({ quizId, isTestMode = false }) => {
         };
 
         if (due_date) {
-          const dueDateStr = new Date(due_date).toISOString().split("T")[0];
           const maxSubmissions = Math.max(
             ...submissions.map((item) => item.submission_count)
           );
 
+          // Create a continuous line at 75% of the maximum height
+          const dueDateLineHeight = Math.floor(maxSubmissions * 0.75);
+
           data.datasets.push({
             label: "Due Date",
-            data: submissions.map((item) =>
-              item.submission_date === dueDateStr ? maxSubmissions + 2 : null
-            ),
+            data: new Array(submissions.length).fill(dueDateLineHeight),
             borderColor: "rgb(255, 99, 132)",
-            backgroundColor: "rgba(255, 99, 132, 0.5)",
+            backgroundColor: "rgba(255, 99, 132, 0.2)",
             borderWidth: 2,
             borderDash: [5, 5],
             pointRadius: 0,
             fill: false,
             tension: 0,
+            order: 1, // Make sure due date line appears behind the submissions line
           });
         }
 
@@ -347,48 +348,103 @@ const QuizTimeAnalytics = ({ quizId, isTestMode = false }) => {
     try {
       const insights = [];
       if (chartData && chartData.datasets[0].data.length > 0) {
-        // Total submissions
-        const totalSubmissions = chartData.datasets[0].data.reduce(
-          (a, b) => a + b,
-          0
+        const submissionData = chartData.datasets[0].data;
+        const labels = chartData.labels;
+
+        // Total and Average Submissions
+        const totalSubmissions = submissionData.reduce((a, b) => a + b, 0);
+        const avgSubmissions = (totalSubmissions / labels.length).toFixed(1);
+        insights.push(`Total Submissions: ${totalSubmissions} submissions`);
+        insights.push(`Average: ${avgSubmissions} submissions per day`);
+
+        // Submission Pattern Analysis
+        const firstHalf = submissionData.slice(
+          0,
+          Math.floor(submissionData.length / 2)
         );
-        insights.push(`Total Submissions: ${totalSubmissions}`);
-
-        // Average submissions per day
-        const avgSubmissions = (
-          totalSubmissions / chartData.labels.length
-        ).toFixed(1);
-        insights.push(`Average Submissions per Day: ${avgSubmissions}`);
-
-        // Peak submission day
-        const maxSubmissions = Math.max(...chartData.datasets[0].data);
-        const peakDay =
-          chartData.labels[chartData.datasets[0].data.indexOf(maxSubmissions)];
-        insights.push(
-          `Peak Submission Day: ${peakDay} (${maxSubmissions} submissions)`
+        const secondHalf = submissionData.slice(
+          Math.floor(submissionData.length / 2)
         );
+        const firstHalfAvg =
+          firstHalf.reduce((a, b) => a + b, 0) / firstHalf.length;
+        const secondHalfAvg =
+          secondHalf.reduce((a, b) => a + b, 0) / secondHalf.length;
 
-        // Submission pattern analysis
-        const lastThreeDays = chartData.datasets[0].data.slice(-3);
-        const lastThreeAvg = lastThreeDays.reduce((a, b) => a + b, 0) / 3;
-        const overallAvg = totalSubmissions / chartData.labels.length;
-
-        if (lastThreeAvg > overallAvg) {
-          insights.push("Submission rate is increasing towards the deadline");
-        } else if (lastThreeAvg < overallAvg) {
-          insights.push("Students are submitting earlier than usual");
+        if (secondHalfAvg > firstHalfAvg * 1.5) {
+          insights.push(
+            "High procrastination detected: Most submissions are in the latter half"
+          );
+        } else if (firstHalfAvg > secondHalfAvg * 1.5) {
+          insights.push(
+            "Proactive submission pattern: Students are submitting early"
+          );
         }
 
-        // Due date proximity check
-        const dueDate = chartData.datasets[1]?.data.findIndex(
-          (x) => x !== null
+        // Peak Submission Analysis
+        const maxSubmissions = Math.max(...submissionData);
+        const peakDay = labels[submissionData.indexOf(maxSubmissions)];
+        insights.push(
+          `Peak Activity: ${maxSubmissions} submissions on ${peakDay}`
         );
-        if (dueDate !== -1) {
-          const daysUntilDue = chartData.labels.length - dueDate;
-          if (daysUntilDue > 0) {
-            insights.push(`${daysUntilDue} days remaining until due date`);
+
+        // Submission Consistency
+        const submissionVariance =
+          submissionData.reduce(
+            (variance, value) => variance + Math.pow(value - avgSubmissions, 2),
+            0
+          ) / submissionData.length;
+        const isConsistent = submissionVariance < 5;
+
+        insights.push(
+          isConsistent
+            ? "Consistent submission pattern throughout the period"
+            : "Submission pattern shows significant variations - consider encouraging more consistent submission habits"
+        );
+
+        // Recent Trend Analysis
+        const lastThreeDays = submissionData.slice(-3);
+        const lastThreeAvg = lastThreeDays.reduce((a, b) => a + b, 0) / 3;
+        const overallAvg = totalSubmissions / labels.length;
+
+        if (lastThreeAvg > overallAvg * 1.5) {
+          insights.push(
+            "Strong finish: Submission rate has increased significantly in recent days"
+          );
+        } else if (lastThreeAvg < overallAvg * 0.5) {
+          insights.push(
+            "Submission rate has decreased recently - might need attention"
+          );
+        }
+
+        // Zero Submission Days Analysis
+        const zeroDays = submissionData.filter((count) => count === 0).length;
+        if (zeroDays > 0) {
+          insights.push(
+            `Found ${zeroDays} days with no submissions - consider investigating these gaps`
+          );
+        }
+
+        // Due Date Proximity Analysis
+        if (chartData.datasets[1]) {
+          // If due date line exists
+          const remainingDays =
+            labels.length - labels.indexOf(labels[labels.length - 1]);
+          if (remainingDays > 0) {
+            insights.push(
+              remainingDays <= 2
+                ? `Urgent: ${remainingDays} days remaining until due date`
+                : `${remainingDays} days remaining until due date`
+            );
           }
         }
+
+        // Submission Rate Recommendation
+        const recommendedDailyRate = Math.ceil(
+          totalSubmissions / labels.length
+        );
+        insights.push(
+          `Recommended steady submission rate: ${recommendedDailyRate} submissions per day`
+        );
       }
 
       setInsights(insights);
@@ -416,7 +472,7 @@ const QuizTimeAnalytics = ({ quizId, isTestMode = false }) => {
       },
       title: {
         display: true,
-        text: "Quiz Submission Patterns",
+        text: "Quiz/Activity Submission Patterns",
         font: {
           size: 16,
           weight: "bold",
@@ -438,7 +494,7 @@ const QuizTimeAnalytics = ({ quizId, isTestMode = false }) => {
           display: true,
           text: "Number of Submissions",
           font: {
-            size: 12,
+            size: 14,
             weight: "bold",
           },
         },
@@ -446,9 +502,10 @@ const QuizTimeAnalytics = ({ quizId, isTestMode = false }) => {
           color: "rgba(0, 0, 0, 0.1)",
         },
         ticks: {
+          stepSize: 5,
           precision: 0,
           callback: function (value) {
-            return value + " submissions";
+            return value;
           },
         },
       },
@@ -457,7 +514,7 @@ const QuizTimeAnalytics = ({ quizId, isTestMode = false }) => {
           display: true,
           text: "Date",
           font: {
-            size: 12,
+            size: 14,
             weight: "bold",
           },
         },
@@ -488,7 +545,7 @@ const QuizTimeAnalytics = ({ quizId, isTestMode = false }) => {
           htmlFor="quiz-select"
           className="block text-sm font-medium text-gray-700 mb-2"
         >
-          Select Quiz
+          Select Quiz/Activity
         </label>
         <select
           id="quiz-select"
@@ -500,7 +557,7 @@ const QuizTimeAnalytics = ({ quizId, isTestMode = false }) => {
             setSelectedQuizId(newId);
           }}
         >
-          <option value="">Select a quiz</option>
+          <option value="">Select a quiz/activity</option>
           {quizzes.map((quiz) => (
             <option key={quiz.id} value={quiz.id}>
               {quiz.title} - {quiz.classroom_name}
@@ -521,7 +578,7 @@ const QuizTimeAnalytics = ({ quizId, isTestMode = false }) => {
               className="text-green-600 text-4xl mb-2"
             />
             <div className="text-green-600 font-medium">
-              Select a quiz to view submission patterns
+              Select a quiz/activity to view submission patterns
             </div>
           </div>
         ) : (

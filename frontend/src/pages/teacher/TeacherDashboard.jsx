@@ -19,6 +19,7 @@ import { IoStatsChart, IoTrendingUp } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import DotLoaderSpinner from "../../components/loaders/DotLoaderSpinner";
 import QuizTimeAnalytics from "../../components/teacher/charts/QuizTimeChart";
+import KnowledgeGapHeatmap from "../../components/teacher/charts/KnowledgeGapHeatmap";
 
 const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
   const [greeting, setGreeting] = useState("");
@@ -407,7 +408,7 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
               : "down",
           recommendation:
             averageCompletion < 75
-              ? "Consider interactive activities to boost quiz completion rates"
+              ? "Consider interactive activities to boost quiz/activity completion rates"
               : "Maintain current engagement strategies",
 
           icon: (
@@ -543,7 +544,9 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
     if (!values || values.length === 0)
       return {
         title: "No Data Available",
-        points: ["Start creating quizzes to see completion insights"],
+        points: [
+          "Start creating quizzes/activities to see completion insights",
+        ],
         priority: "medium",
       };
 
@@ -554,10 +557,10 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
       return {
         title: "Low Completion Rate",
         points: [
-          "Send automated reminders before quiz deadlines",
+          "Send automated reminders before quiz/activity deadlines",
           `Focus on ${lowestCompletion}% completion areas first`,
           "Consider extending deadlines for complex topics",
-          "Implement mobile-friendly quiz formats",
+          "Implement mobile-friendly quiz/activity formats",
         ],
         priority: "high",
       };
@@ -566,7 +569,7 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
         title: "Moderate Completion Rate",
         points: [
           `Improve from current ${Math.round(averageCompletion)}% average`,
-          "Create bite-sized practice quizzes",
+          "Create bite-sized practice quizzes/activities",
           "Enable partial submissions to track progress",
           "Use class announcements to boost participation",
         ],
@@ -649,7 +652,7 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
       spacing: [10, 10, 15, 10], // Adjust spacing for mobile
     },
     title: {
-      text: "Recent Quiz Completion Rates",
+      text: "Recent Quiz/Activity Completion Rates",
       align: "left",
       style: {
         color: darkMode ? "#ffffff" : "#000000",
@@ -1072,7 +1075,7 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
               ? `Consistently performing below ${Math.round(
                   atRiskThreshold * 100
                 )}%`
-              : `Based on initial ${data.quizCount} quizzes`
+              : `Based on initial ${data.quizCount} quizzes/activities`
           }`,
         });
       }
@@ -1095,7 +1098,7 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
               data.quizCount < MIN_QUIZZES_FOR_FULL
                 ? `Complete ${
                     MIN_QUIZZES_FOR_FULL - data.quizCount
-                  } more quizzes for full analysis`
+                  } more quizzes/activities for full analysis`
                 : "Review comprehensive performance data",
             ],
           },
@@ -1176,7 +1179,7 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
                       {student.analysisLevel === "full"
                         ? "Full Analysis"
                         : "Basic Analysis"}{" "}
-                      ({student.quizzesTaken} quizzes)
+                      ({student.quizzesTaken} quizzes/activities)
                     </span>
                   </div>
                   <p className="text-sm text-red-600 dark:text-red-300 mt-1">
@@ -1416,7 +1419,7 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
               >
                 <div className="flex flex-col space-y-2">
                   <h2 className="text-white text-sm font-medium">
-                    Total Quizzes
+                    Total Quizzes/Activities
                   </h2>
                   <p className="text-white text-3xl font-bold">
                     {classroomData.upcomingQuizzes || 0}
@@ -1667,6 +1670,14 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
                 <div className="shadow-lg hover:shadow-xl rounded-lg p-6 bg-white">
                   TBA
                 </div>
+              </div>
+            </div>
+          </motion.div>
+
+          <motion.div variants={itemVariants} className="mt-4">
+            <div className="w-full transition-all duration-300 hover:scale-[1.02]">
+              <div className="shadow-lg hover:shadow-xl rounded-lg p-6 bg-white">
+                <KnowledgeGapHeatmap quizId={77} />
               </div>
             </div>
           </motion.div>

@@ -331,7 +331,7 @@ const EditQuiz = ({
     e.preventDefault();
 
     if (formData.dueDate && !validateDueDate(formData.dueDate)) {
-      onError({ message: "Cannot submit quiz with a past due date" });
+      onError({ message: "Cannot submit quiz/activity with a past due date" });
       return;
     }
 
@@ -381,7 +381,7 @@ const EditQuiz = ({
             (q) => q.id === parseInt(quizId)
           );
           if (updatedQuiz) {
-            onQuizUpdated(updatedQuiz, "Quiz updated successfully!");
+            onQuizUpdated(updatedQuiz, "Quiz/Activity updated successfully!");
           }
         }
       }
@@ -404,7 +404,7 @@ const EditQuiz = ({
   return (
     <>
       <div className="bg-white p-6 rounded-lg shadow-md">
-        <h2 className="text-xl font-semibold mb-4">Quiz</h2>
+        <h2 className="text-xl font-semibold mb-4">Quiz/Activity</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-bold text-gray-700 mb-1">
@@ -740,10 +740,10 @@ const EditQuiz = ({
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     />
                   </svg>
-                  Updating Quiz...
+                  Updating Quiz/Activity...
                 </span>
               ) : (
-                "Update Quiz"
+                "Update Quiz/Activity"
               )}
             </button>
           </div>

@@ -1,4 +1,4 @@
-from django.db.models import Count
+from django.db.models import Count, Avg
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from rest_framework.decorators import api_view
@@ -236,3 +236,201 @@ class QuizTimeAnalyticsView(ViewSet):
             'due_date': quiz.due_date,
             'submissions': submissions
         })
+
+
+class KnowledgeGapAnalyticsView(APIView):
+    def get(self, request):
+        quiz_id = request.query_params.get('quiz_id')
+        
+        if not quiz_id:
+            return JsonResponse({"error": "Quiz ID is required"}, status=400)
+            
+        try:
+            quiz = Quiz.objects.get(id=quiz_id)
+            questions = Question.objects.filter(quiz=quiz)
+            
+            # Calculate success rate for each question
+            question_stats = []
+            
+            # Get all responses for this quiz
+            student_responses = StudentResponse.objects.filter(quiz=quiz)
+            print(f"\nAnalyzing quiz {quiz_id}: {quiz.title}")
+            print(f"Found {student_responses.count()} student responses")
+            
+            import json
+            
+            for question in questions:
+                print(f"\nProcessing Question {question.id}: {question.text}")
+                print(f"Question type: {question.question_type}")
+                print(f"Correct answer: {question.correct_answer}")
+                
+                correct_count = 0
+                total_count = 0
+                
+                for response in student_responses:
+                    try:
+                        # Get the response for this specific question
+                        responses_data = response.responses
+                        print(f"\nRaw response data: {responses_data}")
+                        
+                        # Ensure we have a dictionary
+                        if isinstance(responses_data, str):
+                            try:
+                                responses_data = json.loads(responses_data)
+                                print(f"Parsed JSON data: {responses_data}")
+                            except json.JSONDecodeError as e:
+                                print(f"JSON decode error for response {response.id}: {str(e)}")
+                                continue
+                        
+                        if not isinstance(responses_data, dict):
+                            print(f"Response data is not a dictionary: {type(responses_data)}")
+                            continue
+                        
+                        question_id_str = str(question.id)
+                        if question_id_str not in responses_data:
+                            print(f"Question {question_id_str} not found in response data")
+                            continue
+                            
+                        question_response = responses_data[question_id_str]
+                        print(f"Question response: {question_response}")
+                        
+                        if isinstance(question_response, str):
+                            try:
+                                question_response = json.loads(question_response)
+                            except json.JSONDecodeError:
+                                # If it's a string but not JSON, treat it as the answer itself
+                                question_response = question_response
+                        
+                        if question_response is not None:
+                            total_count += 1
+                            
+                            # Check if the answer is correct based on question type
+                            if question.question_type == 'single':
+                                try:
+                                    # Get the ID of the correct choice from the database
+                                    correct_choice = Choice.objects.get(
+                                        question=question,
+                                        is_correct=True
+                                    )
+                                    # Convert both to strings and normalize for comparison
+                                    student_ans = str(question_response).strip()
+                                    correct_ans = str(correct_choice.id)
+                                    
+                                    is_correct = student_ans == correct_ans
+                                    print(f"Single comparison: {student_ans} == {correct_ans} = {is_correct}")
+                                    if is_correct:
+                                        correct_count += 1
+                                except Choice.DoesNotExist:
+                                    print(f"No correct choice found for question {question.id}")
+                                    continue
+
+                            elif question.question_type == 'true_false':
+                                try:
+                                    # Handle string or boolean input
+                                    if isinstance(question_response, str):
+                                        student_ans = question_response.strip().lower()
+                                        # Convert 'true'/'false' strings to boolean
+                                        student_ans = student_ans == 'true'
+                                    else:
+                                        # Handle boolean or other types
+                                        student_ans = bool(question_response)
+
+                                    # Get correct answer as boolean
+                                    correct_ans = str(question.correct_answer).strip().lower() == 'true'
+                                    
+                                    is_correct = student_ans == correct_ans
+                                    print(f"True/False comparison: {student_ans} == {correct_ans} = {is_correct}")
+                                    if is_correct:
+                                        correct_count += 1
+                                except Exception as e:
+                                    print(f"Error processing true/false answer: {e}")
+                                    continue
+                                    
+                            elif question.question_type == 'multi':
+                                try:
+                                    # Parse student answer into a list of choice IDs
+                                    if isinstance(question_response, str):
+                                        try:
+                                            student_answers = json.loads(question_response)
+                                        except json.JSONDecodeError:
+                                            student_answers = [question_response]
+                                    else:
+                                        student_answers = question_response if isinstance(question_response, list) else [question_response]
+                                    
+                                    # Convert all answers to strings
+                                    student_choice_ids = set(str(ans).strip() for ans in student_answers)
+                                    
+                                    # Get correct choice IDs from database
+                                    correct_choice_ids = set(str(choice_id) for choice_id in Choice.objects.filter(
+                                        question=question,
+                                        is_correct=True
+                                    ).values_list('id', flat=True))
+                                    
+                                    print(f"Student choice IDs: {student_choice_ids}")
+                                    print(f"Correct choice IDs: {correct_choice_ids}")
+                                    
+                                    # Check if sets match exactly
+                                    is_correct = student_choice_ids == correct_choice_ids
+                                    print(f"Multi comparison result: {is_correct}")
+                                    
+                                    if is_correct:
+                                        correct_count += 1
+                                except Exception as e:
+                                    print(f"Error processing multiple choice answer: {e}")
+                                    continue
+                                    
+                            elif question.question_type == 'identification':
+                                try:
+                                    # Normalize both answers by:
+                                    # 1. Converting to string
+                                    # 2. Removing leading/trailing whitespace
+                                    # 3. Converting to lowercase
+                                    # 4. Removing extra spaces between words
+                                    def normalize_text(text):
+                                        return ' '.join(str(text).strip().lower().split())
+
+                                    student_ans = normalize_text(question_response)
+                                    correct_ans = normalize_text(question.correct_answer)
+                                    
+                                    is_correct = student_ans == correct_ans
+                                    print(f"Identification comparison: '{student_ans}' == '{correct_ans}' = {is_correct}")
+                                    if is_correct:
+                                        correct_count += 1
+                                except Exception as e:
+                                    print(f"Error processing identification answer: {e}")
+                                    continue
+                                    
+                    except Exception as e:
+                        print(f"Error processing response {response.id} for question {question.id}: {str(e)}")
+                        continue
+                
+                print(f"\nQuestion {question.id} Summary:")
+                print(f"Total responses: {total_count}")
+                print(f"Correct responses: {correct_count}")
+                
+                success_rate = (correct_count / total_count * 100) if total_count > 0 else 0
+                print(f"Success rate: {success_rate}%")
+                
+                question_stats.append({
+                    'question_id': question.id,
+                    'question_text': question.text,
+                    'question_type': question.question_type,
+                    'success_rate': success_rate,
+                    'total_attempts': total_count,
+                    'correct_count': correct_count
+                })
+            
+            print(f"\nFinal Stats:")
+            for stat in question_stats:
+                print(f"Question {stat['question_id']}: {stat['success_rate']}% ({stat['correct_count']}/{stat['total_attempts']})")
+                
+            return JsonResponse({
+                'quiz_title': quiz.title,
+                'question_stats': question_stats
+            })
+            
+        except Quiz.DoesNotExist:
+            return JsonResponse({"error": "Quiz not found"}, status=404)
+        except Exception as e:
+            print(f"Error in KnowledgeGapAnalyticsView: {str(e)}")
+            return JsonResponse({"error": str(e)}, status=500)

@@ -296,7 +296,7 @@ const CreateQuiz = ({ classroomId, onQuizCreated, onError, onCancel }) => {
     e.preventDefault();
 
     if (formData.dueDate && !validateDueDate(formData.dueDate)) {
-      onError({ message: "Cannot create quiz with a past due date" });
+      onError({ message: "Cannot create quiz/activity with a past due date" });
       return;
     }
 
@@ -335,7 +335,7 @@ const CreateQuiz = ({ classroomId, onQuizCreated, onError, onCancel }) => {
           await createQuestion(quizData.id, questionData);
         }
 
-        onQuizCreated(quizData, "Quiz created successfully!");
+        onQuizCreated(quizData, "Quiz/Activity created successfully!");
       }
     } catch (error) {
       console.error("An error occurred:", error);
@@ -348,7 +348,7 @@ const CreateQuiz = ({ classroomId, onQuizCreated, onError, onCancel }) => {
   return (
     <>
       <div className="bg-white p-6 rounded-lg shadow-md">
-        <h2 className="text-xl font-semibold mb-4">Create New Quiz</h2>
+        <h2 className="text-xl font-semibold mb-4">Create New Quiz/Activity</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-bold text-gray-700 mb-1">
@@ -668,10 +668,10 @@ const CreateQuiz = ({ classroomId, onQuizCreated, onError, onCancel }) => {
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     />
                   </svg>
-                  Creating Quiz...
+                  Creating Quiz/Activity...
                 </span>
               ) : (
-                "Create Quiz"
+                "Create Quiz/Activity"
               )}
             </button>
           </div>
