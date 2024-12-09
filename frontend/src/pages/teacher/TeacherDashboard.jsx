@@ -20,6 +20,7 @@ import { useNavigate } from "react-router-dom";
 import DotLoaderSpinner from "../../components/loaders/DotLoaderSpinner";
 import QuizTimeAnalytics from "../../components/teacher/charts/QuizTimeChart";
 import KnowledgeGapHeatmap from "../../components/teacher/charts/KnowledgeGapHeatmap";
+import StudentProgressChart from "../../components/teacher/charts/StudentProgressChart";
 
 const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
   const [greeting, setGreeting] = useState("");
@@ -1419,7 +1420,7 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
               >
                 <div className="flex flex-col space-y-2">
                   <h2 className="text-white text-sm font-medium">
-                    Total Quizzes/Activities
+                    Total Quiz/Activity
                   </h2>
                   <p className="text-white text-3xl font-bold">
                     {classroomData.upcomingQuizzes || 0}
@@ -1668,7 +1669,7 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
               </div>
               <div className="w-full transition-all duration-300 hover:scale-[1.02]">
                 <div className="shadow-lg hover:shadow-xl rounded-lg p-6 bg-white">
-                  TBA
+                  <StudentProgressChart />
                 </div>
               </div>
             </div>

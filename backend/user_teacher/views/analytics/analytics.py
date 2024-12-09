@@ -434,3 +434,90 @@ class KnowledgeGapAnalyticsView(APIView):
         except Exception as e:
             print(f"Error in KnowledgeGapAnalyticsView: {str(e)}")
             return JsonResponse({"error": str(e)}, status=500)
+
+
+class StudentProgressView(APIView):
+    def get(self, request):
+        try:
+            teacher = request.user.user_info.teacher_info
+            classrooms = teacher.classrooms.all()
+            
+            # Get all students from teacher's classrooms
+            student_data = {}
+            for classroom in classrooms:
+                student_responses = StudentResponse.objects.filter(
+                    classroom=classroom
+                ).select_related(
+                    'student',
+                    'quiz',
+                    'student__student_info',
+                    'student__student_info__user'
+                )
+                
+                for response in student_responses:
+                    student = response.student
+                    student_id = student.id
+                    if student_id not in student_data:
+                        student_data[student_id] = {
+                            'name': f"{student.student_info.user.first_name} {student.student_info.user.last_name}",
+                            'single': {'correct': 0, 'total': 0},
+                            'multi': {'correct': 0, 'total': 0},
+                            'identification': {'correct': 0, 'total': 0},
+                            'true_false': {'correct': 0, 'total': 0},
+                            'total_attempts': 0
+                        }
+                    
+                    student_data[student_id]['total_attempts'] += 1
+                    # Calculate performance per question type
+                    quiz_questions = response.quiz.questions.all()
+                    for question in quiz_questions:
+                        # Increment total questions for this type
+                        student_data[student_id][question.question_type]['total'] += 1
+                        
+                        answer = response.responses.get(str(question.id))
+                        if answer is not None:  # Only check if answer was provided
+                            is_correct = self._check_answer_correctness(question, answer)
+                            if is_correct:
+                                student_data[student_id][question.question_type]['correct'] += 1
+            
+            # Convert raw counts to percentages
+            for student_id, data in student_data.items():
+                for q_type in ['single', 'multi', 'identification', 'true_false']:
+                    total_questions = data[q_type]['total']
+                    correct_answers = data[q_type]['correct']
+                    
+                    # Calculate percentage only if there were questions of this type
+                    if total_questions > 0:
+                        percentage = (correct_answers / total_questions) * 100
+                        data[q_type] = round(percentage, 2)
+                    else:
+                        data[q_type] = 0  # No questions of this type attempted
+                
+                # Remove the detailed counts from the response
+                data.pop('total_attempts', None)
+            
+            return JsonResponse({
+                'success': True,
+                'data': student_data
+            })
+        except Exception as e:
+            print(f"Error in StudentProgressView: {str(e)}")
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            }, status=500)
+
+    def _check_answer_correctness(self, question, answer):
+        if question.question_type == 'single':
+            # Get the correct choice ID
+            correct_choice = question.choices.filter(is_correct=True).first()
+            if correct_choice:
+                return str(answer) == str(correct_choice.id)
+            return False
+        elif question.question_type == 'true_false':
+            return str(answer) == str(question.correct_answer)
+        elif question.question_type == 'multi':
+            correct_choices = question.choices.filter(is_correct=True).values_list('id', flat=True)
+            return set(answer) == set(correct_choices)
+        else:  # identification
+            return answer.lower().strip() == question.correct_answer.lower().strip()
