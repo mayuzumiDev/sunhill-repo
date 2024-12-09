@@ -291,16 +291,13 @@ const AddStudentModal = ({ isOpen, onClose, onAdd }) => {
                       Name
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                      Has Special Needs
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
                       Grade Level
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
                       Branch
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                      Has Special Needs
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                      Special Needs Details
                     </th>
                   </tr>
                 </thead>
@@ -322,10 +319,7 @@ const AddStudentModal = ({ isOpen, onClose, onAdd }) => {
                             <div className="inline-block h-4 w-16 bg-gray-400/30 animate-pulse rounded"></div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="inline-block h-4 w-4 bg-gray-400/30 animate-pulse rounded"></div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="inline-block h-4 w-40 bg-gray-400/30 animate-pulse rounded"></div>
+                            <div className="inline-block h-4 w-16 bg-gray-400/30 animate-pulse rounded"></div>
                           </td>
                         </tr>
                       ))}
@@ -366,9 +360,6 @@ const AddStudentModal = ({ isOpen, onClose, onAdd }) => {
                           {student.student_info.has_special_needs
                             ? "Yes"
                             : "No"}
-                        </td>
-                        <td className="px-6 py-4">
-                          {student.student_info.special_needs_details || "-"}
                         </td>
                         <td className="px-6 py-4">
                           {student.student_info.grade_level}

@@ -9,14 +9,14 @@ const secureStorage = new SecureLS({
 
 // Create a new instance of axios with a base URL
 const axiosInstance = axios.create({
-  baseURL: "https://sunhilllms.online/", // Set the base URL for all requests
-  // baseURL: "http://127.0.0.1:8000/",
+  // baseURL: "https://sunhilllms.online/", // Set the base URL for all requests
+  baseURL: "http://127.0.0.1:8000/",
   withCredentials: true,
 });
 
 const axiosInstanceNoAuthHeader = axios.create({
-  baseURL: "https://sunhilllms.online/", // Set the base URL for all request without authorization header
-  // baseURL: "http://127.0.0.1:8000/",
+  // baseURL: "https://sunhilllms.online/", // Set the base URL for all request without authorization header
+  baseURL: "http://127.0.0.1:8000/",
   withCredentials: true,
 });
 
