@@ -19,6 +19,7 @@ import HideScrollbar from "../../components/misc/HideScrollBar";
 import QuizScoreDonutChart from "../../components/parent/charts/QuizScoreDonutChart";
 import QuizScoreLineChart from "../../components/parent/charts/QuizScoreLineChart";
 import ParentStudentProgressChart from "../../components/parent/charts/ParentStudentProgressChart";
+import PeerBenchmarking from "../../components/parent/charts/PeerBenchmarking";
 // ... import other daily illustrations similarly
 
 // Add this new component at the top of the file
@@ -295,6 +296,38 @@ const ParentDashboard = ({ darkMode }) => {
   const [quizScores, setQuizScores] = useState([]);
   const [isQuizScoresLoading, setIsQuizScoresLoading] = useState(true);
 
+  const [quizActivtyMetrics, setQuizActivityMetrics] = useState({
+    totalAssignments: 0,
+    upcomingTests: 0,
+  });
+
+  useEffect(() => {
+    console.log("Fetching metrics data...");
+    axiosInstance
+      .get("/api/user-parent/metrics/")
+      .then((response) => {
+        console.log("Metrics API Response:", response);
+        if (response.data) {
+          console.log("Metrics Data:", response.data);
+          setQuizActivityMetrics((prevMetrics) => ({
+            ...prevMetrics,
+            totalAssignments: response.data.totalAssignments || 0,
+            upcomingTests: response.data.upcomingTests || 0,
+            studentName: response.data.studentName || "",
+          }));
+        } else {
+          console.warn("No data in metrics response");
+        }
+      })
+      .catch((error) => {
+        console.error("Metrics API Error:", {
+          message: error.message,
+          status: error.response?.status,
+          data: error.response?.data,
+        });
+      });
+  }, []);
+
   const fetchQuizScores = async () => {
     try {
       setIsQuizScoresLoading(true);
@@ -546,13 +579,13 @@ const ParentDashboard = ({ darkMode }) => {
           </motion.div>
 
           {/* Updated Metrics Grid */}
-          {/* <motion.div
+          <motion.div
             variants={itemVariants}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
           >
             {/* Children Count */}
-          {/* <div
-              className={`rounded-xl p-4 ${
+            <div
+              className={`flex flex-col justify-center rounded-xl p-4 ${
                 darkMode ? "bg-gray-800 bg-opacity-50" : "bg-white"
               } shadow-lg`}
             >
@@ -568,12 +601,12 @@ const ParentDashboard = ({ darkMode }) => {
                     {metrics.totalStudents}
                   </h3>
                 </div>
-              </div> */}
-          {/* </div>  */}
+              </div>
+            </div>
 
-          {/* Total Assignments */}
-          {/* <div
-              className={`rounded-xl p-4 ${
+            {/* Total Assignments */}
+            <div
+              className={`flex flex-col justify-center rounded-xl p-4 ${
                 darkMode ? "bg-gray-800 bg-opacity-50" : "bg-white"
               } shadow-lg`}
             >
@@ -583,18 +616,18 @@ const ParentDashboard = ({ darkMode }) => {
                 </div>
                 <div className="ml-4">
                   <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Pending Assignments
+                    Pending Quiz/Activity
                   </p>
                   <h3 className="text-xl font-semibold">
-                    {metrics.totalAssignments}
+                    {quizActivtyMetrics.totalAssignments}
                   </h3>
                 </div>
               </div>
-            </div> */}
+            </div>
 
-          {/* Upcoming Tests */}
-          {/* <div
-              className={`rounded-xl p-4 ${
+            {/* Upcoming Tests */}
+            <div
+              className={`flex flex-col justify-center rounded-xl p-4 ${
                 darkMode ? "bg-gray-800 bg-opacity-50" : "bg-white"
               } shadow-lg`}
             >
@@ -604,36 +637,15 @@ const ParentDashboard = ({ darkMode }) => {
                 </div>
                 <div className="ml-4">
                   <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Upcoming Tests
+                    Completed Quiz/Activity
                   </p>
                   <h3 className="text-xl font-semibold">
-                    {metrics.upcomingTests}
-                  </h3>
-                </div>
-              </div>
-            </div> */}
-
-          {/* Average Attendance */}
-          {/* <div
-              className={`rounded-xl p-4 ${
-                darkMode ? "bg-gray-800 bg-opacity-50" : "bg-white"
-              } shadow-lg`}
-            >
-              <div className="flex items-center">
-                <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
-                  <FaCalendarCheck className="h-6 w-6 text-purple-600 dark:text-purple-300" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Attendance Rate
-                  </p>
-                  <h3 className="text-xl font-semibold">
-                    {metrics.attendanceRate}%
+                    {quizActivtyMetrics.upcomingTests}
                   </h3>
                 </div>
               </div>
             </div>
-          </motion.div> */}
+          </motion.div>
 
           {/* Student Details Section */}
 
@@ -664,9 +676,14 @@ const ParentDashboard = ({ darkMode }) => {
 
           <motion.div
             variants={itemVariants}
-            className="grid grid-cols-1 lg:grid-cols-2 gap-4"
+            className="grid grid-cols-1 lg:grid-cols-2 gap-4 h-full"
           >
-            <ParentStudentProgressChart />
+            <motion.div variants={itemVariants} className="w-full h-full">
+              <PeerBenchmarking />
+            </motion.div>
+            <motion.div variants={itemVariants} className="w-full h-full">
+              <ParentStudentProgressChart />
+            </motion.div>
           </motion.div>
         </div>
 

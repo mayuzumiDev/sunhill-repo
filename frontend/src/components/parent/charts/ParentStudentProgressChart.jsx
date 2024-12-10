@@ -176,7 +176,7 @@ const ParentStudentProgressChart = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full">
+      <div className="flex items-center justify-center h-[400px]">
         <DotLoaderSpinner color="rgb(255, 159, 64)" />
       </div>
     );

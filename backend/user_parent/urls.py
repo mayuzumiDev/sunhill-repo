@@ -4,6 +4,7 @@ from .views.profile.parent_profile_views import *
 from .views.student.parent_student_list_view import *
 from .views.quizzes.student_scores_views import *
 from .views.analytics.analytics import *
+from .views.metrics.metrics_views import *
 
 urlpatterns = [
     # Parent Account Management
@@ -19,4 +20,7 @@ urlpatterns = [
     path('students/scores/', ParentStudentScoresView.as_view(), name='parent_student_scores'),
 
     path('analytics/student-progress/', parent_student_progress, name='parent-student-progress'),
+    path('analytics/peer-benchmarking/', peer_benchmarking, name='peer-benchmarking'),
+
+    path('metrics/', MetricsView.as_view(), name='metrics-view'),
 ]

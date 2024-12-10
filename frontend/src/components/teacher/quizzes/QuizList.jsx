@@ -51,7 +51,7 @@ const QuizList = ({
           onClick={() => onSetShowCreateQuiz(true)}
           className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 font-bold mb-6"
         >
-          Create Quiz/Activity
+          Create
         </button>
       )}
 
