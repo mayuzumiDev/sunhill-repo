@@ -16,7 +16,7 @@ import AdminInterface from "./pages/admin/AdminInterface";
 import PublicInterface from "./pages/public/PublicInterface";
 import TeacherInterface from "./pages/teacher/TeacherInterface";
 import StudentDashboard from "./pages/student/StudentInterface";
-import ParentInterfaceTemp from "./pages/parent/ParentInterfaceTemp";
+import ParentInterface from "./pages/parent/ParentInterface";
 import ForgotPassword from "./components/login/ForgotPassword";
 import OTPVerification from "./components/login/OTPVerifications";
 import CreateNewPassword from "./components/login/CreateNewPass";
@@ -95,7 +95,7 @@ const App = () => {
         path="/parent/interface/"
         element={
           <ProtectedRoute userRole="parent">
-            <ParentInterfaceTemp />
+            <ParentInterface />
           </ProtectedRoute>
         }
       />

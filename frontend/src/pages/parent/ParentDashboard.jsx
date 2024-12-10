@@ -18,6 +18,7 @@ import { axiosInstance } from "../../utils/axiosInstance";
 import HideScrollbar from "../../components/misc/HideScrollBar";
 import QuizScoreDonutChart from "../../components/parent/charts/QuizScoreDonutChart";
 import QuizScoreLineChart from "../../components/parent/charts/QuizScoreLineChart";
+import ParentStudentProgressChart from "../../components/parent/charts/ParentStudentProgressChart";
 // ... import other daily illustrations similarly
 
 // Add this new component at the top of the file
@@ -545,12 +546,12 @@ const ParentDashboard = ({ darkMode }) => {
           </motion.div>
 
           {/* Updated Metrics Grid */}
-          <motion.div
+          {/* <motion.div
             variants={itemVariants}
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
           >
             {/* Children Count */}
-            <div
+          {/* <div
               className={`rounded-xl p-4 ${
                 darkMode ? "bg-gray-800 bg-opacity-50" : "bg-white"
               } shadow-lg`}
@@ -567,11 +568,11 @@ const ParentDashboard = ({ darkMode }) => {
                     {metrics.totalStudents}
                   </h3>
                 </div>
-              </div>
-            </div>
+              </div> */}
+          {/* </div>  */}
 
-            {/* Total Assignments */}
-            <div
+          {/* Total Assignments */}
+          {/* <div
               className={`rounded-xl p-4 ${
                 darkMode ? "bg-gray-800 bg-opacity-50" : "bg-white"
               } shadow-lg`}
@@ -589,10 +590,10 @@ const ParentDashboard = ({ darkMode }) => {
                   </h3>
                 </div>
               </div>
-            </div>
+            </div> */}
 
-            {/* Upcoming Tests */}
-            <div
+          {/* Upcoming Tests */}
+          {/* <div
               className={`rounded-xl p-4 ${
                 darkMode ? "bg-gray-800 bg-opacity-50" : "bg-white"
               } shadow-lg`}
@@ -610,10 +611,10 @@ const ParentDashboard = ({ darkMode }) => {
                   </h3>
                 </div>
               </div>
-            </div>
+            </div> */}
 
-            {/* Average Attendance */}
-            <div
+          {/* Average Attendance */}
+          {/* <div
               className={`rounded-xl p-4 ${
                 darkMode ? "bg-gray-800 bg-opacity-50" : "bg-white"
               } shadow-lg`}
@@ -632,29 +633,40 @@ const ParentDashboard = ({ darkMode }) => {
                 </div>
               </div>
             </div>
-          </motion.div>
+          </motion.div> */}
 
           {/* Student Details Section */}
 
           {/* Charts Section */}
           <motion.div
             variants={itemVariants}
-            className="grid grid-cols-1 lg:grid-cols-2 gap-4"
+            className="flex flex-col lg:flex-row gap-4"
           >
             {quizScores.length > 0 && (
               <>
-                <QuizScoreDonutChart
-                  quizScores={quizScores}
-                  darkMode={darkMode}
-                  isLoading={isQuizScoresLoading}
-                />
-                <QuizScoreLineChart
-                  quizScores={quizScores}
-                  darkMode={darkMode}
-                  isLoading={isQuizScoresLoading}
-                />
+                <motion.div variants={itemVariants} className="w-full lg:w-1/2">
+                  <QuizScoreDonutChart
+                    quizScores={quizScores}
+                    darkMode={darkMode}
+                    isLoading={isQuizScoresLoading}
+                  />
+                </motion.div>
+                <motion.div variants={itemVariants} className="w-full lg:w-1/2">
+                  <QuizScoreLineChart
+                    quizScores={quizScores}
+                    darkMode={darkMode}
+                    isLoading={isQuizScoresLoading}
+                  />
+                </motion.div>
               </>
             )}
+          </motion.div>
+
+          <motion.div
+            variants={itemVariants}
+            className="grid grid-cols-1 lg:grid-cols-2 gap-4"
+          >
+            <ParentStudentProgressChart />
           </motion.div>
         </div>
 

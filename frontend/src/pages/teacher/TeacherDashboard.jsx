@@ -237,43 +237,33 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
     fetchClassroomMetrics();
   }, []);
 
-  // Update chart data fetch to include quiz insights
   useEffect(() => {
     const fetchChartData = async () => {
       setChartsLoading(true);
       try {
-        // Fetch all classrooms first
         const classroomsResponse = await axiosInstance.get(
           "/user-teacher/classroom/list/"
         );
         const classrooms = classroomsResponse.data.classroom_list;
 
-        let allQuizScores = [];
         let studentScores = {};
 
-        // For each classroom, fetch quizzes and their scores
         for (const classroom of classrooms) {
-          // Get quizzes for this classroom
           const quizzesResponse = await axiosInstance.get(
             `/user-teacher/quiz/list/?classroom_id=${classroom.id}`
           );
           const quizzes = quizzesResponse.data.quizzes;
 
-          // For each quiz, get scores
           for (const quiz of quizzes) {
             const scoresResponse = await axiosInstance.get(
               "/user-teacher/quiz-scores/list/",
               {
-                params: {
-                  classroom: classroom.id,
-                  quiz: quiz.id,
-                },
+                params: { classroom: classroom.id, quiz: quiz.id },
               }
             );
 
             const scores = scoresResponse.data.quiz_scores;
 
-            // Track individual student performance
             scores.forEach((score) => {
               if (!studentScores[score.student_name]) {
                 studentScores[score.student_name] = {
@@ -282,70 +272,20 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
                   scores: [],
                 };
               }
-              if (score.total_score !== null) {
+              // Use percentage_score directly from the backend
+              if (score.percentage_score !== null) {
                 studentScores[score.student_name].totalScore +=
-                  score.total_score;
+                  score.percentage_score;
                 studentScores[score.student_name].quizCount += 1;
                 studentScores[score.student_name].scores.push(
-                  score.total_score
+                  score.percentage_score
                 );
               }
-            });
-
-            // Calculate quiz completion data
-            const totalStudents = scores.length;
-            const submittedCount = scores.filter(
-              (score) => score.total_score !== null
-            ).length;
-            const totalScore = scores.reduce(
-              (sum, score) => sum + (score.total_score || 0),
-              0
-            );
-            const averageScore =
-              submittedCount > 0 ? totalScore / submittedCount : 0;
-
-            allQuizScores.push({
-              quiz_id: quiz.id,
-              quiz_title: quiz.title,
-              date_created: quiz.date_created,
-              total_students: totalStudents,
-              submitted_count: submittedCount,
-              average_score: averageScore,
             });
           }
         }
 
-        if (allQuizScores.length === 0) {
-          setAssignmentData({
-            labels: ["No Data Available"],
-            values: [0],
-          });
-          setPerformanceData({
-            labels: ["No Data Available"],
-            values: [0],
-          });
-          return;
-        }
-
-        // Sort by date and take last 5 quizzes for completion rates
-        allQuizScores.sort(
-          (a, b) => new Date(a.date_created) - new Date(b.date_created)
-        );
-        const recentQuizzes = allQuizScores.slice(-5);
-
-        // Process data for bar chart (completion rates)
-        setAssignmentData({
-          labels: recentQuizzes.map(
-            (item) => item.quiz_title || `Quiz ${item.quiz_id}`
-          ),
-          values: recentQuizzes.map((item) => {
-            const completionRate =
-              (item.submitted_count / item.total_students) * 100;
-            return Math.round(completionRate);
-          }),
-        });
-
-        // Process top 5 students by average score for line chart
+        // Calculate averages and prepare chart data
         const studentAverages = Object.entries(studentScores)
           .map(([name, data]) => ({
             name,
@@ -355,22 +295,14 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
           .sort((a, b) => b.averageScore - a.averageScore)
           .slice(0, 5);
 
-        // Set performance data for top students
         setPerformanceData({
           labels: studentAverages.map((student) => student.name),
           values: studentAverages.map((student) =>
             Math.round(student.averageScore)
           ),
         });
-
-        // Add this function to analyze student performance and generate warnings/suggestions
-        analyzeStudentPerformance(studentScores);
       } catch (error) {
-        console.error("Error fetching chart data:", error);
-        setAssignmentData({
-          labels: ["Error Loading Data"],
-          values: [0],
-        });
+        console.error("Error fetching data:", error);
         setPerformanceData({
           labels: ["Error Loading Data"],
           values: [0],
@@ -380,13 +312,8 @@ const TeacherDashboard = ({ darkMode, userName = "Teacher" }) => {
       }
     };
 
-    // Initial fetch
     fetchChartData();
-
-    // Optional: If you need periodic updates, use a longer interval
-    // const intervalId = setInterval(fetchChartData, 300000); // 5 minutes
-    // return () => clearInterval(intervalId);
-  }, []); // Empty dependency array for single execution
+  }, []);
 
   // Add new useEffect for generating insights
   useEffect(() => {

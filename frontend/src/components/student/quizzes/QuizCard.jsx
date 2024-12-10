@@ -28,9 +28,9 @@ const QuizCard = ({ quizData, onSelect }) => {
       <div className="relative z-10 flex flex-col md:flex-row w-full items-center space-y-4 md:space-y-0">
         {/* Title and Description Section */}
         <div className="flex-grow min-w-0">
-        <h2 className="font-bold text-xl md:text-2xl text-white mb-2 break-words">
-          {quizData.title}
-        </h2>
+          <h2 className="font-bold text-xl md:text-2xl text-white mb-2 break-words">
+            {quizData.title}
+          </h2>
 
           {quizData.description && (
             <p className="text-white/90 text-sm md:text-base mb-2 line-clamp-1">
@@ -43,7 +43,10 @@ const QuizCard = ({ quizData, onSelect }) => {
         <div className="flex flex-row md:space-x-6 items-center shrink-0">
           <div className="flex items-center px-2 md:px-4">
             <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white/20 flex items-center justify-center mr-2 md:mr-3">
-              <FontAwesomeIcon icon={faBook} className="text-white text-sm md:text-lg" />
+              <FontAwesomeIcon
+                icon={faBook}
+                className="text-white text-sm md:text-lg"
+              />
             </div>
             <p className="text-white/90 text-sm md:text-base max-w-[90px] md:max-w-[120px] truncate">
               <span className="font-bold truncate block">
@@ -58,14 +61,14 @@ const QuizCard = ({ quizData, onSelect }) => {
             <div className="flex items-center px-2 md:px-4 border-l border-white/20">
               <span className="h-3 w-3 md:h-4 md:w-4 rounded-full bg-red-500 mr-2 md:mr-3"></span>
               <span className="text-white/90 text-sm md:text-base font-medium">
-                Quiz past due date!
+                Quiz/Activity past due date!
               </span>
             </div>
           ) : quizData.has_submitted ? (
             <div className="flex items-center px-2 md:px-4 border-l border-white/20">
               <span className="h-3 w-3 md:h-4 md:w-4 rounded-full bg-green-300 mr-2 md:mr-3"></span>
               <span className="text-white/90 text-sm md:text-base font-medium">
-                Great job! Quiz completed!
+                Great job! Quiz/Activity completed!
               </span>
             </div>
           ) : (

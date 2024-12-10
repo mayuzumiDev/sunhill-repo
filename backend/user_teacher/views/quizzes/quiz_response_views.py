@@ -64,7 +64,7 @@ class QuizResponseCreateView(generics.CreateAPIView):
 class QuizScoreListView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = QuizScoreSerializer
-    
+
     def get_queryset(self):
         teacher_info = self.request.user.user_info.teacher_info
         classroom_id = self.request.query_params.get('classroom')
@@ -81,14 +81,24 @@ class QuizScoreListView(generics.ListAPIView):
         if quiz_id:
             filters['quiz_id'] = quiz_id
             
-        return QuizScore.objects.filter(
+        queryset = QuizScore.objects.filter(
             **filters
         ).select_related(
             'student__student_info__user',
             'quiz',
             'classroom'
         ).order_by('-created_at')
-    
+
+        # Log for debugging
+        for qs in queryset:
+            print(
+                f"Student: {qs.student.student_info.user.get_full_name()}, "
+                f"Score: {qs.total_score}, Max Possible: {qs.total_possible}, "
+                f"Percentage: {qs.total_score / qs.total_possible * 100 if qs.total_possible else 0}"
+            )
+
+        return queryset
+
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
         serializer = self.get_serializer(queryset, many=True)

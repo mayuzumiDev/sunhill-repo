@@ -26,7 +26,7 @@ const TodoQuizCard = ({ quiz, index, onClick }) => {
         {/* Optional: Add more quiz details here */}
         <div className="flex items-center space-x-2 text-sm text-gray-600">
           <span className="bg-purple-100 px-3 py-1 rounded-full">
-            {quiz.subject || "Quiz"}
+            {quiz.subject || "Quiz / Activity"}
           </span>
           {quiz.estimatedTime && (
             <span className="bg-pink-100 px-3 py-1 rounded-full">
@@ -39,7 +39,7 @@ const TodoQuizCard = ({ quiz, index, onClick }) => {
       {/* Start button */}
       <div className="mt-4 flex justify-end">
         <button className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 rounded-full text-sm font-semibold shadow-md hover:shadow-lg transition-all hover:scale-105 active:scale-95">
-          Start Quiz →
+          Start →
         </button>
       </div>
     </div>

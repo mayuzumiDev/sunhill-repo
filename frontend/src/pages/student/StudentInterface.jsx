@@ -258,7 +258,7 @@ const StudentDashboard = () => {
                     {/* Quizzes Card */}
                     <CardTiles
                       icon={faListCheck}
-                      title={"My Quizzes"}
+                      title={"My Quizzes & Activities"}
                       onClick={() => setShowQuizzes(true)}
                     />
                   </div>
@@ -355,15 +355,18 @@ const StudentDashboard = () => {
                     )}
                   </div>
                 )}
-             
+
                 {showQuizzes && (
                   <div className="bg-white p-4 sm:p-6 rounded-lg shadow-lg overflow-hidden scrollbar-hide lg:max-w-[1000px] xl:max-w-[1200px] mx-auto">
                     <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-purple-800 mb-4 truncate">
-                      {selectedQuiz ? selectedQuiz.title : "Your Quiz Journey"}
+                      {selectedQuiz
+                        ? selectedQuiz.title
+                        : "Your Quizzes & Activities"}
                     </h2>
                     {!selectedQuiz && (
                       <p className="text-gray-600 text-sm sm:text-base lg:text-lg mb-6">
-                        Here you can see all your quizzes - both the ones you need to take and the ones you've completed!
+                        Here you can see all your quizzes or activities - both
+                        the ones you need to take and the ones you've completed!
                       </p>
                     )}
                     <div className="flex flex-col space-y-2 px-2 sm:px-4 overflow-hidden scrollbar-hide">
@@ -437,10 +440,12 @@ const StudentDashboard = () => {
                                 )
                               }
                               disabled={
-                                currentPage >= Math.ceil(quizzes.length / itemsPerPage)
+                                currentPage >=
+                                Math.ceil(quizzes.length / itemsPerPage)
                               }
                               className={`px-3 py-1 sm:px-4 sm:py-2 rounded-md text-sm sm:text-base transition-all duration-300 ${
-                                currentPage >= Math.ceil(quizzes.length / itemsPerPage)
+                                currentPage >=
+                                Math.ceil(quizzes.length / itemsPerPage)
                                   ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                                   : "bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:shadow-lg transform hover:scale-105"
                               }`}
@@ -452,17 +457,17 @@ const StudentDashboard = () => {
                       ) : (
                         <>
                           <p className="text-gray-500 text-center text-sm sm:text-base">
-                            No Quizzes Right Now!
+                            No Quizzes/Activities Right Now!
                           </p>
                           <p className="text-gray-600 text-center text-sm sm:text-base">
-                            Time to take a break and come back later for some fun quiz challenges!
+                            Time to take a break and come back later for some
+                            fun quiz/activity challenges!
                           </p>
                         </>
                       )}
                     </div>
                   </div>
                 )}
-
               </div>
             )}
           </div>

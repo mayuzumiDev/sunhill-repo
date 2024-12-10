@@ -47,7 +47,7 @@ const ViewQuizScores = ({ darkMode }) => {
     >
       <HideScrollbar />
       <h1 className="text-2xl md:text-3xl font-bold mb-4 md:mb-6 text-orange-600">
-        Quiz Scores
+        Quiz/Activity Scores
       </h1>
 
       <div className="overflow-x-auto rounded-lg shadow-md bg-white overflow-hidden">
@@ -55,7 +55,7 @@ const ViewQuizScores = ({ darkMode }) => {
           <thead className="bg-gradient-to-r from-orange-100 to-orange-200">
             <tr>
               <th className="px-6 py-4 text-left text-sm font-semibold text-orange-800 uppercase tracking-wider">
-                Quiz Title
+                Title
               </th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-orange-800 uppercase tracking-wider">
                 Student Name

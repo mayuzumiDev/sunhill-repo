@@ -167,7 +167,8 @@ class QuizScoreSerializer(serializers.ModelSerializer):
     quiz_title = serializers.CharField(source='quiz.title', read_only=True)
     grade_level = serializers.CharField(source='student.grade_level', read_only=True)
     score_display = serializers.CharField(read_only=True)
-    
+    percentage_score = serializers.SerializerMethodField()
+
     class Meta:
         model = QuizScore
         fields = [
@@ -176,10 +177,15 @@ class QuizScoreSerializer(serializers.ModelSerializer):
             'status', 'score_display', 'grade_level', 'created_at'
         ]
         read_only_fields = fields
-    
+
     def get_student_name(self, obj):
         try:
             user = obj.student.student_info.user
             return f"{user.first_name} {user.last_name}"
         except AttributeError:
             return "Unknown Student"
+    
+    def get_percentage_score(self, obj):
+        if obj.total_possible and obj.total_possible > 0:
+            return (obj.total_score / obj.total_possible) * 100
+        return 0

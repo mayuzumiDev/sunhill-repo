@@ -193,7 +193,7 @@ const QuizDetailCard = ({
         <div className="flex justify-center items-center h-64">
           <DotLoaderSpinner color="#6B21A8" />
           {isSubmitting && (
-            <p className="ml-3 text-purple-600">Submitting your quiz...</p>
+            <p className="ml-3 text-purple-600">Submitting your answers...</p>
           )}
         </div>
       );
@@ -219,7 +219,7 @@ const QuizDetailCard = ({
 
           <div className="relative z-10">
             <h2 className="text-4xl font-bold text-purple-800 mb-8 text-center">
-              Quiz Results
+              Results
             </h2>
             <div className="space-y-6">
               <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-8 rounded-xl shadow-md">
@@ -261,7 +261,7 @@ const QuizDetailCard = ({
                 className="w-full bg-purple-600 text-white py-4 rounded-xl hover:bg-purple-700 
                          transition-all transform hover:scale-[1.02] text-xl font-bold shadow-lg"
               >
-                Back to More Fun Quizzes!
+                Back to More Fun Quizzes/Activities!
               </button>
             </div>
           </div>
@@ -346,7 +346,7 @@ const QuizDetailCard = ({
                    transition-all transform hover:scale-[1.02] font-bold text-lg shadow-lg
                    hover:shadow-xl active:scale-[0.98]"
         >
-          Start Your Quiz!
+          Start Your Challenge!
         </button>
 
         <button
@@ -354,7 +354,7 @@ const QuizDetailCard = ({
           className="w-full border-2 border-purple-600 text-purple-600 py-3 rounded-xl
                    hover:bg-purple-50 transition-all font-semibold"
         >
-          Want to see other quizzes? Let's go back!
+          Want to see other quizzes and activities? Let's go back!
         </button>
       </div>
     </div>
