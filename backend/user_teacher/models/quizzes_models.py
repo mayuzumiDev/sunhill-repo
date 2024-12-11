@@ -3,6 +3,10 @@ from .classroom_models import Classroom
 from user_admin.models.account_models import TeacherInfo, StudentInfo
 
 class Quiz(models.Model):
+    TYPE_CHOICES = [
+        ('quiz', 'Quiz'),
+        ('activity', 'Activity'),
+    ]
     classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE, related_name='quizzes')
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
@@ -10,6 +14,7 @@ class Quiz(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     due_date = models.DateTimeField(blank=True, null=True) 
+    type_of = models.CharField(max_length=20, choices=TYPE_CHOICES, default='quiz')
 
 
 class Question(models.Model):

@@ -15,6 +15,7 @@ class QuizCreateView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         classroom_id = self.request.data.get('classroom')
+        quiz_type = self.request.data.get('type_of')  # Retrieve the 'type' from the request data
         
         if not classroom_id:
             raise serializers.ValidationError({"classroom": "Classroom ID is required"})
@@ -46,6 +47,7 @@ class QuizCreateView(generics.CreateAPIView):
                 'message': 'Quiz created successfully',
                 'quiz': serializer.data,
                 'classroom_id': serializer.data.get('classroom'),
+                'type_of': serializer.data.get('type_of'),
                 'created_by': serializer.data.get('created_by_name'),
                 'created_at': serializer.data.get('created_at')
             }, status=status.HTTP_201_CREATED)
@@ -91,6 +93,11 @@ class QuizUpdateView(generics.UpdateAPIView):
             else:
                 serializer.save()
             
+            # Validate the `type` field if it is provided
+            quiz_type = request.data.get('type_of')
+            if quiz_type and quiz_type not in ['quiz', 'activity']:
+                raise serializers.ValidationError({"type_of": "Invalid type. Must be 'quiz' or 'activity'."})
+
             return JsonResponse({
                 'message': 'Quiz updated successfully',
                 'quiz': serializer.data
@@ -160,6 +167,8 @@ class QuizListView(generics.ListAPIView):
         queryset = self.filter_queryset(self.get_queryset())
         serializer = self.get_serializer(queryset, many=True)
         
+        print(serializer.data)
+
         return JsonResponse({
             'message': 'Quizzes retrieved successfully',
             'quizzes': serializer.data

@@ -8,6 +8,7 @@ const CreateQuiz = ({ classroomId, onQuizCreated, onError, onCancel }) => {
     title: "",
     description: "",
     dueDate: "",
+    type_of: "quiz",
   });
 
   const [dateError, setDateError] = useState("");
@@ -308,6 +309,7 @@ const CreateQuiz = ({ classroomId, onQuizCreated, onError, onCancel }) => {
         {
           title: formData.title,
           description: formData.description,
+          type_of: formData.type,
           due_date: formData.dueDate
             ? new Date(formData.dueDate).toISOString()
             : null,
@@ -362,6 +364,22 @@ const CreateQuiz = ({ classroomId, onQuizCreated, onError, onCancel }) => {
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-green-500"
               required
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-1">
+              Type
+            </label>
+            <select
+              name="type"
+              value={formData.type_of}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-green-500"
+              required
+            >
+              <option value="quiz">Quiz</option>
+              <option value="activity">Activity</option>
+            </select>
           </div>
 
           <div>
@@ -501,7 +519,7 @@ const CreateQuiz = ({ classroomId, onQuizCreated, onError, onCancel }) => {
                               );
                             }
                           }}
-                          className="h-4 w-4"
+                          className="h-4 w-4 accent-green-600"
                         />
                         <input
                           type="text"
@@ -523,11 +541,11 @@ const CreateQuiz = ({ classroomId, onQuizCreated, onError, onCancel }) => {
                       <button
                         type="button"
                         onClick={() => handleAddOption(questionIndex)}
-                        className="inline-flex items-center px-4 py-2 text-sm font-bold text-blue-700 bg-blue-50 rounded-lg hover:bg-blue-100 border border-transparent hover:border-blue-200 transition-all duration-200"
+                        className="inline-flex items-center px-4 py-2 text-sm font-bold text-green-700 bg-green-50 rounded-lg hover:bg-green-100 border border-transparent hover:border-green-200 transition-all duration-200"
                       >
                         <FontAwesomeIcon
                           icon={faPlus}
-                          className="w-4 h-4 mr-2 text-blue-600"
+                          className="w-4 h-4 mr-2 text-green-600"
                         />
                         Add Option
                       </button>
@@ -565,7 +583,7 @@ const CreateQuiz = ({ classroomId, onQuizCreated, onError, onCancel }) => {
                               e.target.value
                             )
                           }
-                          className="form-radio h-4 w-4 text-blue-600"
+                          className="form-radio h-4 w-4 accent-green-600"
                         />
                         <span className="ml-2">True</span>
                       </label>
@@ -582,7 +600,7 @@ const CreateQuiz = ({ classroomId, onQuizCreated, onError, onCancel }) => {
                               e.target.value
                             )
                           }
-                          className="form-radio h-4 w-4 text-blue-600"
+                          className="form-radio h-4 w-4 accent-green-600"
                         />
                         <span className="ml-2">False</span>
                       </label>
@@ -622,7 +640,7 @@ const CreateQuiz = ({ classroomId, onQuizCreated, onError, onCancel }) => {
             <button
               type="button"
               onClick={handleAddQuestion}
-              className="px-4 py-2 text-sm font-bold text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              className="px-4 py-2 text-sm font-bold text-white bg-green-600 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
             >
               Add Question
             </button>

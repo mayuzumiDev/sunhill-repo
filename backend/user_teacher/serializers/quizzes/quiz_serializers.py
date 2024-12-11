@@ -15,7 +15,8 @@ class QuizSerializer(serializers.ModelSerializer):
             'classroom', 
             'classroom_name', 
             'title', 
-            'description', 
+            'description',
+            'type_of',  
             'created_by', 
             'created_by_name', 
             'created_at', 
@@ -63,5 +64,10 @@ class QuizSerializer(serializers.ModelSerializer):
         # Check if due date is in the past
         if due_date < timezone.now():
             raise serializers.ValidationError({"due_date": "Due date cannot be in the past"})
+
+        # Validate type
+        quiz_type = data.get('type_of')
+        if quiz_type not in ['quiz', 'activity']:
+            raise serializers.ValidationError({"type_of": "Invalid type. Must be 'quiz' or 'activity'."})
         
         return data

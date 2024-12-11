@@ -37,9 +37,9 @@ const ClassroomActions = ({ onClose, classroomData }) => {
       });
 
       if (response.status === 200) {
-        // console.log("Received quizzes:", response.data.quizzes);
+        console.log("Received quizzes:", response.data.quizzes);
         const quizList = response.data.quizzes;
-        // console.log(quizList);
+        console.log(quizList);
         setQuizzes(response.data.quizzes);
       }
     } catch (error) {

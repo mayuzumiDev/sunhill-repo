@@ -13,6 +13,7 @@ const EditQuiz = ({
     title: "",
     description: "",
     dueDate: "",
+    type_of: "",
   });
 
   const [questions, setQuestions] = useState([]);
@@ -64,6 +65,7 @@ const EditQuiz = ({
           dueDate: quizData.due_date
             ? new Date(quizData.due_date).toISOString().slice(0, 16)
             : "",
+          type_of: quizData.type_of,
         });
 
         // Fetch questions for this quiz
@@ -404,7 +406,9 @@ const EditQuiz = ({
   return (
     <>
       <div className="bg-white p-6 rounded-lg shadow-md">
-        <h2 className="text-xl font-semibold mb-4">Quiz/Activity</h2>
+        <h2 className="text-xl font-semibold mb-4">
+          {formData.type_of === "quiz" ? "Edit Quiz" : "Edit Activity"}
+        </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-bold text-gray-700 mb-1">
