@@ -309,7 +309,7 @@ const CreateQuiz = ({ classroomId, onQuizCreated, onError, onCancel }) => {
         {
           title: formData.title,
           description: formData.description,
-          type_of: formData.type,
+          type_of: formData.type_of,
           due_date: formData.dueDate
             ? new Date(formData.dueDate).toISOString()
             : null,
@@ -361,6 +361,13 @@ const CreateQuiz = ({ classroomId, onQuizCreated, onError, onCancel }) => {
               name="title"
               value={formData.title}
               onChange={handleChange}
+              pattern="^[a-zA-Z0-9. ]+$"
+              onInvalid={(e) => {
+                e.target.setCustomValidity(
+                  "The title can only contain letters, numbers, spaces, and dots."
+                );
+              }}
+              onInput={(e) => e.target.setCustomValidity("")} // Clears error on input
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-green-500"
               required
             />
@@ -371,7 +378,7 @@ const CreateQuiz = ({ classroomId, onQuizCreated, onError, onCancel }) => {
               Type
             </label>
             <select
-              name="type"
+              name="type_of"
               value={formData.type_of}
               onChange={handleChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-green-500"
@@ -390,6 +397,12 @@ const CreateQuiz = ({ classroomId, onQuizCreated, onError, onCancel }) => {
               name="description"
               value={formData.description}
               onChange={handleChange}
+              pattern="^[a-zA-Z0-9. ]+$"
+              onInvalid={(e) => {
+                e.target.setCustomValidity(
+                  "The description can only contain letters, numbers, spaces, and dots."
+                );
+              }}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-green-500"
               rows="3"
             />

@@ -240,7 +240,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:5173",
     'http://127.0.0.1:8000',
     'http://31.170.165.140',
-    'http://sunhilllms.online',
+    'https://sunhilllms.online'
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -276,6 +276,8 @@ CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SAMESITE = 'Lax'
 
 CSRF_COOKIE_SAMESITE = 'Lax'
+
+DEFAULT_CHARSET = 'utf-8'
 
 # Email settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

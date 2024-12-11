@@ -561,7 +561,7 @@ const EditQuiz = ({
                               );
                             }
                           }}
-                          className="h-4 w-4"
+                          className="h-4 w-4 accent-green-600"
                         />
                         <input
                           type="text"
@@ -643,7 +643,7 @@ const EditQuiz = ({
                               e.target.value
                             )
                           }
-                          className="form-radio h-4 w-4 text-blue-600"
+                          className="form-radio h-4 w-4 accent-green-600"
                         />
                         <span className="ml-2">True</span>
                       </label>
@@ -660,7 +660,7 @@ const EditQuiz = ({
                               e.target.value
                             )
                           }
-                          className="form-radio h-4 w-4 text-blue-600"
+                          className="form-radio h-4 w-4 accent-green-600"
                         />
                         <span className="ml-2">False</span>
                       </label>
