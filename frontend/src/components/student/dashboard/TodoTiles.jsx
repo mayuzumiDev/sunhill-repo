@@ -26,7 +26,11 @@ const TodoQuizCard = ({ quiz, index, onClick }) => {
         {/* Optional: Add more quiz details here */}
         <div className="flex items-center space-x-2 text-sm text-gray-600">
           <span className="bg-purple-100 px-3 py-1 rounded-full">
-            {quiz.subject || "Quiz / Activity"}
+            {quiz.type_of === "quiz"
+              ? "Quiz"
+              : quiz.type_of === "activity"
+              ? "Activity"
+              : "Quiz / Activity"}
           </span>
           {quiz.estimatedTime && (
             <span className="bg-pink-100 px-3 py-1 rounded-full">

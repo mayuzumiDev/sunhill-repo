@@ -9,17 +9,20 @@ class StudentQuizListSerializer(serializers.ModelSerializer):
     subject_name = serializers.SerializerMethodField()
     has_submitted = serializers.SerializerMethodField()
     subject_display = serializers.SerializerMethodField()
+    score_details = serializers.SerializerMethodField()
 
     class Meta:
         model = Quiz
         fields = [
             'id',
             'title',
+            'type_of',
             'description',
             'classroom_details',
             'subject_name',
             'subject_display',
             'has_submitted',
+            'score_details',
             'due_date'
         ]
 
@@ -61,3 +64,25 @@ class StudentQuizListSerializer(serializers.ModelSerializer):
                 
         print("No request or user doesn't have user_info")
         return False
+
+    def get_score_details(self, obj):
+        request = self.context.get('request')
+        if request and hasattr(request.user, 'user_info'):
+            try:
+                student_info = StudentInfo.objects.get(student_info=request.user.user_info)
+                quiz_score = QuizScore.objects.filter(
+                    student=student_info,
+                    quiz=obj
+                ).first()
+
+                if quiz_score:
+                    return {
+                        'status': quiz_score.status,
+                        'total_score': quiz_score.total_score,
+                        'total_possible': quiz_score.total_possible,
+                        'percentage_score': float(quiz_score.percentage_score)
+                    }
+            except Exception as e:
+                print(f"Error fetching score details: {str(e)}")
+                return None
+        return None
