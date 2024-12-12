@@ -82,8 +82,8 @@ class StudentProfileUpdateView(APIView):
                 logger.info(f"Created new UserInfo for user {user.id}")
 
             # Update user info
-            if 'phone_number' in request.data:
-                phone_number = request.data['phone_number']
+            if 'user_info' in request.data and 'contact_no' in request.data['user_info']:
+                phone_number = request.data['user_info']['contact_no']
                 if phone_number:
                     if not self.validate_phone_number(phone_number):
                         return JsonResponse(
@@ -91,6 +91,7 @@ class StudentProfileUpdateView(APIView):
                             status=status.HTTP_400_BAD_REQUEST
                         )
                     user_info.contact_no = phone_number
+                    user_info.save()
 
             if 'email' in request.data:
                 user.email = request.data['email']

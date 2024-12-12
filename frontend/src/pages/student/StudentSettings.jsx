@@ -193,10 +193,12 @@ const StudentSettings = ({ onProfileUpdate }) => {
         first_name: firstName,
         last_name: lastName,
         email: formData.emailAddress,
-        contact_no: formData.phoneNumber,
         username: formData.username,
         student_info: {
           grade_level: formData.grade_level,
+        },
+        user_info: {
+          contact_no: formData.phoneNumber
         },
         branch_name: formData.branch_name,
       };
@@ -540,14 +542,9 @@ const StudentSettings = ({ onProfileUpdate }) => {
                   <label className="flex items-center text-base xs:text-lg font-semibold text-[#2B3A67] mb-2 xs:mb-3">
                     <FaTree className="mr-2 xs:mr-3 text-[#2B3A67]" /> Branch
                   </label>
-                  <input
-                    type="text"
-                    name="branch_name"
-                    value={formData.branch_name}
-                    onChange={handleInputChange}
-                    className="w-full px-3 xs:px-4 py-2 xs:py-3 rounded-lg xs:rounded-xl border-2 border-[#F7DC6F] focus:border-[#F2C464] focus:ring focus:ring-[#F7DC6F] text-base xs:text-lg bg-white bg-opacity-70"
-                    placeholder="Your branch 🌳"
-                  />
+                  <div className="w-full px-3 xs:px-4 py-2 xs:py-3 rounded-lg xs:rounded-xl border-2 border-[#FFC080] bg-white bg-opacity-70 text-base xs:text-lg">
+                    {formData.branch_name || "Not Set Yet 📚"}
+                  </div>
                 </motion.div>
               </div>
 
