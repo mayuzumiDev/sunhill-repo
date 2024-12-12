@@ -164,12 +164,27 @@ class QuizListView(generics.ListAPIView):
         return queryset
 
     def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
-        serializer = self.get_serializer(queryset, many=True)
-        
-        print(serializer.data)
-
-        return JsonResponse({
-            'message': 'Quizzes retrieved successfully',
-            'quizzes': serializer.data
-        }, status=status.HTTP_200_OK)
+        try:
+            queryset = self.filter_queryset(self.get_queryset())
+            serializer = self.get_serializer(queryset, many=True)
+            
+            import json
+            response_data = {
+                'message': 'Quizzes retrieved successfully',
+                'quizzes': serializer.data
+            }
+            
+            # Ensure proper JSON serialization with Unicode support
+            json_str = json.dumps(response_data, ensure_ascii=False)
+            
+            return Response(
+                json.loads(json_str),
+                status=status.HTTP_200_OK,
+                content_type='application/json; charset=utf-8'
+            )
+        except Exception as e:
+            return Response(
+                {'error': str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                content_type='application/json; charset=utf-8'
+            )
